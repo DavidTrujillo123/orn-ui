@@ -26,7 +26,7 @@ const useStyles = createStyles((theme) => ({
   },
   segmentActive: { backgroundColor: theme.colors.surface, ...theme.tokens.shadow.sm },
   label: { fontSize: theme.tokens.fontSize.sm, fontWeight: theme.tokens.fontWeight.medium, color: theme.colors.textLight },
-  labelActive: { color: theme.colors.primary, fontWeight: theme.tokens.fontWeight.semibold },
+  labelActive: { color: theme.colors.primaryText, fontWeight: theme.tokens.fontWeight.semibold },
 }));
 
 /**

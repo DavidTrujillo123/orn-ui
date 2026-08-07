@@ -110,13 +110,13 @@ const useStyles = createStyles((theme) => ({
   dayButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
   dayText: { fontSize: theme.tokens.fontSize.md, color: theme.colors.text },
   daySelected: { backgroundColor: theme.colors.primary },
-  dayTextSelected: { color: theme.colors.white, fontWeight: theme.tokens.fontWeight.bold },
+  dayTextSelected: { color: theme.colors.onPrimary, fontWeight: theme.tokens.fontWeight.bold },
   // El resaltado del tramo intermedio va en la celda (cuadrada, sin gaps) y
   // no en el botón redondo, así la barra del rango se ve continua.
-  cellInRange: { backgroundColor: theme.colors.primary + '1f' },
+  cellInRange: { backgroundColor: theme.colors.primarySoft },
   cellRangeStart: { borderTopLeftRadius: 18, borderBottomLeftRadius: 18 },
   cellRangeEnd: { borderTopRightRadius: 18, borderBottomRightRadius: 18 },
-  dayTextInRange: { color: theme.colors.primary, fontWeight: theme.tokens.fontWeight.semibold },
+  dayTextInRange: { color: theme.colors.primaryText, fontWeight: theme.tokens.fontWeight.semibold },
   dayToday: { borderWidth: 1, borderColor: theme.colors.primary },
   dayTextDisabled: { color: theme.colors.textLight, opacity: 0.4 },
 }));

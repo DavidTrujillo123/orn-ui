@@ -91,11 +91,12 @@ export const Alert = memo((props: AlertProps) => {
   if (!visible) return null;
 
   const iconColor: Record<AlertType, string> = {
-    success: colors.success,
-    error: colors.error,
-    warning: colors.warning,
-    question: colors.primary,
-    info: colors.secondary,
+    // Íconos sobre la superficie del diálogo: rol `*Text`, no el acento pleno.
+    success: colors.successText,
+    error: colors.errorText,
+    warning: colors.warningText,
+    question: colors.primaryText,
+    info: colors.secondaryText,
   };
 
   const effectiveButtons = resolveButtons(props, { confirm: labels.confirm, cancel: labels.cancel, close: labels.close });

@@ -21,6 +21,9 @@ interface UIContextValue {
 
 const UIContext = createContext<UIContextValue | undefined>(undefined);
 
+/** Una sola vez por sesión: en un re-render el aviso no aporta nada nuevo. */
+let warnedAboutInsets = false;
+
 export interface UIProviderProps {
   children: React.ReactNode;
   /** Par light/dark. Por defecto el theme de marca de la librería (créalo con createTheme()). */
@@ -69,6 +72,18 @@ export function UIProvider({
     },
     [isControlled, onModeChange]
   );
+
+  // Olvidar `insets` no rompe nada visible al montar: el default de ceros
+  // recién se nota cuando abrís un Modal `full` (se mete abajo del notch) o un
+  // BottomSheet (queda pegado a la barra de gestos). El aviso llega antes.
+  if (__DEV__ && insets === zeroInsets && !warnedAboutInsets) {
+    warnedAboutInsets = true;
+    console.warn(
+      'orn-ui: <UIProvider> sin `insets`, se usan {top:0,bottom:0,left:0,right:0}. ' +
+        'Los modales y el Screen quedan sin safe area. Pasá `insets={useSafeAreaInsets()}` ' +
+        "o usá <SafeAreaUIProvider> de 'orn-ui/safe-area', que lo cablea solo."
+    );
+  }
 
   const scheme: 'light' | 'dark' =
     mode === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : mode;

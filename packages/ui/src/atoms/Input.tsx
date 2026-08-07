@@ -37,7 +37,7 @@ const useStyles = createStyles((theme) => ({
     fontWeight: theme.tokens.fontWeight.medium,
     color: theme.colors.text,
   },
-  required: { color: theme.colors.error },
+  required: { color: theme.colors.errorText },
   inputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -55,7 +55,7 @@ const useStyles = createStyles((theme) => ({
   },
   leftIcon: { marginLeft: theme.tokens.spacing.lg, marginRight: -theme.tokens.spacing.xs },
   rightIcon: { padding: theme.tokens.spacing.sm + 2, marginRight: theme.tokens.spacing.xs },
-  errorText: { marginTop: theme.tokens.spacing.xs, fontSize: theme.tokens.fontSize.sm, color: theme.colors.error },
+  errorText: { marginTop: theme.tokens.spacing.xs, fontSize: theme.tokens.fontSize.sm, color: theme.colors.errorText },
 }));
 
 /**

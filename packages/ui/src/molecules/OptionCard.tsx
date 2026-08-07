@@ -29,14 +29,14 @@ const useStyles = createStyles((theme) => ({
   cardVertical: { width: '31%', padding: theme.tokens.spacing.sm, gap: 5, minHeight: 100 },
   cardSelected: {
     borderColor: theme.colors.primary,
-    backgroundColor: theme.colors.primary + '15',
+    backgroundColor: theme.colors.primarySoft,
     borderWidth: 1.5,
     elevation: 0,
     shadowOpacity: 0,
   },
   label: { color: theme.colors.textLight, fontWeight: theme.tokens.fontWeight.medium },
   labelVertical: { fontSize: theme.tokens.fontSize.xs, textAlign: 'center' },
-  labelSelected: { color: theme.colors.primary },
+  labelSelected: { color: theme.colors.primaryText },
 }));
 
 /**

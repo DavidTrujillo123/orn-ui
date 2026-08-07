@@ -28,7 +28,7 @@ export const Avatar = memo(({ size = 44, backgroundColor, children, style }: Ava
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: backgroundColor || colors.primary + '15',
+          backgroundColor: backgroundColor || colors.primarySoft,
         },
         style,
       ]}

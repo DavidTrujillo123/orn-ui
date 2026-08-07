@@ -57,7 +57,7 @@ const useStyles = createStyles((theme) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: theme.colors.surface + 'B3',
+    backgroundColor: theme.colors.scrim,
     zIndex: 10,
     justifyContent: 'center',
     alignItems: 'center',
@@ -147,7 +147,7 @@ export function SearchList<T>({
           <IconButton
             iconName="search"
             onPress={onScanPress}
-            color={colors.white}
+            color={colors.onPrimary}
             style={styles.scanButton}
             accessibilityLabel={scanAccessibilityLabel}
           />

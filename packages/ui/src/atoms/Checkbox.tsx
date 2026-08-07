@@ -32,6 +32,9 @@ export const Checkbox = memo(({ value, onValueChange, label, color, disabled, te
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
   const activeColor = color || colors.primary;
+  // El check va encima del relleno: con `color` propio no sabemos qué tono
+  // contrasta, así que ahí seguimos con blanco (decisión del consumidor).
+  const checkColor = color ? colors.white : colors.onPrimary;
   const progress = useRef(new Animated.Value(value ? 1 : 0)).current;
   const checkScale = useRef(new Animated.Value(value ? 1 : 0)).current;
 
@@ -61,7 +64,7 @@ export const Checkbox = memo(({ value, onValueChange, label, color, disabled, te
     >
       <Animated.View style={[styles.box, { backgroundColor, borderColor, opacity: disabled ? 0.5 : 1 }]}>
         <Animated.View style={{ transform: [{ scale: checkScale }] }}>
-          <Icon name="check" size={16} color={colors.white} />
+          <Icon name="check" size={16} color={checkColor} />
         </Animated.View>
       </Animated.View>
       {label && (

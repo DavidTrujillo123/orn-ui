@@ -82,8 +82,8 @@ export const Steps = memo(
     const isVertical = orientation === 'vertical';
 
     const colorsFor = (status: StepStatus) => {
-      if (status === 'completed') return { bg: colors.primary, border: colors.primary, fg: colors.white };
-      if (status === 'current') return { bg: 'transparent', border: colors.primary, fg: colors.primary };
+      if (status === 'completed') return { bg: colors.primary, border: colors.primary, fg: colors.onPrimary };
+      if (status === 'current') return { bg: 'transparent', border: colors.primary, fg: colors.primaryText };
       return { bg: 'transparent', border: colors.border, fg: colors.textLight };
     };
 

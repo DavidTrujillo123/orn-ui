@@ -25,7 +25,7 @@ const useStyles = createStyles((theme) => ({
   container: { gap: theme.tokens.spacing.sm },
   containerOpen: { zIndex: 20, elevation: 20 },
   label: { fontWeight: theme.tokens.fontWeight.bold, fontSize: theme.tokens.fontSize.md, color: theme.colors.text },
-  required: { color: theme.colors.error },
+  required: { color: theme.colors.errorText },
   field: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -64,10 +64,10 @@ const useStyles = createStyles((theme) => ({
     borderBottomColor: theme.colors.border,
   },
   optionRowLast: { borderBottomWidth: 0 },
-  optionRowSelected: { backgroundColor: theme.colors.primary + '15' },
+  optionRowSelected: { backgroundColor: theme.colors.primarySoft },
   optionText: { fontSize: theme.tokens.fontSize.lg - 1, color: theme.colors.text },
-  optionTextSelected: { fontWeight: theme.tokens.fontWeight.semibold, color: theme.colors.primary },
-  errorText: { fontSize: theme.tokens.fontSize.sm, color: theme.colors.error },
+  optionTextSelected: { fontWeight: theme.tokens.fontWeight.semibold, color: theme.colors.primaryText },
+  errorText: { fontSize: theme.tokens.fontSize.sm, color: theme.colors.errorText },
 }));
 
 /**

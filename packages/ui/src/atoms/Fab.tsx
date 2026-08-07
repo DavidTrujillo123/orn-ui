@@ -55,7 +55,7 @@ export const Fab = memo(
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
       >
-        {icon ?? <Icon name={iconName} size={size * 0.5} color={colors.white} />}
+        {icon ?? <Icon name={iconName} size={size * 0.5} color={colors.onPrimary} />}
       </PressableScale>
     );
   }

@@ -40,9 +40,9 @@ export interface ImageProps {
 }
 
 const useStyles = createStyles((theme) => ({
-  container: { overflow: 'hidden', backgroundColor: theme.colors.border + '30' },
+  container: { overflow: 'hidden', backgroundColor: theme.colors.skeleton },
   overlay: { alignItems: 'center', justifyContent: 'center' },
-  fallback: { flex: 1, backgroundColor: theme.colors.border + '30' },
+  fallback: { flex: 1, backgroundColor: theme.colors.skeleton },
 }));
 
 function sourceUri(source: ImageSourcePropType): string | undefined {

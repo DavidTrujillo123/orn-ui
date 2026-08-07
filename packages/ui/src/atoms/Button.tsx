@@ -65,19 +65,21 @@ function resolveColors(variant: ButtonVariant, disabled: boolean, colors: Return
     return { background: colors.inputBackground, text: colors.textLight, border: 'transparent' };
   }
   switch (variant) {
+    // Las variantes sin relleno pintan texto sobre el fondo de la pantalla:
+    // van con el rol `*Text`. Las rellenas van con `on*` sobre el acento.
     case 'outline':
-      return { background: 'transparent', text: colors.primary, border: colors.primary };
+      return { background: 'transparent', text: colors.primaryText, border: colors.primary };
     case 'ghost':
-      return { background: 'transparent', text: colors.primary, border: 'transparent' };
+      return { background: 'transparent', text: colors.primaryText, border: 'transparent' };
     case 'link':
-      return { background: 'transparent', text: colors.primary, border: 'transparent' };
+      return { background: 'transparent', text: colors.primaryText, border: 'transparent' };
     case 'secondary':
-      return { background: colors.secondary, text: colors.white, border: 'transparent' };
+      return { background: colors.secondary, text: colors.onSecondary, border: 'transparent' };
     case 'destructive':
-      return { background: colors.error, text: colors.white, border: 'transparent' };
+      return { background: colors.error, text: colors.onError, border: 'transparent' };
     case 'primary':
     default:
-      return { background: colors.primary, text: colors.white, border: 'transparent' };
+      return { background: colors.primary, text: colors.onPrimary, border: 'transparent' };
   }
 }
 

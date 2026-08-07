@@ -70,17 +70,25 @@ export const Toast = memo(
     const styles = useStyles();
     const allowFontScaling = useAllowFontScaling();
 
-    const accentColor: Record<ToastVariant, string> = {
+    // La barra lateral es relleno (acento pleno); el ícono es contenido
+    // sobre la superficie del toast y necesita el rol `*Text`.
+    const barColor: Record<ToastVariant, string> = {
       success: colors.success,
       error: colors.error,
       warning: colors.warning,
       info: colors.secondary,
     };
+    const iconColor: Record<ToastVariant, string> = {
+      success: colors.successText,
+      error: colors.errorText,
+      warning: colors.warningText,
+      info: colors.secondaryText,
+    };
 
     const body = (
       <View style={[styles.container, style]} testID={testID} accessibilityRole="alert">
-        <View style={[styles.accent, { backgroundColor: accentColor[variant] }]} />
-        <Icon name={ICON_BY_VARIANT[variant]} size={22} color={accentColor[variant]} />
+        <View style={[styles.accent, { backgroundColor: barColor[variant] }]} />
+        <Icon name={ICON_BY_VARIANT[variant]} size={22} color={iconColor[variant]} />
         <View style={styles.text}>
           <Text allowFontScaling={allowFontScaling} style={styles.title}>
             {title}

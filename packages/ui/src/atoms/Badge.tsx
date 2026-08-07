@@ -37,10 +37,12 @@ export const Badge = memo(({ label, variant = 'neutral', backgroundColor, textCo
   const { colors } = theme;
 
   const palette: Record<BadgeVariant, { bg: string; fg: string }> = {
-    success: { bg: colors.success + '20', fg: colors.success },
-    error: { bg: colors.error + '20', fg: colors.error },
-    warning: { bg: colors.warning + '20', fg: colors.warning },
-    info: { bg: colors.secondary + '20', fg: colors.secondary },
+    // fg es el rol `*Text`, no el acento pleno: el acento sobre su propio
+    // tinte da ~2.2:1 en light — el label quedaba ilegible.
+    success: { bg: colors.successSoft, fg: colors.successText },
+    error: { bg: colors.errorSoft, fg: colors.errorText },
+    warning: { bg: colors.warningSoft, fg: colors.warningText },
+    info: { bg: colors.secondarySoft, fg: colors.secondaryText },
     neutral: { bg: colors.inputBackground, fg: colors.textLight },
   };
 

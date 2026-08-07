@@ -30,7 +30,7 @@ function defaultFormat(date: Date, monthNames: string[]): string {
 const useStyles = createStyles((theme) => ({
   container: { marginBottom: theme.tokens.spacing.lg, width: '100%', gap: theme.tokens.spacing.sm },
   label: { fontSize: theme.tokens.fontSize.md, fontWeight: theme.tokens.fontWeight.medium, color: theme.colors.text },
-  required: { color: theme.colors.error },
+  required: { color: theme.colors.errorText },
   field: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -45,7 +45,7 @@ const useStyles = createStyles((theme) => ({
   fieldError: { borderColor: theme.colors.error },
   fieldText: { fontSize: theme.tokens.fontSize.lg, color: theme.colors.text },
   placeholder: { color: theme.colors.textLight },
-  errorText: { fontSize: theme.tokens.fontSize.sm, color: theme.colors.error },
+  errorText: { fontSize: theme.tokens.fontSize.sm, color: theme.colors.errorText },
 }));
 
 /**
