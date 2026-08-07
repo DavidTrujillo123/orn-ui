@@ -51,6 +51,11 @@ function buildExports() {
 
   exportsMap['./theme'] = subpathEntry('theme/index.ts', 'theme/index');
   exportsMap['./icons'] = subpathEntry('icons/index.ts', 'icons/index');
+  // Subpath propio y fuera del barrel principal a propósito: es el único
+  // archivo que importa react-native-safe-area-context (peer opcional). Si
+  // colgara de "." el bundler lo resolvería para todos y la librería dejaría
+  // de tener cero dependencias de runtime.
+  exportsMap['./safe-area'] = subpathEntry('safe-area/index.ts', 'safe-area/index');
   exportsMap['./package.json'] = './package.json';
 
   return exportsMap;
