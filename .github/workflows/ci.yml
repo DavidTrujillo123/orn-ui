@@ -17,7 +17,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 22.14
           cache: pnpm
 
       - name: Install dependencies
@@ -43,4 +43,7 @@ jobs:
 
       - name: Publish to npm
         if: startsWith(github.ref, 'refs/tags/v')
-        run: pnpm --filter orn-ui publish --no-git-checks --access public
+        working-directory: packages/ui
+        run: |
+          npm install -g npm@latest
+          npm publish --access public
