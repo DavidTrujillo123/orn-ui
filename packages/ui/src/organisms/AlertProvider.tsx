@@ -1,0 +1,125 @@
+import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { Alert, type AlertButton, type AlertType } from './Alert';
+
+export interface AlertOptions {
+  title: string;
+  message?: string;
+  type?: AlertType;
+  confirmText?: string;
+  cancelText?: string;
+}
+
+export interface ConfirmOptions extends AlertOptions {
+  /** Botón de confirmar en rojo/destructivo (para "eliminar", etc). */
+  destructive?: boolean;
+}
+
+interface AlertContextValue {
+  /** Muestra un alert de un solo botón. Resuelve cuando se cierra. */
+  alert: (options: AlertOptions) => Promise<void>;
+  /** Muestra confirmar/cancelar. Resuelve true si se confirmó, false si se canceló. */
+  confirm: (options: ConfirmOptions) => Promise<boolean>;
+  hide: () => void;
+}
+
+const AlertContext = createContext<AlertContextValue | undefined>(undefined);
+
+interface InternalState {
+  visible: boolean;
+  title: string;
+  message?: string;
+  type: AlertType;
+  buttons: AlertButton[];
+}
+
+const HIDDEN: InternalState = { visible: false, title: '', type: 'info', buttons: [] };
+
+/**
+ * AlertProvider
+ * Monta un único <Alert> controlado imperativamente. Colocar una vez cerca
+ * de la raíz (dentro de UIProvider). Los handlers async pueden hacer
+ * `const ok = await confirm({ title: 'Eliminar', destructive: true })`.
+ */
+export function AlertProvider({ children }: { children: React.ReactNode }) {
+  const [state, setState] = useState<InternalState>(HIDDEN);
+  const resolverRef = useRef<((value: any) => void) | null>(null);
+
+  const hide = useCallback(() => {
+    setState(HIDDEN);
+    resolverRef.current?.(undefined);
+    resolverRef.current = null;
+  }, []);
+
+  const alertFn = useCallback((options: AlertOptions): Promise<void> => {
+    return new Promise((resolve) => {
+      resolverRef.current = resolve;
+      setState({
+        visible: true,
+        title: options.title,
+        message: options.message,
+        type: options.type ?? 'info',
+        buttons: [
+          {
+            text: options.confirmText ?? 'OK',
+            onPress: () => {
+              setState(HIDDEN);
+              resolve();
+              resolverRef.current = null;
+            },
+          },
+        ],
+      });
+    });
+  }, []);
+
+  const confirmFn = useCallback((options: ConfirmOptions): Promise<boolean> => {
+    return new Promise((resolve) => {
+      resolverRef.current = resolve;
+      setState({
+        visible: true,
+        title: options.title,
+        message: options.message,
+        type: options.type ?? 'question',
+        buttons: [
+          {
+            text: options.cancelText ?? 'Cancel',
+            style: 'cancel',
+            variant: 'outline',
+            onPress: () => {
+              setState(HIDDEN);
+              resolve(false);
+              resolverRef.current = null;
+            },
+          },
+          {
+            text: options.confirmText ?? 'OK',
+            variant: options.destructive ? 'destructive' : 'primary',
+            style: options.destructive ? 'destructive' : 'default',
+            onPress: () => {
+              setState(HIDDEN);
+              resolve(true);
+              resolverRef.current = null;
+            },
+          },
+        ],
+      });
+    });
+  }, []);
+
+  const value = useMemo<AlertContextValue>(() => ({ alert: alertFn, confirm: confirmFn, hide }), [alertFn, confirmFn, hide]);
+
+  return (
+    <AlertContext.Provider value={value}>
+      {children}
+      <Alert visible={state.visible} title={state.title} message={state.message} type={state.type} buttons={state.buttons} onClose={hide} />
+    </AlertContext.Provider>
+  );
+}
+
+export function useAlert(): AlertContextValue {
+  const ctx = useContext(AlertContext);
+  if (!ctx) {
+    throw new Error('orn-ui: useAlert must be used within an <AlertProvider>.');
+  }
+  return ctx;
+}
