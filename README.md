@@ -33,6 +33,9 @@ import { UIProvider } from 'orn-ui/theme';
 import { Button } from 'orn-ui/button';
 ```
 
+One subpath is special: `orn-ui/safe-area` (see [Safe area](#safe-area)) is the
+only file that imports a third-party package, and it's an optional peer.
+
 **3. Copy the source into your project, no npm dependency**
 
 ```bash
@@ -71,6 +74,54 @@ manual override) and injects theme, icons, safe-area insets and labels to
 the whole tree. `mode` can be `'system' | 'light' | 'dark'`, controlled via
 `mode`/`onModeChange` or left uncontrolled with `defaultMode`.
 
+### Safe area
+
+The library never imports `react-native-safe-area-context` — that's what keeps
+it dependency-free. It reads plain numbers from `insets`, which default to
+`{ top: 0, bottom: 0, left: 0, right: 0 }`. With zeros, `Screen` and the
+`full`/`bottomSheet` modal variants render under the notch and against the
+gesture bar, so wire them one of two ways.
+
+**Automatic** — one import, insets measured for you:
+
+```tsx
+import { SafeAreaUIProvider } from 'orn-ui/safe-area';
+
+export default function App() {
+  return (
+    <SafeAreaUIProvider defaultMode="system">
+      <RootNavigator />
+    </SafeAreaUIProvider>
+  );
+}
+```
+
+This subpath — and only this subpath — imports `react-native-safe-area-context`.
+It's declared as an **optional** peer dependency: `import { Button } from 'orn-ui'`
+never reaches that file, so the bundler never resolves it and installs that skip
+the package keep working. `SafeAreaUIProvider` mounts `<SafeAreaProvider>` for
+you; pass `mountSafeAreaProvider={false}` if your app already has one higher up.
+
+**Manual** — if you'd rather not add the peer, or already call the hook:
+
+```tsx
+import { UIProvider } from 'orn-ui';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
+
+function Providers({ children }) {
+  return <UIProvider insets={useSafeAreaInsets()}>{children}</UIProvider>;
+}
+
+// useSafeAreaInsets() only works *inside* SafeAreaProvider:
+<SafeAreaProvider><Providers>{app}</Providers></SafeAreaProvider>;
+```
+
+Any object with `top`/`bottom`/`left`/`right` works — the library doesn't care
+where the numbers come from.
+
+Omitting `insets` logs a one-time `__DEV__` warning, since the failure is
+otherwise silent until someone opens a modal.
+
 ## Component catalog
 
 **Atoms** — `Title`/`Subtitle`/`Body`/`Caption`, `Button`, `IconButton`,
@@ -105,6 +156,30 @@ theme tokens — no magic numbers. Icons are swappable too: pass your own
 `icons` renderer to `UIProvider` to replace the built-in zero-dependency
 glyphs.
 
+### Color roles
+
+Each accent (`primary`, `secondary`, `success`, `error`, `warning`) ships in
+four roles, and they are not interchangeable:
+
+| Role | Use for | Example |
+| --- | --- | --- |
+| `primary` | solid fill | button background, selected day, FAB |
+| `onPrimary` | text/icon **on** that fill | the label inside a primary button |
+| `primarySoft` | tinted background | selected row, avatar circle, badge pill |
+| `primaryText` | accent-colored text/icon on `surface`, `background` or its own `*Soft` | link button, badge label, error message |
+
+Override only what you need — `createTheme` deep-merges, so the untouched
+roles keep their defaults:
+
+```tsx
+createTheme({ dark: { colors: { primary: '#7ba4ff', onPrimary: '#00205c' } } });
+```
+
+Every default pair clears WCAG AA (4.5:1) in both schemes, enforced by
+`src/theme/__tests__/palettes.test.ts`. If you override an accent, override
+its `on*`/`*Text` companions too — a light fill with light text fails the
+same way whether the library or your theme picked it.
+
 ## Repo structure
 
 Monorepo (pnpm workspaces):
@@ -119,6 +194,53 @@ repo (`orn-ui-docs`) — it's a public deployable artifact with its own
 release cycle, unlike `apps/example` which stays in this monorepo so it
 always builds against the current source via `workspace:*`.
 
+## Running the example app
+
+`apps/example` is an Expo app that browses the whole catalog — one screen per
+component with its variants, plus an **Examples** tab with full integration
+flows (invoice form, sign in, settings, order tracking, client list, checkout
+wizard). It builds against `packages/ui/src` directly through `workspace:*`,
+so edits to the library show up on reload with no rebuild step.
+
+**Requirements:** Node 20+, [pnpm](https://pnpm.io) 10+, and the
+[Expo Go](https://expo.dev/go) app on your phone (or Xcode / Android Studio
+for a simulator).
+
+```bash
+git clone https://github.com/DavidTrujillo123/orn-ui.git
+cd orn-ui
+pnpm install
+pnpm example                       # = pnpm --filter example start
+```
+
+That starts the Metro dev server and prints a QR code. Then:
+
+| Target | How |
+| --- | --- |
+| Physical device | Scan the QR with Expo Go (Android) or the Camera app (iOS) |
+| iOS simulator | Press `i` in the terminal |
+| Android emulator | Press `a` |
+| Web browser | Press `w` |
+
+Useful keys while it runs: `r` reloads the app, `j` opens the debugger, `m`
+toggles the dev menu, `Ctrl+C` stops the server.
+
+The dev server takes port `8081`. If it's already in use:
+
+```bash
+pnpm --filter example start -- --port 8082   # or free it: lsof -ti:8081 | xargs kill -9
+```
+
+Cache acting up after a dependency change:
+
+```bash
+pnpm --filter example start -- --clear
+```
+
+Expo Go covers everything in this app — it has no custom native modules. You
+only need a native build (`pnpm --filter example ios` / `android`, which run
+`expo run:*` and require Xcode / Android Studio) if you add one.
+
 ## Development
 
 ```bash
@@ -127,7 +249,7 @@ pnpm --filter orn-ui test          # or test:coverage
 pnpm --filter orn-ui typecheck
 pnpm --filter orn-ui build         # gen:exports + build:registry + bob build
 pnpm --filter example typecheck
-pnpm --filter example start        # Expo dev server for apps/example
+pnpm example                       # Expo dev server for apps/example
 ```
 
 `packages/ui`'s `build`/`prepare` scripts, in order:
@@ -146,7 +268,8 @@ list of components anywhere that can drift from the source.
 
 ## CI
 
-On every push/PR: install, exports-map freshness check, typecheck (library +
+Runs on pushed tags (`git tag v0.1.1 && git push origin v0.1.1`): install,
+exports-map freshness check, typecheck (library +
 example app), tests with the coverage gate, build, and a CLI smoke test that
 runs `orn-ui add --all` into `apps/example` and typechecks the result —
 end-to-end proof the install-by-component flow actually produces valid code,
