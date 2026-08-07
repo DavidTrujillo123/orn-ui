@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck orn-ui
+        run: pnpm --filter orn-ui typecheck
+
+      - name: Typecheck example app
+        run: pnpm --filter example typecheck
+
+      - name: Test (with coverage gate — 90% lines / 85% branches)
+        run: pnpm --filter orn-ui test:coverage
+
+      - name: Build orn-ui (commonjs + module + typescript)
+        run: pnpm --filter orn-ui build
