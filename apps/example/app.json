@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "orn-ui example",
+    "slug": "orn-ui-example",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "scheme": "ornui",
+    "userInterfaceStyle": "automatic",
+    "plugins": [
+      "expo-router"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static"
+    },
+    "ios": {
+      "bundleIdentifier": "com.anonymous.orn-ui-example"
+    }
+  }
+}
