@@ -23,6 +23,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Check subpath exports are up to date with src/
+        run: pnpm --filter orn-ui gen:exports:check
+
       - name: Typecheck orn-ui
         run: pnpm --filter orn-ui typecheck
 
@@ -34,3 +37,6 @@ jobs:
 
       - name: Build orn-ui (commonjs + module + typescript)
         run: pnpm --filter orn-ui build
+
+      - name: Smoke test the install CLI (installs --all into apps/example, typechecks it)
+        run: pnpm --filter orn-ui test:cli

@@ -8,9 +8,14 @@
   "react-native": "src/index.ts",
   "source": "src/index.ts",
   "sideEffects": false,
+  "bin": {
+    "orn-ui": "./bin/orn-ui.mjs"
+  },
   "files": [
     "src",
     "lib",
+    "bin",
+    "registry",
     "!**/__tests__",
     "!**/*.test.*"
   ],
@@ -20,14 +25,238 @@
       "react-native": "./src/index.ts",
       "default": "./lib/module/index.js"
     },
+    "./title": {
+      "types": "./lib/typescript/atoms/Text.d.ts",
+      "react-native": "./src/atoms/Text.tsx",
+      "default": "./lib/module/atoms/Text.js"
+    },
+    "./subtitle": {
+      "types": "./lib/typescript/atoms/Text.d.ts",
+      "react-native": "./src/atoms/Text.tsx",
+      "default": "./lib/module/atoms/Text.js"
+    },
+    "./body": {
+      "types": "./lib/typescript/atoms/Text.d.ts",
+      "react-native": "./src/atoms/Text.tsx",
+      "default": "./lib/module/atoms/Text.js"
+    },
+    "./caption": {
+      "types": "./lib/typescript/atoms/Text.d.ts",
+      "react-native": "./src/atoms/Text.tsx",
+      "default": "./lib/module/atoms/Text.js"
+    },
+    "./button": {
+      "types": "./lib/typescript/atoms/Button.d.ts",
+      "react-native": "./src/atoms/Button.tsx",
+      "default": "./lib/module/atoms/Button.js"
+    },
+    "./icon-button": {
+      "types": "./lib/typescript/atoms/IconButton.d.ts",
+      "react-native": "./src/atoms/IconButton.tsx",
+      "default": "./lib/module/atoms/IconButton.js"
+    },
+    "./input": {
+      "types": "./lib/typescript/atoms/Input.d.ts",
+      "react-native": "./src/atoms/Input.tsx",
+      "default": "./lib/module/atoms/Input.js"
+    },
+    "./checkbox": {
+      "types": "./lib/typescript/atoms/Checkbox.d.ts",
+      "react-native": "./src/atoms/Checkbox.tsx",
+      "default": "./lib/module/atoms/Checkbox.js"
+    },
+    "./badge": {
+      "types": "./lib/typescript/atoms/Badge.d.ts",
+      "react-native": "./src/atoms/Badge.tsx",
+      "default": "./lib/module/atoms/Badge.js"
+    },
+    "./card": {
+      "types": "./lib/typescript/atoms/Card.d.ts",
+      "react-native": "./src/atoms/Card.tsx",
+      "default": "./lib/module/atoms/Card.js"
+    },
+    "./divider": {
+      "types": "./lib/typescript/atoms/Divider.d.ts",
+      "react-native": "./src/atoms/Divider.tsx",
+      "default": "./lib/module/atoms/Divider.js"
+    },
+    "./avatar": {
+      "types": "./lib/typescript/atoms/Avatar.d.ts",
+      "react-native": "./src/atoms/Avatar.tsx",
+      "default": "./lib/module/atoms/Avatar.js"
+    },
+    "./spinner": {
+      "types": "./lib/typescript/atoms/Spinner.d.ts",
+      "react-native": "./src/atoms/Spinner.tsx",
+      "default": "./lib/module/atoms/Spinner.js"
+    },
+    "./empty-state": {
+      "types": "./lib/typescript/atoms/EmptyState.d.ts",
+      "react-native": "./src/atoms/EmptyState.tsx",
+      "default": "./lib/module/atoms/EmptyState.js"
+    },
+    "./key-value-row": {
+      "types": "./lib/typescript/atoms/KeyValueRow.d.ts",
+      "react-native": "./src/atoms/KeyValueRow.tsx",
+      "default": "./lib/module/atoms/KeyValueRow.js"
+    },
+    "./fab": {
+      "types": "./lib/typescript/atoms/Fab.d.ts",
+      "react-native": "./src/atoms/Fab.tsx",
+      "default": "./lib/module/atoms/Fab.js"
+    },
+    "./pressable-scale": {
+      "types": "./lib/typescript/atoms/PressableScale.d.ts",
+      "react-native": "./src/atoms/PressableScale.tsx",
+      "default": "./lib/module/atoms/PressableScale.js"
+    },
+    "./stepper": {
+      "types": "./lib/typescript/molecules/Stepper.d.ts",
+      "react-native": "./src/molecules/Stepper.tsx",
+      "default": "./lib/module/molecules/Stepper.js"
+    },
+    "./option-card": {
+      "types": "./lib/typescript/molecules/OptionCard.d.ts",
+      "react-native": "./src/molecules/OptionCard.tsx",
+      "default": "./lib/module/molecules/OptionCard.js"
+    },
+    "./info-row": {
+      "types": "./lib/typescript/molecules/InfoRow.d.ts",
+      "react-native": "./src/molecules/InfoRow.tsx",
+      "default": "./lib/module/molecules/InfoRow.js"
+    },
+    "./form-actions": {
+      "types": "./lib/typescript/molecules/FormActions.d.ts",
+      "react-native": "./src/molecules/FormActions.tsx",
+      "default": "./lib/module/molecules/FormActions.js"
+    },
+    "./avatar-header": {
+      "types": "./lib/typescript/molecules/AvatarHeader.d.ts",
+      "react-native": "./src/molecules/AvatarHeader.tsx",
+      "default": "./lib/module/molecules/AvatarHeader.js"
+    },
+    "./theme-toggle": {
+      "types": "./lib/typescript/molecules/ThemeToggle.d.ts",
+      "react-native": "./src/molecules/ThemeToggle.tsx",
+      "default": "./lib/module/molecules/ThemeToggle.js"
+    },
+    "./steps": {
+      "types": "./lib/typescript/molecules/Steps.d.ts",
+      "react-native": "./src/molecules/Steps.tsx",
+      "default": "./lib/module/molecules/Steps.js"
+    },
+    "./modal": {
+      "types": "./lib/typescript/organisms/Modal.d.ts",
+      "react-native": "./src/organisms/Modal.tsx",
+      "default": "./lib/module/organisms/Modal.js"
+    },
+    "./bottom-sheet": {
+      "types": "./lib/typescript/organisms/BottomSheet.d.ts",
+      "react-native": "./src/organisms/BottomSheet.tsx",
+      "default": "./lib/module/organisms/BottomSheet.js"
+    },
+    "./select": {
+      "types": "./lib/typescript/organisms/Select.d.ts",
+      "react-native": "./src/organisms/Select.tsx",
+      "default": "./lib/module/organisms/Select.js"
+    },
+    "./alert": {
+      "types": "./lib/typescript/organisms/Alert.d.ts",
+      "react-native": "./src/organisms/Alert.tsx",
+      "default": "./lib/module/organisms/Alert.js"
+    },
+    "./alert-provider": {
+      "types": "./lib/typescript/organisms/AlertProvider.d.ts",
+      "react-native": "./src/organisms/AlertProvider.tsx",
+      "default": "./lib/module/organisms/AlertProvider.js"
+    },
+    "./use-alert": {
+      "types": "./lib/typescript/organisms/AlertProvider.d.ts",
+      "react-native": "./src/organisms/AlertProvider.tsx",
+      "default": "./lib/module/organisms/AlertProvider.js"
+    },
+    "./screen": {
+      "types": "./lib/typescript/organisms/Screen.d.ts",
+      "react-native": "./src/organisms/Screen.tsx",
+      "default": "./lib/module/organisms/Screen.js"
+    },
+    "./list": {
+      "types": "./lib/typescript/organisms/List.d.ts",
+      "react-native": "./src/organisms/List.tsx",
+      "default": "./lib/module/organisms/List.js"
+    },
+    "./search-list": {
+      "types": "./lib/typescript/organisms/SearchList.d.ts",
+      "react-native": "./src/organisms/SearchList.tsx",
+      "default": "./lib/module/organisms/SearchList.js"
+    },
+    "./toast": {
+      "types": "./lib/typescript/organisms/Toast.d.ts",
+      "react-native": "./src/organisms/Toast.tsx",
+      "default": "./lib/module/organisms/Toast.js"
+    },
+    "./toast-provider": {
+      "types": "./lib/typescript/organisms/ToastProvider.d.ts",
+      "react-native": "./src/organisms/ToastProvider.tsx",
+      "default": "./lib/module/organisms/ToastProvider.js"
+    },
+    "./use-toast": {
+      "types": "./lib/typescript/organisms/ToastProvider.d.ts",
+      "react-native": "./src/organisms/ToastProvider.tsx",
+      "default": "./lib/module/organisms/ToastProvider.js"
+    },
+    "./date-picker": {
+      "types": "./lib/typescript/organisms/DatePicker.d.ts",
+      "react-native": "./src/organisms/DatePicker.tsx",
+      "default": "./lib/module/organisms/DatePicker.js"
+    },
+    "./build-month-grid": {
+      "types": "./lib/typescript/organisms/DatePicker.d.ts",
+      "react-native": "./src/organisms/DatePicker.tsx",
+      "default": "./lib/module/organisms/DatePicker.js"
+    },
+    "./default-month-names": {
+      "types": "./lib/typescript/organisms/DatePicker.d.ts",
+      "react-native": "./src/organisms/DatePicker.tsx",
+      "default": "./lib/module/organisms/DatePicker.js"
+    },
+    "./default-weekday-names": {
+      "types": "./lib/typescript/organisms/DatePicker.d.ts",
+      "react-native": "./src/organisms/DatePicker.tsx",
+      "default": "./lib/module/organisms/DatePicker.js"
+    },
+    "./date-field": {
+      "types": "./lib/typescript/organisms/DateField.d.ts",
+      "react-native": "./src/organisms/DateField.tsx",
+      "default": "./lib/module/organisms/DateField.js"
+    },
+    "./wizard": {
+      "types": "./lib/typescript/organisms/Wizard.d.ts",
+      "react-native": "./src/organisms/Wizard.tsx",
+      "default": "./lib/module/organisms/Wizard.js"
+    },
+    "./theme": {
+      "types": "./lib/typescript/theme/index.d.ts",
+      "react-native": "./src/theme/index.ts",
+      "default": "./lib/module/theme/index.js"
+    },
+    "./icons": {
+      "types": "./lib/typescript/icons/index.d.ts",
+      "react-native": "./src/icons/index.ts",
+      "default": "./lib/module/icons/index.js"
+    },
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "bob build",
+    "gen:exports": "node scripts/gen-exports.mjs",
+    "gen:exports:check": "node scripts/gen-exports.mjs --check",
+    "build:registry": "node scripts/build-registry.mjs",
+    "test:cli": "node scripts/smoke-test-cli.mjs",
+    "build": "node scripts/gen-exports.mjs && node scripts/build-registry.mjs && bob build",
     "typecheck": "tsc --noEmit",
     "test": "jest",
     "test:coverage": "jest --coverage",
-    "prepare": "bob build"
+    "prepare": "node scripts/gen-exports.mjs && node scripts/build-registry.mjs && bob build"
   },
   "peerDependencies": {
     "react": ">=18.0.0",
