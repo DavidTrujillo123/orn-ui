@@ -304,6 +304,15 @@
     "atomic-design"
   ],
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DavidTrujillo123/orn-ui.git",
+    "directory": "packages/ui"
+  },
+  "homepage": "https://github.com/DavidTrujillo123/orn-ui#readme",
+  "bugs": {
+    "url": "https://github.com/DavidTrujillo123/orn-ui/issues"
+  },
   "publishConfig": {
     "access": "public"
   },
