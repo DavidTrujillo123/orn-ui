@@ -16,6 +16,12 @@ import {
 
 const SHIPPING_COST = 12;
 
+// Fuera del render: `new Date()` adentro devuelve un objeto distinto en cada
+// pasada, y DateField recibe un `minDate` nuevo cada vez que se tipea en
+// cualquier campo del wizard.
+const TODAY = new Date();
+const IN_TWO_MONTHS = new Date(TODAY.getFullYear(), TODAY.getMonth() + 2, TODAY.getDate());
+
 /**
  * CheckoutWizardExample
  * Checkout de 4 pasos que ata Wizard + Steps con validación real por paso:
@@ -32,8 +38,6 @@ export function CheckoutWizardExample() {
   const [accepted, setAccepted] = useState(false);
 
   const emailValid = /.+@.+\..+/.test(email);
-  const today = new Date();
-  const inTwoMonths = new Date(today.getFullYear(), today.getMonth() + 2, today.getDate());
 
   const steps: WizardStep[] = [
     {
@@ -65,8 +69,8 @@ export function CheckoutWizardExample() {
             required
             value={deliveryDate}
             onChange={setDeliveryDate}
-            minDate={today}
-            maxDate={inTwoMonths}
+            minDate={TODAY}
+            maxDate={IN_TWO_MONTHS}
           />
         </View>
       ),
@@ -77,9 +81,12 @@ export function CheckoutWizardExample() {
       content: (
         <View style={{ gap: 12 }}>
           <Caption>How would you like to pay?</Caption>
+          {/* layout="horizontal" y no el vertical por defecto: ese fija
+              width:'31%' (pensado para grillas de tres) y con dos opciones
+              dejaba un tercio de la fila vacío a la derecha. */}
           <View style={{ flexDirection: 'row', gap: 8 }}>
-            <OptionCard label="Card" iconName="check" isSelected={payment === 'card'} onPress={() => setPayment('card')} />
-            <OptionCard label="Cash" iconName="info" isSelected={payment === 'cash'} onPress={() => setPayment('cash')} />
+            <OptionCard layout="horizontal" label="Card" iconName="check" isSelected={payment === 'card'} onPress={() => setPayment('card')} />
+            <OptionCard layout="horizontal" label="Cash" iconName="info" isSelected={payment === 'cash'} onPress={() => setPayment('cash')} />
           </View>
         </View>
       ),

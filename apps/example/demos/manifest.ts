@@ -41,11 +41,18 @@ export interface DemoEntry {
   description: string;
   Demo: ComponentType;
   /**
-   * El demo renderiza su propia FlatList (List/SearchList). La pantalla de
-   * detalle entonces NO scrollea: anidar una VirtualizedList dentro de un
-   * ScrollView rompe la virtualización y React Native lo advierte en runtime.
+   * El demo renderiza su propia FlatList (List/SearchList). Se muestra una
+   * sola variante a pantalla completa en vez del pager: anidar una
+   * VirtualizedList dentro de otro scroller vertical rompe la virtualización
+   * y React Native lo advierte en runtime.
    */
   hostsList?: boolean;
+  /**
+   * El demo es un flujo libre, no un catálogo de variantes: la pantalla de
+   * detalle le da un ScrollView normal en vez del pager con snap. Sin esto el
+   * contenido queda encerrado en una página de alto fijo y no se puede bajar.
+   */
+  freeScroll?: boolean;
 }
 
 export const ATOMS: DemoEntry[] = [

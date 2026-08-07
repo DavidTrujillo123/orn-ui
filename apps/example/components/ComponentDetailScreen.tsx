@@ -34,12 +34,14 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
 
   const { Demo } = entry;
 
+  // Salvo los flujos libres, el demo se lleva todo el alto restante: adentro
+  // vive un pager con snap (VariantList) que necesita una altura fija por
+  // página, y eso es incompatible con un Screen que scrollea por su cuenta.
+  const freeScroll = !!entry.freeScroll;
+
   return (
-    // hostsList: el demo trae su propia FlatList, así que la pantalla no
-    // scrollea (una VirtualizedList dentro de un ScrollView pierde la
-    // virtualización y React Native lo advierte en runtime).
     <Screen
-      scrollable={!entry.hostsList}
+      scrollable={freeScroll}
       // El demo trae su propio scroller con manejo de teclado; sumarle el del
       // Screen empuja el campo enfocado fuera de la pantalla.
       keyboardAvoiding={!entry.hostsList}
@@ -56,7 +58,7 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
         <Caption style={styles.description}>{entry.description}</Caption>
       </View>
 
-      <View style={entry.hostsList ? styles.demoFill : undefined}>
+      <View style={freeScroll ? undefined : styles.demoFill}>
         <Demo />
       </View>
     </Screen>
@@ -65,8 +67,10 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
 
 const styles = StyleSheet.create({
   navBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 4 },
-  intro: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 20, gap: 4 },
+  // Header compacto: cada punto que se lleva el intro se lo saca a la página
+  // del pager, que es donde se mira el componente.
+  intro: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 12, gap: 4 },
   description: { lineHeight: 18 },
-  demoFill: { flex: 1, paddingBottom: 20 },
+  demoFill: { flex: 1 },
   notFound: { paddingHorizontal: 20, paddingTop: 20 },
 });

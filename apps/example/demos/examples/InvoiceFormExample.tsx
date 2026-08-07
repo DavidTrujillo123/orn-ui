@@ -41,7 +41,15 @@ export function InvoiceFormExample() {
   const [payment, setPayment] = useState<string | undefined>('card');
   const [markPaid, setMarkPaid] = useState(false);
 
-  const subtotal = useMemo(() => Number(quantity || 0) * Number(unitPrice || 0), [quantity, unitPrice]);
+  // Number('') es 0 pero Number('12.5.5') es NaN, y el teclado numérico de
+  // Android deja escribir varios puntos: sin este guard el total se mostraba
+  // como "$NaN" en cuanto el precio quedaba a medio tipear.
+  const toAmount = (raw: string) => {
+    const n = Number(raw);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  };
+
+  const subtotal = useMemo(() => toAmount(quantity) * toAmount(unitPrice), [quantity, unitPrice]);
   const tax = subtotal * TAX_RATE;
   const total = subtotal + tax;
 
@@ -84,8 +92,8 @@ export function InvoiceFormExample() {
             <Stepper
               value={quantity}
               onChangeText={setQuantity}
-              onIncrement={() => setQuantity((q) => String(Number(q) + 1))}
-              onDecrement={() => setQuantity((q) => String(Math.max(0, Number(q) - 1)))}
+              onIncrement={() => setQuantity((q) => String(toAmount(q) + 1))}
+              onDecrement={() => setQuantity((q) => String(Math.max(0, toAmount(q) - 1)))}
             />
           </View>
           <View style={{ flex: 1 }}>

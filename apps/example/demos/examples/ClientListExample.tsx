@@ -37,10 +37,13 @@ export function ClientListExample() {
   const [clients, setClients] = useState(ALL_CLIENTS);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  const filtered = useMemo(
-    () => clients.filter((c) => c.name.toLowerCase().includes(query.toLowerCase())),
-    [clients, query]
-  );
+  // Busca también por email: el placeholder promete "search clients" y filtrar
+  // sólo por nombre hacía ver "No clients found" al pegar una dirección.
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return clients;
+    return clients.filter((c) => c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q));
+  }, [clients, query]);
   const page = filtered.slice(0, visibleCount);
   const hasMore = visibleCount < filtered.length;
 
