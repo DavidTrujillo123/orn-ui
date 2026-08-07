@@ -9,6 +9,7 @@ import { BadgeDemo } from './Badge.demo';
 import { CardDemo } from './Card.demo';
 import { DividerDemo } from './Divider.demo';
 import { AvatarDemo } from './Avatar.demo';
+import { ImageDemo } from './Image.demo';
 import { SpinnerDemo } from './Spinner.demo';
 import { EmptyStateDemo } from './EmptyState.demo';
 import { KeyValueRowDemo } from './KeyValueRow.demo';
@@ -57,6 +58,7 @@ export const ATOMS: DemoEntry[] = [
   { slug: 'card', name: 'Card', description: 'Contenedor con sombra y radius del theme', Demo: CardDemo },
   { slug: 'divider', name: 'Divider', description: 'Línea separadora de 1px', Demo: DividerDemo },
   { slug: 'avatar', name: 'Avatar', description: 'Círculo con ícono o iniciales', Demo: AvatarDemo },
+  { slug: 'image', name: 'Image', description: 'Loading/error state, cache y priority="high" (prefetch)', Demo: ImageDemo },
   { slug: 'spinner', name: 'Spinner', description: 'Loading indicator con texto opcional', Demo: SpinnerDemo },
   { slug: 'empty-state', name: 'EmptyState', description: 'Ícono + título + descripción para listas vacías', Demo: EmptyStateDemo },
   { slug: 'key-value-row', name: 'KeyValueRow', description: 'Fila label/value, para totales y detalles', Demo: KeyValueRowDemo },

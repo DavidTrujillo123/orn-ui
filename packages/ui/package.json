@@ -85,6 +85,16 @@
       "react-native": "./src/atoms/Avatar.tsx",
       "default": "./lib/module/atoms/Avatar.js"
     },
+    "./image": {
+      "types": "./lib/typescript/atoms/Image.d.ts",
+      "react-native": "./src/atoms/Image.tsx",
+      "default": "./lib/module/atoms/Image.js"
+    },
+    "./prefetch-image": {
+      "types": "./lib/typescript/atoms/Image.d.ts",
+      "react-native": "./src/atoms/Image.tsx",
+      "default": "./lib/module/atoms/Image.js"
+    },
     "./spinner": {
       "types": "./lib/typescript/atoms/Spinner.d.ts",
       "react-native": "./src/atoms/Spinner.tsx",

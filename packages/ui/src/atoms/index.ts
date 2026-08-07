@@ -16,6 +16,8 @@ export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
 export { Avatar } from './Avatar';
 export type { AvatarProps } from './Avatar';
+export { Image, prefetchImage } from './Image';
+export type { ImageProps } from './Image';
 export { Spinner } from './Spinner';
 export type { SpinnerProps, SpinnerVariant } from './Spinner';
 export { EmptyState } from './EmptyState';
