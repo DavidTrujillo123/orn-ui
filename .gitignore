@@ -1,0 +1,12 @@
+node_modules/
+lib/
+dist/
+.expo/
+.expo-shared/
+*.log
+.DS_Store
+coverage/
+android/
+ios/
+.turbo/
+.astro/
