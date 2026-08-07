@@ -18,7 +18,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install --frozen-lockfile --ignore-scripts
 
       - name: Check subpath exports are up to date with src/
         run: pnpm --filter orn-ui gen:exports:check
