@@ -20,6 +20,8 @@ export { Image, prefetchImage } from './Image';
 export type { ImageProps } from './Image';
 export { Spinner } from './Spinner';
 export type { SpinnerProps, SpinnerVariant } from './Spinner';
+export { Skeleton } from './Skeleton';
+export type { SkeletonProps, SkeletonVariant } from './Skeleton';
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 export { KeyValueRow } from './KeyValueRow';

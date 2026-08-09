@@ -100,6 +100,11 @@
       "react-native": "./src/atoms/Spinner.tsx",
       "default": "./lib/module/atoms/Spinner.js"
     },
+    "./skeleton": {
+      "types": "./lib/typescript/atoms/Skeleton.d.ts",
+      "react-native": "./src/atoms/Skeleton.tsx",
+      "default": "./lib/module/atoms/Skeleton.js"
+    },
     "./empty-state": {
       "types": "./lib/typescript/atoms/EmptyState.d.ts",
       "react-native": "./src/atoms/EmptyState.tsx",
