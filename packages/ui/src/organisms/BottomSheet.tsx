@@ -1,17 +1,52 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
-import { Animated, Dimensions, Modal, PanResponder, Pressable, View, type ViewStyle } from 'react-native';
+import {
+  Animated,
+  Dimensions,
+  Keyboard,
+  KeyboardAvoidingView,
+  Modal,
+  PanResponder,
+  Platform,
+  Pressable,
+  ScrollView,
+  View,
+  type ViewStyle,
+} from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useInsets } from '../theme/UIProvider';
+import { useColors, useInsets } from '../theme/UIProvider';
+import { Title } from '../atoms/Text';
+import { IconButton } from '../atoms/IconButton';
 import { Transition } from '../atoms/Transition';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DISMISS_THRESHOLD = 100;
 
+export type FooterPlacement = 'fixed' | 'scroll' | 'hide-with-keyboard';
+
 export interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  /** Con título aparece el header, con su botón de cerrar. */
+  title?: string;
+  /** Acciones de la hoja. Dónde vive lo decide `footerPlacement`. */
+  footer?: React.ReactNode;
+  /**
+   * 'fixed' lo ancla al pie de la hoja; 'scroll' lo deja al final del
+   * contenido; 'hide-with-keyboard' lo esconde mientras se escribe, que en un
+   * formulario largo le devuelve esa franja al campo enfocado. @default 'fixed'
+   */
+  footerPlacement?: FooterPlacement;
+  /** El contenido scrollea cuando no entra. @default true */
+  scrollable?: boolean;
+  /** Arrastrar la hoja hacia abajo la cierra. @default true */
+  draggable?: boolean;
+  /** Fracción de la pantalla (0-1) o píxeles. @default 0.9 */
+  maxHeight?: number;
   closeAccessibilityLabel?: string;
+  containerStyle?: ViewStyle;
+  contentStyle?: ViewStyle;
+  testID?: string;
 }
 
 const useStyles = createStyles((theme) => ({
@@ -21,78 +56,192 @@ const useStyles = createStyles((theme) => ({
     backgroundColor: theme.colors.surface,
     borderTopLeftRadius: theme.tokens.radius.xxl,
     borderTopRightRadius: theme.tokens.radius.xxl,
-    paddingHorizontal: theme.tokens.spacing.xl,
     ...theme.tokens.shadow.lg,
   },
   handleArea: { paddingVertical: theme.tokens.spacing.md, alignItems: 'center' },
   handle: { width: 40, height: 5, borderRadius: 3, backgroundColor: theme.colors.border },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.tokens.spacing.md,
+    paddingHorizontal: theme.tokens.spacing.xl,
+    paddingBottom: theme.tokens.spacing.md,
+  },
+  headerSpaced: { paddingTop: theme.tokens.spacing.xl },
+  title: { flex: 1, fontSize: theme.tokens.fontSize.xl, fontWeight: theme.tokens.fontWeight.bold },
+  content: { paddingHorizontal: theme.tokens.spacing.xl },
+  scroll: { flexShrink: 1 },
+  footer: {
+    paddingHorizontal: theme.tokens.spacing.xl,
+    paddingTop: theme.tokens.spacing.md,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
+  },
+  footerInline: { paddingTop: theme.tokens.spacing.xl },
 }));
 
 const absoluteFill: ViewStyle = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 };
 
 /**
  * BottomSheet
- * Modal que aparece desde abajo: animación con Animated (no la del Modal
- * nativo) y arrastre para cerrar con PanResponder — no un gesture-handler
- * externo, para mantener la librería en cero dependencias.
+ * Hoja que entra desde abajo, con arrastre para cerrar (PanResponder, no un
+ * gesture-handler externo: la librería es cero dependencias). Header, footer y
+ * scroll son opcionales, así que cubre tanto la hoja desnuda como el formulario
+ * completo.
  */
-export const BottomSheet = memo(({ visible, onClose, children, closeAccessibilityLabel = 'Close' }: BottomSheetProps) => {
-  const styles = useStyles();
-  const insets = useInsets();
-  const [mounted, setMounted] = useState(visible);
-  // Un único progreso 0→1 para la hoja y el fondo: el arrastre lo mueve a mano
-  // y los Transition sólo interpolan sobre él.
-  const progress = useRef(new Animated.Value(0)).current;
+export const BottomSheet = memo(
+  ({
+    visible,
+    onClose,
+    children,
+    title,
+    footer,
+    footerPlacement = 'fixed',
+    scrollable = true,
+    draggable = true,
+    maxHeight = 0.9,
+    closeAccessibilityLabel = 'Close',
+    containerStyle,
+    contentStyle,
+    testID,
+  }: BottomSheetProps) => {
+    const styles = useStyles();
+    const colors = useColors();
+    const insets = useInsets();
+    const [mounted, setMounted] = useState(visible);
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
+    const progress = useRef(new Animated.Value(0)).current;
 
-  useEffect(() => {
-    if (visible) {
-      setMounted(true);
-      Animated.timing(progress, { toValue: 1, duration: 250, useNativeDriver: true }).start();
-    } else {
-      Animated.timing(progress, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
-        if (finished) setMounted(false);
-      });
-    }
-  }, [visible, progress]);
+    useEffect(() => {
+      if (visible) {
+        setMounted(true);
+        Animated.timing(progress, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+      } else {
+        Animated.timing(progress, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
+          if (finished) setMounted(false);
+        });
+      }
+    }, [visible, progress]);
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_, gesture) => gesture.dy > 5 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
-      onPanResponderMove: (_, gesture) => {
-        if (gesture.dy > 0) progress.setValue(1 - Math.min(gesture.dy, SCREEN_HEIGHT) / SCREEN_HEIGHT);
-      },
-      onPanResponderRelease: (_, gesture) => {
-        if (gesture.dy > DISMISS_THRESHOLD) {
-          onClose();
-        } else {
-          Animated.timing(progress, { toValue: 1, duration: 150, useNativeDriver: true }).start();
-        }
-      },
-    })
-  ).current;
+    useEffect(() => {
+      if (footerPlacement !== 'hide-with-keyboard') return;
+      const [show, hide] =
+        Platform.OS === 'ios' ? ['keyboardWillShow', 'keyboardWillHide'] : ['keyboardDidShow', 'keyboardDidHide'];
+      const subs = [
+        Keyboard.addListener(show as 'keyboardDidShow', () => setKeyboardOpen(true)),
+        Keyboard.addListener(hide as 'keyboardDidHide', () => setKeyboardOpen(false)),
+      ];
+      return () => subs.forEach((sub) => sub.remove());
+    }, [footerPlacement]);
 
-  if (!mounted) return null;
+    const panResponder = useRef(
+      PanResponder.create({
+        onMoveShouldSetPanResponder: (_, gesture) => gesture.dy > 5 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
+        onPanResponderMove: (_, gesture) => {
+          if (gesture.dy > 0) progress.setValue(1 - Math.min(gesture.dy, SCREEN_HEIGHT) / SCREEN_HEIGHT);
+        },
+        onPanResponderRelease: (_, gesture) => {
+          if (gesture.dy > DISMISS_THRESHOLD) {
+            onClose();
+          } else {
+            Animated.timing(progress, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+          }
+        },
+      })
+    ).current;
 
-  return (
-    <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
-      <View style={styles.container}>
-        <Transition value={progress} preset="fade" style={[absoluteFill, styles.backdrop]}>
-          <Pressable style={absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel={closeAccessibilityLabel} />
-        </Transition>
+    if (!mounted) return null;
 
-        <Transition
-          value={progress}
-          preset="slide-up"
-          distance={SCREEN_HEIGHT}
-          style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}
-        >
-          <View style={styles.handleArea} {...panResponder.panHandlers}>
-            <View style={styles.handle} />
-          </View>
-          {children}
-        </Transition>
+    // Porcentaje y no píxeles: se mide contra el contenedor, que con el teclado
+    // abierto es más bajo, así que la hoja entra siempre entera.
+    const resolvedMaxHeight: number | `${number}%` = maxHeight <= 1 ? `${maxHeight * 100}%` : maxHeight;
+    const hasHeader = !!title;
+
+    const scrolledFooter = !!footer && footerPlacement === 'scroll' && (
+      <View style={styles.footerInline}>{footer}</View>
+    );
+    const pinnedFooter =
+      !!footer && footerPlacement !== 'scroll' && !(footerPlacement === 'hide-with-keyboard' && keyboardOpen) ? (
+        <View style={styles.footer}>{footer}</View>
+      ) : null;
+
+    const body = scrollable ? (
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={[styles.content, contentStyle]}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {children}
+        {scrolledFooter}
+      </ScrollView>
+    ) : (
+      <View style={[styles.content, contentStyle]}>
+        {children}
+        {scrolledFooter}
       </View>
-    </Modal>
-  );
-});
+    );
+
+    return (
+      <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
+        {/* La hoja está anclada abajo, así que el teclado la tapa entera: hay
+            que empujarla, no ajustar insets adentro del scroll. Una sola
+            compensación, la del contenedor. */}
+        <KeyboardAvoidingView
+          style={styles.container}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        >
+          <Transition value={progress} preset="fade" style={[absoluteFill, styles.backdrop]}>
+            {/* Con header, el botón de cerrar ya expone la acción: repetir el
+                label acá deja dos elementos con el mismo nombre. */}
+            <Pressable
+              style={absoluteFill}
+              onPress={onClose}
+              testID="bottom-sheet-backdrop"
+              accessibilityRole={hasHeader ? undefined : 'button'}
+              accessibilityLabel={hasHeader ? undefined : closeAccessibilityLabel}
+            />
+          </Transition>
+
+          <Transition
+            value={progress}
+            preset="slide-up"
+            distance={SCREEN_HEIGHT}
+            testID={testID}
+            style={[
+              styles.sheet,
+              { maxHeight: resolvedMaxHeight, paddingBottom: Math.max(insets.bottom, 20) },
+              containerStyle,
+            ]}
+          >
+            {draggable && (
+              <View style={styles.handleArea} testID="bottom-sheet-handle" {...panResponder.panHandlers}>
+                <View style={styles.handle} />
+              </View>
+            )}
+
+            {hasHeader && (
+              <View style={[styles.header, !draggable && styles.headerSpaced]}>
+                <Title style={styles.title} numberOfLines={1}>
+                  {title}
+                </Title>
+                <IconButton
+                  iconName="close"
+                  size={24}
+                  color={colors.text}
+                  onPress={onClose}
+                  accessibilityLabel={closeAccessibilityLabel}
+                />
+              </View>
+            )}
+
+            {body}
+
+            {pinnedFooter}
+          </Transition>
+        </KeyboardAvoidingView>
+      </Modal>
+    );
+  }
+);
 BottomSheet.displayName = 'BottomSheet';

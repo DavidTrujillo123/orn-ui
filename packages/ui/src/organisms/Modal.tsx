@@ -18,7 +18,7 @@ import { Transition, type TransitionPreset } from '../atoms/Transition';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-export type ModalVariant = 'full' | 'overlay' | 'fullScreen' | 'bottomSheet';
+export type ModalVariant = 'full' | 'overlay' | 'fullScreen';
 
 export interface ModalProps
   extends Pick<RNModalProps, 'statusBarTranslucent' | 'onRequestClose' | 'hardwareAccelerated'> {
@@ -38,22 +38,12 @@ const useStyles = createStyles((theme) => ({
   flex1: { flex: 1 },
   fullWrapper: { flex: 1, backgroundColor: theme.colors.background },
   overlayContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: theme.tokens.spacing.xxl - 4 },
-  bottomSheetContainer: { justifyContent: 'flex-end', padding: 0 },
   backdrop: { backgroundColor: theme.colors.overlay },
   overlayCard: {
     width: '100%',
     maxHeight: '85%',
     backgroundColor: theme.colors.surface,
     borderRadius: theme.tokens.radius.xxl,
-    overflow: 'hidden',
-    ...theme.tokens.shadow.lg,
-  },
-  bottomSheetCard: {
-    width: '100%',
-    maxHeight: '90%',
-    backgroundColor: theme.colors.surface,
-    borderTopLeftRadius: theme.tokens.radius.xxl,
-    borderTopRightRadius: theme.tokens.radius.xxl,
     overflow: 'hidden',
     ...theme.tokens.shadow.lg,
   },
@@ -83,10 +73,8 @@ const useStyles = createStyles((theme) => ({
 /**
  * Modal
  * Un solo componente para todos los modales de la app: maneja scroll,
- * teclado, insets y layout según `variant`. overlay/bottomSheet/full animan
- * su entrada/salida con Animated (solo transform, nunca opacity sobre la
- * tarjeta: animar opacity ahí dispara un bug de Android donde los hijos con
- * elevation parpadean/redibujan). El fondo semitransparente sí anima opacity.
+ * teclado, insets y layout según `variant`. Para una hoja desde abajo está
+ * BottomSheet, que además trae arrastre para cerrar.
  */
 export const Modal = memo(
   ({
@@ -107,8 +95,7 @@ export const Modal = memo(
     const isFull = variant === 'full';
     const isOverlay = variant === 'overlay';
     const isFullScreen = variant === 'fullScreen';
-    const isBottomSheet = variant === 'bottomSheet';
-    const isAnimatedVariant = isOverlay || isBottomSheet || isFull;
+    const isAnimatedVariant = isOverlay || isFull;
     const insets = useInsets();
     const colors = useColors();
     const styles = useStyles();
@@ -122,8 +109,8 @@ export const Modal = memo(
 
     // La tarjeta nunca anima opacity: hacerlo dispara un bug de Android donde
     // los hijos con elevation parpadean. El fondo semitransparente sí.
-    const cardPreset: TransitionPreset[] = isBottomSheet || isFull ? ['slide-up'] : ['slide-down', 'scale'];
-    const cardDistance = isBottomSheet || isFull ? SCREEN_HEIGHT : 40;
+    const cardPreset: TransitionPreset[] = isFull ? ['slide-up'] : ['slide-down', 'scale'];
+    const cardDistance = isFull ? SCREEN_HEIGHT : 40;
 
     const behavior = Platform.OS === 'ios' ? (isFull ? undefined : 'padding') : 'height';
     const keyboardOffset = Platform.OS === 'ios' ? 0 : 20;
@@ -184,13 +171,13 @@ export const Modal = memo(
         presentationStyle={
           Platform.OS === 'ios' ? (isFullScreen ? 'fullScreen' : 'overFullScreen') : undefined
         }
-        transparent={isOverlay || isBottomSheet || isFull}
+        transparent={isOverlay || isFull}
         statusBarTranslucent={statusBarTranslucent}
         hardwareAccelerated={hardwareAccelerated}
       >
         <KeyboardAvoidingView behavior={behavior} keyboardVerticalOffset={keyboardOffset} style={styles.flex1}>
-          {isOverlay || isBottomSheet ? (
-            <View style={[styles.overlayContainer, isBottomSheet && styles.bottomSheetContainer]}>
+          {isOverlay ? (
+            <View style={styles.overlayContainer}>
               {/* Sin accessibilityLabel propio: el header ya expone un botón "Close"
                   accesible; duplicar el label aquí generaría dos elementos con el
                   mismo nombre para lectores de pantalla. Tocar afuera es un atajo
@@ -211,11 +198,7 @@ export const Modal = memo(
                 distance={cardDistance}
                 duration={250}
                 onExited={() => setMounted(false)}
-                style={[
-                  isOverlay ? styles.overlayCard : styles.bottomSheetCard,
-                  isBottomSheet && { paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 0) },
-                  containerStyle,
-                ]}
+                style={[styles.overlayCard, containerStyle]}
               >
                 {renderHeader()}
                 {renderMainContent()}

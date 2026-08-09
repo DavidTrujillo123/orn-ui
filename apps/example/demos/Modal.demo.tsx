@@ -6,7 +6,6 @@ export function ModalDemo() {
   const [full, setFull] = useState(false);
   const [overlay, setOverlay] = useState(false);
   const [fullScreen, setFullScreen] = useState(false);
-  const [bottomSheet, setBottomSheet] = useState(false);
   // #region demo
   const variants: VariantDef[] = [
     {
@@ -38,17 +37,6 @@ export function ModalDemo() {
           <Button title="Open fullScreen" onPress={() => setFullScreen(true)} />
           <Modal visible={fullScreen} onClose={() => setFullScreen(false)} title="Full screen" variant="fullScreen">
             <Body>Native fullScreen presentation on iOS.</Body>
-          </Modal>
-        </>
-      ),
-    },
-    {
-      label: 'bottomSheet',
-      content: (
-        <>
-          <Button title="Open bottomSheet" onPress={() => setBottomSheet(true)} />
-          <Modal visible={bottomSheet} onClose={() => setBottomSheet(false)} title="Bottom sheet" variant="bottomSheet">
-            <Body>Slides up with rounded top corners, like BottomSheet.</Body>
           </Modal>
         </>
       ),

@@ -94,7 +94,7 @@ describe('Modal', () => {
     // RN avisa: "Modal with '<style>' presentation style and 'transparent'
     // value is not supported" para todo lo que no sea overFullScreen.
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
-    for (const variant of ['full', 'overlay', 'fullScreen', 'bottomSheet'] as const) {
+    for (const variant of ['full', 'overlay', 'fullScreen'] as const) {
       render(
         withProvider(
           <Modal visible variant={variant}>

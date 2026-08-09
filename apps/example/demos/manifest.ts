@@ -100,8 +100,8 @@ export const MOLECULES: DemoEntry[] = [
 ];
 
 export const ORGANISMS: DemoEntry[] = [
-  { slug: 'modal', name: 'Modal', description: 'full / overlay / fullScreen / bottomSheet', Demo: ModalDemo },
-  { slug: 'bottom-sheet', name: 'BottomSheet', description: 'Own modal with drag to dismiss', Demo: BottomSheetDemo },
+  { slug: 'modal', name: 'Modal', description: 'full / overlay / fullScreen', Demo: ModalDemo },
+  { slug: 'bottom-sheet', name: 'BottomSheet', description: 'Sheet from the bottom: drag to dismiss, optional header, footer and scroll', Demo: BottomSheetDemo },
   { slug: 'select', name: 'Select', description: 'Dropdown with floating options', Demo: SelectDemo },
   { slug: 'alert', name: 'Alert', description: 'Dialog + imperative AlertProvider/useAlert', Demo: AlertDemo },
   { slug: 'screen', name: 'Screen', description: 'Root container: safe area + keyboard + scroll', Demo: ScreenDemo },

@@ -1,7 +1,7 @@
 export { Modal } from './Modal';
 export type { ModalProps, ModalVariant } from './Modal';
 export { BottomSheet } from './BottomSheet';
-export type { BottomSheetProps } from './BottomSheet';
+export type { BottomSheetProps, FooterPlacement } from './BottomSheet';
 export { Select } from './Select';
 export type { SelectProps, SelectOption } from './Select';
 export { Alert } from './Alert';

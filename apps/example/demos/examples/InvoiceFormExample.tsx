@@ -9,8 +9,8 @@ import {
   Divider,
   FormActions,
   Input,
+  BottomSheet,
   KeyValueRow,
-  Modal,
   Select,
   Stepper,
   Title,
@@ -27,8 +27,8 @@ const TAX_RATE = 0.15;
 
 /**
  * InvoiceFormExample
- * Flujo real de "nueva factura": botón que abre un Modal (bottom-sheet)
- * con un form completo — AvatarHeader + Input + Stepper + Select +
+ * Flujo real de "nueva factura": botón que abre un BottomSheet con un form
+ * completo — AvatarHeader + Input + Stepper + Select +
  * Checkbox + KeyValueRow calculado + FormActions — y confirma con Alert
  * imperativo al guardar. Combina 9 componentes de las tres capas.
  */
@@ -68,11 +68,10 @@ export function InvoiceFormExample() {
         <Button title="New invoice" onPress={() => setVisible(true)} style={{ marginTop: 16 }} leftIconName="plus" />
       </Card>
 
-      <Modal
+      <BottomSheet
         visible={visible}
         onClose={() => setVisible(false)}
         title="New invoice"
-        variant="bottomSheet"
         footer={
           <FormActions
             primaryLabel="Save invoice"
@@ -116,7 +115,7 @@ export function InvoiceFormExample() {
           labelStyle={{ fontWeight: '700', fontSize: 15 }}
           valueStyle={{ fontWeight: '700', fontSize: 15 }}
         />
-      </Modal>
+      </BottomSheet>
     </View>
   );
 }

@@ -5,7 +5,7 @@ Fast, tree-shakeable, atomic-design component library for React Native.
 babel config, no metro config, no pods.
 
 39 components across atoms, molecules and organisms, fully typed, themeable
-(light/dark), with 388 tests and a 90%/85% (lines/branches) coverage gate in CI.
+(light/dark), with 393 tests and a 90%/85% (lines/branches) coverage gate in CI.
 
 Live docs (props tables, demo snippets, install instructions per component):
 **[orn-ui.dev](https://orn-ui.dev)**
@@ -78,9 +78,9 @@ the whole tree. `mode` can be `'system' | 'light' | 'dark'`, controlled via
 
 The library never imports `react-native-safe-area-context` — that's what keeps
 it dependency-free. It reads plain numbers from `insets`, which default to
-`{ top: 0, bottom: 0, left: 0, right: 0 }`. With zeros, `Screen` and the
-`full`/`bottomSheet` modal variants render under the notch and against the
-gesture bar, so wire them one of two ways.
+`{ top: 0, bottom: 0, left: 0, right: 0 }`. With zeros, `Screen`, `BottomSheet`
+and the `full` modal variant render under the notch and against the gesture
+bar, so wire them one of two ways.
 
 **Automatic** — one import, insets measured for you:
 
