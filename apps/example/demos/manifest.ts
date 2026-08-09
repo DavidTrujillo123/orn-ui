@@ -35,6 +35,7 @@ import { SearchListDemo } from './SearchList.demo';
 import { ToastDemo } from './Toast.demo';
 import { DatePickerDemo } from './DatePicker.demo';
 import { WizardDemo } from './Wizard.demo';
+import { NavigationBarDemo } from './NavigationBar.demo';
 
 export interface DemoEntry {
   slug: string;
@@ -96,4 +97,10 @@ export const ORGANISMS: DemoEntry[] = [
   { slug: 'toast', name: 'Toast', description: 'Notificación efímera + ToastProvider/useToast imperativo', Demo: ToastDemo },
   { slug: 'date-picker', name: 'DatePicker', description: 'Calendario y DateField, sin picker nativo', Demo: DatePickerDemo },
   { slug: 'wizard', name: 'Wizard', description: 'Flujo multi-paso sobre Steps, con validación por paso', Demo: WizardDemo },
+  {
+    slug: 'navigation-bar',
+    name: 'NavigationBar',
+    description: 'Barra de pestañas con indicador animado, igual en iOS y Android',
+    Demo: NavigationBarDemo,
+  },
 ];

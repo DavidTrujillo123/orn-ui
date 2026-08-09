@@ -133,7 +133,7 @@ otherwise silent until someone opens a modal.
 
 **Organisms** — `Modal`, `BottomSheet`, `Select`, `Alert`/`AlertProvider`,
 `Screen`, `List`, `SearchList`, `Toast`/`ToastProvider`, `DatePicker`,
-`DateField`, `Wizard`
+`DateField`, `Wizard`, `NavigationBar`
 
 Full props tables and live-recorded demo GIFs for every one of these: see
 [orn-ui.dev](https://orn-ui.dev).

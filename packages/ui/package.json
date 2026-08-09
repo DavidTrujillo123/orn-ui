@@ -250,6 +250,11 @@
       "react-native": "./src/organisms/Wizard.tsx",
       "default": "./lib/module/organisms/Wizard.js"
     },
+    "./navigation-bar": {
+      "types": "./lib/typescript/organisms/NavigationBar.d.ts",
+      "react-native": "./src/organisms/NavigationBar.tsx",
+      "default": "./lib/module/organisms/NavigationBar.js"
+    },
     "./theme": {
       "types": "./lib/typescript/theme/index.d.ts",
       "react-native": "./src/theme/index.ts",
