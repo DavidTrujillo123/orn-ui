@@ -104,7 +104,7 @@ export const ORGANISMS: DemoEntry[] = [
   { slug: 'bottom-sheet', name: 'BottomSheet', description: 'Sheet from the bottom: drag to dismiss, optional header, footer and scroll', Demo: BottomSheetDemo },
   { slug: 'select', name: 'Select', description: 'Anchored dropdown: emoji/icon per option, search, and it escapes any clipping parent', Demo: SelectDemo },
   { slug: 'alert', name: 'Alert', description: 'Dialog: useAlert() in components, showAlert()/showConfirm() anywhere else', Demo: AlertDemo },
-  { slug: 'screen', name: 'Screen', description: 'Root container: safe area + keyboard + scroll', Demo: ScreenDemo },
+  { slug: 'screen', name: 'Screen', description: 'Root container: opens real screens to compare safe area, scroll and keyboard', Demo: ScreenDemo },
   { slug: 'list', name: 'List', description: 'List with loading/pagination/empty solved', Demo: ListDemo, hostsList: true },
   { slug: 'search-list', name: 'SearchList', description: 'Search box + list + pagination', Demo: SearchListDemo, hostsList: true },
   { slug: 'toast', name: 'Toast', description: 'Ephemeral notification: useToast() in components, showToast() anywhere else', Demo: ToastDemo },
