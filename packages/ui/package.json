@@ -140,6 +140,11 @@
       "react-native": "./src/molecules/Stepper.tsx",
       "default": "./lib/module/molecules/Stepper.js"
     },
+    "./sanitize-numeric": {
+      "types": "./lib/typescript/molecules/Stepper.d.ts",
+      "react-native": "./src/molecules/Stepper.tsx",
+      "default": "./lib/module/molecules/Stepper.js"
+    },
     "./option-card": {
       "types": "./lib/typescript/molecules/OptionCard.d.ts",
       "react-native": "./src/molecules/OptionCard.tsx",

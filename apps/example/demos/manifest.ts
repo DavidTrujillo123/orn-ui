@@ -68,7 +68,7 @@ export const ATOMS: DemoEntry[] = [
   { slug: 'card', name: 'Card', description: 'Container with the theme shadow and radius', Demo: CardDemo },
   { slug: 'divider', name: 'Divider', description: '1px separator line', Demo: DividerDemo },
   { slug: 'avatar', name: 'Avatar', description: 'Circle with an icon or initials', Demo: AvatarDemo },
-  { slug: 'image', name: 'Image', description: 'Loading/error state, cache y priority="high" (prefetch)', Demo: ImageDemo },
+  { slug: 'image', name: 'Image', description: 'Loading/error state, cache and priority="high" (prefetch)', Demo: ImageDemo },
   { slug: 'spinner', name: 'Spinner', description: 'Loading indicator with optional text', Demo: SpinnerDemo },
   { slug: 'skeleton', name: 'Skeleton', description: 'Pulsing placeholder that reserves the content space', Demo: SkeletonDemo },
   {
@@ -84,8 +84,8 @@ export const ATOMS: DemoEntry[] = [
 ];
 
 export const MOLECULES: DemoEntry[] = [
-  { slug: 'stepper', name: 'Stepper', description: '"-" + numeric input + "+"', Demo: StepperDemo },
-  { slug: 'option-card', name: 'OptionCard', description: 'Card seleccionable, layout horizontal/vertical', Demo: OptionCardDemo },
+  { slug: 'stepper', name: 'Stepper', description: '"-" + numeric input + "+", with range and typing rules', Demo: StepperDemo },
+  { slug: 'option-card', name: 'OptionCard', description: 'Selectable card, horizontal/vertical layout', Demo: OptionCardDemo },
   { slug: 'info-row', name: 'InfoRow', description: 'Circular icon + stacked label/value', Demo: InfoRowDemo },
   { slug: 'form-actions', name: 'FormActions', description: 'Primary/close button pair', Demo: FormActionsDemo },
   { slug: 'avatar-header', name: 'AvatarHeader', description: 'Detail header: circle + title + subtitle', Demo: AvatarHeaderDemo },

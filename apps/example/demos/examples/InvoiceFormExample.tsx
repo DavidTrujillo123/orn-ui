@@ -90,6 +90,7 @@ export function InvoiceFormExample() {
           <View style={{ flex: 1 }}>
             <Body style={{ marginBottom: 8, fontWeight: '500' }}>Quantity</Body>
             <Stepper
+              block
               value={quantity}
               onChangeText={setQuantity}
               onIncrement={() => setQuantity((q) => String(toAmount(q) + 1))}

@@ -1,5 +1,5 @@
-export { Stepper } from './Stepper';
-export type { StepperProps } from './Stepper';
+export { Stepper, sanitizeNumeric } from './Stepper';
+export type { StepperProps, StepperSize } from './Stepper';
 export { OptionCard } from './OptionCard';
 export type { OptionCardProps } from './OptionCard';
 export { InfoRow } from './InfoRow';
