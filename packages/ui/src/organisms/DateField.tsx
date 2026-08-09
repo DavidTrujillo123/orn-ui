@@ -1,26 +1,44 @@
-import React, { memo, useState } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useLabels } from '../theme/UIProvider';
 import { Modal } from './Modal';
-import { DatePicker, DEFAULT_MONTH_NAMES, type DatePickerProps } from './DatePicker';
+import { DatePicker, type DatePickerProps, type DateRange } from './DatePicker';
 import { Button } from '../atoms/Button';
 
 export interface DateFieldProps
   extends Pick<DatePickerProps, 'minDate' | 'maxDate' | 'monthNames' | 'weekdayNames' | 'firstDayOfWeek'> {
   label?: string;
   required?: boolean;
+  /**
+   * 'single' elige una fecha; 'range' elige un intervalo con dos toques.
+   * @default 'single'
+   */
+  mode?: 'single' | 'range';
+  /** Fecha elegida en mode="single". */
   value?: Date;
-  onChange: (date: Date) => void;
+  /** Se llama en mode="single". */
+  onChange?: (date: Date) => void;
+  /** Rango elegido en mode="range". */
+  range?: DateRange;
+  /** Se llama en mode="range", tanto al fijar el inicio como al cerrar el rango. */
+  onRangeChange?: (range: DateRange) => void;
   placeholder?: string;
   error?: string;
   disabled?: boolean;
-  /** Formatea la fecha en el campo. @default "D de Month de YYYY" en inglés */
+  /** Formatea la fecha en el campo. @default "Month D, YYYY" */
   format?: (date: Date) => string;
-  /** Título del modal del calendario. @default 'Select date' */
+  /** Título del modal del calendario. @default el `selectDate` de `useLabels()` */
   modalTitle?: string;
+  /**
+   * Si se pasa, el modal muestra un botón que borra la selección y cierra.
+   * Sin esto no hay botón: el "Clear" anterior sólo cerraba, sin limpiar nada.
+   */
+  onClear?: () => void;
+  /** Texto de ese botón. @default el `clear` de `useLabels()` */
   clearLabel?: string;
   containerStyle?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 function defaultFormat(date: Date, monthNames: string[]): string {
@@ -58,27 +76,67 @@ export const DateField = memo(
   ({
     label,
     required = false,
+    mode = 'single',
     value,
     onChange,
+    range,
+    onRangeChange,
     placeholder = 'Select a date',
     error,
     disabled = false,
     format,
-    modalTitle = 'Select date',
-    clearLabel = 'Clear',
+    modalTitle,
+    onClear,
+    clearLabel,
     containerStyle,
-    monthNames = DEFAULT_MONTH_NAMES,
+    monthNames,
+    testID,
     ...pickerProps
   }: DateFieldProps) => {
     const colors = useColors();
     const styles = useStyles();
+    const labels = useLabels();
     const allowFontScaling = useAllowFontScaling();
     const [open, setOpen] = useState(false);
 
-    const display = value ? (format ? format(value) : defaultFormat(value, monthNames)) : placeholder;
+    const months = monthNames ?? labels.months;
+    const isRange = mode === 'range';
+
+    const formatDate = (date: Date) => (format ? format(date) : defaultFormat(date, months));
+
+    // El calendario se cierra solo cuando ya no falta nada por elegir: en
+    // rango, recién cuando el segundo toque cierra el intervalo.
+    const handleChange = useCallback(
+      (date: Date) => {
+        onChange?.(date);
+        setOpen(false);
+      },
+      [onChange]
+    );
+
+    const handleRangeChange = useCallback(
+      (next: DateRange) => {
+        onRangeChange?.(next);
+        if (next.end) setOpen(false);
+      },
+      [onRangeChange]
+    );
+
+    const handleClear = useCallback(() => {
+      onClear?.();
+      setOpen(false);
+    }, [onClear]);
+
+    const hasValue = isRange ? !!range?.start : !!value;
+    let display = placeholder;
+    if (isRange && range?.start) {
+      display = range.end ? `${formatDate(range.start)} — ${formatDate(range.end)}` : formatDate(range.start);
+    } else if (!isRange && value) {
+      display = formatDate(value);
+    }
 
     return (
-      <View style={[styles.container, containerStyle]}>
+      <View style={[styles.container, containerStyle]} testID={testID}>
         {!!label && (
           <Text allowFontScaling={allowFontScaling} style={styles.label}>
             {label}
@@ -95,7 +153,7 @@ export const DateField = memo(
           accessibilityLabel={label ?? placeholder}
           accessibilityState={{ disabled, expanded: open }}
         >
-          <Text allowFontScaling={allowFontScaling} style={[styles.fieldText, !value && styles.placeholder]}>
+          <Text allowFontScaling={allowFontScaling} style={[styles.fieldText, !hasValue && styles.placeholder]}>
             {display}
           </Text>
           <Text allowFontScaling={allowFontScaling} style={{ color: colors.textLight }}>
@@ -112,19 +170,21 @@ export const DateField = memo(
         <Modal
           visible={open}
           onClose={() => setOpen(false)}
-          title={modalTitle}
+          title={modalTitle ?? labels.selectDate}
           variant="overlay"
           scrollable={false}
-          footer={<Button title={clearLabel} variant="ghost" onPress={() => setOpen(false)} />}
+          footer={
+            onClear ? <Button title={clearLabel ?? labels.clear} variant="ghost" onPress={handleClear} /> : undefined
+          }
         >
           <DatePicker
+            mode={mode}
             value={value}
-            monthNames={monthNames}
+            range={range}
+            monthNames={months}
             {...pickerProps}
-            onChange={(date) => {
-              onChange(date);
-              setOpen(false);
-            }}
+            onChange={handleChange}
+            onRangeChange={handleRangeChange}
           />
         </Modal>
       </View>

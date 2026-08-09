@@ -18,6 +18,7 @@ export function DatePickerDemo() {
   const [ranged, setRanged] = useState<Date | undefined>();
   const [fieldDate, setFieldDate] = useState<Date | undefined>();
   const [range, setRange] = useState<DateRange | undefined>();
+  const [fieldRange, setFieldRange] = useState<DateRange | undefined>();
   // #region demo
   const variants: VariantDef[] = [
     {
@@ -75,6 +76,21 @@ export function DatePickerDemo() {
           format={(d) => d.toISOString().slice(0, 10)}
         />
       ),
+    },
+    {
+      label: 'DateField — onClear clears the value',
+      content: (
+        <DateField
+          label="Due date"
+          value={fieldDate}
+          onChange={setFieldDate}
+          onClear={() => setFieldDate(undefined)}
+        />
+      ),
+    },
+    {
+      label: 'DateField — mode="range"',
+      content: <DateField label="Stay" mode="range" range={fieldRange} onRangeChange={setFieldRange} />,
     },
     {
       label: 'DateField — required + error',

@@ -101,6 +101,55 @@ describe('DatePicker', () => {
     expect(screen.getByText('Mar 2024')).toBeOnTheScreen();
   });
 
+  it('follows the value when it changes from the outside', () => {
+    const { rerender } = render(withProvider(<DatePicker value={MARCH_2024} onChange={() => {}} />));
+    expect(screen.getByText('March 2024')).toBeOnTheScreen();
+    rerender(withProvider(<DatePicker value={new Date(2025, 6, 4)} onChange={() => {}} />));
+    expect(screen.getByText('July 2025')).toBeOnTheScreen();
+  });
+
+  it('keeps the month the user navigated to when the value stays in it', () => {
+    const { rerender } = render(withProvider(<DatePicker value={MARCH_2024} onChange={() => {}} />));
+    fireEvent.press(screen.getByRole('button', { name: 'Next month' }));
+    rerender(withProvider(<DatePicker value={new Date(2024, 2, 20)} onChange={() => {}} />));
+    expect(screen.getByText('April 2024')).toBeOnTheScreen();
+  });
+
+  it('disables the arrow that would leave the allowed months behind', () => {
+    render(
+      withProvider(
+        <DatePicker
+          value={MARCH_2024}
+          onChange={() => {}}
+          minDate={new Date(2024, 2, 1)}
+          maxDate={new Date(2024, 3, 30)}
+        />
+      )
+    );
+    expect(screen.getByRole('button', { name: 'Previous month' }).props.accessibilityState.disabled).toBe(true);
+    expect(screen.getByRole('button', { name: 'Next month' }).props.accessibilityState.disabled).toBe(false);
+  });
+
+  it('reports the month left on screen', () => {
+    const onVisibleMonthChange = jest.fn();
+    render(
+      withProvider(
+        <DatePicker value={MARCH_2024} onChange={() => {}} onVisibleMonthChange={onVisibleMonthChange} />
+      )
+    );
+    fireEvent.press(screen.getByRole('button', { name: 'Next month' }));
+    expect(onVisibleMonthChange.mock.calls[0][0].getMonth()).toBe(3);
+  });
+
+  it('takes the month names from the provider labels', () => {
+    render(
+      <UIProvider mode="light" labels={{ months: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'] }}>
+        <DatePicker value={MARCH_2024} onChange={() => {}} />
+      </UIProvider>
+    );
+    expect(screen.getByText('Mar 2024')).toBeOnTheScreen();
+  });
+
   it('falls back to defaultMonth when there is no value', () => {
     render(withProvider(<DatePicker onChange={() => {}} defaultMonth={new Date(2023, 0, 1)} />));
     expect(screen.getByText('January 2023')).toBeOnTheScreen();
@@ -244,6 +293,51 @@ describe('DateField', () => {
     fireEvent.press(screen.getByLabelText('March 20, 2024'));
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange.mock.calls[0][0].getDate()).toBe(20);
+  });
+
+  it('does not render a clear button without onClear', () => {
+    render(withProvider(<DateField label="Due date" value={MARCH_2024} onChange={() => {}} />));
+    fireEvent.press(screen.getByRole('button', { name: 'Due date' }));
+    expect(screen.queryByText('Clear')).not.toBeOnTheScreen();
+  });
+
+  it('clears the value and closes when the clear button is pressed', () => {
+    const onClear = jest.fn();
+    render(withProvider(<DateField label="Due date" value={MARCH_2024} onChange={() => {}} onClear={onClear} />));
+    fireEvent.press(screen.getByRole('button', { name: 'Due date' }));
+    fireEvent.press(screen.getByText('Clear'));
+    expect(onClear).toHaveBeenCalledTimes(1);
+  });
+
+  it('mode="range" shows both ends and only closes once the range is closed', () => {
+    const onRangeChange = jest.fn();
+    const { rerender } = render(
+      withProvider(
+        <DateField
+          label="Stay"
+          mode="range"
+          range={{ start: new Date(2024, 2, 10) }}
+          onRangeChange={onRangeChange}
+        />
+      )
+    );
+    expect(screen.getByText('March 10, 2024')).toBeOnTheScreen();
+
+    fireEvent.press(screen.getByRole('button', { name: 'Stay' }));
+    fireEvent.press(screen.getByLabelText('March 14, 2024'));
+    expect(onRangeChange.mock.calls[0][0].end.getDate()).toBe(14);
+
+    rerender(
+      withProvider(
+        <DateField
+          label="Stay"
+          mode="range"
+          range={{ start: new Date(2024, 2, 10), end: new Date(2024, 2, 14) }}
+          onRangeChange={onRangeChange}
+        />
+      )
+    );
+    expect(screen.getByText('March 10, 2024 — March 14, 2024')).toBeOnTheScreen();
   });
 
   it('shows an error message', () => {

@@ -1,7 +1,7 @@
-import React, { memo, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { useAllowFontScaling, useLabels } from '../theme/UIProvider';
 import { IconButton } from '../atoms/IconButton';
 
 export const DEFAULT_MONTH_NAMES = [
@@ -36,34 +36,40 @@ export interface DatePickerProps {
   maxDate?: Date;
   /** Mes mostrado al abrir si no hay `value`. @default hoy */
   defaultMonth?: Date;
+  /** Nombres de los meses. @default los de `useLabels()` */
   monthNames?: string[];
+  /** Iniciales de los días, índice 0 = domingo. @default las de `useLabels()` */
   weekdayNames?: string[];
   /** 0 = domingo, 1 = lunes. @default 0 */
   firstDayOfWeek?: 0 | 1;
+  /** Avisa qué mes quedó a la vista al navegar con las flechas. */
+  onVisibleMonthChange?: (month: Date) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;
-}
-
-/** Compara sólo año/mes/día, ignorando hora — dos Date del mismo día son "iguales". */
-function isSameDay(a: Date, b: Date): boolean {
-  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
 function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-/** Estrictamente entre start y end, sin incluir los extremos. */
-function isBetween(day: Date, start: Date, end: Date): boolean {
-  const t = startOfDay(day).getTime();
-  return t > startOfDay(start).getTime() && t < startOfDay(end).getTime();
+/** Timestamp del día, para comparar sin volver a crear Date en cada celda. */
+function dayTime(d: Date): number {
+  return startOfDay(d).getTime();
 }
 
-function isOutOfRange(day: Date, minDate?: Date, maxDate?: Date): boolean {
-  const t = startOfDay(day).getTime();
-  if (minDate && t < startOfDay(minDate).getTime()) return true;
-  if (maxDate && t > startOfDay(maxDate).getTime()) return true;
-  return false;
+function dayTimeOf(d: Date | undefined): number | undefined {
+  return d ? dayTime(d) : undefined;
+}
+
+/** Milisegundos que faltan para la próxima medianoche local. */
+function msUntilNextMidnight(from: Date): number {
+  const next = new Date(from.getFullYear(), from.getMonth(), from.getDate() + 1);
+  return next.getTime() - from.getTime();
+}
+
+/** Número de mes absoluto (año * 12 + mes), para comparar meses con un `<`. */
+function monthIndex(d: Date): number {
+  return d.getFullYear() * 12 + d.getMonth();
 }
 
 /**
@@ -121,6 +127,74 @@ const useStyles = createStyles((theme) => ({
   dayTextDisabled: { color: theme.colors.textLight, opacity: 0.4 },
 }));
 
+type Styles = ReturnType<typeof useStyles>;
+
+interface DayCellProps {
+  day: Date;
+  label: string;
+  selected: boolean;
+  inRange: boolean;
+  isRangeStart: boolean;
+  isRangeEnd: boolean;
+  isToday: boolean;
+  disabled: boolean;
+  allowFontScaling: boolean;
+  styles: Styles;
+  onPress: (day: Date) => void;
+}
+
+/**
+ * Una celda del calendario. Va memoizada aparte porque el mes entero son 42
+ * celdas: sin esto, cualquier render del padre reconcilia las 42.
+ */
+const DayCell = memo(
+  ({
+    day,
+    label,
+    selected,
+    inRange,
+    isRangeStart,
+    isRangeEnd,
+    isToday,
+    disabled,
+    allowFontScaling,
+    styles,
+    onPress,
+  }: DayCellProps) => (
+    <View
+      style={[
+        styles.cell,
+        (inRange || isRangeStart || isRangeEnd) && styles.cellInRange,
+        isRangeStart && styles.cellRangeStart,
+        isRangeEnd && styles.cellRangeEnd,
+      ]}
+    >
+      <TouchableOpacity
+        style={[styles.dayButton, selected && styles.daySelected, !selected && isToday && styles.dayToday]}
+        onPress={() => onPress(day)}
+        disabled={disabled}
+        activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel={label}
+        accessibilityState={{ selected, disabled }}
+      >
+        <Text
+          allowFontScaling={allowFontScaling}
+          style={[
+            styles.dayText,
+            inRange && styles.dayTextInRange,
+            selected && styles.dayTextSelected,
+            disabled && styles.dayTextDisabled,
+          ]}
+        >
+          {day.getDate()}
+        </Text>
+      </TouchableOpacity>
+    </View>
+  )
+);
+DayCell.displayName = 'DayCell';
+
 /**
  * DatePicker
  * Calendario mensual dibujado con View/Text puros — sin
@@ -137,58 +211,117 @@ export const DatePicker = memo(
     minDate,
     maxDate,
     defaultMonth,
-    monthNames = DEFAULT_MONTH_NAMES,
-    weekdayNames = DEFAULT_WEEKDAY_NAMES,
+    monthNames,
+    weekdayNames,
     firstDayOfWeek = 0,
+    onVisibleMonthChange,
     style,
     testID,
   }: DatePickerProps) => {
-    const colors = useColors();
     const styles = useStyles();
+    const labels = useLabels();
     const allowFontScaling = useAllowFontScaling();
     const isRange = mode === 'range';
 
-    const handlePress = (day: Date) => {
-      if (!isRange) {
-        onChange?.(day);
-        return;
-      }
-      // Primer toque (o rango ya cerrado, o toque antes del inicio): arranca
-      // un rango nuevo. Segundo toque en adelante: lo cierra.
-      if (!range?.start || range.end || startOfDay(day) < startOfDay(range.start)) {
-        onRangeChange?.({ start: day });
-      } else {
-        onRangeChange?.({ start: range.start, end: day });
-      }
-    };
+    const months = monthNames ?? labels.months;
+    const weekdays = weekdayNames ?? labels.weekdaysShort;
 
-    const initial = value ?? range?.start ?? defaultMonth ?? new Date();
-    const [visibleMonth, setVisibleMonth] = useState(() => new Date(initial.getFullYear(), initial.getMonth(), 1));
+    const handlePress = useCallback(
+      (day: Date) => {
+        if (!isRange) {
+          onChange?.(day);
+          return;
+        }
+        // Primer toque (o rango ya cerrado, o toque antes del inicio): arranca
+        // un rango nuevo. Segundo toque en adelante: lo cierra.
+        if (!range?.start || range.end || dayTime(day) < dayTime(range.start)) {
+          onRangeChange?.({ start: day });
+        } else {
+          onRangeChange?.({ start: range.start, end: day });
+        }
+      },
+      [isRange, onChange, onRangeChange, range?.start, range?.end]
+    );
 
-    const today = useMemo(() => new Date(), []);
+    const anchor = value ?? range?.start ?? defaultMonth;
+    const [visibleMonth, setVisibleMonth] = useState(
+      () => new Date((anchor ?? new Date()).getFullYear(), (anchor ?? new Date()).getMonth(), 1)
+    );
+
+    // La fecha elegida puede cambiar desde afuera (uso controlado): sin esto,
+    // el calendario se quedaba clavado en el mes con el que montó.
+    const anchorMonth = anchor ? monthIndex(anchor) : undefined;
+    const lastAnchorMonth = useRef(anchorMonth);
+    useEffect(() => {
+      if (anchorMonth === undefined || anchorMonth === lastAnchorMonth.current) return;
+      lastAnchorMonth.current = anchorMonth;
+      setVisibleMonth(new Date(Math.floor(anchorMonth / 12), anchorMonth % 12, 1));
+    }, [anchorMonth]);
+
+    // "Hoy" se recalcula en la próxima medianoche: una app que queda abierta
+    // toda la noche marcaba el día anterior.
+    const [todayTs, setTodayTs] = useState(() => dayTime(new Date()));
+    useEffect(() => {
+      const timer = setTimeout(() => setTodayTs(dayTime(new Date())), msUntilNextMidnight(new Date()));
+      return () => clearTimeout(timer);
+    }, [todayTs]);
+
     const grid = useMemo(
       () => buildMonthGrid(visibleMonth.getFullYear(), visibleMonth.getMonth(), firstDayOfWeek),
       [visibleMonth, firstDayOfWeek]
     );
 
     const orderedWeekdays = useMemo(
-      () => (firstDayOfWeek === 0 ? weekdayNames : [...weekdayNames.slice(1), weekdayNames[0]!]),
-      [weekdayNames, firstDayOfWeek]
+      () => (firstDayOfWeek === 0 ? weekdays : [...weekdays.slice(1), weekdays[0]!]),
+      [weekdays, firstDayOfWeek]
+    );
+
+    // Los límites se resuelven una vez y no 42 veces por render: comparar
+    // timestamps sale gratis, crear un Date por celda no.
+    const bounds = useMemo(
+      () => ({
+        min: dayTimeOf(minDate),
+        max: dayTimeOf(maxDate),
+        start: dayTimeOf(range?.start),
+        end: dayTimeOf(range?.end),
+        selected: dayTimeOf(value),
+      }),
+      [minDate, maxDate, range?.start, range?.end, value]
     );
 
     const shiftMonth = (delta: number) =>
-      setVisibleMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
+      setVisibleMonth((m) => {
+        const next = new Date(m.getFullYear(), m.getMonth() + delta, 1);
+        onVisibleMonthChange?.(next);
+        return next;
+      });
 
-    const monthLabel = `${monthNames[visibleMonth.getMonth()]} ${visibleMonth.getFullYear()}`;
+    // Un mes entero fuera de los límites no tiene nada que elegir: la flecha
+    // que lleva ahí se apaga en vez de dejar navegar al vacío.
+    const visibleIndex = monthIndex(visibleMonth);
+    const canGoBack = !minDate || visibleIndex > monthIndex(minDate);
+    const canGoForward = !maxDate || visibleIndex < monthIndex(maxDate);
+
+    const monthLabel = `${months[visibleMonth.getMonth()]} ${visibleMonth.getFullYear()}`;
 
     return (
       <View style={[styles.container, style]} testID={testID}>
         <View style={styles.header}>
-          <IconButton iconName="chevron-left" accessibilityLabel="Previous month" onPress={() => shiftMonth(-1)} />
+          <IconButton
+            iconName="chevron-left"
+            accessibilityLabel="Previous month"
+            disabled={!canGoBack}
+            onPress={() => shiftMonth(-1)}
+          />
           <Text allowFontScaling={allowFontScaling} style={styles.monthLabel} accessibilityRole="header">
             {monthLabel}
           </Text>
-          <IconButton iconName="chevron-right" accessibilityLabel="Next month" onPress={() => shiftMonth(1)} />
+          <IconButton
+            iconName="chevron-right"
+            accessibilityLabel="Next month"
+            disabled={!canGoForward}
+            onPress={() => shiftMonth(1)}
+          />
         </View>
 
         <View style={styles.weekRow}>
@@ -204,46 +337,31 @@ export const DatePicker = memo(
             {row.map((day, cellIndex) => {
               if (!day) return <View style={styles.cell} key={cellIndex} />;
 
-              const isStart = isRange && !!range?.start && isSameDay(day, range.start);
-              const isEnd = isRange && !!range?.end && isSameDay(day, range.end);
-              const inRange =
-                isRange && !!range?.start && !!range.end && isBetween(day, range.start, range.end);
-              const selected = isRange ? isStart || isEnd : !!value && isSameDay(day, value);
+              const t = dayTime(day);
+              const disabled = (bounds.min !== undefined && t < bounds.min) || (bounds.max !== undefined && t > bounds.max);
+              const isStart = isRange && bounds.start === t;
+              const isEnd = isRange && bounds.end === t;
+              const closed = isRange && bounds.start !== undefined && bounds.end !== undefined;
+              const between = closed && t > bounds.start! && t < bounds.end!;
+              const selected = isRange ? isStart || isEnd : bounds.selected === t;
 
-              const disabled = isOutOfRange(day, minDate, maxDate);
-              const isToday = isSameDay(day, today);
               return (
-                <View
-                  style={[
-                    styles.cell,
-                    (inRange || (isStart && !!range?.end) || isEnd) && styles.cellInRange,
-                    isStart && !!range?.end && styles.cellRangeStart,
-                    isEnd && styles.cellRangeEnd,
-                  ]}
+                <DayCell
                   key={cellIndex}
-                >
-                  <TouchableOpacity
-                    style={[styles.dayButton, selected && styles.daySelected, !selected && isToday && styles.dayToday]}
-                    onPress={() => handlePress(day)}
-                    disabled={disabled}
-                    activeOpacity={0.7}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${monthNames[day.getMonth()]} ${day.getDate()}, ${day.getFullYear()}`}
-                    accessibilityState={{ selected, disabled }}
-                  >
-                    <Text
-                      allowFontScaling={allowFontScaling}
-                      style={[
-                        styles.dayText,
-                        inRange && styles.dayTextInRange,
-                        selected && styles.dayTextSelected,
-                        disabled && styles.dayTextDisabled,
-                      ]}
-                    >
-                      {day.getDate()}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                  day={day}
+                  label={`${months[day.getMonth()]} ${day.getDate()}, ${day.getFullYear()}`}
+                  selected={selected}
+                  // Un día fuera de los límites no se pinta como parte del
+                  // rango: se ve deshabilitado, y eso es lo que es.
+                  inRange={between && !disabled}
+                  isRangeStart={!!closed && isStart && !disabled}
+                  isRangeEnd={isEnd && !disabled}
+                  isToday={t === todayTs}
+                  disabled={disabled}
+                  allowFontScaling={allowFontScaling}
+                  styles={styles}
+                  onPress={handlePress}
+                />
               );
             })}
           </View>
