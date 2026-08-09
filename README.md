@@ -4,8 +4,8 @@ Fast, tree-shakeable, atomic-design component library for React Native.
 **Zero runtime dependencies** — only `react` and `react-native` as peers. No
 babel config, no metro config, no pods.
 
-35 components across atoms, molecules and organisms, fully typed, themeable
-(light/dark), with 246 tests and a 90%/85% (lines/branches) coverage gate in CI.
+39 components across atoms, molecules and organisms, fully typed, themeable
+(light/dark), with 388 tests and a 90%/85% (lines/branches) coverage gate in CI.
 
 Live docs (props tables, demo snippets, install instructions per component):
 **[orn-ui.dev](https://orn-ui.dev)**
@@ -129,11 +129,11 @@ otherwise silent until someone opens a modal.
 `Skeleton`, `EmptyState`, `KeyValueRow`, `Fab`, `PressableScale`, `Transition`
 
 **Molecules** — `Stepper`, `OptionCard`, `InfoRow`, `FormActions`,
-`AvatarHeader`, `ThemeToggle`, `Steps`
+`AvatarHeader`, `SegmentedControl`, `Steps`
 
 **Organisms** — `Modal`, `BottomSheet`, `Select`, `Alert`/`AlertProvider`,
 `Screen`, `List`, `SearchList`, `Toast`/`ToastProvider`, `DatePicker`,
-`DateField`, `Wizard`, `NavigationBar`
+`DateField`, `Wizard`, `ThemeToggle`, `NavigationBar`
 
 Full props tables and live-recorded demo GIFs for every one of these: see
 [orn-ui.dev](https://orn-ui.dev).

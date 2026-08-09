@@ -165,10 +165,10 @@
       "react-native": "./src/molecules/AvatarHeader.tsx",
       "default": "./lib/module/molecules/AvatarHeader.js"
     },
-    "./theme-toggle": {
-      "types": "./lib/typescript/molecules/ThemeToggle.d.ts",
-      "react-native": "./src/molecules/ThemeToggle.tsx",
-      "default": "./lib/module/molecules/ThemeToggle.js"
+    "./segmented-control": {
+      "types": "./lib/typescript/molecules/SegmentedControl.d.ts",
+      "react-native": "./src/molecules/SegmentedControl.tsx",
+      "default": "./lib/module/molecules/SegmentedControl.js"
     },
     "./steps": {
       "types": "./lib/typescript/molecules/Steps.d.ts",
@@ -264,6 +264,11 @@
       "types": "./lib/typescript/organisms/Wizard.d.ts",
       "react-native": "./src/organisms/Wizard.tsx",
       "default": "./lib/module/organisms/Wizard.js"
+    },
+    "./theme-toggle": {
+      "types": "./lib/typescript/organisms/ThemeToggle.d.ts",
+      "react-native": "./src/organisms/ThemeToggle.tsx",
+      "default": "./lib/module/organisms/ThemeToggle.js"
     },
     "./navigation-bar": {
       "types": "./lib/typescript/organisms/NavigationBar.d.ts",

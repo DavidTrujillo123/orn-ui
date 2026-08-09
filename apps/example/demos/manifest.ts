@@ -24,7 +24,7 @@ import { OptionCardDemo } from './OptionCard.demo';
 import { InfoRowDemo } from './InfoRow.demo';
 import { FormActionsDemo } from './FormActions.demo';
 import { AvatarHeaderDemo } from './AvatarHeader.demo';
-import { ThemeToggleDemo } from './ThemeToggle.demo';
+import { SegmentedControlDemo } from './SegmentedControl.demo';
 
 import { ModalDemo } from './Modal.demo';
 import { BottomSheetDemo } from './BottomSheet.demo';
@@ -36,6 +36,7 @@ import { SearchListDemo } from './SearchList.demo';
 import { ToastDemo } from './Toast.demo';
 import { DatePickerDemo } from './DatePicker.demo';
 import { WizardDemo } from './Wizard.demo';
+import { ThemeToggleDemo } from './ThemeToggle.demo';
 import { NavigationBarDemo } from './NavigationBar.demo';
 
 export interface DemoEntry {
@@ -89,7 +90,12 @@ export const MOLECULES: DemoEntry[] = [
   { slug: 'info-row', name: 'InfoRow', description: 'Circular icon + stacked label/value', Demo: InfoRowDemo },
   { slug: 'form-actions', name: 'FormActions', description: 'Primary/close button pair', Demo: FormActionsDemo },
   { slug: 'avatar-header', name: 'AvatarHeader', description: 'Detail header: circle + title + subtitle', Demo: AvatarHeaderDemo },
-  { slug: 'theme-toggle', name: 'ThemeToggle', description: 'Auto/Light/Dark segmented control', Demo: ThemeToggleDemo },
+  {
+    slug: 'segmented-control',
+    name: 'SegmentedControl',
+    description: 'Pick one of a few options, all visible at once',
+    Demo: SegmentedControlDemo,
+  },
   { slug: 'steps', name: 'Steps', description: 'Multi-step indicator: horizontal/vertical, check or number', Demo: StepsDemo },
 ];
 
@@ -104,6 +110,12 @@ export const ORGANISMS: DemoEntry[] = [
   { slug: 'toast', name: 'Toast', description: 'Ephemeral notification + imperative ToastProvider/useToast', Demo: ToastDemo },
   { slug: 'date-picker', name: 'DatePicker', description: 'Calendar and DateField, no native picker', Demo: DatePickerDemo },
   { slug: 'wizard', name: 'Wizard', description: 'Multi-step flow over Steps, with per-step validation', Demo: WizardDemo },
+  {
+    slug: 'theme-toggle',
+    name: 'ThemeToggle',
+    description: 'SegmentedControl wired to UIProvider: Auto/Light/Dark',
+    Demo: ThemeToggleDemo,
+  },
   {
     slug: 'navigation-bar',
     name: 'NavigationBar',

@@ -24,5 +24,7 @@ export { DateField } from './DateField';
 export type { DateFieldProps } from './DateField';
 export { Wizard } from './Wizard';
 export type { WizardProps, WizardStep } from './Wizard';
+export { ThemeToggle } from './ThemeToggle';
+export type { ThemeToggleProps } from './ThemeToggle';
 export { NavigationBar } from './NavigationBar';
 export type { NavigationBarProps, NavigationBarItem } from './NavigationBar';
