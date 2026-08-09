@@ -24,6 +24,7 @@ function resolveSpecifier(fromFile, specifier, srcDir) {
 export function resolveDeps(component, components, fileMap, srcDir) {
   const registryDeps = new Set();
   const visitedFiles = new Set();
+  const internalFiles = new Set([component.file]);
 
   function visit(relFile) {
     if (visitedFiles.has(relFile)) return;
@@ -44,12 +45,17 @@ export function resolveDeps(component, components, fileMap, srcDir) {
       }
 
       const owner = fileMap.get(resolved);
-      if (!owner) continue; // archivo de otra categoría no registrado (no debería pasar)
+      if (!owner) {
+        // Archivo helper interno no registrado como componente propio (ej. organisms/imperativeBridge.ts)
+        internalFiles.add(resolved);
+        visit(resolved);
+        continue;
+      }
       if (owner.slug !== component.slug) registryDeps.add(owner.slug);
       visit(owner.file);
     }
   }
 
   visit(component.file);
-  return { registryDependencies: [...registryDeps], core: true };
+  return { registryDependencies: [...registryDeps], internalFiles: [...internalFiles], core: true };
 }

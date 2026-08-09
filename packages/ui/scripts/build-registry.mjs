@@ -54,14 +54,14 @@ function buildCore() {
 }
 
 function buildComponentEntry(component, components, fileMap) {
-  const { registryDependencies } = resolveDeps(component, components, fileMap, SRC);
+  const { registryDependencies, internalFiles } = resolveDeps(component, components, fileMap, SRC);
   return {
     name: component.name,
     slug: component.slug,
     type: 'component',
     category: component.category,
     exportedNames: [component.name, ...component.siblingNames],
-    files: [fileEntry(component.file, SRC)],
+    files: internalFiles.map((f) => fileEntry(f, SRC)),
     // "core" siempre primero: el CLI lo instala antes de escribir el resto.
     registryDependencies: ['core', ...registryDependencies],
   };
