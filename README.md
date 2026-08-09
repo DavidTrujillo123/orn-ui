@@ -5,7 +5,7 @@ Fast, tree-shakeable, atomic-design component library for React Native.
 babel config, no metro config, no pods.
 
 39 components across atoms, molecules and organisms, fully typed, themeable
-(light/dark), with 393 tests and a 90%/85% (lines/branches) coverage gate in CI.
+(light/dark), with 409 tests and a 90%/85% (lines/branches) coverage gate in CI.
 
 Live docs (props tables, demo snippets, install instructions per component):
 **[orn-ui.dev](https://orn-ui.dev)**
