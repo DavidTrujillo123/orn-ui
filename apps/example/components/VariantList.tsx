@@ -1,6 +1,7 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Keyboard,
   LayoutChangeEvent,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -44,10 +45,43 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   // función, es ruido sobre el componente que se está mirando.
   const hintOpacity = useRef(new Animated.Value(1)).current;
   const hintDismissed = useRef(false);
+  const pagerRef = useRef<ScrollView>(null);
+  const indexRef = useRef(0);
+  const keyboardOpen = useRef(false);
 
+  // Con el teclado abierto el contenedor puede achicarse (Android redimensiona
+  // la ventana). Aceptar ese alto reescalaría todas las páginas y el offset
+  // pasaría a apuntar a otra variante, así que se conserva el alto original.
   const onLayout = useCallback((e: LayoutChangeEvent) => {
+    if (keyboardOpen.current) return;
     setPageHeight(e.nativeEvent.layout.height);
   }, []);
+
+  const snapToCurrent = useCallback(() => {
+    if (pageHeight <= 0) return;
+    pagerRef.current?.scrollTo({ y: indexRef.current * pageHeight, animated: false });
+  }, [pageHeight]);
+
+  // Si cambia el alto de página (rotación) el offset viejo apunta a mitad de
+  // camino entre dos variantes: se re-ancla la actual.
+  useEffect(snapToCurrent, [snapToCurrent]);
+
+  // Al enfocar un Input, iOS sube TODOS los scrollers que lo contienen, no sólo
+  // el de la página: el pager quedaba entre dos variantes. La página se queda
+  // fija, se la devuelve a su offset cuando el teclado terminó de moverse.
+  useEffect(() => {
+    const subs = [
+      Keyboard.addListener('keyboardDidShow', () => {
+        keyboardOpen.current = true;
+        snapToCurrent();
+      }),
+      Keyboard.addListener('keyboardDidHide', () => {
+        keyboardOpen.current = false;
+        snapToCurrent();
+      }),
+    ];
+    return () => subs.forEach((s) => s.remove());
+  }, [snapToCurrent]);
 
   const onScroll = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -61,7 +95,9 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   const onMomentumEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (pageHeight <= 0) return;
-      setIndex(Math.round(e.nativeEvent.contentOffset.y / pageHeight));
+      const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
+      indexRef.current = next;
+      setIndex(next);
     },
     [pageHeight],
   );
@@ -88,9 +124,11 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
           página el snap cae en offsets arbitrarios. Un frame en blanco. */}
       {pageHeight > 0 && (
         <ScrollView
+          ref={pagerRef}
           pagingEnabled
           showsVerticalScrollIndicator={false}
           decelerationRate="fast"
+          keyboardShouldPersistTaps="handled"
           onScroll={onScroll}
           scrollEventThrottle={16}
           onMomentumScrollEnd={onMomentumEnd}

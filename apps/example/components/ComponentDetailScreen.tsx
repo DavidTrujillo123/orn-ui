@@ -42,9 +42,11 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
   return (
     <Screen
       scrollable={freeScroll}
-      // El demo trae su propio scroller con manejo de teclado; sumarle el del
-      // Screen empuja el campo enfocado fuera de la pantalla.
-      keyboardAvoiding={!entry.hostsList}
+      // Sólo los flujos libres delegan el teclado al Screen. Los demos con
+      // pager y los que hostean su propia lista traen su scroller: sumarle la
+      // compensación del Screen empuja el campo enfocado fuera de la pantalla
+      // y, en el pager, altera el alto de página que sostiene el snap.
+      keyboardAvoiding={freeScroll}
       edges={['top', 'bottom']}
     >
       {/* Patrón de título grande de iOS: la barra solo lleva el back, y el

@@ -64,6 +64,17 @@ describe('Screen', () => {
     expect(UNSAFE_queryByType(KeyboardAvoidingView)).not.toBeNull();
   });
 
+  it('skips the KeyboardAvoidingView when scrollable on iOS, so the keyboard is compensated once', () => {
+    const { UNSAFE_queryByType } = render(
+      withProvider(
+        <Screen>
+          <Text>content</Text>
+        </Screen>
+      )
+    );
+    expect(UNSAFE_queryByType(KeyboardAvoidingView)).toBeNull();
+  });
+
   it('keyboardAvoiding={false} skips it, so a self-managing child does not double-compensate', () => {
     const { UNSAFE_queryByType } = render(
       withProvider(

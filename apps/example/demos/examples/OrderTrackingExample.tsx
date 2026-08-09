@@ -39,8 +39,8 @@ export function OrderTrackingExample() {
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
   const [stage, setStage] = useState(0);
-  // El toast de "delivered" se dispara desde el intervalo: sin este guard se
-  // repetía en cada tick una vez alcanzada la última etapa.
+  // Sin este guard el toast de "delivered" se repetía en cada tick una vez
+  // alcanzada la última etapa.
   const announced = useRef(false);
 
   useEffect(() => {
@@ -51,19 +51,19 @@ export function OrderTrackingExample() {
   useEffect(() => {
     if (loading || missing) return;
     const id = setInterval(() => {
-      setStage((s) => {
-        if (s >= STAGES.length - 1) {
-          if (!announced.current) {
-            announced.current = true;
-            show({ title: 'Delivered', message: 'Order #4821 arrived.', variant: 'success' });
-          }
-          return s;
-        }
-        return s + 1;
-      });
+      setStage((s) => Math.min(s + 1, STAGES.length - 1));
     }, 2500);
     return () => clearInterval(id);
-  }, [loading, missing, show]);
+  }, [loading, missing]);
+
+  // El toast se dispara desde un efecto, no desde el updater de setStage:
+  // React reejecuta los updaters durante el render, y mostrarlo ahí actualizaba
+  // el ToastProvider mientras se renderizaba este componente.
+  useEffect(() => {
+    if (loading || missing || stage < STAGES.length - 1 || announced.current) return;
+    announced.current = true;
+    show({ title: 'Delivered', message: 'Order #4821 arrived.', variant: 'success' });
+  }, [loading, missing, stage, show]);
 
   const reset = useCallback(() => {
     announced.current = false;

@@ -13,7 +13,8 @@ export interface ScreenProps {
   /** Qué insets de safe area aplicar. @default ['top', 'bottom'] */
   edges?: ScreenEdge[];
   /**
-   * Compensa el teclado con un KeyboardAvoidingView. Ponelo en false cuando
+   * Compensa el teclado: en iOS con scroll lo hace el propio ScrollView, en el
+   * resto de los casos con un KeyboardAvoidingView. Ponelo en false cuando
    * el contenido ya trae su propio scroller que maneja el teclado (Wizard,
    * List, SearchList): las dos compensaciones se suman y el campo enfocado
    * termina empujado fuera de la pantalla.
@@ -46,8 +47,15 @@ export const Screen = memo(({
   const applyTop = edges.includes('top');
   const applyBottom = edges.includes('bottom');
 
-  const KeyboardWrapper: React.ComponentType<any> = keyboardAvoiding ? KeyboardAvoidingView : View;
-  const keyboardProps = keyboardAvoiding
+  // En iOS el ScrollView de abajo ya sube el campo enfocado con
+  // automaticallyAdjustKeyboardInsets; envolverlo además en un
+  // KeyboardAvoidingView compensa el teclado dos veces y el input termina
+  // empujado fuera del borde superior. Android no tiene ese prop, así que ahí
+  // el KeyboardAvoidingView sigue siendo el único mecanismo.
+  const avoidWithView = keyboardAvoiding && !(scrollable && Platform.OS === 'ios');
+
+  const KeyboardWrapper: React.ComponentType<any> = avoidWithView ? KeyboardAvoidingView : View;
+  const keyboardProps = avoidWithView
     ? {
         behavior: Platform.OS === 'ios' ? ('padding' as const) : ('height' as const),
         keyboardVerticalOffset: Platform.OS === 'ios' ? 0 : 20,
