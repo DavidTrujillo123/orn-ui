@@ -162,8 +162,6 @@ export const NavigationBar = memo(
             pointerEvents="none"
             style={[
               styles.indicator,
-              // El safe area vive dentro del padding de la barra: sin descontarlo
-              // el indicador se estira hasta el borde inferior de la pantalla.
               safeArea && position === 'bottom' && { bottom: theme.tokens.spacing.xs + insets.bottom },
               safeArea && position === 'top' && { top: theme.tokens.spacing.xs + insets.top },
               {
