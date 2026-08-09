@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { Steps, type StepItem } from '../molecules/Steps';
 import { Button } from '../atoms/Button';
+import { Transition } from '../atoms/Transition';
 
 export interface WizardStep extends StepItem {
   content: React.ReactNode;
@@ -31,6 +32,12 @@ export interface WizardProps {
    * @default true
    */
   scrollableContent?: boolean;
+  /**
+   * El contenido del paso entra deslizándose en el sentido de la navegación.
+   * Sólo opacity y transform, así que la animación corre en el hilo nativo.
+   * @default true
+   */
+  animated?: boolean;
   style?: StyleProp<ViewStyle>;
 }
 
@@ -61,6 +68,7 @@ export function Wizard({
   nextLabel = 'Next',
   finishLabel = 'Finish',
   scrollableContent = true,
+  animated = true,
   style,
 }: WizardProps) {
   const styles = useStyles();
@@ -82,6 +90,15 @@ export function Wizard({
     [steps]
   );
 
+  // El ref todavía guarda el paso anterior durante el render que trae el nuevo.
+  const previous = useRef(current);
+  const forward = current >= previous.current;
+  const entered = useRef(false);
+  useEffect(() => {
+    previous.current = current;
+    entered.current = true;
+  }, [current]);
+
   const activeStep = steps[current];
   const isFirst = current === 0;
   const isLast = current === steps.length - 1;
@@ -91,6 +108,22 @@ export function Wizard({
     if (isLast) onFinish?.();
     else goTo(current + 1);
   };
+
+  // El paso saliente no se anima: mantener los dos montados a la vez duplicaría
+  // los formularios y su estado.
+  const renderContent = () =>
+    animated ? (
+      <Transition
+        key={current}
+        testID="wizard-step"
+        preset={['fade', forward ? 'slide-left' : 'slide-right']}
+        appear={entered.current}
+      >
+        {activeStep?.content}
+      </Transition>
+    ) : (
+      activeStep?.content
+    );
 
   return (
     <View style={[styles.container, style]}>
@@ -115,10 +148,10 @@ export function Wizard({
           automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
         >
-          {activeStep?.content}
+          {renderContent()}
         </ScrollView>
       ) : (
-        <View style={styles.content}>{activeStep?.content}</View>
+        <View style={styles.content}>{renderContent()}</View>
       )}
 
       <View style={styles.footer}>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ScrollView, Text } from 'react-native';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { act, render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Wizard, type WizardStep } from '../Wizard';
 
@@ -19,6 +19,28 @@ describe('Wizard', () => {
     render(withProvider(<Wizard steps={STEPS} />));
     expect(screen.getByText('account content')).toBeOnTheScreen();
     expect(screen.queryByText('payment content')).not.toBeOnTheScreen();
+  });
+
+  it('does not animate the first step, and animates the ones it navigates to', () => {
+    jest.useFakeTimers();
+    const opacity = () => (screen.getByTestId('wizard-step').props.style as { opacity?: number }).opacity;
+
+    render(withProvider(<Wizard steps={STEPS} />));
+    expect(opacity()).toBe(1);
+
+    fireEvent.press(screen.getByRole('button', { name: 'Next' }));
+    expect(opacity()).toBe(0);
+
+    act(() => jest.advanceTimersByTime(400));
+    expect(opacity()).toBe(1);
+
+    jest.useRealTimers();
+  });
+
+  it('animated={false} renders the step content without a wrapper', () => {
+    render(withProvider(<Wizard steps={STEPS} animated={false} />));
+    expect(screen.queryByTestId('wizard-step')).not.toBeOnTheScreen();
+    expect(screen.getByText('account content')).toBeOnTheScreen();
   });
 
   it('hides Back on the first step', () => {
