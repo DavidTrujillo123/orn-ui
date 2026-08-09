@@ -17,6 +17,7 @@ export default function TabsLayout() {
       initialRouteName="atoms"
       screenOptions={{
         headerShown: false,
+        animation: 'shift',
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textLight,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },

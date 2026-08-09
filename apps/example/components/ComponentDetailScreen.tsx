@@ -18,8 +18,12 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
   // recorre el historial global) ni navigation.goBack() garantizan la lista
   // de ESTA categoría — al cambiar de pestaña el paso previo del historial es
   // otra pestaña, y el back terminaba en Atoms viniendo de una molécula.
-  // replace, no push: el detalle no debe quedar en el stack detrás de la lista.
-  const goBack = () => router.replace(basePath as Href);
+  // dismissTo desapila hasta esa lista con la animación de vuelta; replace
+  // (el camino de entrada directa por deep link) cambia la pantalla sin animar.
+  const goBack = () => {
+    if (router.canDismiss()) router.dismissTo(basePath as Href);
+    else router.replace(basePath as Href);
+  };
 
   if (!entry) {
     return (
