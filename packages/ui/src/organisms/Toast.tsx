@@ -1,7 +1,8 @@
-import React, { memo, useEffect, useRef } from 'react';
-import { Animated, Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { memo } from 'react';
+import { Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { Transition } from '../atoms/Transition';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
 
@@ -120,24 +121,10 @@ Toast.displayName = 'Toast';
 
 /** Envuelve un Toast con su animación de entrada/salida. Uso interno del provider. */
 export const AnimatedToast = memo(
-  ({ children, onHeight }: { children: React.ReactNode; onHeight?: (h: number) => void }) => {
-    const progress = useRef(new Animated.Value(0)).current;
-
-    useEffect(() => {
-      Animated.spring(progress, { toValue: 1, useNativeDriver: true, speed: 14, bounciness: 4 }).start();
-    }, [progress]);
-
-    return (
-      <Animated.View
-        onLayout={(e) => onHeight?.(e.nativeEvent.layout.height)}
-        style={{
-          opacity: progress,
-          transform: [{ translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [-16, 0] }) }],
-        }}
-      >
-        {children}
-      </Animated.View>
-    );
-  }
+  ({ children, onHeight }: { children: React.ReactNode; onHeight?: (h: number) => void }) => (
+    <Transition preset={['fade', 'slide-down']} distance={16} spring>
+      <View onLayout={(e) => onHeight?.(e.nativeEvent.layout.height)}>{children}</View>
+    </Transition>
+  )
 );
 AnimatedToast.displayName = 'AnimatedToast';

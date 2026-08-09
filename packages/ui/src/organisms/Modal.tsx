@@ -1,6 +1,5 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useState } from 'react';
 import {
-  Animated,
   Dimensions,
   KeyboardAvoidingView,
   Modal as RNModal,
@@ -15,6 +14,7 @@ import { createStyles } from '../theme/createStyles';
 import { useColors, useInsets } from '../theme/UIProvider';
 import { Title } from '../atoms/Text';
 import { IconButton } from '../atoms/IconButton';
+import { Transition, type TransitionPreset } from '../atoms/Transition';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -114,36 +114,16 @@ export const Modal = memo(
     const styles = useStyles();
 
     const [mounted, setMounted] = useState(!isAnimatedVariant && visible);
-    const backdropOpacity = useRef(new Animated.Value(0)).current;
-    const cardProgress = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
-      if (!isAnimatedVariant) {
-        setMounted(visible);
-        return;
-      }
-      if (visible) {
-        setMounted(true);
-        Animated.timing(backdropOpacity, { toValue: 1, duration: 200, useNativeDriver: true }).start();
-        Animated.timing(cardProgress, { toValue: 1, duration: 250, useNativeDriver: true }).start();
-      } else {
-        Animated.timing(backdropOpacity, { toValue: 0, duration: 180, useNativeDriver: true }).start();
-        Animated.timing(cardProgress, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
-          if (finished) setMounted(false);
-        });
-      }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+      if (!isAnimatedVariant) setMounted(visible);
+      else if (visible) setMounted(true);
     }, [visible, isAnimatedVariant]);
 
-    const cardAnimatedStyle =
-      isBottomSheet || isFull
-        ? { transform: [{ translateY: cardProgress.interpolate({ inputRange: [0, 1], outputRange: [SCREEN_HEIGHT, 0] }) }] }
-        : {
-            transform: [
-              { translateY: cardProgress.interpolate({ inputRange: [0, 1], outputRange: [-40, 0] }) },
-              { scale: cardProgress.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] }) },
-            ],
-          };
+    // La tarjeta nunca anima opacity: hacerlo dispara un bug de Android donde
+    // los hijos con elevation parpadean. El fondo semitransparente sí.
+    const cardPreset: TransitionPreset[] = isBottomSheet || isFull ? ['slide-up'] : ['slide-down', 'scale'];
+    const cardDistance = isBottomSheet || isFull ? SCREEN_HEIGHT : 40;
 
     const behavior = Platform.OS === 'ios' ? (isFull ? undefined : 'padding') : 'height';
     const keyboardOffset = Platform.OS === 'ios' ? 0 : 20;
@@ -215,31 +195,56 @@ export const Modal = memo(
                   accesible; duplicar el label aquí generaría dos elementos con el
                   mismo nombre para lectores de pantalla. Tocar afuera es un atajo
                   puramente táctil. */}
-              <Animated.View style={[{ ...StyleSheetAbsoluteFill }, styles.backdrop, { opacity: backdropOpacity }]}>
+              <Transition
+                visible={visible}
+                preset="fade"
+                duration={200}
+                keepMounted
+                style={[{ ...StyleSheetAbsoluteFill }, styles.backdrop]}
+              >
                 <Pressable style={StyleSheetAbsoluteFill} onPress={onClose} testID="modal-backdrop" />
-              </Animated.View>
+              </Transition>
 
-              <Animated.View
+              <Transition
+                visible={visible}
+                preset={cardPreset}
+                distance={cardDistance}
+                duration={250}
+                onExited={() => setMounted(false)}
                 style={[
                   isOverlay ? styles.overlayCard : styles.bottomSheetCard,
                   isBottomSheet && { paddingBottom: Math.max(insets.bottom, Platform.OS === 'ios' ? 20 : 0) },
                   containerStyle,
-                  cardAnimatedStyle,
                 ]}
               >
                 {renderHeader()}
                 {renderMainContent()}
                 {renderFooter()}
-              </Animated.View>
+              </Transition>
             </View>
-          ) : (
-            <Animated.View style={[styles.fullWrapper, containerStyle, isFull && cardAnimatedStyle]}>
+          ) : isFull ? (
+            <Transition
+              visible={visible}
+              preset={cardPreset}
+              distance={cardDistance}
+              duration={250}
+              onExited={() => setMounted(false)}
+              style={[styles.fullWrapper, containerStyle]}
+            >
               <View style={[styles.flex1, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
                 {renderHeader()}
                 {renderMainContent()}
                 {renderFooter()}
               </View>
-            </Animated.View>
+            </Transition>
+          ) : (
+            <View style={[styles.fullWrapper, containerStyle]}>
+              <View style={[styles.flex1, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+                {renderHeader()}
+                {renderMainContent()}
+                {renderFooter()}
+              </View>
+            </View>
           )}
         </KeyboardAvoidingView>
       </RNModal>

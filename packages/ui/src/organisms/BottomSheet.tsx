@@ -2,6 +2,7 @@ import React, { memo, useEffect, useRef, useState } from 'react';
 import { Animated, Dimensions, Modal, PanResponder, Pressable, View, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useInsets } from '../theme/UIProvider';
+import { Transition } from '../atoms/Transition';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const DISMISS_THRESHOLD = 100;
@@ -39,33 +40,32 @@ export const BottomSheet = memo(({ visible, onClose, children, closeAccessibilit
   const styles = useStyles();
   const insets = useInsets();
   const [mounted, setMounted] = useState(visible);
-  const translateY = useRef(new Animated.Value(SCREEN_HEIGHT)).current;
-  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  // Un único progreso 0→1 para la hoja y el fondo: el arrastre lo mueve a mano
+  // y los Transition sólo interpolan sobre él.
+  const progress = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
       setMounted(true);
-      Animated.timing(translateY, { toValue: 0, duration: 250, useNativeDriver: true }).start();
-      Animated.timing(backdropOpacity, { toValue: 1, duration: 250, useNativeDriver: true }).start();
+      Animated.timing(progress, { toValue: 1, duration: 250, useNativeDriver: true }).start();
     } else {
-      Animated.timing(translateY, { toValue: SCREEN_HEIGHT, duration: 200, useNativeDriver: true }).start(({ finished }) => {
+      Animated.timing(progress, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
         if (finished) setMounted(false);
       });
-      Animated.timing(backdropOpacity, { toValue: 0, duration: 200, useNativeDriver: true }).start();
     }
-  }, [visible]);
+  }, [visible, progress]);
 
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_, gesture) => gesture.dy > 5 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
       onPanResponderMove: (_, gesture) => {
-        if (gesture.dy > 0) translateY.setValue(gesture.dy);
+        if (gesture.dy > 0) progress.setValue(1 - Math.min(gesture.dy, SCREEN_HEIGHT) / SCREEN_HEIGHT);
       },
       onPanResponderRelease: (_, gesture) => {
         if (gesture.dy > DISMISS_THRESHOLD) {
           onClose();
         } else {
-          Animated.timing(translateY, { toValue: 0, duration: 150, useNativeDriver: true }).start();
+          Animated.timing(progress, { toValue: 1, duration: 150, useNativeDriver: true }).start();
         }
       },
     })
@@ -76,18 +76,21 @@ export const BottomSheet = memo(({ visible, onClose, children, closeAccessibilit
   return (
     <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
       <View style={styles.container}>
-        <Animated.View style={[absoluteFill, styles.backdrop, { opacity: backdropOpacity }]}>
+        <Transition value={progress} preset="fade" style={[absoluteFill, styles.backdrop]}>
           <Pressable style={absoluteFill} onPress={onClose} accessibilityRole="button" accessibilityLabel={closeAccessibilityLabel} />
-        </Animated.View>
+        </Transition>
 
-        <Animated.View
-          style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }, { transform: [{ translateY }] }]}
+        <Transition
+          value={progress}
+          preset="slide-up"
+          distance={SCREEN_HEIGHT}
+          style={[styles.sheet, { paddingBottom: Math.max(insets.bottom, 20) }]}
         >
           <View style={styles.handleArea} {...panResponder.panHandlers}>
             <View style={styles.handle} />
           </View>
           {children}
-        </Animated.View>
+        </Transition>
       </View>
     </Modal>
   );
