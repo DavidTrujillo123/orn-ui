@@ -283,7 +283,7 @@ still override them per instance.
 
 `Steps` in `orientation="horizontal"` gives every step a minimum width and
 scrolls the row when they don't fit. Squeezing the columns instead made React
-Native break labels mid-word (`Almacé / n`), so a long flow now slides sideways
+Native break labels mid-word (`Warehou / se`), so a long flow now slides sideways
 and keeps its words whole. Nothing to configure.
 
 ### Labels

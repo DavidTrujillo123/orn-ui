@@ -95,11 +95,11 @@ const insets = useSafeAreaInsets();
 Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/).
 
 ### SearchList & List Features
-- **Search & Scan**: Buscador integrado con soporte para acción de escaneo e ítem extra.
-- **Carga inicial con Skeleton**: Soporta `skeletonCount` y `renderSkeletonItem` para placeholders animados.
-- **Pull-to-Refresh**: Integración nativa mediante `onRefresh` e `isRefreshing`.
-- **Paginación & Headers/Footers**: `ListHeaderComponent` y `ListFooterComponent` conviven limpiamente con el indicador `isLoadingMore` y `noMoreText`.
-- **Estado vacío no destructivo**: `ListEmptyComponent` conserva el header, footer y gestos de scroll/refresh.
+- **Search & scan**: built-in search bar with an optional scan action and an extra slot for your own controls.
+- **Skeleton first load**: `skeletonCount` and `renderSkeletonItem` draw placeholders shaped like the real rows.
+- **Pull-to-refresh**: native, through `onRefresh` and `isRefreshing`.
+- **Pagination & headers/footers**: `ListHeaderComponent` and `ListFooterComponent` coexist with the `isLoadingMore` indicator and `noMoreText`.
+- **Non-destructive empty state**: `ListEmptyComponent` keeps the header, the footer and the scroll/refresh gestures.
 
 ### Worth knowing
 
