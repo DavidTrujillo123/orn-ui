@@ -63,6 +63,29 @@ describe('NavigationBar', () => {
     expect(StyleSheet.flatten(indicator.props.style).bottom).toBeGreaterThanOrEqual(34);
   });
 
+  it('centers the indicator over the active tab', () => {
+    const width = 390;
+    render(
+      <UIProvider mode="light" insets={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+        <NavigationBar testID="bar" items={ITEMS} activeKey="home" onChange={() => {}} />
+      </UIProvider>
+    );
+
+    fireEvent(screen.getByTestId('bar'), 'layout', {
+      nativeEvent: { layout: { width, height: 90, x: 0, y: 0 } },
+    });
+
+    // La barra tiene padding horizontal `xs` (4) y el indicador se posiciona
+    // contra el borde, así que su centro sólo cae sobre el de la pestaña si el
+    // `left` incluye ese padding.
+    const barPaddingHorizontal = 4;
+    const itemWidth = (width - barPaddingHorizontal * 2) / ITEMS.length;
+    const style = StyleSheet.flatten(screen.getByTestId('navigation-bar-indicator').props.style);
+    const indicatorCenter = style.left + style.width / 2;
+
+    expect(indicatorCenter).toBeCloseTo(barPaddingHorizontal + itemWidth / 2);
+  });
+
   it('hides the labels when showLabels is false', () => {
     render(withProvider(<NavigationBar items={ITEMS} activeKey="home" onChange={() => {}} showLabels={false} />));
     expect(screen.queryByText('Home')).not.toBeOnTheScreen();

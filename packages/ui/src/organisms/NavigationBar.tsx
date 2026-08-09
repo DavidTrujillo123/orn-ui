@@ -50,7 +50,10 @@ const useStyles = createStyles((theme) => ({
     position: 'absolute',
     top: theme.tokens.spacing.xs,
     bottom: theme.tokens.spacing.xs,
-    left: theme.tokens.spacing.sm,
+    // El indicador se posiciona contra el borde de la barra, no contra su caja
+    // interna: al `left` hay que sumarle el padding horizontal para que quede
+    // centrado sobre la pestaña y no corrido hacia la izquierda.
+    left: theme.tokens.spacing.xs + theme.tokens.spacing.sm,
     borderRadius: theme.tokens.radius.lg,
     backgroundColor: theme.colors.primarySoft,
   },
