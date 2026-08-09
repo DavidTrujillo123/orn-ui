@@ -74,7 +74,7 @@ export interface SearchListProps<T> {
 }
 
 const useStyles = createStyles((theme) => ({
-  container: { flex: 1, backgroundColor: theme.colors.background },
+  container: { flex: 1 },
   searchRow: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.tokens.spacing.lg - 1, gap: theme.tokens.spacing.sm + 2 },
   searchInput: { flex: 1, marginBottom: 0 },
   scanButton: { backgroundColor: theme.colors.primary, width: 50, height: 50, borderRadius: theme.tokens.radius.lg, ...theme.tokens.shadow.sm },
