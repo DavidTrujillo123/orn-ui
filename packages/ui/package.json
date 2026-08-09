@@ -369,7 +369,7 @@
     "url": "git+https://github.com/DavidTrujillo123/orn-ui.git",
     "directory": "packages/ui"
   },
-  "homepage": "https://github.com/DavidTrujillo123/orn-ui#readme",
+  "homepage": "https://orn-ui-docs.vercel.app/",
   "bugs": {
     "url": "https://github.com/DavidTrujillo123/orn-ui/issues"
   },

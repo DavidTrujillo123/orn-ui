@@ -6,7 +6,7 @@ Fast, tree-shakeable, atomic-design component library for React Native.
 35 components (atoms, molecules, organisms), fully typed, themeable
 (light/dark), 246 tests, 90%/85% (lines/branches) coverage gate.
 
-Docs, props tables and demo GIFs: **[orn-ui.dev](https://orn-ui.dev)**
+Docs, props tables and demo GIFs: **[orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/)**
 
 ## Install
 
@@ -92,7 +92,14 @@ const insets = useSafeAreaInsets();
   `Screen`, `List`, `SearchList`, `Toast`/`ToastProvider`, `DatePicker`,
   `DateField`, `Wizard`
 
-Every component's full prop table lives on [orn-ui.dev](https://orn-ui.dev).
+Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/).
+
+### SearchList & List Features
+- **Search & Scan**: Buscador integrado con soporte para acción de escaneo e ítem extra.
+- **Carga inicial con Skeleton**: Soporta `skeletonCount` y `renderSkeletonItem` para placeholders animados.
+- **Pull-to-Refresh**: Integración nativa mediante `onRefresh` e `isRefreshing`.
+- **Paginación & Headers/Footers**: `ListHeaderComponent` y `ListFooterComponent` conviven limpiamente con el indicador `isLoadingMore` y `noMoreText`.
+- **Estado vacío no destructivo**: `ListEmptyComponent` conserva el header, footer y gestos de scroll/refresh.
 
 ## Why zero dependencies
 

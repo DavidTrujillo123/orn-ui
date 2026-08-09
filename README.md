@@ -8,7 +8,7 @@ babel config, no metro config, no pods.
 (light/dark), with 426 tests and a 90%/85% (lines/branches) coverage gate in CI.
 
 Live docs (props tables, demo snippets, install instructions per component):
-**[orn-ui.dev](https://orn-ui.dev)**
+**[orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/)**
 
 ## Install
 
@@ -196,7 +196,32 @@ resolves against.
 | `NavigationBar` | `orn-ui/navigation-bar` |
 
 Full props tables and live-recorded demo GIFs for every one of these: see
-[orn-ui.dev](https://orn-ui.dev).
+[orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/).
+
+### SearchList & List
+
+`SearchList` integrates a search bar (with optional scan button and action slot) with a complete list supporting skeleton initial loading (`skeletonCount`, `renderSkeletonItem`), pull-to-refresh (`onRefresh`/`isRefreshing`), pagination (`onLoadMore`/`isLoadingMore`), coexisting `ListHeaderComponent`/`ListFooterComponent`, readiness state (`isReady`), and non-destructive empty state (`ListEmptyComponent`):
+
+```tsx
+import { SearchList } from 'orn-ui/search-list';
+
+<SearchList
+  searchValue={query}
+  onSearchChange={setQuery}
+  searchPlaceholder="Search clients..."
+  data={page}
+  keyExtractor={(c) => c.id}
+  isLoading={isLoading}
+  isRefreshing={isRefreshing}
+  onRefresh={handleRefresh}
+  onLoadMore={handleLoadMore}
+  isLoadingMore={isLoadingMore}
+  hasMore={hasMore}
+  noMoreText="No more clients"
+  emptyTitle="No clients found"
+  renderItem={({ item }) => <ClientRow client={item} />}
+/>
+```
 
 ### Toasts and alerts from outside React
 
