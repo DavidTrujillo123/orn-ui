@@ -1,5 +1,5 @@
 import React from 'react';
-import { ScrollView, Text } from 'react-native';
+import { Text } from 'react-native';
 import { act, render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Wizard, type WizardStep } from '../Wizard';
@@ -111,15 +111,15 @@ describe('Wizard', () => {
   });
 
   it('scrolls its step content by default so a long form cannot overlap the footer', () => {
-    const { UNSAFE_getByType } = render(withProvider(<Wizard steps={STEPS} />));
-    const scroll = UNSAFE_getByType(ScrollView);
+    render(withProvider(<Wizard steps={STEPS} />));
+    const scroll = screen.getByTestId('wizard-content');
     expect(scroll.props.automaticallyAdjustKeyboardInsets).toBe(true);
     expect(scroll.props.keyboardShouldPersistTaps).toBe('handled');
   });
 
   it('scrollableContent={false} renders the content without a ScrollView', () => {
-    const { UNSAFE_queryByType } = render(withProvider(<Wizard steps={STEPS} scrollableContent={false} />));
-    expect(UNSAFE_queryByType(ScrollView)).toBeNull();
+    render(withProvider(<Wizard steps={STEPS} scrollableContent={false} />));
+    expect(screen.queryByTestId('wizard-content')).toBeNull();
   });
 
   it('renders a vertical indicator when asked', () => {

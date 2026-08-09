@@ -142,6 +142,7 @@ export function Wizard({
           de los campos. */}
       {scrollableContent ? (
         <ScrollView
+          testID="wizard-content"
           style={styles.content}
           contentContainerStyle={styles.contentInner}
           keyboardShouldPersistTaps="handled"
