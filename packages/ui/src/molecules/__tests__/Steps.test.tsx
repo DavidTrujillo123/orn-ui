@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Steps } from '../Steps';
@@ -49,6 +50,30 @@ describe('Steps', () => {
     render(withProvider(<Steps steps={STEPS} current={0} orientation="vertical" />));
     expect(screen.getByText('Account')).toBeOnTheScreen();
     expect(screen.getByText('Confirm')).toBeOnTheScreen();
+  });
+
+  it('gives each horizontal step a minimum width so long labels do not break mid-word', () => {
+    render(
+      withProvider(
+        <Steps
+          steps={[
+            { label: 'Pago Confirmado', description: 'Verificado' },
+            { label: 'Almacén', description: 'Empacado' },
+            { label: 'En Ruta', description: 'Repartido o en camino' },
+            { label: 'Entregado', description: 'Entregado en destino' },
+          ]}
+          current={3}
+        />
+      )
+    );
+
+    const step = screen.getByLabelText('Step 2: Almacén');
+    expect(StyleSheet.flatten(step.props.style).minWidth).toBeGreaterThanOrEqual(72);
+  });
+
+  it('the horizontal row hugs its content instead of stretching to the container height', () => {
+    render(withProvider(<Steps steps={STEPS} current={0} />));
+    expect(StyleSheet.flatten(screen.getByTestId('steps-row').props.style).flexGrow).toBe(0);
   });
 
   it('is not pressable without onStepPress', () => {

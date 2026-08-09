@@ -9,6 +9,13 @@ const STEPS = [
   { label: 'Confirm' },
 ];
 
+const LONG_STEPS = [
+  { label: 'Pago Confirmado', description: 'Verificado' },
+  { label: 'Almacén', description: 'Empacado' },
+  { label: 'En Ruta', description: 'Repartido o en camino' },
+  { label: 'Entregado', description: 'Entregado en destino' },
+];
+
 export function StepsDemo() {
   const [current, setCurrent] = useState(1);
   // #region demo
@@ -36,6 +43,10 @@ export function StepsDemo() {
     {
       label: 'all completed',
       content: <Steps steps={STEPS} current={3} />,
+    },
+    {
+      label: 'long labels — the row scrolls instead of breaking words',
+      content: <Steps steps={LONG_STEPS} current={3} />,
     },
     {
       label: 'interactive — onStepPress',

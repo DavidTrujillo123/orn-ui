@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import { ScrollView, Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
@@ -28,19 +28,29 @@ export interface StepsProps {
 }
 
 const CIRCLE = 32;
+/** Ancho mínimo de una columna horizontal: por debajo, las etiquetas se parten. */
+const STEP_MIN_WIDTH = 76;
 
 const useStyles = createStyles((theme) => ({
   rowContainer: { flexDirection: 'row', alignItems: 'flex-start' },
   columnContainer: { flexDirection: 'column' },
 
   // horizontal
-  hStep: { flex: 1, alignItems: 'center', gap: theme.tokens.spacing.sm },
+  // ScrollView trae flexGrow: 1 de fábrica y se comía todo el alto disponible
+  // del contenedor, dejando los pasos pegados arriba de una caja enorme.
+  hScrollView: { flexGrow: 0, flexShrink: 0 },
+  hScroll: { flexGrow: 1, flexDirection: 'row', alignItems: 'flex-start' },
+  // `minWidth` es lo que evita que RN parta palabras a la mitad
+  // ("Almacé / n"): antes que apretar la columna por debajo de una palabra
+  // corriente, la fila se vuelve scrollable.
+  hStep: { flex: 1, minWidth: STEP_MIN_WIDTH, alignItems: 'center', gap: theme.tokens.spacing.sm },
   hLabels: { alignItems: 'center', gap: 2, paddingHorizontal: 4 },
   // El conector toma una fracción chica del ancho: compitiendo de igual a
   // igual con los pasos (flex: 1) cada etiqueta se quedaba con 1/(2n-1) del
-  // total y RN partía palabras a la mitad ("Paymen / t"). Con 0.3 un flujo de
-  // 4 pasos deja ~68px por etiqueta, suficiente para una palabra corriente.
-  hConnector: { height: 2, flex: 0.3, marginTop: CIRCLE / 2 - 1 },
+  // total.
+  hConnector: { height: 2, flex: 0.3, minWidth: 12, marginTop: CIRCLE / 2 - 1 },
+  hLabel: { fontSize: theme.tokens.fontSize.sm },
+  hDescription: { fontSize: theme.tokens.fontSize.xs },
 
   // vertical
   vStep: { flexDirection: 'row', gap: theme.tokens.spacing.md },
@@ -110,6 +120,7 @@ export const Steps = memo(
           style={[
             styles.label,
             centered && styles.labelCentered,
+            centered && styles.hLabel,
             status === 'pending' && { color: colors.textLight },
           ]}
         >
@@ -118,7 +129,7 @@ export const Steps = memo(
         {!!step.description && (
           <Text
             allowFontScaling={allowFontScaling}
-            style={[styles.description, centered && styles.descriptionCentered]}
+            style={[styles.description, centered && styles.descriptionCentered, centered && styles.hDescription]}
           >
             {step.description}
           </Text>
@@ -167,7 +178,15 @@ export const Steps = memo(
     }
 
     return (
-      <View style={[styles.rowContainer, style]}>
+      <ScrollView
+        testID="steps-row"
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        // Con espacio de sobra los pasos se reparten la fila igual que antes
+        // (flexGrow); cuando no entran, se desplaza en vez de apretar el texto.
+        style={[styles.hScrollView, style]}
+        contentContainerStyle={styles.hScroll}
+      >
         {steps.map((step, index) => {
           const status = statusOf(index, current);
           const isLast = index === steps.length - 1;
@@ -191,7 +210,7 @@ export const Steps = memo(
             </React.Fragment>
           );
         })}
-      </View>
+      </ScrollView>
     );
   }
 );
