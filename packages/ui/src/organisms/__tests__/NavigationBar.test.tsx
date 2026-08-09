@@ -42,6 +42,11 @@ describe('NavigationBar', () => {
     expect(screen.getByText('3')).toBeOnTheScreen();
   });
 
+  it('reads each label once: the cross-fade copy stays out of the accessibility tree', () => {
+    render(withProvider(<NavigationBar items={ITEMS} activeKey="home" onChange={() => {}} />));
+    expect(screen.getAllByText('Home')).toHaveLength(1);
+  });
+
   it('hides the labels when showLabels is false', () => {
     render(withProvider(<NavigationBar items={ITEMS} activeKey="home" onChange={() => {}} showLabels={false} />));
     expect(screen.queryByText('Home')).not.toBeOnTheScreen();

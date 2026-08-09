@@ -193,8 +193,11 @@ export const NavigationBar = memo(
             >
               <Animated.View style={[styles.itemContent, { transform: [{ scale }] }]}>
                 {renderContent(item, colors.textLight)}
+                {/* Copia decorativa: sin ocultarla, el lector lee el label dos veces. */}
                 <Animated.View
                   pointerEvents="none"
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
                   style={[StyleSheet.absoluteFill, styles.itemContent, { opacity: activeOpacity }]}
                 >
                   {renderContent(item, colors.primaryText)}

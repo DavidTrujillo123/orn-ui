@@ -81,12 +81,21 @@ export function CheckoutWizardExample() {
       content: (
         <View style={{ gap: 12 }}>
           <Caption>How would you like to pay?</Caption>
-          {/* layout="horizontal" y no el vertical por defecto: ese fija
-              width:'31%' (pensado para grillas de tres) y con dos opciones
-              dejaba un tercio de la fila vacío a la derecha. */}
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <OptionCard layout="horizontal" label="Card" iconName="check" isSelected={payment === 'card'} onPress={() => setPayment('card')} />
-            <OptionCard layout="horizontal" label="Cash" iconName="info" isSelected={payment === 'cash'} onPress={() => setPayment('cash')} />
+          <View style={{ flexDirection: 'row', gap: 8 }} accessibilityRole="radiogroup">
+            <OptionCard
+              label="Card"
+              description="Visa ···4821"
+              iconName="check"
+              isSelected={payment === 'card'}
+              onPress={() => setPayment('card')}
+            />
+            <OptionCard
+              label="Cash"
+              description="On delivery"
+              iconName="info"
+              isSelected={payment === 'cash'}
+              onPress={() => setPayment('cash')}
+            />
           </View>
         </View>
       ),

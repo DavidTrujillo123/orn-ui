@@ -1,22 +1,29 @@
 import React, { memo } from 'react';
-import { Text, TouchableOpacity, type StyleProp, type ViewStyle } from 'react-native';
+import { Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
+import { PressableScale } from '../atoms/PressableScale';
 import type { IconName } from '../icons/types';
 
 export interface OptionCardProps {
   label: string;
-  iconName: IconName;
+  /** Línea secundaria: el detalle que decide la elección ("llega en 3 días"). */
+  description?: string;
+  iconName?: IconName;
   isSelected: boolean;
   onPress: () => void;
-  /** 'vertical': ícono arriba, texto abajo centrado. 'horizontal': ícono y texto en fila. */
+  disabled?: boolean;
+  /** 'vertical': ícono arriba, texto abajo centrado. 'horizontal': en fila. @default 'horizontal' */
   layout?: 'vertical' | 'horizontal';
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 const useStyles = createStyles((theme) => ({
   card: {
+    // Las tarjetas se reparten la fila que las contenga, sean dos o cinco.
+    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: theme.colors.surface,
@@ -25,8 +32,8 @@ const useStyles = createStyles((theme) => ({
     borderColor: theme.colors.border,
     ...theme.tokens.shadow.sm,
   },
-  cardHorizontal: { flex: 1, flexDirection: 'row', padding: theme.tokens.spacing.md - 2, gap: theme.tokens.spacing.sm },
-  cardVertical: { width: '31%', padding: theme.tokens.spacing.sm, gap: 5, minHeight: 100 },
+  cardHorizontal: { flexDirection: 'row', padding: theme.tokens.spacing.md - 2, gap: theme.tokens.spacing.sm },
+  cardVertical: { padding: theme.tokens.spacing.md - 2, gap: 6, minHeight: 100 },
   cardSelected: {
     borderColor: theme.colors.primary,
     backgroundColor: theme.colors.primarySoft,
@@ -34,48 +41,78 @@ const useStyles = createStyles((theme) => ({
     elevation: 0,
     shadowOpacity: 0,
   },
+  cardDisabled: { opacity: 0.5 },
+  text: { flexShrink: 1 },
+  textVertical: { alignItems: 'center' },
   label: { color: theme.colors.textLight, fontWeight: theme.tokens.fontWeight.medium },
   labelVertical: { fontSize: theme.tokens.fontSize.xs, textAlign: 'center' },
   labelSelected: { color: theme.colors.primaryText },
+  description: { fontSize: theme.tokens.fontSize.xs, color: theme.colors.textLight, marginTop: 2 },
+  descriptionVertical: { textAlign: 'center' },
 }));
 
 /**
  * OptionCard
- * Card con ícono+label que resalta con borde/fondo primary cuando
- * `isSelected`. Para elegir entre opciones excluyentes (forma de pago, tipo
- * de documento, etc).
+ * Opción excluyente con ícono y label que resalta cuando `isSelected`. Es un
+ * radio con cara de tarjeta, así que se anuncia como tal: envolver el grupo en
+ * una View con `accessibilityRole="radiogroup"` para que el lector de pantalla
+ * lea "1 de 3".
  */
 export const OptionCard = memo(
-  ({ label, iconName, isSelected, onPress, layout = 'horizontal', style }: OptionCardProps) => {
+  ({
+    label,
+    description,
+    iconName,
+    isSelected,
+    onPress,
+    disabled = false,
+    layout = 'horizontal',
+    style,
+    testID,
+  }: OptionCardProps) => {
     const colors = useColors();
     const styles = useStyles();
     const allowFontScaling = useAllowFontScaling();
+    const isVertical = layout === 'vertical';
 
+    // Feedback por transform y no por opacity: con elevation, animar la opacity
+    // dispara un bug de Android que redibuja la sombra como un borde oscuro.
     return (
-      <TouchableOpacity
-        // activeOpacity=1: esta tarjeta tiene elevation (sombra Android); animar su
-        // propia opacity en el press dispara un bug de Android que redibuja la
-        // sombra como un borde oscuro pegado al borde del componente.
-        activeOpacity={1}
+      <PressableScale
         style={[
           styles.card,
-          layout === 'vertical' ? styles.cardVertical : styles.cardHorizontal,
+          isVertical ? styles.cardVertical : styles.cardHorizontal,
           isSelected && styles.cardSelected,
+          disabled && styles.cardDisabled,
           style,
         ]}
         onPress={onPress}
-        accessibilityRole="button"
-        accessibilityState={{ selected: isSelected }}
+        disabled={disabled}
+        accessibilityRole="radio"
+        accessibilityState={{ selected: isSelected, checked: isSelected, disabled }}
         accessibilityLabel={label}
+        accessibilityHint={description}
+        testID={testID}
       >
-        <Icon name={iconName} size={24} color={isSelected ? colors.primary : colors.textLight} />
-        <Text
-          allowFontScaling={allowFontScaling}
-          style={[styles.label, layout === 'vertical' && styles.labelVertical, isSelected && styles.labelSelected]}
-        >
-          {label}
-        </Text>
-      </TouchableOpacity>
+        {!!iconName && <Icon name={iconName} size={24} color={isSelected ? colors.primary : colors.textLight} />}
+
+        <View style={[styles.text, isVertical && styles.textVertical]}>
+          <Text
+            allowFontScaling={allowFontScaling}
+            style={[styles.label, isVertical && styles.labelVertical, isSelected && styles.labelSelected]}
+          >
+            {label}
+          </Text>
+          {!!description && (
+            <Text
+              allowFontScaling={allowFontScaling}
+              style={[styles.description, isVertical && styles.descriptionVertical]}
+            >
+              {description}
+            </Text>
+          )}
+        </View>
+      </PressableScale>
     );
   }
 );

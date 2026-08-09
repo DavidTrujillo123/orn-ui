@@ -24,6 +24,17 @@ describe('PressableScale', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
+  it('scales the same node it styles, so the whole box follows the gesture', () => {
+    render(
+      <PressableScale style={{ borderRadius: 12 }} testID="p">
+        <Text>go</Text>
+      </PressableScale>
+    );
+    const style = screen.getByTestId('p').props.style;
+    expect(style).toMatchObject({ borderRadius: 12 });
+    expect(style.transform).toEqual([{ scale: 1 }]);
+  });
+
   it('does not fire onPressIn when disabled (RN Pressable blocks all touch events)', () => {
     const onPressIn = jest.fn();
     render(

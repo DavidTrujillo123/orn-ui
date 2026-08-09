@@ -1,11 +1,21 @@
 import React, { memo, useRef } from 'react';
-import { Animated, Pressable, type PressableProps, type GestureResponderEvent } from 'react-native';
+import {
+  Animated,
+  Pressable,
+  type GestureResponderEvent,
+  type PressableProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 
-export interface PressableScaleProps extends PressableProps {
+export interface PressableScaleProps extends Omit<PressableProps, 'style'> {
   /** Escala objetivo al presionar. @default 0.96 */
   scaleTo?: number;
+  style?: StyleProp<ViewStyle>;
   children: React.ReactNode;
 }
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 /**
  * PressableScale
@@ -37,15 +47,15 @@ export const PressableScale = memo(
     };
 
     return (
-      <Pressable
+      <AnimatedPressable
         {...props}
         disabled={disabled}
         onPressIn={handlePressIn}
         onPressOut={handlePressOut}
-        style={style}
+        style={[style, { transform: [{ scale }] }]}
       >
-        <Animated.View style={{ transform: [{ scale }] }}>{children}</Animated.View>
-      </Pressable>
+        {children}
+      </AnimatedPressable>
     );
   }
 );

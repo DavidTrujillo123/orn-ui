@@ -85,7 +85,7 @@ export const ATOMS: DemoEntry[] = [
 
 export const MOLECULES: DemoEntry[] = [
   { slug: 'stepper', name: 'Stepper', description: '"-" + numeric input + "+", with range and typing rules', Demo: StepperDemo },
-  { slug: 'option-card', name: 'OptionCard', description: 'Selectable card, horizontal/vertical layout', Demo: OptionCardDemo },
+  { slug: 'option-card', name: 'OptionCard', description: 'Selectable option (radio) with icon, description and horizontal/vertical layout', Demo: OptionCardDemo },
   { slug: 'info-row', name: 'InfoRow', description: 'Circular icon + stacked label/value', Demo: InfoRowDemo },
   { slug: 'form-actions', name: 'FormActions', description: 'Primary/close button pair', Demo: FormActionsDemo },
   { slug: 'avatar-header', name: 'AvatarHeader', description: 'Detail header: circle + title + subtitle', Demo: AvatarHeaderDemo },
