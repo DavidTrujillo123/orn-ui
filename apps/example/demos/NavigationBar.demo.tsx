@@ -36,6 +36,11 @@ function ControlledBar(props: { showLabels?: boolean; position?: 'top' | 'bottom
   return <NavigationBar items={ITEMS} activeKey={active} onChange={setActive} safeArea={false} {...props} />;
 }
 
+function ControlledBarSafeArea() {
+  const [active, setActive] = useState('search');
+  return <NavigationBar items={ITEMS} activeKey={active} onChange={setActive} />;
+}
+
 export function NavigationBarDemo() {
   // #region demo
   const variants: VariantDef[] = [
@@ -54,6 +59,12 @@ export function NavigationBarDemo() {
     {
       label: 'position="top"',
       content: <ControlledBar position="top" />,
+    },
+    {
+      // El indicador vive fuera del safe area: con el inset dentro del padding
+      // de la barra, antes se estiraba hasta el borde de la pantalla.
+      label: 'safeArea — the indicator stays above the home bar',
+      content: <ControlledBarSafeArea />,
     },
   ];
   return <VariantList variants={variants} />;
