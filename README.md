@@ -12,29 +12,42 @@ Live docs (props tables, demo snippets, install instructions per component):
 
 ## Install
 
-Three ways to get components into your project — pick the one that fits:
-
-**1. The whole package**
-
 ```bash
 pnpm add orn-ui
 ```
+
+Three ways to import — pick the one that fits:
+
+**1. Subpath exports (recommended)**
+
+Metro doesn't tree-shake named imports from a barrel — `import { Button }
+from 'orn-ui'` pulls in every component the package exports, not just
+`Button`. Import from the component's own subpath instead, and only that
+file (plus what it actually depends on) ends up in your bundle:
+
+```tsx
+import { UIProvider } from 'orn-ui/theme';
+import { Button } from 'orn-ui/button';
+import { Select } from 'orn-ui/select';
+```
+
+Every component has one — see the [catalog](#component-catalog) for the
+full subpath list, or run `npx orn-ui --help`. This is what the docs,
+demos and this README use everywhere below; wherever you see
+`import { X } from 'orn-ui'`, prefer `orn-ui/x` in real code.
+
+One subpath is special: `orn-ui/safe-area` (see [Safe area](#safe-area)) is the
+only file that imports a third-party package, and it's an optional peer.
+
+**2. The barrel (`orn-ui`)**
 
 ```tsx
 import { UIProvider, Button } from 'orn-ui';
 ```
 
-**2. Just the components you import (subpath exports)**
-
-Same package, but only the files you actually import end up in your bundle:
-
-```tsx
-import { UIProvider } from 'orn-ui/theme';
-import { Button } from 'orn-ui/button';
-```
-
-One subpath is special: `orn-ui/safe-area` (see [Safe area](#safe-area)) is the
-only file that imports a third-party package, and it's an optional peer.
+Simplest for prototyping or small apps where bundle size doesn't matter yet.
+Everything the package exports ships in your bundle, whether you use it or
+not.
 
 **3. Copy the source into your project, no npm dependency**
 
@@ -51,7 +64,10 @@ way. `npx orn-ui --help` for all commands.
 ## Quick start
 
 ```tsx
-import { UIProvider, Button, Card, Title } from 'orn-ui';
+import { UIProvider } from 'orn-ui/theme';
+import { Button } from 'orn-ui/button';
+import { Card } from 'orn-ui/card';
+import { Title } from 'orn-ui/title';
 import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
 
 function App() {
@@ -124,16 +140,60 @@ otherwise silent until someone opens a modal.
 
 ## Component catalog
 
-**Atoms** — `Title`/`Subtitle`/`Body`/`Caption`, `Button`, `IconButton`,
-`Input`, `Checkbox`, `Badge`, `Card`, `Divider`, `Avatar`, `Image`, `Spinner`,
-`Skeleton`, `EmptyState`, `KeyValueRow`, `Fab`, `PressableScale`, `Transition`
+Component name → subpath to import it from. Same list `npx orn-ui add`
+resolves against.
 
-**Molecules** — `Stepper`, `OptionCard`, `InfoRow`, `FormActions`,
-`AvatarHeader`, `SegmentedControl`, `Steps`
+**Atoms**
 
-**Organisms** — `Modal`, `BottomSheet`, `Select`, `Alert`/`AlertProvider`,
-`Screen`, `List`, `SearchList`, `Toast`/`ToastProvider`, `DatePicker`,
-`DateField`, `Wizard`, `ThemeToggle`, `NavigationBar`
+| Component | Subpath |
+| --- | --- |
+| `Title`/`Subtitle`/`Body`/`Caption` | `orn-ui/title` (also `/subtitle`, `/body`, `/caption`) |
+| `Button` | `orn-ui/button` |
+| `IconButton` | `orn-ui/icon-button` |
+| `Input` | `orn-ui/input` |
+| `Checkbox` | `orn-ui/checkbox` |
+| `Badge` | `orn-ui/badge` |
+| `Card` | `orn-ui/card` |
+| `Divider` | `orn-ui/divider` |
+| `Avatar` | `orn-ui/avatar` |
+| `Image` | `orn-ui/image` |
+| `Spinner` | `orn-ui/spinner` |
+| `Skeleton` | `orn-ui/skeleton` |
+| `EmptyState` | `orn-ui/empty-state` |
+| `KeyValueRow` | `orn-ui/key-value-row` |
+| `Fab` | `orn-ui/fab` |
+| `PressableScale` | `orn-ui/pressable-scale` |
+| `Transition` | `orn-ui/transition` |
+
+**Molecules**
+
+| Component | Subpath |
+| --- | --- |
+| `Stepper` | `orn-ui/stepper` |
+| `OptionCard` | `orn-ui/option-card` |
+| `InfoRow` | `orn-ui/info-row` |
+| `FormActions` | `orn-ui/form-actions` |
+| `AvatarHeader` | `orn-ui/avatar-header` |
+| `SegmentedControl` | `orn-ui/segmented-control` |
+| `Steps` | `orn-ui/steps` |
+
+**Organisms**
+
+| Component | Subpath |
+| --- | --- |
+| `Modal` | `orn-ui/modal` |
+| `BottomSheet` | `orn-ui/bottom-sheet` |
+| `Select` | `orn-ui/select` |
+| `Alert`/`AlertProvider` | `orn-ui/alert`, `orn-ui/alert-provider` |
+| `Screen` | `orn-ui/screen` |
+| `List` | `orn-ui/list` |
+| `SearchList` | `orn-ui/search-list` |
+| `Toast`/`ToastProvider` | `orn-ui/toast`, `orn-ui/toast-provider` |
+| `DatePicker` | `orn-ui/date-picker` |
+| `DateField` | `orn-ui/date-field` |
+| `Wizard` | `orn-ui/wizard` |
+| `ThemeToggle` | `orn-ui/theme-toggle` |
+| `NavigationBar` | `orn-ui/navigation-bar` |
 
 Full props tables and live-recorded demo GIFs for every one of these: see
 [orn-ui.dev](https://orn-ui.dev).
@@ -145,7 +205,8 @@ API interceptor, a queue worker — gets the same providers through plain
 functions:
 
 ```tsx
-import { showToast, showConfirm } from 'orn-ui';
+import { showToast } from 'orn-ui/show-toast';
+import { showConfirm } from 'orn-ui/show-confirm';
 
 export async function deleteInvoice(id: string) {
   if (!(await showConfirm({ title: 'Delete invoice', destructive: true }))) return;
@@ -165,7 +226,7 @@ that goes **on** that fill, the tinted background and the readable variant —
 for light **and** dark, with the contrast already solved:
 
 ```tsx
-import { createTheme, UIProvider } from 'orn-ui';
+import { createTheme, UIProvider } from 'orn-ui/theme';
 
 const theme = createTheme({ brand: '#7c3aed' });
 
