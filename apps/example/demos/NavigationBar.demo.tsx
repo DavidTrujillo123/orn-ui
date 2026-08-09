@@ -11,10 +11,10 @@ const ITEMS: NavigationBarItem[] = [
 ];
 
 const SCREENS: Record<string, string> = {
-  home: 'Todo lo que pasó desde tu última visita.',
-  search: 'Buscá clientes, facturas o pagos.',
-  alerts: 'Tres facturas vencen esta semana.',
-  profile: 'Tu cuenta y las preferencias de la app.',
+  home: 'Everything that happened since your last visit.',
+  search: 'Search clients, invoices or payments.',
+  alerts: 'Three invoices are due this week.',
+  profile: 'Your account and the app preferences.',
 };
 
 function TabbedScreen() {
@@ -40,7 +40,7 @@ export function NavigationBarDemo() {
   // #region demo
   const variants: VariantDef[] = [
     {
-      label: 'con el contenido de la pestaña',
+      label: 'with the tab content',
       content: <TabbedScreen />,
     },
     {
@@ -48,7 +48,7 @@ export function NavigationBarDemo() {
       content: <ControlledBar />,
     },
     {
-      label: 'showLabels={false} — sólo íconos',
+      label: 'showLabels={false} — icons only',
       content: <ControlledBar showLabels={false} />,
     },
     {

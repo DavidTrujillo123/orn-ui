@@ -55,7 +55,7 @@ function ExitBeforeUnmount() {
 
   return (
     <View style={{ gap: 8 }}>
-      <Caption>Cada fila se anima al salir antes de desmontarse.</Caption>
+      <Caption>Each row animates out before it unmounts.</Caption>
       {items.map((name) => (
         <Transition
           key={name}
@@ -80,8 +80,8 @@ export function TransitionDemo() {
     { label: "preset={['fade', 'slide-up']}", content: <Toggle preset={['fade', 'slide-up']} distance={32} /> },
     { label: "preset='pop' — spring", content: <Toggle preset="pop" /> },
     { label: "preset={['fade', 'slide-right']}", content: <Toggle preset={['fade', 'slide-right']} distance={48} /> },
-    { label: 'delay por índice — lista escalonada', content: <StaggeredList /> },
-    { label: 'salida antes del desmontaje', content: <ExitBeforeUnmount /> },
+    { label: 'delay per index — staggered list', content: <StaggeredList /> },
+    { label: 'exit before unmount', content: <ExitBeforeUnmount /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

@@ -140,15 +140,23 @@ Full props tables and live-recorded demo GIFs for every one of these: see
 
 ## Theming
 
+One hex is enough. `brand` derives the whole accent family — fill, the color
+that goes **on** that fill, the tinted background and the readable variant —
+for light **and** dark, with the contrast already solved:
+
 ```tsx
 import { createTheme, UIProvider } from 'orn-ui';
 
-const theme = createTheme({
-  light: { colors: { primary: '#004cef' } },
-  dark: { colors: { primary: '#3d7bff' } },
-});
+const theme = createTheme({ brand: '#7c3aed' });
 
 <UIProvider theme={theme}>{children}</UIProvider>;
+```
+
+A bare string sets `primary`. Pass an object to reach the other accents; the
+ones you leave out keep their defaults:
+
+```tsx
+createTheme({ brand: { primary: '#7c3aed', success: '#059669' } });
 ```
 
 Every component reads colors, spacing, radius, font size and duration from
@@ -168,17 +176,23 @@ four roles, and they are not interchangeable:
 | `primarySoft` | tinted background | selected row, avatar circle, badge pill |
 | `primaryText` | accent-colored text/icon on `surface`, `background` or its own `*Soft` | link button, badge label, error message |
 
-Override only what you need — `createTheme` deep-merges, so the untouched
-roles keep their defaults:
+`brand` fills all four for you. Reach for `colors` when a single derived role
+is not what you want — it is applied after `brand`, so what you write wins,
+and `createTheme` deep-merges, so untouched roles keep their value:
 
 ```tsx
-createTheme({ dark: { colors: { primary: '#7ba4ff', onPrimary: '#00205c' } } });
+createTheme({
+  brand: '#7c3aed',
+  colors: { dark: { primarySoft: '#241b3a' } },
+});
 ```
 
 Every default pair clears WCAG AA (4.5:1) in both schemes, enforced by
-`src/theme/__tests__/palettes.test.ts`. If you override an accent, override
-its `on*`/`*Text` companions too — a light fill with light text fails the
-same way whether the library or your theme picked it.
+`src/theme/__tests__/palettes.test.ts`, and so does every family `brand`
+derives (`src/theme/__tests__/colors.test.ts`). If instead you write an accent
+by hand through `colors`, write its `on*`/`*Text` companions too — a light
+fill with light text fails the same way whether the library or your theme
+picked it.
 
 ## Repo structure
 

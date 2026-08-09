@@ -5,6 +5,7 @@ import { CheckoutWizardExample } from './CheckoutWizardExample';
 import { SignInExample } from './SignInExample';
 import { SettingsScreenExample } from './SettingsScreenExample';
 import { OrderTrackingExample } from './OrderTrackingExample';
+import { BrandThemeExample } from './BrandThemeExample';
 
 /**
  * Ejemplos de integración: varios componentes trabajando juntos en un flujo
@@ -12,9 +13,16 @@ import { OrderTrackingExample } from './OrderTrackingExample';
  */
 export const EXAMPLES: DemoEntry[] = [
   {
+    slug: 'brand-theme',
+    name: 'Brand color',
+    description: 'One hex repaints the whole app: createTheme({ brand }) derives the four accent roles in light and dark',
+    Demo: BrandThemeExample,
+    freeScroll: true,
+  },
+  {
     slug: 'invoice-form',
     name: 'Invoice form',
-    description: 'Modal bottom-sheet con AvatarHeader, Input, Stepper, Select, Checkbox, KeyValueRow y FormActions',
+    description: 'Bottom-sheet modal with AvatarHeader, Input, Stepper, Select, Checkbox, KeyValueRow and FormActions',
     Demo: InvoiceFormExample,
     // Flujo, no catálogo de variantes: scroll libre en vez del pager.
     freeScroll: true,
@@ -22,14 +30,14 @@ export const EXAMPLES: DemoEntry[] = [
   {
     slug: 'client-list',
     name: 'Client list',
-    description: 'SearchList con búsqueda, paginación y borrado confirmado (Avatar, Badge, IconButton, useAlert)',
+    description: 'SearchList with search, pagination and confirmed deletion (Avatar, Badge, IconButton, useAlert)',
     Demo: ClientListExample,
     hostsList: true,
   },
   {
     slug: 'checkout-wizard',
     name: 'Checkout wizard',
-    description: 'Wizard de 4 pasos con validación por paso, DateField, OptionCard y Toast al finalizar',
+    description: '4-step wizard with per-step validation, DateField, OptionCard and a Toast on finish',
     Demo: CheckoutWizardExample,
     // El Wizard necesita flex:1 real para que el footer quede abajo.
     hostsList: true,
@@ -37,21 +45,21 @@ export const EXAMPLES: DemoEntry[] = [
   {
     slug: 'sign-in',
     name: 'Sign in',
-    description: 'Login con validación en submit, password toggle, botón en loading y el camino de error (Input, Checkbox, useAlert, useToast)',
+    description: 'Login with validation on submit, password toggle, loading button and the error path (Input, Checkbox, useAlert, useToast)',
     Demo: SignInExample,
     freeScroll: true,
   },
   {
     slug: 'settings',
     name: 'Settings screen',
-    description: 'Ajustes con ThemeToggle en vivo, Select, Checkbox, InfoRow, Badge, BottomSheet y borrado confirmado',
+    description: 'Settings with a live ThemeToggle, Select, Checkbox, InfoRow, Badge, BottomSheet and confirmed deletion',
     Demo: SettingsScreenExample,
     freeScroll: true,
   },
   {
     slug: 'order-tracking',
     name: 'Order tracking',
-    description: 'Estado que avanza solo: Steps vertical, Badge, Image con prefetch, Spinner de carga y EmptyState',
+    description: 'State that advances on its own: vertical Steps, Badge, Image with prefetch, loading Spinner and EmptyState',
     Demo: OrderTrackingExample,
     freeScroll: true,
   },

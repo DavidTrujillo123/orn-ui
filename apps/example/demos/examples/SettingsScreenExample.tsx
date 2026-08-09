@@ -20,8 +20,8 @@ import {
 
 const LANGUAGES = [
   { label: 'English', value: 'en' },
-  { label: 'Español', value: 'es' },
-  { label: 'Português', value: 'pt' },
+  { label: 'Spanish', value: 'es' },
+  { label: 'Portuguese', value: 'pt' },
 ];
 
 /**

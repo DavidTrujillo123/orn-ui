@@ -44,11 +44,11 @@ export function SkeletonDemo() {
       content: <Skeleton height={20} />,
     },
     {
-      label: 'variant="text" — párrafo de 3 líneas',
+      label: 'variant="text" — 3-line paragraph',
       content: <Skeleton variant="text" lines={3} />,
     },
     {
-      label: 'variant="circle" — avatares',
+      label: 'variant="circle" — avatars',
       content: (
         <VariantRow>
           <Skeleton variant="circle" width={32} />
@@ -58,11 +58,11 @@ export function SkeletonDemo() {
       ),
     },
     {
-      label: 'animated={false} — sin pulso',
+      label: 'animated={false} — no pulse',
       content: <Skeleton height={20} animated={false} />,
     },
     {
-      label: 'reserva el espacio exacto: alterna cada 2s',
+      label: 'reserves the exact space: toggles every 2s',
       content: <LoadingCard />,
     },
   ];

@@ -138,7 +138,7 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
               key={v.label}
               style={[styles.page, { height: pageHeight }]}
               accessible={false}
-              accessibilityLabel={`Variante ${i + 1} de ${variants.length}: ${v.label}`}
+              accessibilityLabel={`Variant ${i + 1} of ${variants.length}: ${v.label}`}
             >
               <Caption style={styles.label}>{v.label}</Caption>
               <View style={[styles.stage, styles.stagePage, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -176,7 +176,7 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
 
           <Animated.View style={[styles.hint, { opacity: hintOpacity }]} pointerEvents="none">
             <Caption style={[styles.hintText, { color: colors.textLight }]}>
-              Deslizá para ver las {variants.length} variantes
+              Swipe to see the {variants.length} variants
             </Caption>
           </Animated.View>
         </>
