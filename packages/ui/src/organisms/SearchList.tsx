@@ -1,9 +1,19 @@
-import React, { memo } from 'react';
-import { ActivityIndicator, FlatList, Text, View, type FlatListProps, type StyleProp, type ViewStyle } from 'react-native';
+import React, { useCallback } from 'react';
+import {
+  ActivityIndicator,
+  FlatList,
+  RefreshControl,
+  Text,
+  View,
+  type FlatListProps,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useColors, useLabels } from '../theme/UIProvider';
 import { Input } from '../atoms/Input';
 import { EmptyState } from '../atoms/EmptyState';
+import { Skeleton } from '../atoms/Skeleton';
 import { Spinner } from '../atoms/Spinner';
 import { IconButton } from '../atoms/IconButton';
 import type { IconName } from '../icons/types';
@@ -21,31 +31,50 @@ export interface SearchListProps<T> {
   extraActions?: React.ReactNode;
 
   data: T[];
-  keyExtractor: (item: T) => string;
+  keyExtractor: (item: T, index: number) => string;
   renderItem: FlatListProps<T>['renderItem'];
 
+  /** Carga inicial: mientras sea true y no haya datos, se muestran placeholders. */
   isLoading?: boolean;
-  /** 'replace' cambia toda la lista por un spinner; 'overlay' lo muestra encima manteniendo el layout. */
+  /** 'replace' cambia toda la lista por un spinner/skeleton; 'overlay' lo muestra encima manteniendo el layout. */
   loadingMode?: 'replace' | 'overlay';
-  loadingText?: string;
-
-  onLoadMore?: () => void;
+  /** Recarga con datos ya en pantalla (pull-to-refresh). @default false */
+  isRefreshing?: boolean;
   isLoadingMore?: boolean;
+  /** Controlado por el consumidor: mientras es false, se muestra un spinner de pantalla completa. @default true */
+  isReady?: boolean;
+  loadingText?: string;
   loadingMoreText?: string;
   hasMore?: boolean;
   noMoreText?: string;
+
+  /** Filas fantasma de la carga inicial. @default 6 */
+  skeletonCount?: number;
+  /** Placeholder propio, para que calce con la forma real del ítem. */
+  renderSkeletonItem?: () => React.ReactElement;
+
+  onLoadMore?: () => void;
+  onEndReached?: () => void;
+  onEndReachedThreshold?: number;
+  onRefresh?: () => void;
 
   emptyTitle?: string;
   emptyDescription?: string;
   emptyIconName?: IconName;
 
+  ListHeaderComponent?: FlatListProps<T>['ListHeaderComponent'];
+  ListFooterComponent?: FlatListProps<T>['ListFooterComponent'];
+
   contentContainerStyle?: StyleProp<ViewStyle>;
+  containerStyle?: ViewStyle;
+
+  /** Componente de lista a usar (FlashList, etc). @default FlatList */
   ListComponent?: React.ComponentType<any>;
   listProps?: Record<string, unknown>;
 }
 
 const useStyles = createStyles((theme) => ({
-  container: { flex: 1 },
+  container: { flex: 1, backgroundColor: theme.colors.background },
   searchRow: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.tokens.spacing.lg - 1, gap: theme.tokens.spacing.sm + 2 },
   searchInput: { flex: 1, marginBottom: 0 },
   scanButton: { backgroundColor: theme.colors.primary, width: 50, height: 50, borderRadius: theme.tokens.radius.lg, ...theme.tokens.shadow.sm },
@@ -64,6 +93,13 @@ const useStyles = createStyles((theme) => ({
   },
   footer: { paddingVertical: theme.tokens.spacing.xl, alignItems: 'center', gap: theme.tokens.spacing.md },
   footerText: { color: theme.colors.textLight, fontSize: theme.tokens.fontSize.md },
+  skeletonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.tokens.spacing.md,
+    padding: theme.tokens.spacing.md,
+  },
+  skeletonText: { flex: 1, gap: theme.tokens.spacing.sm },
 }));
 
 /**
@@ -86,16 +122,26 @@ export function SearchList<T>({
   renderItem,
   isLoading = false,
   loadingMode = 'replace',
-  loadingText,
-  onLoadMore,
+  isRefreshing = false,
   isLoadingMore = false,
+  isReady = true,
+  loadingText,
   loadingMoreText,
   hasMore = false,
   noMoreText,
+  skeletonCount = 6,
+  renderSkeletonItem,
+  onLoadMore,
+  onEndReached,
+  onEndReachedThreshold = 0.3,
+  onRefresh,
   emptyTitle,
   emptyDescription,
   emptyIconName,
+  ListHeaderComponent,
+  ListFooterComponent,
   contentContainerStyle,
+  containerStyle,
   ListComponent = FlatList,
   listProps,
 }: SearchListProps<T>) {
@@ -106,30 +152,55 @@ export function SearchList<T>({
   const resolvedLoadingText = loadingText ?? labels.loading;
   const resolvedLoadingMoreText = loadingMoreText ?? labels.loadingMore;
 
-  const renderFooter = () => {
-    if (isLoadingMore) {
-      return (
-        <View style={styles.footer}>
-          <Spinner text={resolvedLoadingMoreText} fullscreen={false} />
-        </View>
-      );
-    }
-    if (noMoreText && !hasMore && data.length > 0) {
-      return (
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>{noMoreText}</Text>
-        </View>
-      );
-    }
-    return null;
-  };
+  const handleEndReached = onLoadMore ?? onEndReached;
 
-  const showReplaceLoading = isLoading && loadingMode === 'replace' && data.length === 0;
+  // El footer propio y el loader de paginación conviven: antes el primero
+  // tapaba al segundo y la lista dejaba de avisar que estaba trayendo más.
+  const renderFooter = useCallback(() => {
+    const custom =
+      typeof ListFooterComponent === 'function' ? (
+        <ListFooterComponent />
+      ) : (
+        (ListFooterComponent as React.ReactElement | undefined) ?? null
+      );
+
+    return (
+      <>
+        {custom}
+        {isLoadingMore && (
+          <View style={styles.footer}>
+            <Spinner text={resolvedLoadingMoreText} fullscreen={false} />
+          </View>
+        )}
+        {noMoreText && !hasMore && data.length > 0 && (
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>{noMoreText}</Text>
+          </View>
+        )}
+      </>
+    );
+  }, [ListFooterComponent, isLoadingMore, resolvedLoadingMoreText, noMoreText, hasMore, data.length, styles.footer, styles.footerText]);
+
+  // Vacío sólo cuando ya se sabe que no hay nada: durante la carga inicial se
+  // muestran placeholders, no "sin resultados".
+  const renderEmpty = useCallback(() => {
+    if (isLoading || isRefreshing) return null;
+    return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={{ marginTop: 50 }} />;
+  }, [isLoading, isRefreshing, emptyTitle, emptyDescription, emptyIconName]);
+
+  if (!isReady) {
+    return (
+      <View style={[styles.container, containerStyle]}>
+        <Spinner text={resolvedLoadingText} />
+      </View>
+    );
+  }
+
+  const isInitialLoading = isLoading && loadingMode === 'replace' && data.length === 0;
   const showOverlayLoading = isLoading && loadingMode === 'overlay' && data.length === 0;
-  const showEmpty = !isLoading && data.length === 0;
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, containerStyle]}>
       {header}
 
       <View style={styles.searchRow}>
@@ -163,20 +234,44 @@ export function SearchList<T>({
           </View>
         )}
 
-        {showReplaceLoading ? (
-          <Spinner text={resolvedLoadingText} />
-        ) : showEmpty ? (
-          <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} />
+        {isInitialLoading ? (
+          <View testID="list-skeleton" style={[styles.listContent, contentContainerStyle]}>
+            {Array.from({ length: skeletonCount }, (_, i) => (
+              <React.Fragment key={i}>
+                {renderSkeletonItem?.() ?? (
+                  <View style={styles.skeletonRow}>
+                    <Skeleton variant="circle" width={40} />
+                    <View style={styles.skeletonText}>
+                      <Skeleton width="60%" height={14} />
+                      <Skeleton width="35%" height={12} />
+                    </View>
+                  </View>
+                )}
+              </React.Fragment>
+            ))}
+          </View>
         ) : (
           <ListComponent
             data={data}
             keyExtractor={keyExtractor}
             keyboardDismissMode="on-drag"
-            contentContainerStyle={contentContainerStyle ?? styles.listContent}
-            onEndReached={onLoadMore}
-            onEndReachedThreshold={0.2}
+            contentContainerStyle={[styles.listContent, contentContainerStyle]}
+            onEndReached={handleEndReached}
+            onEndReachedThreshold={onEndReachedThreshold}
+            ListHeaderComponent={ListHeaderComponent}
             ListFooterComponent={renderFooter}
+            ListEmptyComponent={renderEmpty}
             renderItem={renderItem}
+            refreshControl={
+              onRefresh ? (
+                <RefreshControl
+                  refreshing={isRefreshing}
+                  onRefresh={onRefresh}
+                  colors={[colors.primary]}
+                  tintColor={colors.primary}
+                />
+              ) : undefined
+            }
             {...listProps}
           />
         )}
@@ -184,3 +279,4 @@ export function SearchList<T>({
     </View>
   );
 }
+
