@@ -64,3 +64,16 @@ describe.each([
     expect(contrast(soft, palette.surface)).toBeLessThan(2);
   });
 });
+
+describe('filled accents read as expected', () => {
+  // El rojo con texto casi negro pasaba AA pero se leía como un error de
+  // diseño: un botón destructivo lleva texto blanco.
+  it('light uses white on the destructive fill', () => {
+    expect(lightPalette.onError).toBe('#ffffff');
+    expect(contrast(lightPalette.onError, lightPalette.error)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+
+  it('dark keeps a dark label on its lighter red, which is the inverse of the same rule', () => {
+    expect(contrast(darkPalette.onError, darkPalette.error)).toBeGreaterThanOrEqual(AA_TEXT);
+  });
+});

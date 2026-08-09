@@ -81,8 +81,11 @@ export const lightPalette: ThemeColors = {
   successSoft: '#e3f6e9',
   successText: '#116a30',
 
-  error: '#ff3b30',
-  onError: '#3d0300',
+  // El rojo va con texto blanco, que es lo que la gente espera de un botón
+  // destructivo. #ff3b30 no llega a 4.5:1 con blanco y obligaba a texto casi
+  // negro sobre rojo; este tono sí, y sigue leyéndose como rojo de alerta.
+  error: '#dc2626',
+  onError: '#ffffff',
   errorSoft: '#fdeaea',
   errorText: '#c62222',
 

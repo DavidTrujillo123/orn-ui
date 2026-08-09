@@ -3,6 +3,9 @@
  * roles (relleno / encima / tenue / legible) a partir de un solo hex de marca.
  */
 
+/** Contraste mínimo AA para texto normal. */
+export const AA_CONTRAST = 4.5;
+
 export interface Rgb {
   r: number;
   g: number;
@@ -110,8 +113,12 @@ export function contrast(a: string, b: string): number {
   return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
 }
 
-/** El extremo (blanco o negro) que más contrasta contra `background`. */
+/**
+ * Blanco si alcanza el contraste AA —es lo que se espera encima de un relleno
+ * de color— y si no, el extremo que más contraste dé.
+ */
 function bestOnColor(background: string, light: string, dark: string): string {
+  if (contrast(background, light) >= AA_CONTRAST) return light;
   return contrast(background, dark) >= contrast(background, light) ? dark : light;
 }
 
@@ -137,9 +144,6 @@ function reachContrast(hsl: Hsl, against: string, target: number, direction: 'da
 
   return best;
 }
-
-/** Contraste mínimo AA para texto normal. */
-export const AA_CONTRAST = 4.5;
 
 /**
  * Deriva los cuatro roles de un acento a partir de un hex, para un esquema.
