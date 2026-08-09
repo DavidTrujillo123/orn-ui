@@ -1,8 +1,8 @@
 import React from 'react';
 import { Text, TouchableOpacity } from 'react-native';
-import { act, render, screen, fireEvent } from '@testing-library/react-native';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
-import { AlertProvider, useAlert } from '../AlertProvider';
+import { AlertProvider, useAlert, showAlert, showConfirm, hideAlert } from '../AlertProvider';
 
 function withProvider(children: React.ReactNode) {
   return (
@@ -107,5 +107,51 @@ describe('useAlert', () => {
       fireEvent.press(screen.getByText('Cancel'));
     });
     expect(result).toBe(false);
+  });
+});
+
+describe('showAlert / showConfirm (imperative, outside React)', () => {
+  it('opens an alert without a hook or a component', async () => {
+    render(withProvider(<Text>app</Text>));
+    let resolved = false;
+    act(() => {
+      showAlert({ title: 'Saved from a service' }).then(() => {
+        resolved = true;
+      });
+    });
+    expect(screen.getByText('Saved from a service')).toBeOnTheScreen();
+
+    fireEvent.press(screen.getByRole('button', { name: 'OK' }));
+    await waitFor(() => expect(resolved).toBe(true));
+  });
+
+  it('confirm resolves true or false from the pressed button', async () => {
+    render(withProvider(<Text>app</Text>));
+    let answer: boolean | undefined;
+    act(() => {
+      showConfirm({ title: 'Delete?', destructive: true }).then((value) => {
+        answer = value;
+      });
+    });
+    fireEvent.press(screen.getByRole('button', { name: 'Cancel' }));
+    await waitFor(() => expect(answer).toBe(false));
+  });
+
+  it('hideAlert closes the open alert', () => {
+    render(withProvider(<Text>app</Text>));
+    act(() => {
+      showAlert({ title: 'Saved' });
+    });
+    expect(screen.getByText('Saved')).toBeOnTheScreen();
+    act(() => hideAlert());
+    expect(screen.queryByText('Saved')).not.toBeOnTheScreen();
+  });
+
+  it('resolves right away when no provider is mounted, so an await never hangs', async () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    await expect(showAlert({ title: 'nowhere' })).resolves.toBeUndefined();
+    await expect(showConfirm({ title: 'nowhere' })).resolves.toBe(false);
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('AlertProvider'));
+    warn.mockRestore();
   });
 });

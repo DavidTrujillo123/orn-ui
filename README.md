@@ -5,7 +5,7 @@ Fast, tree-shakeable, atomic-design component library for React Native.
 babel config, no metro config, no pods.
 
 39 components across atoms, molecules and organisms, fully typed, themeable
-(light/dark), with 409 tests and a 90%/85% (lines/branches) coverage gate in CI.
+(light/dark), with 418 tests and a 90%/85% (lines/branches) coverage gate in CI.
 
 Live docs (props tables, demo snippets, install instructions per component):
 **[orn-ui.dev](https://orn-ui.dev)**
@@ -137,6 +137,26 @@ otherwise silent until someone opens a modal.
 
 Full props tables and live-recorded demo GIFs for every one of these: see
 [orn-ui.dev](https://orn-ui.dev).
+
+### Toasts and alerts from outside React
+
+`useToast()` and `useAlert()` need a component. Business logic — a service, an
+API interceptor, a queue worker — gets the same providers through plain
+functions:
+
+```tsx
+import { showToast, showConfirm } from 'orn-ui';
+
+export async function deleteInvoice(id: string) {
+  if (!(await showConfirm({ title: 'Delete invoice', destructive: true }))) return;
+  await api.delete(id);
+  showToast({ title: 'Invoice deleted', variant: 'success' });
+}
+```
+
+They target the mounted provider. With none mounted they warn in `__DEV__` and
+no-op — `showConfirm` resolves `false` and `showAlert` resolves immediately, so
+an `await` never hangs.
 
 ## Theming
 

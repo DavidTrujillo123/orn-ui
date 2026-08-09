@@ -1,5 +1,6 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, type AlertButton, type AlertType } from './Alert';
+import { createImperativeBridge } from './imperativeBridge';
 
 export interface AlertOptions {
   title: string;
@@ -23,6 +24,25 @@ interface AlertContextValue {
 }
 
 const AlertContext = createContext<AlertContextValue | undefined>(undefined);
+const bridge = createImperativeBridge<AlertContextValue>('AlertProvider');
+
+/**
+ * Abre un alert desde fuera del árbol de React —un servicio, un interceptor—
+ * sin pasar por el hook. Sin <AlertProvider> montado resuelve de inmediato, así
+ * que un `await` nunca queda colgado.
+ */
+export function showAlert(options: AlertOptions): Promise<void> {
+  return bridge.get()?.alert(options) ?? Promise.resolve();
+}
+
+/** Igual que showAlert, pero resuelve true/false. Sin provider, false. */
+export function showConfirm(options: ConfirmOptions): Promise<boolean> {
+  return bridge.get()?.confirm(options) ?? Promise.resolve(false);
+}
+
+export function hideAlert(): void {
+  bridge.get()?.hide();
+}
 
 interface InternalState {
   visible: boolean;
@@ -107,6 +127,11 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo<AlertContextValue>(() => ({ alert: alertFn, confirm: confirmFn, hide }), [alertFn, confirmFn, hide]);
+
+  useEffect(() => {
+    bridge.set(value);
+    return () => bridge.set(null);
+  }, [value]);
 
   return (
     <AlertContext.Provider value={value}>

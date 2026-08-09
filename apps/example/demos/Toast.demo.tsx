@@ -1,7 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Toast, useToast } from 'orn-ui';
+import { Body, Button, Toast, useToast } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
+import { deleteInvoice, syncInvoices } from '@/services/invoiceService';
 
 export function ToastDemo() {
   const { show, hideAll } = useToast();
@@ -23,6 +24,16 @@ export function ToastDemo() {
             onPress={() => show({ title: 'Unsaved changes', variant: 'warning' })}
           />
           <Button title="Info" variant="outline" onPress={() => show({ title: 'Syncing…', variant: 'info' })} />
+        </View>
+      ),
+    },
+    {
+      label: 'From business logic — showToast(), no hook',
+      content: (
+        <View style={{ gap: 8 }}>
+          <Body>Both buttons call a plain service module that imports showToast/showConfirm.</Body>
+          <Button title="Delete invoice #4821" variant="outline" onPress={() => deleteInvoice('4821')} />
+          <Button title="Sync (fails)" variant="outline" onPress={() => syncInvoices()} />
         </View>
       ),
     },

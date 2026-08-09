@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import { AnimatedToast, Toast, type ToastVariant } from './Toast';
 import { useInsets } from '../theme/UIProvider';
 import { createStyles } from '../theme/createStyles';
+import { createImperativeBridge } from './imperativeBridge';
 
 export interface ToastOptions {
   title: string;
@@ -26,6 +27,24 @@ interface ToastContextValue {
 }
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
+const bridge = createImperativeBridge<ToastContextValue>('ToastProvider');
+
+/**
+ * Muestra un toast desde fuera del árbol de React —un servicio, un
+ * interceptor— sin pasar por el hook. Devuelve el id, o '' si no hay
+ * <ToastProvider> montado.
+ */
+export function showToast(options: ToastOptions): string {
+  return bridge.get()?.show(options) ?? '';
+}
+
+export function hideToast(id: string): void {
+  bridge.get()?.hide(id);
+}
+
+export function hideAllToasts(): void {
+  bridge.get()?.hideAll();
+}
 
 const useStyles = createStyles((theme) => ({
   host: { position: 'absolute', left: 0, right: 0, paddingHorizontal: theme.tokens.spacing.lg, gap: theme.tokens.spacing.sm },
@@ -121,6 +140,11 @@ export function ToastProvider({
   }, []);
 
   const value = useMemo<ToastContextValue>(() => ({ show, hide, hideAll }), [show, hide, hideAll]);
+
+  useEffect(() => {
+    bridge.set(value);
+    return () => bridge.set(null);
+  }, [value]);
 
   const hostPosition =
     position === 'top'

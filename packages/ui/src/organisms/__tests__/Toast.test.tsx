@@ -3,7 +3,7 @@ import { Text, TouchableOpacity } from 'react-native';
 import { act, render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Toast } from '../Toast';
-import { ToastProvider, useToast } from '../ToastProvider';
+import { ToastProvider, useToast, showToast, hideAllToasts, hideToast } from '../ToastProvider';
 
 function withProvider(children: React.ReactNode) {
   return <UIProvider mode="light">{children}</UIProvider>;
@@ -140,5 +140,53 @@ describe('useToast', () => {
     render(withToastProvider(<Trigger options={{ duration: 0 }} />, { position: 'bottom' }));
     fireEvent.press(screen.getByText('show'));
     expect(screen.getByTestId('toast-host')).toBeOnTheScreen();
+  });
+});
+
+describe('showToast (imperative, outside React)', () => {
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => {
+    act(() => jest.runOnlyPendingTimers());
+    jest.useRealTimers();
+  });
+
+  it('shows a toast without a hook or a component', () => {
+    render(withToastProvider(<Text>app</Text>));
+    act(() => {
+      showToast({ title: 'Saved from a service' });
+    });
+    expect(screen.getByText('Saved from a service')).toBeOnTheScreen();
+  });
+
+  it('hides by id and hides them all', () => {
+    render(withToastProvider(<Text>app</Text>, { maxVisible: 3 }));
+    let id = '';
+    act(() => {
+      id = showToast({ title: 'first', duration: 0 });
+      showToast({ title: 'second', duration: 0 });
+    });
+
+    act(() => hideToast(id));
+    expect(screen.queryByText('first')).not.toBeOnTheScreen();
+    expect(screen.getByText('second')).toBeOnTheScreen();
+
+    act(() => hideAllToasts());
+    expect(screen.queryByText('second')).not.toBeOnTheScreen();
+  });
+
+  it('warns and does nothing when no provider is mounted', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    expect(showToast({ title: 'nowhere' })).toBe('');
+    expect(warn).toHaveBeenCalledWith(expect.stringContaining('ToastProvider'));
+    warn.mockRestore();
+  });
+
+  it('stops reaching a provider that unmounted', () => {
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    const { unmount } = render(withToastProvider(<Text>app</Text>));
+    unmount();
+    expect(showToast({ title: 'nowhere' })).toBe('');
+    expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
   });
 });
