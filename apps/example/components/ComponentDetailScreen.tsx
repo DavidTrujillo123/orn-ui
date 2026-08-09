@@ -27,7 +27,7 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
 
   if (!entry) {
     return (
-      <Screen scrollable={false} edges={['top', 'bottom']}>
+      <Screen scrollable={false} edges={['top']}>
         <View style={styles.navBar}>
           <IconButton iconName="chevron-left" accessibilityLabel="Back" onPress={goBack} />
         </View>
@@ -51,7 +51,9 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
       // compensación del Screen empuja el campo enfocado fuera de la pantalla
       // y, en el pager, altera el alto de página que sostiene el snap.
       keyboardAvoiding={freeScroll}
-      edges={['top', 'bottom']}
+      // La barra de tabs ya aporta el safe area inferior: repetirlo acá deja
+      // una banda vacía entre el contenido y la barra.
+      edges={['top']}
     >
       {/* Patrón de título grande de iOS: la barra solo lleva el back, y el
           nombre vive una sola vez como Title debajo (no duplicado arriba). */}

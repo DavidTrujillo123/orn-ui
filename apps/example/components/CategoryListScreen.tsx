@@ -10,7 +10,7 @@ import type { DemoEntry } from '@/demos/manifest';
 export function CategoryListScreen({ title, basePath, entries }: { title: string; basePath: string; entries: DemoEntry[] }) {
   const router = useRouter();
   return (
-    <Screen scrollable={false} edges={['top', 'bottom']}>
+    <Screen scrollable={false} edges={['top']}>
       <CategoryHeader title={title} />
       <FlatList
         data={entries}

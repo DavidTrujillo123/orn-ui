@@ -138,6 +138,24 @@ where the numbers come from.
 Omitting `insets` logs a one-time `__DEV__` warning, since the failure is
 otherwise silent until someone opens a modal.
 
+#### Don't stack insets
+
+Each component applies the safe area **once**. A screen sitting above a
+`NavigationBar` (or any tab bar) must not apply the bottom inset itself, or the
+gesture-bar gap is counted twice and an empty band appears between the content
+and the bar:
+
+```tsx
+// Inside tabs: the bar already covers the bottom edge.
+<Screen edges={['top']}>{content}</Screen>
+
+// Full screen, no bar below: keep both.
+<Screen>{content}</Screen>
+```
+
+Same rule for a list's own `contentContainerStyle`: pad for the height of the
+bar, not for `insets.bottom` again.
+
 ## Component catalog
 
 Component name → subpath to import it from. Same list `npx orn-ui add`
@@ -222,6 +240,75 @@ import { SearchList } from 'orn-ui/search-list';
   renderItem={({ item }) => <ClientRow client={item} />}
 />
 ```
+
+### Dates: DatePicker & DateField
+
+A month grid drawn with `View`/`Text` — no `@react-native-community/datetimepicker`,
+identical on iOS and Android. `DateField` is the same calendar behind an input
+that opens it in a modal.
+
+```tsx
+import { DateField } from 'orn-ui/date-field';
+
+// Single date, with a clear button
+<DateField
+  label="Due date"
+  value={date}
+  onChange={setDate}
+  onClear={() => setDate(undefined)}
+  maxDate={endOfQuarter}
+/>
+
+// Range: two taps, the modal closes when the range closes
+<DateField label="Stay" mode="range" range={range} onRangeChange={setRange} />
+```
+
+- `onClear` is what renders the clear button. Without it there is no footer
+  button — the previous "Clear" only closed the modal without clearing.
+- `mode="range"` works on both `DateField` and `DatePicker`; the field shows
+  `start — end` and stays open while the range is half-picked.
+- The visible month follows `value`/`range.start` when they change from the
+  outside, and keeps the month the user navigated to when the new value is
+  already in it.
+- The header arrows disable themselves once `minDate`/`maxDate` leave nothing
+  to pick in that direction. `onVisibleMonthChange` reports the month on screen.
+- "Today" is recomputed at midnight, so an app left open overnight doesn't keep
+  highlighting yesterday.
+
+Month and weekday names, the modal title and the clear label come from
+[labels](#labels); `monthNames`, `weekdayNames`, `modalTitle` and `clearLabel`
+still override them per instance.
+
+### Steps
+
+`Steps` in `orientation="horizontal"` gives every step a minimum width and
+scrolls the row when they don't fit. Squeezing the columns instead made React
+Native break labels mid-word (`Almacé / n`), so a long flow now slides sideways
+and keeps its words whole. Nothing to configure.
+
+### Labels
+
+Every built-in string lives in one object, overridable per app through
+`UIProvider`:
+
+```tsx
+<UIProvider
+  labels={{
+    search: 'Buscar...',
+    selectDate: 'Elegí una fecha',
+    clear: 'Limpiar',
+    months: ['Enero', 'Febrero', /* … */],
+    weekdaysShort: ['D', 'L', 'M', 'M', 'J', 'V', 'S'], // index 0 = Sunday
+  }}
+>
+  {app}
+</UIProvider>
+```
+
+Keys: `close`, `cancel`, `confirm`, `loading`, `loadingMore`, `noResultsTitle`,
+`noResultsDescription`, `search`, `selectPlaceholder`, `months`,
+`weekdaysShort`, `selectDate`, `clear`. Anything you leave out keeps its
+English default.
 
 ### Toasts and alerts from outside React
 

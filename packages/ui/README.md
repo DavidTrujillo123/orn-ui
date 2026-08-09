@@ -101,6 +101,17 @@ Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-
 - **Paginación & Headers/Footers**: `ListHeaderComponent` y `ListFooterComponent` conviven limpiamente con el indicador `isLoadingMore` y `noMoreText`.
 - **Estado vacío no destructivo**: `ListEmptyComponent` conserva el header, footer y gestos de scroll/refresh.
 
+### Worth knowing
+
+- **Safe area, once.** A screen above a `NavigationBar` or tab bar takes
+  `edges={['top']}` — applying the bottom inset on both counts the gesture bar
+  twice and leaves an empty band.
+- **Dates.** `DatePicker`/`DateField` both take `mode="range"`; `onClear` is
+  what renders the clear button; month/weekday names, the modal title and the
+  clear label come from `labels`.
+- **`Steps`** scrolls its horizontal row rather than squeezing columns until
+  React Native breaks labels mid-word.
+
 ## Why zero dependencies
 
 No third-party runtime code means no supply-chain surface, no version
