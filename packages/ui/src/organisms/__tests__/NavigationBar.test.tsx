@@ -1,4 +1,5 @@
 import React from 'react';
+import { StyleSheet } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { NavigationBar, type NavigationBarItem } from '../NavigationBar';
@@ -45,6 +46,21 @@ describe('NavigationBar', () => {
   it('reads each label once: the cross-fade copy stays out of the accessibility tree', () => {
     render(withProvider(<NavigationBar items={ITEMS} activeKey="home" onChange={() => {}} />));
     expect(screen.getAllByText('Home')).toHaveLength(1);
+  });
+
+  it('keeps the indicator out of the bottom safe area', () => {
+    render(
+      <UIProvider mode="light" insets={{ top: 47, right: 0, bottom: 34, left: 0 }}>
+        <NavigationBar testID="bar" items={ITEMS} activeKey="home" onChange={() => {}} />
+      </UIProvider>
+    );
+
+    fireEvent(screen.getByTestId('bar'), 'layout', {
+      nativeEvent: { layout: { width: 390, height: 90, x: 0, y: 0 } },
+    });
+
+    const indicator = screen.getByTestId('navigation-bar-indicator');
+    expect(StyleSheet.flatten(indicator.props.style).bottom).toBeGreaterThanOrEqual(34);
   });
 
   it('hides the labels when showLabels is false', () => {
