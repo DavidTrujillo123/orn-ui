@@ -1,31 +1,31 @@
-import React, { memo, useCallback } from 'react';
-import {
-  ActivityIndicator,
-  FlatList,
-  Platform,
-  RefreshControl,
-  Text,
-  View,
-  type FlatListProps,
-  type ViewStyle,
-} from 'react-native';
+import React, { useCallback } from 'react';
+import { FlatList, RefreshControl, View, type FlatListProps, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useColors, useLabels } from '../theme/UIProvider';
 import { EmptyState } from '../atoms/EmptyState';
+import { Skeleton } from '../atoms/Skeleton';
 import { Spinner } from '../atoms/Spinner';
 import type { IconName } from '../icons/types';
 
 export interface ListProps<T> {
   data: T[];
-  keyExtractor: (item: T) => string;
+  keyExtractor: (item: T, index: number) => string;
   renderItem: FlatListProps<T>['renderItem'];
 
+  /** Carga inicial: mientras sea true y no haya datos, se muestran placeholders. */
   isLoading: boolean;
+  /** Recarga con datos ya en pantalla (pull-to-refresh). @default false */
+  isRefreshing?: boolean;
   isLoadingMore?: boolean;
   /** Controlado por el consumidor: mientras es false, se muestra un spinner de pantalla completa. @default true */
   isReady?: boolean;
   loadingText?: string;
   loadingMoreText?: string;
+
+  /** Filas fantasma de la carga inicial. @default 6 */
+  skeletonCount?: number;
+  /** Placeholder propio, para que calce con la forma real del ítem. */
+  renderSkeletonItem?: () => React.ReactElement;
 
   onEndReached?: () => void;
   onEndReachedThreshold?: number;
@@ -48,20 +48,15 @@ export interface ListProps<T> {
 
 const useStyles = createStyles((theme) => ({
   container: { flex: 1, backgroundColor: theme.colors.background },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: theme.colors.scrim,
-    zIndex: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: { marginTop: theme.tokens.spacing.md, color: theme.colors.textLight, fontWeight: theme.tokens.fontWeight.medium },
-  listContent: { padding: theme.tokens.spacing.md, paddingBottom: Platform.OS === 'android' ? 100 : 80 },
+  listContent: { padding: theme.tokens.spacing.md },
   footerLoader: { paddingVertical: theme.tokens.spacing.xl, alignItems: 'center' },
+  skeletonRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.tokens.spacing.md,
+    padding: theme.tokens.spacing.md,
+  },
+  skeletonText: { flex: 1, gap: theme.tokens.spacing.sm },
 }));
 
 /**
@@ -75,10 +70,13 @@ export function List<T>({
   keyExtractor,
   renderItem,
   isLoading,
+  isRefreshing = false,
   isLoadingMore = false,
   isReady = true,
   loadingText,
   loadingMoreText,
+  skeletonCount = 6,
+  renderSkeletonItem,
   onEndReached,
   onEndReachedThreshold = 0.3,
   onRefresh,
@@ -98,22 +96,36 @@ export function List<T>({
   const resolvedLoadingText = loadingText ?? labels.loading;
   const resolvedLoadingMoreText = loadingMoreText ?? labels.loadingMore;
 
+  const isInitialLoading = isLoading && data.length === 0;
+
+  // El footer propio y el loader de paginación conviven: antes el primero
+  // tapaba al segundo y la lista dejaba de avisar que estaba trayendo más.
   const renderFooter = useCallback(() => {
-    if (ListFooterComponent) {
-      return typeof ListFooterComponent === 'function' ? <ListFooterComponent /> : (ListFooterComponent as React.ReactElement);
-    }
-    if (!isLoadingMore) return null;
+    const custom =
+      typeof ListFooterComponent === 'function' ? (
+        <ListFooterComponent />
+      ) : (
+        (ListFooterComponent as React.ReactElement | undefined) ?? null
+      );
+
     return (
-      <View style={styles.footerLoader}>
-        <Spinner text={resolvedLoadingMoreText} fullscreen={false} />
-      </View>
+      <>
+        {custom}
+        {isLoadingMore && (
+          <View style={styles.footerLoader}>
+            <Spinner text={resolvedLoadingMoreText} fullscreen={false} />
+          </View>
+        )}
+      </>
     );
   }, [isLoadingMore, resolvedLoadingMoreText, ListFooterComponent, styles.footerLoader]);
 
+  // Vacío sólo cuando ya se sabe que no hay nada: durante la carga inicial se
+  // muestran placeholders, no "sin resultados".
   const renderEmpty = useCallback(() => {
-    if (isLoading) return null;
+    if (isLoading || isRefreshing) return null;
     return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={{ marginTop: 50 }} />;
-  }, [isLoading, emptyTitle, emptyDescription, emptyIconName]);
+  }, [isLoading, isRefreshing, emptyTitle, emptyDescription, emptyIconName]);
 
   if (!isReady) {
     return (
@@ -123,15 +135,30 @@ export function List<T>({
     );
   }
 
+  if (isInitialLoading) {
+    return (
+      <View style={[styles.container, containerStyle]} testID="list-skeleton">
+        <View style={[styles.listContent, contentContainerStyle]}>
+          {Array.from({ length: skeletonCount }, (_, i) => (
+            <React.Fragment key={i}>
+              {renderSkeletonItem?.() ?? (
+                <View style={styles.skeletonRow}>
+                  <Skeleton variant="circle" width={40} />
+                  <View style={styles.skeletonText}>
+                    <Skeleton width="60%" height={14} />
+                    <Skeleton width="35%" height={12} />
+                  </View>
+                </View>
+              )}
+            </React.Fragment>
+          ))}
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={[styles.container, containerStyle]}>
-      {isLoading && data.length === 0 && (
-        <View style={styles.loadingOverlay} pointerEvents="none">
-          <ActivityIndicator size="large" color={colors.primary} />
-          <Text style={styles.loadingText}>{resolvedLoadingText}</Text>
-        </View>
-      )}
-
       <ListComponent
         data={data}
         keyExtractor={keyExtractor}
@@ -144,7 +171,12 @@ export function List<T>({
         ListEmptyComponent={renderEmpty}
         refreshControl={
           onRefresh ? (
-            <RefreshControl refreshing={isLoading} onRefresh={onRefresh} colors={[colors.primary]} tintColor={colors.primary} />
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={onRefresh}
+              colors={[colors.primary]}
+              tintColor={colors.primary}
+            />
           ) : undefined
         }
         {...listProps}
