@@ -126,7 +126,7 @@ otherwise silent until someone opens a modal.
 
 **Atoms** — `Title`/`Subtitle`/`Body`/`Caption`, `Button`, `IconButton`,
 `Input`, `Checkbox`, `Badge`, `Card`, `Divider`, `Avatar`, `Image`, `Spinner`,
-`Skeleton`, `EmptyState`, `KeyValueRow`, `Fab`, `PressableScale`
+`Skeleton`, `EmptyState`, `KeyValueRow`, `Fab`, `PressableScale`, `Transition`
 
 **Molecules** — `Stepper`, `OptionCard`, `InfoRow`, `FormActions`,
 `AvatarHeader`, `ThemeToggle`, `Steps`

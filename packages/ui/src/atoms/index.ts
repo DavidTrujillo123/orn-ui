@@ -22,6 +22,8 @@ export { Spinner } from './Spinner';
 export type { SpinnerProps, SpinnerVariant } from './Spinner';
 export { Skeleton } from './Skeleton';
 export type { SkeletonProps, SkeletonVariant } from './Skeleton';
+export { Transition, useReduceMotion } from './Transition';
+export type { TransitionProps, TransitionPreset } from './Transition';
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 export { KeyValueRow } from './KeyValueRow';

@@ -12,6 +12,7 @@ import { AvatarDemo } from './Avatar.demo';
 import { ImageDemo } from './Image.demo';
 import { SpinnerDemo } from './Spinner.demo';
 import { SkeletonDemo } from './Skeleton.demo';
+import { TransitionDemo } from './Transition.demo';
 import { EmptyStateDemo } from './EmptyState.demo';
 import { KeyValueRowDemo } from './KeyValueRow.demo';
 import { FabDemo } from './Fab.demo';
@@ -70,6 +71,12 @@ export const ATOMS: DemoEntry[] = [
   { slug: 'image', name: 'Image', description: 'Loading/error state, cache y priority="high" (prefetch)', Demo: ImageDemo },
   { slug: 'spinner', name: 'Spinner', description: 'Loading indicator con texto opcional', Demo: SpinnerDemo },
   { slug: 'skeleton', name: 'Skeleton', description: 'Placeholder que late y reserva el espacio del contenido', Demo: SkeletonDemo },
+  {
+    slug: 'transition',
+    name: 'Transition',
+    description: 'Entrada y salida animadas, sólo opacity/transform en el hilo nativo',
+    Demo: TransitionDemo,
+  },
   { slug: 'empty-state', name: 'EmptyState', description: 'Ícono + título + descripción para listas vacías', Demo: EmptyStateDemo },
   { slug: 'key-value-row', name: 'KeyValueRow', description: 'Fila label/value, para totales y detalles', Demo: KeyValueRowDemo },
   { slug: 'fab', name: 'Fab', description: 'Botón flotante circular', Demo: FabDemo },

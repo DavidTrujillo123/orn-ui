@@ -105,6 +105,16 @@
       "react-native": "./src/atoms/Skeleton.tsx",
       "default": "./lib/module/atoms/Skeleton.js"
     },
+    "./transition": {
+      "types": "./lib/typescript/atoms/Transition.d.ts",
+      "react-native": "./src/atoms/Transition.tsx",
+      "default": "./lib/module/atoms/Transition.js"
+    },
+    "./use-reduce-motion": {
+      "types": "./lib/typescript/atoms/Transition.d.ts",
+      "react-native": "./src/atoms/Transition.tsx",
+      "default": "./lib/module/atoms/Transition.js"
+    },
     "./empty-state": {
       "types": "./lib/typescript/atoms/EmptyState.d.ts",
       "react-native": "./src/atoms/EmptyState.tsx",
