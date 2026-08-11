@@ -28,3 +28,5 @@ export { ThemeToggle } from './ThemeToggle';
 export type { ThemeToggleProps } from './ThemeToggle';
 export { NavigationBar } from './NavigationBar';
 export type { NavigationBarProps, NavigationBarItem } from './NavigationBar';
+export { ReorderableList } from './ReorderableList';
+export type { ReorderableListProps } from './ReorderableList';

@@ -176,6 +176,11 @@
       "react-native": "./src/molecules/Steps.tsx",
       "default": "./lib/module/molecules/Steps.js"
     },
+    "./symmetric-grid": {
+      "types": "./lib/typescript/molecules/SymmetricGrid.d.ts",
+      "react-native": "./src/molecules/SymmetricGrid.tsx",
+      "default": "./lib/module/molecules/SymmetricGrid.js"
+    },
     "./modal": {
       "types": "./lib/typescript/organisms/Modal.d.ts",
       "react-native": "./src/organisms/Modal.tsx",
@@ -305,6 +310,11 @@
       "types": "./lib/typescript/organisms/NavigationBar.d.ts",
       "react-native": "./src/organisms/NavigationBar.tsx",
       "default": "./lib/module/organisms/NavigationBar.js"
+    },
+    "./reorderable-list": {
+      "types": "./lib/typescript/organisms/ReorderableList.d.ts",
+      "react-native": "./src/organisms/ReorderableList.tsx",
+      "default": "./lib/module/organisms/ReorderableList.js"
     },
     "./theme": {
       "types": "./lib/typescript/theme/index.d.ts",
