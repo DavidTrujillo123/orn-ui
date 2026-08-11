@@ -12,3 +12,5 @@ export { SegmentedControl } from './SegmentedControl';
 export type { SegmentedControlProps, SegmentedControlOption } from './SegmentedControl';
 export { Steps } from './Steps';
 export type { StepsProps, StepItem, StepStatus } from './Steps';
+export { SymmetricGrid } from './SymmetricGrid';
+export type { SymmetricGridProps } from './SymmetricGrid';
