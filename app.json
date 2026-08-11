@@ -1,5 +1,8 @@
 {
   "ios": {
     "bundleIdentifier": "com.anonymous.orn-ui-monorepo"
+  },
+  "android": {
+    "package": "com.anonymous.ornuimonorepo"
   }
 }

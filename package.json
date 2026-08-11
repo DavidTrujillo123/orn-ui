@@ -10,7 +10,8 @@
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter docs dev",
     "example": "pnpm --filter example start",
-    "ios": "pnpm --filter example ios"
+    "ios": "pnpm --filter example ios",
+    "android": "pnpm --filter example android"
   },
   "devDependencies": {
     "typescript": "~5.9.3"

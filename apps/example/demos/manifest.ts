@@ -38,6 +38,8 @@ import { DatePickerDemo } from './DatePicker.demo';
 import { WizardDemo } from './Wizard.demo';
 import { ThemeToggleDemo } from './ThemeToggle.demo';
 import { NavigationBarDemo } from './NavigationBar.demo';
+import { ReorderableListDemo } from './ReorderableList.demo';
+import { SymmetricGridDemo } from './SymmetricGrid.demo';
 
 export interface DemoEntry {
   slug: string;
@@ -97,6 +99,12 @@ export const MOLECULES: DemoEntry[] = [
     Demo: SegmentedControlDemo,
   },
   { slug: 'steps', name: 'Steps', description: 'Multi-step indicator: horizontal/vertical, check or number', Demo: StepsDemo },
+  {
+    slug: 'symmetric-grid',
+    name: 'SymmetricGrid',
+    description: 'N-column grid; an incomplete last row centers instead of going ragged',
+    Demo: SymmetricGridDemo,
+  },
 ];
 
 export const ORGANISMS: DemoEntry[] = [
@@ -121,5 +129,11 @@ export const ORGANISMS: DemoEntry[] = [
     name: 'NavigationBar',
     description: 'Tab bar with an animated indicator, identical on iOS and Android',
     Demo: NavigationBarDemo,
+  },
+  {
+    slug: 'reorderable-list',
+    name: 'ReorderableList',
+    description: 'Drag to reorder: the rows in between shift together (common fate)',
+    Demo: ReorderableListDemo,
   },
 ];
