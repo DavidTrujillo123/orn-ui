@@ -11,7 +11,8 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useColors, useInsets } from '../theme/UIProvider';
+import { useColors, useModalSafeAreaBoundary } from '../theme/UIProvider';
+import type { EdgeInsets } from '../theme/insets';
 import { Title } from '../atoms/Text';
 import { IconButton } from '../atoms/IconButton';
 import { Transition, type TransitionPreset } from '../atoms/Transition';
@@ -96,7 +97,7 @@ export const Modal = memo(
     const isOverlay = variant === 'overlay';
     const isFullScreen = variant === 'fullScreen';
     const isAnimatedVariant = isOverlay || isFull;
-    const insets = useInsets();
+    const ModalSafeAreaBoundary = useModalSafeAreaBoundary();
     const colors = useColors();
     const styles = useStyles();
 
@@ -176,59 +177,66 @@ export const Modal = memo(
         hardwareAccelerated={hardwareAccelerated}
       >
         <KeyboardAvoidingView behavior={behavior} keyboardVerticalOffset={keyboardOffset} style={styles.flex1}>
-          {isOverlay ? (
-            <View style={styles.overlayContainer}>
-              {/* Sin accessibilityLabel propio: el header ya expone un botón "Close"
-                  accesible; duplicar el label aquí generaría dos elementos con el
-                  mismo nombre para lectores de pantalla. Tocar afuera es un atajo
-                  puramente táctil. */}
-              <Transition
-                visible={visible}
-                preset="fade"
-                duration={200}
-                keepMounted
-                style={[{ ...StyleSheetAbsoluteFill }, styles.backdrop]}
-              >
-                <Pressable style={StyleSheetAbsoluteFill} onPress={onClose} testID="modal-backdrop" />
-              </Transition>
+          {/* Insets medidos dentro de esta ventana nativa del Modal, no los de
+              la raíz de la app — pueden diferir (Android siempre abre una
+              ventana propia; iOS según `presentationStyle`). */}
+          <ModalSafeAreaBoundary>
+            {(insets: EdgeInsets) =>
+              isOverlay ? (
+                <View style={styles.overlayContainer}>
+                  {/* Sin accessibilityLabel propio: el header ya expone un botón "Close"
+                      accesible; duplicar el label aquí generaría dos elementos con el
+                      mismo nombre para lectores de pantalla. Tocar afuera es un atajo
+                      puramente táctil. */}
+                  <Transition
+                    visible={visible}
+                    preset="fade"
+                    duration={200}
+                    keepMounted
+                    style={[{ ...StyleSheetAbsoluteFill }, styles.backdrop]}
+                  >
+                    <Pressable style={StyleSheetAbsoluteFill} onPress={onClose} testID="modal-backdrop" />
+                  </Transition>
 
-              <Transition
-                visible={visible}
-                preset={cardPreset}
-                distance={cardDistance}
-                duration={250}
-                onExited={() => setMounted(false)}
-                style={[styles.overlayCard, containerStyle]}
-              >
-                {renderHeader()}
-                {renderMainContent()}
-                {renderFooter()}
-              </Transition>
-            </View>
-          ) : isFull ? (
-            <Transition
-              visible={visible}
-              preset={cardPreset}
-              distance={cardDistance}
-              duration={250}
-              onExited={() => setMounted(false)}
-              style={[styles.fullWrapper, containerStyle]}
-            >
-              <View style={[styles.flex1, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-                {renderHeader()}
-                {renderMainContent()}
-                {renderFooter()}
-              </View>
-            </Transition>
-          ) : (
-            <View style={[styles.fullWrapper, containerStyle]}>
-              <View style={[styles.flex1, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-                {renderHeader()}
-                {renderMainContent()}
-                {renderFooter()}
-              </View>
-            </View>
-          )}
+                  <Transition
+                    visible={visible}
+                    preset={cardPreset}
+                    distance={cardDistance}
+                    duration={250}
+                    onExited={() => setMounted(false)}
+                    style={[styles.overlayCard, containerStyle]}
+                  >
+                    {renderHeader()}
+                    {renderMainContent()}
+                    {renderFooter()}
+                  </Transition>
+                </View>
+              ) : isFull ? (
+                <Transition
+                  visible={visible}
+                  preset={cardPreset}
+                  distance={cardDistance}
+                  duration={250}
+                  onExited={() => setMounted(false)}
+                  style={[styles.fullWrapper, containerStyle]}
+                >
+                  <View style={[styles.flex1, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+                    {renderHeader()}
+                    {renderMainContent()}
+                    {renderFooter()}
+                  </View>
+                </Transition>
+              ) : (
+                <View style={[styles.fullWrapper, containerStyle]}>
+                  <View style={[styles.flex1, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+                    {renderHeader()}
+                    {renderMainContent()}
+                    {renderFooter()}
+                  </View>
+                </View>
+              )
+            }
+          </ModalSafeAreaBoundary>
         </KeyboardAvoidingView>
       </RNModal>
     );

@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState, useCallback } from 'react';
+import React, { createContext, useContext, useMemo, useState, useCallback, useRef } from 'react';
 import { Appearance, useColorScheme } from 'react-native';
 import { defaultTheme } from './createTheme';
 import { defaultLabels, type Labels } from './labels';
@@ -9,6 +9,24 @@ import type { IconRenderer } from '../icons/types';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
+/**
+ * Un `<Modal>`/`<BottomSheet>` nativo abre su propia ventana (en Android
+ * siempre; en iOS según `presentationStyle`), así que los insets medidos en
+ * la raíz de la app pueden no valer ahí adentro. Este boundary es el punto de
+ * inyección: el default sólo repite los insets ambientes (comportamiento de
+ * siempre, cero deps), pero `SafeAreaUIProvider` lo reemplaza por uno que
+ * monta un `<SafeAreaProvider>` nuevo y remide dentro de esa ventana.
+ */
+export interface ModalSafeAreaBoundaryProps {
+  children: (insets: EdgeInsets) => React.ReactNode;
+}
+export type ModalSafeAreaBoundaryComponent = React.ComponentType<ModalSafeAreaBoundaryProps>;
+
+function DefaultModalSafeAreaBoundary({ children }: ModalSafeAreaBoundaryProps) {
+  const insets = useInsets();
+  return <>{children(insets)}</>;
+}
+
 interface UIContextValue {
   theme: Theme;
   mode: ThemeMode;
@@ -17,12 +35,10 @@ interface UIContextValue {
   insets: EdgeInsets;
   labels: Labels;
   allowFontScaling: boolean;
+  ModalSafeAreaBoundary: ModalSafeAreaBoundaryComponent;
 }
 
 const UIContext = createContext<UIContextValue | undefined>(undefined);
-
-/** Una sola vez por sesión: en un re-render el aviso no aporta nada nuevo. */
-let warnedAboutInsets = false;
 
 export interface UIProviderProps {
   children: React.ReactNode;
@@ -40,6 +56,12 @@ export interface UIProviderProps {
   labels?: Partial<Labels>;
   /** @default false, para paridad con el resto de la librería (accesibilidad primero). */
   allowFontScaling?: boolean;
+  /**
+   * Fuente de insets que usan `Modal`/`BottomSheet` para su propia ventana
+   * nativa. No la pases a mano — `SafeAreaUIProvider` la cablea sola.
+   * @default repite los insets ambientes (comportamiento sin safe-area-context)
+   */
+  ModalSafeAreaBoundary?: ModalSafeAreaBoundaryComponent;
 }
 
 /**
@@ -59,6 +81,7 @@ export function UIProvider({
   insets = zeroInsets,
   labels: labelOverrides,
   allowFontScaling = false,
+  ModalSafeAreaBoundary = DefaultModalSafeAreaBoundary,
 }: UIProviderProps) {
   const systemScheme = useColorScheme();
   const [uncontrolledMode, setUncontrolledMode] = useState<ThemeMode>(defaultMode);
@@ -73,11 +96,16 @@ export function UIProvider({
     [isControlled, onModeChange]
   );
 
+  // Por instancia, no por módulo: dos `<UIProvider>` en el mismo árbol (tests,
+  // un modal con su propio provider) avisan cada uno si le faltan insets, en
+  // vez de que el segundo se calle porque el primero ya avisó una vez.
+  const warnedAboutInsets = useRef(false);
+
   // Olvidar `insets` no rompe nada visible al montar: el default de ceros
   // recién se nota cuando abrís un Modal `full` (se mete abajo del notch) o un
   // BottomSheet (queda pegado a la barra de gestos). El aviso llega antes.
-  if (__DEV__ && insets === zeroInsets && !warnedAboutInsets) {
-    warnedAboutInsets = true;
+  if (__DEV__ && insets === zeroInsets && !warnedAboutInsets.current) {
+    warnedAboutInsets.current = true;
     console.warn(
       'orn-ui: <UIProvider> sin `insets`, se usan {top:0,bottom:0,left:0,right:0}. ' +
         'Los modales y el Screen quedan sin safe area. Pasá `insets={useSafeAreaInsets()}` ' +
@@ -96,8 +124,17 @@ export function UIProvider({
   );
 
   const value = useMemo<UIContextValue>(
-    () => ({ theme: resolvedTheme, mode, setMode, icons, insets, labels, allowFontScaling }),
-    [resolvedTheme, mode, setMode, icons, insets, labels, allowFontScaling]
+    () => ({
+      theme: resolvedTheme,
+      mode,
+      setMode,
+      icons,
+      insets,
+      labels,
+      allowFontScaling,
+      ModalSafeAreaBoundary,
+    }),
+    [resolvedTheme, mode, setMode, icons, insets, labels, allowFontScaling, ModalSafeAreaBoundary]
   );
 
   return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
@@ -138,6 +175,11 @@ export function useLabels(): Labels {
 
 export function useAllowFontScaling(): boolean {
   return useUIContext().allowFontScaling;
+}
+
+/** Interno: lo consumen `Modal`/`BottomSheet` para remedir insets dentro de su propia ventana nativa. */
+export function useModalSafeAreaBoundary(): ModalSafeAreaBoundaryComponent {
+  return useUIContext().ModalSafeAreaBoundary;
 }
 
 /** Re-exportado para que tests/consumidores puedan simular cambios de sistema sin RN real. */

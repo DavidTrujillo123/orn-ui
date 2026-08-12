@@ -1,6 +1,10 @@
 import React from 'react';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { UIProvider, type UIProviderProps } from '../theme/UIProvider';
+import {
+  UIProvider,
+  type ModalSafeAreaBoundaryProps,
+  type UIProviderProps,
+} from '../theme/UIProvider';
 
 export interface SafeAreaUIProviderProps extends Omit<UIProviderProps, 'insets'> {
   /**
@@ -18,10 +22,33 @@ export interface SafeAreaUIProviderProps extends Omit<UIProviderProps, 'insets'>
   mountSafeAreaProvider?: boolean;
 }
 
+function ModalBoundaryInner({ children }: ModalSafeAreaBoundaryProps) {
+  // Este hook lee del `SafeAreaProvider` más cercano — el que
+  // `RemeasuringModalSafeAreaBoundary` monta a propósito adentro del árbol
+  // del Modal, no el de la raíz. Un `<Modal>`/`<BottomSheet>` de RN abre su
+  // propia ventana nativa (siempre en Android, según `presentationStyle` en
+  // iOS), y los insets de la raíz no siempre valen ahí adentro: mismo bug que
+  // documenta react-native-safe-area-context para modales anidados.
+  const insets = useSafeAreaInsets();
+  return <>{children(insets)}</>;
+}
+
+function RemeasuringModalSafeAreaBoundary({ children }: ModalSafeAreaBoundaryProps) {
+  return (
+    <SafeAreaProvider>
+      <ModalBoundaryInner>{children}</ModalBoundaryInner>
+    </SafeAreaProvider>
+  );
+}
+
 function Measured({ insets: override, children, ...rest }: SafeAreaUIProviderProps) {
   const measured = useSafeAreaInsets();
   return (
-    <UIProvider insets={override ?? measured} {...rest}>
+    <UIProvider
+      insets={override ?? measured}
+      ModalSafeAreaBoundary={RemeasuringModalSafeAreaBoundary}
+      {...rest}
+    >
       {children}
     </UIProvider>
   );

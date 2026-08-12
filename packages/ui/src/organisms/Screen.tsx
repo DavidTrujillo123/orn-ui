@@ -68,12 +68,11 @@ export const Screen = memo(({
         {scrollable ? (
           <ScrollView
             style={styles.container}
-            contentInsetAdjustmentBehavior="automatic"
             automaticallyAdjustKeyboardInsets
             contentContainerStyle={[
               styles.contentContainer,
               { paddingTop: applyTop ? insets.top : 0 },
-              Platform.OS === 'android' && applyBottom && { paddingBottom: insets.bottom },
+              applyBottom && { paddingBottom: insets.bottom },
               contentContainerStyle,
             ]}
             keyboardShouldPersistTaps="handled"

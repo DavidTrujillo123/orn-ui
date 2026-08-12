@@ -13,7 +13,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useColors, useInsets } from '../theme/UIProvider';
+import { useColors, useModalSafeAreaBoundary } from '../theme/UIProvider';
 import { Title } from '../atoms/Text';
 import { IconButton } from '../atoms/IconButton';
 import { Transition } from '../atoms/Transition';
@@ -107,7 +107,7 @@ export const BottomSheet = memo(
   }: BottomSheetProps) => {
     const styles = useStyles();
     const colors = useColors();
-    const insets = useInsets();
+    const ModalSafeAreaBoundary = useModalSafeAreaBoundary();
     const [mounted, setMounted] = useState(visible);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const progress = useRef(new Animated.Value(0)).current;
@@ -211,42 +211,48 @@ export const BottomSheet = memo(
             />
           </Transition>
 
-          <Transition
-            value={progress}
-            preset="slide-up"
-            distance={SCREEN_HEIGHT}
-            testID={testID}
-            style={[
-              styles.sheet,
-              { maxHeight: resolvedMaxHeight, paddingBottom: Math.max(insets.bottom, 20) },
-              containerStyle,
-            ]}
-          >
-            {draggable && (
-              <View style={styles.handleArea} testID="bottom-sheet-handle" {...panResponder.panHandlers}>
-                <View style={styles.handle} />
-              </View>
+          {/* Insets medidos dentro de esta ventana nativa (el Modal nativo que
+              usa BottomSheet por debajo), no los de la raíz de la app. */}
+          <ModalSafeAreaBoundary>
+            {(insets) => (
+              <Transition
+                value={progress}
+                preset="slide-up"
+                distance={SCREEN_HEIGHT}
+                testID={testID}
+                style={[
+                  styles.sheet,
+                  { maxHeight: resolvedMaxHeight, paddingBottom: Math.max(insets.bottom, 20) },
+                  containerStyle,
+                ]}
+              >
+                {draggable && (
+                  <View style={styles.handleArea} testID="bottom-sheet-handle" {...panResponder.panHandlers}>
+                    <View style={styles.handle} />
+                  </View>
+                )}
+
+                {hasHeader && (
+                  <View style={[styles.header, !draggable && styles.headerSpaced]}>
+                    <Title style={styles.title} numberOfLines={1}>
+                      {title}
+                    </Title>
+                    <IconButton
+                      iconName="close"
+                      size={24}
+                      color={colors.text}
+                      onPress={onClose}
+                      accessibilityLabel={closeAccessibilityLabel}
+                    />
+                  </View>
+                )}
+
+                {body}
+
+                {pinnedFooter}
+              </Transition>
             )}
-
-            {hasHeader && (
-              <View style={[styles.header, !draggable && styles.headerSpaced]}>
-                <Title style={styles.title} numberOfLines={1}>
-                  {title}
-                </Title>
-                <IconButton
-                  iconName="close"
-                  size={24}
-                  color={colors.text}
-                  onPress={onClose}
-                  accessibilityLabel={closeAccessibilityLabel}
-                />
-              </View>
-            )}
-
-            {body}
-
-            {pinnedFooter}
-          </Transition>
+          </ModalSafeAreaBoundary>
         </KeyboardAvoidingView>
       </Modal>
     );

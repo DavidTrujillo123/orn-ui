@@ -97,4 +97,28 @@ describe('Screen', () => {
     );
     expect(UNSAFE_getByType(ScrollView).props.automaticallyAdjustKeyboardInsets).toBe(true);
   });
+
+  it('does not set contentInsetAdjustmentBehavior, so iOS does not double-apply the top inset on top of paddingTop', () => {
+    const { UNSAFE_getByType } = render(
+      withProvider(
+        <Screen>
+          <Text>content</Text>
+        </Screen>
+      )
+    );
+    expect(UNSAFE_getByType(ScrollView).props.contentInsetAdjustmentBehavior).toBeUndefined();
+  });
+
+  it('applies the bottom inset to the scroll content on every platform, not just Android', () => {
+    const { UNSAFE_getByType } = render(
+      <UIProvider mode="light" insets={{ top: 1, bottom: 2, left: 0, right: 0 }}>
+        <Screen>
+          <Text>content</Text>
+        </Screen>
+      </UIProvider>
+    );
+    const style = UNSAFE_getByType(ScrollView).props.contentContainerStyle;
+    const flat = Array.isArray(style) ? Object.assign({}, ...style.flat(Infinity).filter(Boolean)) : style;
+    expect(flat.paddingBottom).toBe(2);
+  });
 });
