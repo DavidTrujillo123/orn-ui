@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { ReorderableList, Card, Body, Caption, useColors } from 'orn-ui';
-import { VariantList, type VariantDef } from '@/components/VariantList';
+import { VariantList, useVariantScrollLock, type VariantDef } from '@/components/VariantList';
 
 interface Task {
   id: string;
@@ -27,26 +27,36 @@ function DraggableRow({ title }: { title: string }) {
   );
 }
 
-export function ReorderableListDemo() {
+// #region demo
+function TaskList() {
   const [tasks, setTasks] = useState(INITIAL);
+  // El scroll vertical que envuelve al demo compite con el arrastre: en iOS el
+  // UIScrollView cancela los toques del contenido apenas su gesto arranca y la
+  // fila nunca llega a moverse. Se apaga mientras dura el drag.
+  const setScrollLocked = useVariantScrollLock();
 
-  // #region demo
+  return (
+    <View style={{ width: '100%' }}>
+      <ReorderableList
+        data={tasks}
+        itemHeight={ROW_HEIGHT}
+        keyExtractor={(item) => item.id}
+        onReorder={setTasks}
+        onDragStart={() => setScrollLocked(true)}
+        onDragEnd={() => setScrollLocked(false)}
+        renderItem={(item) => <DraggableRow title={item.title} />}
+      />
+    </View>
+  );
+}
+
+export function ReorderableListDemo() {
   const variants: VariantDef[] = [
     {
       label: 'drag any row to reorder — the rows in between shift together',
-      content: (
-        <View style={{ width: '100%' }}>
-          <ReorderableList
-            data={tasks}
-            itemHeight={ROW_HEIGHT}
-            keyExtractor={(item) => item.id}
-            onReorder={setTasks}
-            renderItem={(item) => <DraggableRow title={item.title} />}
-          />
-        </View>
-      ),
+      content: <TaskList />,
     },
   ];
   return <VariantList variants={variants} />;
-  // #endregion demo
 }
+// #endregion demo

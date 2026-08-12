@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -15,6 +15,18 @@ import { Caption, useColors } from 'orn-ui';
 export interface VariantDef {
   label: string;
   content: React.ReactNode;
+}
+
+/**
+ * Los demos con gestos propios (arrastrar para reordenar) compiten con el
+ * scroll del pager y el del stage: en iOS el `UIScrollView` cancela los toques
+ * del contenido apenas su gesto vertical arranca y el arrastre muere. Este
+ * contexto les deja apagar ambos scrolls mientras dura el gesto.
+ */
+const ScrollLockContext = React.createContext<(locked: boolean) => void>(() => {});
+
+export function useVariantScrollLock() {
+  return useContext(ScrollLockContext);
 }
 
 export interface VariantListProps {
@@ -37,6 +49,7 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   const colors = useColors();
   const [pageHeight, setPageHeight] = useState(() => Dimensions.get('window').height);
   const [index, setIndex] = useState(0);
+  const [scrollLocked, setScrollLocked] = useState(false);
   const hintOpacity = useRef(new Animated.Value(1)).current;
   const hintDismissed = useRef(false);
   const pagerRef = useRef<ScrollView>(null);
@@ -105,70 +118,74 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   }
 
   return (
-    <View style={styles.pagerRoot} onLayout={onLayout}>
-      {pageHeight > 0 && (
-        <ScrollView
-          ref={pagerRef}
-          pagingEnabled
-          showsVerticalScrollIndicator={false}
-          decelerationRate="fast"
-          keyboardShouldPersistTaps="handled"
-          onScroll={onScroll}
-          scrollEventThrottle={16}
-          onMomentumScrollEnd={onMomentumEnd}
-        >
-          {variants.map((v, i) => {
-            const isNear = Math.abs(i - index) <= 1;
-            return (
-              <View
-                key={v.label}
-                style={[styles.page, { height: pageHeight }]}
-                accessible={false}
-                accessibilityLabel={`Variant ${i + 1} of ${variants.length}: ${v.label}`}
-              >
-                <Caption style={styles.label}>{v.label}</Caption>
-                <View style={[styles.stage, styles.stagePage, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                  {isNear && (
-                    <ScrollView
-                      contentContainerStyle={styles.stageContent}
-                      showsVerticalScrollIndicator={false}
-                      keyboardShouldPersistTaps="handled"
-                    >
-                      {v.content}
-                    </ScrollView>
-                  )}
+    <ScrollLockContext.Provider value={setScrollLocked}>
+      <View style={styles.pagerRoot} onLayout={onLayout}>
+        {pageHeight > 0 && (
+          <ScrollView
+            ref={pagerRef}
+            pagingEnabled
+            scrollEnabled={!scrollLocked}
+            showsVerticalScrollIndicator={false}
+            decelerationRate="fast"
+            keyboardShouldPersistTaps="handled"
+            onScroll={onScroll}
+            scrollEventThrottle={16}
+            onMomentumScrollEnd={onMomentumEnd}
+          >
+            {variants.map((v, i) => {
+              const isNear = Math.abs(i - index) <= 1;
+              return (
+                <View
+                  key={v.label}
+                  style={[styles.page, { height: pageHeight }]}
+                  accessible={false}
+                  accessibilityLabel={`Variant ${i + 1} of ${variants.length}: ${v.label}`}
+                >
+                  <Caption style={styles.label}>{v.label}</Caption>
+                  <View style={[styles.stage, styles.stagePage, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                    {isNear && (
+                      <ScrollView
+                        contentContainerStyle={styles.stageContent}
+                        showsVerticalScrollIndicator={false}
+                        keyboardShouldPersistTaps="handled"
+                        scrollEnabled={!scrollLocked}
+                      >
+                        {v.content}
+                      </ScrollView>
+                    )}
+                  </View>
                 </View>
-              </View>
-            );
-          })}
-        </ScrollView>
-      )}
+              );
+            })}
+          </ScrollView>
+        )}
 
-      {variants.length > 1 && (
-        <>
-          <View style={styles.rail} pointerEvents="none">
-            {variants.map((v, i) => (
-              <View
-                key={v.label}
-                style={[
-                  styles.tick,
-                  {
-                    backgroundColor: i === index ? colors.primary : colors.border,
-                    height: i === index ? 18 : 6,
-                  },
-                ]}
-              />
-            ))}
-          </View>
+        {variants.length > 1 && (
+          <>
+            <View style={styles.rail} pointerEvents="none">
+              {variants.map((v, i) => (
+                <View
+                  key={v.label}
+                  style={[
+                    styles.tick,
+                    {
+                      backgroundColor: i === index ? colors.primary : colors.border,
+                      height: i === index ? 18 : 6,
+                    },
+                  ]}
+                />
+              ))}
+            </View>
 
-          <Animated.View style={[styles.hint, { opacity: hintOpacity }]} pointerEvents="none">
-            <Caption style={[styles.hintText, { color: colors.textLight }]}>
-              Swipe to see the {variants.length} variants
-            </Caption>
-          </Animated.View>
-        </>
-      )}
-    </View>
+            <Animated.View style={[styles.hint, { opacity: hintOpacity }]} pointerEvents="none">
+              <Caption style={[styles.hintText, { color: colors.textLight }]}>
+                Swipe to see the {variants.length} variants
+              </Caption>
+            </Animated.View>
+          </>
+        )}
+      </View>
+    </ScrollLockContext.Provider>
   );
 }
 

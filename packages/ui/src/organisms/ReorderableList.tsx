@@ -10,6 +10,15 @@ export interface ReorderableListProps<T> {
   renderItem: (item: T, index: number, dragging: boolean) => React.ReactElement;
   /** Se llama al soltar, con el arreglo ya reordenado. No muta `data`. */
   onReorder: (data: T[]) => void;
+  /**
+   * Empieza el arrastre de la fila `index`. Úsalo para apagar el scroll del
+   * contenedor (`scrollEnabled={false}`) mientras dura: en iOS el
+   * `UIScrollView` padre cancela los toques del contenido apenas su gesto
+   * vertical arranca, y sin eso el arrastre muere a los pocos píxeles.
+   */
+  onDragStart?: (index: number) => void;
+  /** Termina el arrastre — soltando o por cancelación. Siempre corre si corrió `onDragStart`. */
+  onDragEnd?: () => void;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }
@@ -37,6 +46,16 @@ const useStyles = createStyles(() => ({
  * PanResponder + Animated alcanzan porque el cálculo de índice destino
  * necesita el valor de arrastre en JS en cada movimiento (no algo que
  * useNativeDriver pueda resolver solo).
+ *
+ * Dentro de un scroll vertical hay que cablear `onDragStart`/`onDragEnd` a
+ * `scrollEnabled`, o en iOS el arrastre no llega a empezar:
+ *
+ * ```tsx
+ * const [dragging, setDragging] = useState(false);
+ * <ScrollView scrollEnabled={!dragging}>
+ *   <ReorderableList onDragStart={() => setDragging(true)} onDragEnd={() => setDragging(false)} … />
+ * </ScrollView>
+ * ```
  */
 export function ReorderableList<T>({
   data,
@@ -44,6 +63,8 @@ export function ReorderableList<T>({
   itemHeight,
   renderItem,
   onReorder,
+  onDragStart,
+  onDragEnd,
   disabled = false,
   style,
 }: ReorderableListProps<T>) {
@@ -65,6 +86,13 @@ export function ReorderableList<T>({
   // valor del momento en que esa fila se creó.
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
+  // Misma razón: los callbacks se leen desde closures creadas una sola vez.
+  const onReorderRef = useRef(onReorder);
+  onReorderRef.current = onReorder;
+  const onDragStartRef = useRef(onDragStart);
+  onDragStartRef.current = onDragStart;
+  const onDragEndRef = useRef(onDragEnd);
+  onDragEndRef.current = onDragEnd;
 
   const panResponders = useRef(new Map<number, ReturnType<typeof PanResponder.create>>()).current;
   // Si `data` se achica, los responders de índices que ya no existen quedan
@@ -77,15 +105,29 @@ export function ReorderableList<T>({
     let responder = panResponders.get(index);
     if (responder) return responder;
 
+    const endDrag = () => {
+      dy.setValue(0);
+      activeIndexRef.current = null;
+      targetIndexRef.current = null;
+      setActiveIndex(null);
+      setTargetIndex(null);
+      onDragEndRef.current?.();
+    };
+
     responder = PanResponder.create({
       onStartShouldSetPanResponder: () => !disabledRef.current,
       onMoveShouldSetPanResponder: (_, gesture) => !disabledRef.current && Math.abs(gesture.dy) > 2,
+      // Un scroll padre pide el responder apenas su gesto vertical arranca —
+      // el mismo eje que el arrastre. Cederlo cancelaría el drag a mitad de
+      // camino, así que la fila se lo queda hasta soltar.
+      onPanResponderTerminationRequest: () => false,
       onPanResponderGrant: () => {
         activeIndexRef.current = index;
         targetIndexRef.current = index;
         setActiveIndex(index);
         setTargetIndex(index);
         dy.setValue(0);
+        onDragStartRef.current?.(index);
       },
       onPanResponderMove: (_, gesture) => {
         dy.setValue(gesture.dy);
@@ -99,21 +141,11 @@ export function ReorderableList<T>({
       onPanResponderRelease: () => {
         const from = activeIndexRef.current;
         const to = targetIndexRef.current;
-        dy.setValue(0);
-        activeIndexRef.current = null;
-        targetIndexRef.current = null;
-        setActiveIndex(null);
-        setTargetIndex(null);
+        endDrag();
         if (from === null || to === null || from === to) return;
-        onReorder(move(dataRef.current, from, to));
+        onReorderRef.current(move(dataRef.current, from, to));
       },
-      onPanResponderTerminate: () => {
-        dy.setValue(0);
-        activeIndexRef.current = null;
-        targetIndexRef.current = null;
-        setActiveIndex(null);
-        setTargetIndex(null);
-      },
+      onPanResponderTerminate: endDrag,
     });
     panResponders.set(index, responder);
     return responder;
