@@ -1,0 +1,27 @@
+# Prueba el ThemeToggle del header global (tabs), no el demo aislado del
+# organismo — ese ya lo cubre organisms-theme-toggle.yaml (smoke generado).
+#
+# Regresión pasada: `mode` es la prop *controlada* del provider — sin
+# `onModeChange` cableado, ThemeToggle llamaba a setMode y el tema nunca
+# cambiaba (sólo servía el toggle del sistema). Cambiar de tab y volver
+# confirma además que el modo sobrevive a un remount de pantalla, no sólo al
+# primer tap.
+#
+# El selector de texto de Maestro exige coincidencia completa del string, no
+# substring: cada tab de iOS expone accessibilityText "Atoms, tab, 2 of 5"
+# (no "Atoms" a secas). Por eso el tab se toca con `.*Atoms.*` y "llegué" se
+# confirma contra el header de la categoría (Title suelto, sin agrupar), no
+# contra una fila de la lista (esas concatenan título + descripción en un solo
+# nodo accesible y "Typography" a secas no matchea ese string completo).
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- launchApp
+- assertVisible: "Atoms"
+- tapOn: "Dark"
+- tapOn: ".*Molecules.*"
+- assertVisible: "Molecules"
+- tapOn: ".*Atoms.*"
+- assertVisible: "Atoms"
+- tapOn: "Light"

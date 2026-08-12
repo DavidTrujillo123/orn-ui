@@ -1,0 +1,14 @@
+# Generado por scripts/gen-maestro-flows.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: button)
+appId: com.anonymous.orn-ui-example
+tags:
+  - smoke
+---
+- runFlow:
+    file: ../../subflows/smoke-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "atoms"
+      SLUG: "button"
+      TITLE: "Button"
+      PAGED: "true"

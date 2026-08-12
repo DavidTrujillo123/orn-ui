@@ -1,0 +1,26 @@
+# TabbedScreen mantiene el tab activo en estado propio (useState, no el
+# VariantList del demo) — un smoke genérico abre el demo y nunca toca la
+# barra, así que onChange/activeKey nunca corren. Primer variant (index 0,
+# sin swipe): "with the tab content".
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "navigation-bar"
+      TITLE: "NavigationBar"
+
+- assertVisible: "Everything that happened since your last visit."
+
+- tapOn: "Search"
+- assertVisible: "Search clients, invoices or payments."
+
+- tapOn: "Alerts"
+- assertVisible: "Three invoices are due this week."
+
+- tapOn: "Home"
+- assertVisible: "Everything that happened since your last visit."

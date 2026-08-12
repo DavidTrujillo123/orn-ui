@@ -1,0 +1,29 @@
+# Subflow: humo genérico para un demo del manifest.
+# Parámetros (via runFlow -> env): BASE_PATH, SLUG, TITLE, PAGED ("true"/"false").
+#
+# Deep link, no navegar tabs + tocar la fila: cada demo queda alcanzable en un
+# paso, así el suite entero no depende de que las tabs, la lista y el scroll
+# de categoría funcionen — eso ya lo cubren sus propios flows (nav-*.yaml), no
+# hace falta repetirlo por cada uno de los 45 demos.
+#
+# El swipe genérico sólo toca el pager de VariantList (PAGED=true): entra en
+# el gesto de paginado real una vez, sin depender del texto de cada variante
+# (varía por demo). hostsList/freeScroll montan otro tipo de scroll y se
+# excluyen — swipear ahí no ejercita nada específico del componente.
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp
+- openLink: "ornui:///${BASE_PATH}/${SLUG}"
+- assertVisible:
+    text: "${TITLE}"
+    index: 0
+- runFlow:
+    when:
+      true: ${PAGED}
+    commands:
+      - swipe:
+          direction: UP
+          duration: 400
+      - swipe:
+          direction: DOWN
+          duration: 400

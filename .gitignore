@@ -12,3 +12,5 @@ android/
 ios/
 .turbo/
 .astro/
+.maestro/debug/
+maestro-debug-output/

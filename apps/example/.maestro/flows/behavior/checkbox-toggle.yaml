@@ -1,0 +1,28 @@
+# Checkbox expone accessibilityLabel = label directo (sin duplicar como
+# Input): "Accept terms" es un único match, tapOn simple alcanza.
+#
+# El selector `checked:` de Maestro no sirve acá — probado en vivo: para este
+# checkbox custom (TouchableOpacity + accessibilityState, no un control nativo)
+# el atributo "checked" del driver de iOS se queda en "false" pase lo que
+# pase; el estado real de VoiceOver aparece como texto en el campo "value"
+# ("checkbox, checked" / "checkbox, unchecked"), así que se verifica con eso.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "atoms"
+      SLUG: "checkbox"
+      TITLE: "Checkbox"
+
+- assertVisible:
+    text: ".*checkbox, unchecked.*"
+- tapOn: "Accept terms"
+- assertVisible:
+    text: ".*checkbox, checked.*"
+- tapOn: "Accept terms"
+- assertVisible:
+    text: ".*checkbox, unchecked.*"

@@ -1,0 +1,15 @@
+# Subflow: abre el detalle de un demo por deep link y confirma que cargó.
+# Parámetros (via runFlow -> env): BASE_PATH ("atoms"/"molecules"/"organisms"/"examples"),
+# SLUG (el slug del manifest) y TITLE (entry.name, lo que <Title> del detalle renderiza).
+#
+# Deep link, no navegar tabs + tocar la fila: cada demo queda alcanzable en un
+# paso, así el suite entero no depende de que las tabs, la lista y el scroll
+# de categoría funcionen — eso ya lo cubre su propio flow, no hace falta
+# repetirlo 45 veces.
+appId: ${MAESTRO_APP_ID}
+---
+- launchApp
+- openLink: "ornui:///${BASE_PATH}/${SLUG}"
+- assertVisible:
+    text: "${TITLE}"
+    index: 0

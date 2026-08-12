@@ -1,0 +1,38 @@
+# El SegmentedControl del demo cambia isLoading/isRefreshing/isLoadingMore
+# "en vivo" sobre el mismo List — un smoke genérico sólo ve el estado inicial
+# (loaded) y nunca ejercita el camino de skeleton/empty que ListDemo existe
+# para mostrar. No se prueba "Refresh": RefreshControl sólo se ve mientras el
+# usuario está arrastrando el gesto nativo de pull-to-refresh, no al setear
+# isRefreshing por estado — no hay nada estable que assertVisible pueda
+# atrapar ahí.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "list"
+      TITLE: "List"
+
+- assertVisible: "Item 1"
+
+# EmptyState fusiona título + descripción en un único nodo de accesibilidad
+# ("No items, Try a different filter" — confirmado en vivo con el dump de
+# jerarquía) — mismo patrón que el Alert fusionado o los tabs "Atoms, tab, 2
+# of 5" que documenta el README. Match exacto nunca calza; regex sí.
+- tapOn: "Empty"
+- assertVisible: ".*No items.*"
+- assertNotVisible: "Item 1"
+
+- tapOn: "First load"
+- assertVisible:
+    id: "list-skeleton"
+- assertNotVisible: "Item 1"
+
+- tapOn: "Loaded"
+- assertVisible: "Item 1"
+- assertNotVisible:
+    id: "list-skeleton"

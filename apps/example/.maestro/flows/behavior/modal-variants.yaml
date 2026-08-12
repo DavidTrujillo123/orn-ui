@@ -1,0 +1,59 @@
+# Modal comparte ModalSafeAreaBoundary con BottomSheet (mismo boundary de
+# insets que ya se rompió una vez, ver bottom-sheet-position-and-dismiss.yaml).
+#
+# El ancla es el punto medio de la pantalla (`point:`), no texto del demo: un
+# <Modal> nativo de iOS aísla su ventana del árbol de accesibilidad del resto
+# de la app mientras está abierto (confirmado en vivo con BottomSheet — la
+# descripción del demo deja de existir para Maestro apenas sube el backdrop),
+# así que cualquier ancla "afuera" del modal es inalcanzable.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "modal"
+      TITLE: "Modal"
+
+# full — sin backdrop propio (presentationStyle "overFullScreen", sin tap
+# afuera); se cierra con el botón "Close" del header.
+- tapOn: "Open full"
+- assertVisible:
+    text: "Slides up from the bottom and fills the screen."
+    below:
+      point: "50%,50%"
+- tapOn: "Close"
+- assertNotVisible: "Slides up from the bottom and fills the screen."
+
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+
+# overlay — el único variant con backdrop propio (testID modal-backdrop). El
+# tap va a un punto explícito lejos del centro y del borde superior, no al
+# centroide del id ni a una esquina: el backdrop cubre toda la pantalla pero
+# la tarjeta está centrada encima suyo (tapear el centro del elemento
+# "backdrop" en realidad tapea la tarjeta), y el 5% superior cae sobre la
+# barra de estado del simulador, que se queda con el toque en vez de
+# reenviarlo a la app — visto en vivo con ambos.
+- tapOn: "Open overlay"
+- assertVisible:
+    id: "modal-backdrop"
+- assertVisible: "A centered card over a dimmed backdrop."
+- tapOn:
+    point: "50%,90%"
+- assertNotVisible: "A centered card over a dimmed backdrop."
+
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+
+# fullScreen — presentación nativa de iOS.
+- tapOn: "Open fullScreen"
+- assertVisible: "Native fullScreen presentation on iOS."
+- tapOn: "Close"

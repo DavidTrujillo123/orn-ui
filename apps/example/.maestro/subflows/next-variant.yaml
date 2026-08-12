@@ -1,0 +1,14 @@
+# Subflow: avanza el pager de VariantList exactamente una página.
+#
+# `swipe: { direction: UP }` sin coordenadas explícitas viaja casi la pantalla
+# entera y, con `pagingEnabled`, la velocidad resultante alcanza para saltear
+# una página en pagers de 3+ variantes (confirmado en vivo: un solo swipe así
+# en el demo de Modal aterrizó en "fullScreen" salteándose "overlay" — pasaba
+# igual con duration: 800). 80%→30% de la pantalla es corto para no acumular
+# esa velocidad y aterriza siempre en la página siguiente, ni una más.
+appId: ${MAESTRO_APP_ID}
+---
+- swipe:
+    start: "50%,80%"
+    end: "50%,30%"
+    duration: 600

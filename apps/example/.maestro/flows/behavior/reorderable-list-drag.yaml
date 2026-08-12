@@ -1,0 +1,36 @@
+# Regresión específica: en iOS el UIScrollView del pager que envuelve al demo
+# le robaba el gesto a la fila apenas el arrastre vertical arrancaba, y el
+# drag moría a los pocos píxeles en vez de reordenar (ver commit del fix de
+# ReorderableList en iOS: onPanResponderTerminationRequest + onDragStart/End
+# para bloquear el scroll padre). Si esa negociación de responder se rompe,
+# arrastrar "Design review" hacia abajo mueve la *página* del pager en vez de
+# la fila, y el orden de abajo no cambia — que es justo lo que esta aserción
+# de posición relativa detecta.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "reorderable-list"
+      TITLE: "ReorderableList"
+
+# Orden inicial: Design review, Write tests, Ship release, Update docs.
+- assertVisible:
+    text: "Write tests"
+    below: "Design review"
+
+- swipe:
+    from:
+      text: "Design review"
+    direction: DOWN
+    duration: 600
+
+# Si el drag ganó (y no el scroll del pager), "Design review" bajó al menos
+# una fila.
+- assertVisible:
+    text: "Design review"
+    below: "Write tests"

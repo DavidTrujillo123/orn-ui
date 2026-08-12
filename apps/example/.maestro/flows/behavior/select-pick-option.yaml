@@ -1,0 +1,25 @@
+# El trigger de Select duplica el label como texto suelto arriba (no
+# interactivo) Y como accessibilityLabel del Pressable real — mismo patrón
+# que Input. `index: 1` toca el segundo match (el Pressable); tocar sin
+# índice cae en el primero (el <Text> de arriba) y el dropdown ni abre —
+# visto en vivo con una captura: nada pasaba.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "select"
+      TITLE: "Select"
+
+- tapOn:
+    text: "Payment method"
+    index: 1
+- assertVisible:
+    id: "select-list"
+- tapOn: "Cash"
+- assertNotVisible:
+    id: "select-list"

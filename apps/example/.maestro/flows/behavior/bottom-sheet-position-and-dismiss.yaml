@@ -1,0 +1,63 @@
+# Regresión específica: un SafeAreaProvider de medición que envolvía el
+# contenido en vez de flotar aparte mandó la hoja arriba de la pantalla en vez
+# de anclarla abajo (ver commit "fix: prevent SafeAreaProvider from affecting
+# BottomSheet layout"). Un assertVisible por texto no la hubiera atrapado: el
+# texto estaba visible igual, sólo que en el lugar equivocado.
+#
+# El `below: { point: "50%,50%" }` compara contra el punto medio de la
+# pantalla, no contra otro elemento de texto: un <Modal> nativo de iOS aísla
+# su ventana del árbol de accesibilidad del resto de la app mientras está
+# abierto (confirmado en vivo — la descripción del demo, en la pantalla de
+# atrás, deja de existir para Maestro apenas el backdrop sube), así que
+# cualquier ancla "afuera" del modal es inalcanzable. El punto medio sí vive
+# en la misma ventana que la hoja.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "bottom-sheet"
+      TITLE: "BottomSheet"
+
+- tapOn: "Open sheet"
+- assertVisible:
+    id: "bottom-sheet-handle"
+    below:
+      point: "50%,50%"
+
+# Arrastrar el handle hacia abajo tiene que cerrar la hoja. Coordenadas
+# explícitas, no `direction: DOWN` con distancia por defecto: en esta
+# variante (contenido corto) el handle ya vive cerca del borde inferior —
+# la única forma de garantizar los >100pt de DISMISS_THRESHOLD es arrancar
+# arriba del todo del hit area del handle y soltar en el borde de la pantalla.
+- swipe:
+    start: "50%,86%"
+    end: "50%,100%"
+    duration: 400
+- assertNotVisible:
+    id: "bottom-sheet-handle"
+
+# Cerrar tocando el backdrop, el otro camino de cierre — relanzando la app en
+# vez de reabrir la hoja sobre la misma pantalla: XCUITest reusa por un
+# instante la referencia vieja de un testID que acaba de desmontarse (visto en
+# vivo: el handle se ve perfecto en la captura y aun así "no encontrado"), y
+# un relanzamiento evita pelear con esa referencia stale del driver en vez de
+# con el componente.
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "bottom-sheet"
+      TITLE: "BottomSheet"
+- tapOn: "Open sheet"
+- assertVisible:
+    id: "bottom-sheet-handle"
+- tapOn:
+    id: "bottom-sheet-backdrop"
+- assertNotVisible:
+    id: "bottom-sheet-handle"

@@ -1,0 +1,30 @@
+# Único flow que navega a mano (tabs -> lista -> fila -> back): todo lo demás
+# entra por deep link a propósito (ver subflows/smoke-demo.yaml). Esto cubre
+# lo que el deep link se salta — CategoryListScreen, la FlatList de la
+# categoría y el "back" con dismissTo — sin repetirlo en los otros 45 flows.
+#
+# El selector de texto de Maestro exige coincidencia completa del string, no
+# substring: cada tab de iOS expone accessibilityText "Molecules, tab, 3 of
+# 5" (no "Molecules" a secas), y una fila de FlatList concatena título +
+# descripción en un solo nodo accesible ("Stepper, "-" + numeric input...").
+# Por eso acá abajo todo lo que no sea el título exacto de una pantalla usa
+# `.*texto.*` — y las aserciones de "llegué" son contra el header de la
+# categoría (Title suelto, sin agrupar), no contra la fila que se tocó.
+appId: com.anonymous.orn-ui-example
+tags:
+  - smoke
+---
+- launchApp
+- assertVisible: "Atoms"
+- tapOn: ".*Molecules.*"
+- assertVisible: "Molecules"
+- tapOn: ".*Stepper.*"
+- assertVisible: "Stepper"
+- tapOn: "Back"
+- assertVisible: "Molecules"
+- tapOn: ".*Organisms.*"
+- assertVisible: "Organisms"
+- tapOn: ".*Examples.*"
+- assertVisible: "Examples"
+- tapOn: ".*Atoms.*"
+- assertVisible: "Atoms"

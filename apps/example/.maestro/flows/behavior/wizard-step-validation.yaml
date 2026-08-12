@@ -1,0 +1,68 @@
+# canGoNext gatea el avance de cada paso — sin esto, un formulario incompleto
+# podría "terminar" el wizard sin datos válidos (ver Wizard.tsx: el botón
+# Next/Finish recibe disabled={!canGoNext} y el Pressable subyacente ignora
+# onPress mientras disabled). Este flow entra en el variant "Per-step
+# validation (canGoNext)" y confirma, paso por paso, que tocar el botón
+# deshabilitado NO avanza — no sólo que el botón exista.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "wizard"
+      TITLE: "Wizard"
+
+# Variant 4to (index 3): Basic, Vertical, Numbers, Per-step validation.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+
+# Paso "Account": Continue deshabilitado sin "@" en el email. Tocarlo con el
+# campo vacío no debe moverse del paso — el Input de email sigue ahí.
+- tapOn: "Continue"
+- assertVisible: "you@example.com"
+- tapOn: "you@example.com"
+- inputText: "buyer@orn-ui.dev"
+# hideKeyboard falla acá ("no dismiss action"): el Input no fuerza
+# keyboardType="email-address", así que el teclado trae barra de sugerencias
+# sin tecla de bajar. Confirmado en vivo (2 veces): sin cerrar el teclado de
+# alguna forma, tapOn "Continue" no toca el botón real — la barra de
+# sugerencias tapa el footer y el tap le pifia (una vez hasta le metió una
+# sugerencia de autocorrección al email). pressKey Enter dispara el
+# returnKeyType default ("done") y cierra el teclado sin depender del botón
+# de esconder que este teclado no tiene.
+- pressKey: Enter
+- tapOn: "Continue"
+
+# Paso "Plan": Continue deshabilitado sin selección. A diferencia de
+# select-pick-option.yaml (mismo patrón pero sin `required`), acá el label
+# suelto se funde con el asterisco en un solo nodo "Plan *" — confirmado con
+# el dump de jerarquía: el único nodo con accessibilityText exactamente
+# "Plan" (sin índice) es el trigger real, no hay ambigüedad que desempatar.
+- assertVisible: "Plan"
+- tapOn: "Continue"
+- tapOn: "Plan"
+- tapOn: "Free"
+- tapOn: "Continue"
+
+# Paso "Confirm": Create account (finishLabel) deshabilitado sin aceptar los
+# términos. Tocarlo sin tildar el checkbox no debe disparar onFinish — sigue
+# viéndose el checkbox sin tildar (mismo selector que checkbox-toggle.yaml).
+- assertVisible: "Create account"
+- tapOn: "Create account"
+- assertVisible: ".*checkbox, unchecked.*"
+- tapOn: "I accept the terms"
+- assertVisible: ".*checkbox, checked.*"

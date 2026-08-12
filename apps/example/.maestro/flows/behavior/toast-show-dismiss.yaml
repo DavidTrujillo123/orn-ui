@@ -1,0 +1,17 @@
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "toast"
+      TITLE: "Toast"
+
+- tapOn: "Success"
+- waitForAnimationToEnd
+- assertVisible: "Invoice sent"
+- tapOn: "Dismiss"
+- assertNotVisible: "Invoice sent"

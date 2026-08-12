@@ -1,0 +1,32 @@
+# Cada Input tiene DOS elementos con el mismo texto: el <Text> del label
+# flotante y el accessibilityLabel del propio TextInput (ambos "Email") — ver
+# packages/ui/src/atoms/Input.tsx. tapOn por ese texto es ambiguo (2 matches),
+# así que acá se toca por el placeholder (único) para enfocar, y "Show
+# password" (accessibilityLabel propio del IconButton) para el toggle.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "atoms"
+      SLUG: "input"
+      TITLE: "Input"
+
+- tapOn: "you@example.com"
+- inputText: "hello@orn-ui.dev"
+- assertVisible: "hello@orn-ui.dev"
+- hideKeyboard
+
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+
+# Password — el toggle de mostrar/ocultar es lo único propio de este variant.
+- tapOn: "Show password"
+- assertVisible: "Hide password"
+- tapOn: "Hide password"
+- assertVisible: "Show password"

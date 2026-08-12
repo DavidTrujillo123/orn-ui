@@ -1,0 +1,66 @@
+# CheckoutWizardExample combina Wizard + DateField + OptionCard en una
+# pantalla real (no el catálogo de variantes aislado que ya cubre
+# wizard-step-validation.yaml). Este flow recorre los 4 pasos hasta el final
+# para confirmar que la integración entre componentes funciona junta — cada
+# uno por separado ya tiene su propio smoke/behavior, esto prueba el
+# cableado entre ellos (canGoNext de cada paso leyendo el estado real del
+# form, no un mock).
+#
+# También es, sin querer, el único test confiable del sync DateField <->
+# DatePicker: hubo un date-field-pick-day.yaml que probaba lo mismo aislado
+# en el demo de DatePicker, pero necesitaba 6 next-variant.yaml seguidos para
+# llegar al variant correcto, y el pager de VariantList no es determinístico
+# a esa distancia — confirmado en vivo con capturas: 6 swipes calibrados
+# (los mismos que usa next-variant.yaml) aterrizaron en el variant 5 una vez,
+# no en el 6. Ese archivo se borró en vez de seguir parchándolo: acá no hace
+# falta pager, DateField vive directo en la pantalla.
+#
+# El día se elige navegando un mes adelante ("Next month") y tocando el 10,
+# no un día fijo del mes actual: minDate=hoy hace que cualquier día ya pasado
+# del mes visible esté deshabilitado, y un mes entero completo está siempre
+# dentro de minDate/maxDate (maxDate = hoy + 2 meses) sea cual sea el día en
+# que corra el test.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "examples"
+      SLUG: "checkout-wizard"
+      TITLE: "Checkout wizard"
+
+# Paso 1 — Contact
+- tapOn: "you@example.com"
+- inputText: "buyer@orn-ui.dev"
+- hideKeyboard
+- tapOn: "Next"
+
+# Paso 2 — Delivery (Input + DateField). El Input de Address, a diferencia
+# del de Email, no fuerza keyboardType — mismo problema que
+# wizard-step-validation.yaml: hideKeyboard no encuentra tecla de bajar en
+# ese teclado. pressKey Enter en su lugar (confirmado en vivo).
+- tapOn: "221B Baker Street"
+- inputText: "742 Evergreen Terrace"
+- pressKey: Enter
+- tapOn: "Delivery date"
+- assertVisible: "Select date"
+- tapOn: "Next month"
+- tapOn: ".* 10, .*"
+- assertNotVisible: "Select date"
+- tapOn: "Next"
+
+# Paso 3 — Payment (OptionCard, accessibilityLabel = label directo, sin
+# duplicar — ver OptionCard.tsx)
+- tapOn: "Cash"
+- tapOn: "Next"
+
+# Paso 4 — Review: KeyValueRow refleja lo cargado en los pasos anteriores.
+- assertVisible: "buyer@orn-ui.dev"
+- assertVisible: "742 Evergreen Terrace"
+- assertVisible: "cash"
+- tapOn: "I accept the terms"
+- tapOn: "Place order"
+- assertVisible: "Order placed"

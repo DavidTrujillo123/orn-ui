@@ -8,7 +8,13 @@
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "gen:maestro": "node scripts/gen-maestro-flows.mjs",
+    "gen:maestro:check": "node scripts/gen-maestro-flows.mjs --check",
+    "e2e:ios:build": "expo run:ios --configuration Release --no-install --no-bundler",
+    "e2e:ios:smoke": "maestro test --include-tags smoke .maestro",
+    "e2e:ios:behavior": "maestro test --include-tags behavior .maestro",
+    "e2e:ios": "maestro test .maestro"
   },
   "dependencies": {
     "expo": "~57.0.9",

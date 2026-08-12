@@ -1,0 +1,25 @@
+# El botón del Alert queda dentro de un único nodo de accesibilidad fusionado
+# ("Invoice sent, Close", con el bounding box del backdrop entero) — no hay
+# forma de tocarlo por texto/id sin ambigüedad. Se toca por coordenadas,
+# calculadas leyendo los píxeles reales de una captura (no el screenshot ya
+# escalado que muestra el visor), 50%,55% para esta variante.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "alert"
+      TITLE: "Alert"
+
+- tapOn: "Show success"
+- waitForAnimationToEnd
+- assertVisible:
+    text: ".*Invoice sent.*"
+- tapOn:
+    point: "50%,55%"
+- assertNotVisible:
+    text: ".*Invoice sent.*"

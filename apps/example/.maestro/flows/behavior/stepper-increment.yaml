@@ -1,0 +1,21 @@
+# Primer variant nomás (Stepper único): las otras variantes apilan 2-3
+# Steppers a la vez y "Increment"/"Decrement" dejarían de ser un match único.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "molecules"
+      SLUG: "stepper"
+      TITLE: "Stepper"
+
+- assertVisible: "1"
+- tapOn: "Increment"
+- assertVisible: "2"
+- tapOn: "Increment"
+- assertVisible: "3"
+- tapOn: "Decrement"
+- assertVisible: "2"
