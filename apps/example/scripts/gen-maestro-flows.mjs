@@ -18,6 +18,12 @@ const ROOT = path.resolve(__dirname, '..');
 const FLOWS_DIR = path.join(ROOT, '.maestro/flows/smoke');
 const APP_ID = 'com.anonymous.orn-ui-example';
 
+// Únicos flows de flows/smoke/ escritos a mano (no derivan de una entrada del
+// manifest) — se excluyen de la limpieza de "sobrantes" para que gen:maestro
+// no los borre. Ver README: nav-tabs-and-list.yaml es el único que navega
+// tabs/lista/back en vez de entrar por deep link.
+const HAND_WRITTEN = new Set(['nav-tabs-and-list.yaml']);
+
 const SOURCES = [
   { file: 'demos/manifest.ts', exportName: 'ATOMS', basePath: 'atoms' },
   { file: 'demos/manifest.ts', exportName: 'MOLECULES', basePath: 'molecules' },
@@ -127,7 +133,7 @@ function main() {
   const wanted = new Map(entries.map((e) => [`${e.basePath}-${e.slug}.yaml`, flowFor(e)]));
 
   const existing = fs.existsSync(FLOWS_DIR) ? fs.readdirSync(FLOWS_DIR) : [];
-  const stale = existing.filter((f) => f.endsWith('.yaml') && !wanted.has(f));
+  const stale = existing.filter((f) => f.endsWith('.yaml') && !wanted.has(f) && !HAND_WRITTEN.has(f));
 
   let changed = false;
   for (const [filename, content] of wanted) {

@@ -150,7 +150,7 @@ export const DateField = memo(
           disabled={disabled}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel={label ?? placeholder}
+          accessibilityLabel={hasValue ? `${label ?? placeholder}, ${display}` : (label ?? placeholder)}
           accessibilityState={{ disabled, expanded: open }}
         >
           <Text allowFontScaling={allowFontScaling} style={[styles.fieldText, !hasValue && styles.placeholder]}>

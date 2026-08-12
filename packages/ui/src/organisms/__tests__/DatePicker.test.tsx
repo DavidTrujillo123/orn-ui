@@ -289,7 +289,7 @@ describe('DateField', () => {
   it('opens the calendar and reports the chosen date', () => {
     const onChange = jest.fn();
     render(withProvider(<DateField label="Due date" value={MARCH_2024} onChange={onChange} />));
-    fireEvent.press(screen.getByRole('button', { name: 'Due date' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Due date, March 15, 2024' }));
     fireEvent.press(screen.getByLabelText('March 20, 2024'));
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange.mock.calls[0][0].getDate()).toBe(20);
@@ -297,14 +297,14 @@ describe('DateField', () => {
 
   it('does not render a clear button without onClear', () => {
     render(withProvider(<DateField label="Due date" value={MARCH_2024} onChange={() => {}} />));
-    fireEvent.press(screen.getByRole('button', { name: 'Due date' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Due date, March 15, 2024' }));
     expect(screen.queryByText('Clear')).not.toBeOnTheScreen();
   });
 
   it('clears the value and closes when the clear button is pressed', () => {
     const onClear = jest.fn();
     render(withProvider(<DateField label="Due date" value={MARCH_2024} onChange={() => {}} onClear={onClear} />));
-    fireEvent.press(screen.getByRole('button', { name: 'Due date' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Due date, March 15, 2024' }));
     fireEvent.press(screen.getByText('Clear'));
     expect(onClear).toHaveBeenCalledTimes(1);
   });
@@ -323,7 +323,7 @@ describe('DateField', () => {
     );
     expect(screen.getByText('March 10, 2024')).toBeOnTheScreen();
 
-    fireEvent.press(screen.getByRole('button', { name: 'Stay' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Stay, March 10, 2024' }));
     fireEvent.press(screen.getByLabelText('March 14, 2024'));
     expect(onRangeChange.mock.calls[0][0].end.getDate()).toBe(14);
 
