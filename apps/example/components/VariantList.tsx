@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Dimensions,
   Keyboard,
   LayoutChangeEvent,
   NativeScrollEvent,
@@ -18,11 +19,6 @@ export interface VariantDef {
 
 export interface VariantListProps {
   variants: VariantDef[];
-  /**
-   * Sólo la primera variante se muestra, ocupando todo el alto disponible.
-   * Para demos que traen su propia lista virtualizada (List/SearchList): no
-   * pueden vivir dentro del pager sin anidar scrollers verticales.
-   */
   fill?: boolean;
 }
 
@@ -39,19 +35,14 @@ export interface VariantListProps {
  */
 export function VariantList({ variants, fill = false }: VariantListProps) {
   const colors = useColors();
-  const [pageHeight, setPageHeight] = useState(0);
+  const [pageHeight, setPageHeight] = useState(() => Dimensions.get('window').height);
   const [index, setIndex] = useState(0);
-  // El hint de swipe se retira apenas el usuario descubre el gesto: cumplida su
-  // función, es ruido sobre el componente que se está mirando.
   const hintOpacity = useRef(new Animated.Value(1)).current;
   const hintDismissed = useRef(false);
   const pagerRef = useRef<ScrollView>(null);
   const indexRef = useRef(0);
   const keyboardOpen = useRef(false);
 
-  // Con el teclado abierto el contenedor puede achicarse (Android redimensiona
-  // la ventana). Aceptar ese alto reescalaría todas las páginas y el offset
-  // pasaría a apuntar a otra variante, así que se conserva el alto original.
   const onLayout = useCallback((e: LayoutChangeEvent) => {
     if (keyboardOpen.current) return;
     setPageHeight(e.nativeEvent.layout.height);
@@ -62,13 +53,8 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
     pagerRef.current?.scrollTo({ y: indexRef.current * pageHeight, animated: false });
   }, [pageHeight]);
 
-  // Si cambia el alto de página (rotación) el offset viejo apunta a mitad de
-  // camino entre dos variantes: se re-ancla la actual.
   useEffect(snapToCurrent, [snapToCurrent]);
 
-  // Al enfocar un Input, iOS sube TODOS los scrollers que lo contienen, no sólo
-  // el de la página: el pager quedaba entre dos variantes. La página se queda
-  // fija, se la devuelve a su offset cuando el teclado terminó de moverse.
   useEffect(() => {
     const subs = [
       Keyboard.addListener('keyboardDidShow', () => {
@@ -120,8 +106,6 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
 
   return (
     <View style={styles.pagerRoot} onLayout={onLayout}>
-      {/* Hasta tener el alto medido no se puede paginar: sin altura fija por
-          página el snap cae en offsets arbitrarios. Un frame en blanco. */}
       {pageHeight > 0 && (
         <ScrollView
           ref={pagerRef}
@@ -133,27 +117,30 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
           scrollEventThrottle={16}
           onMomentumScrollEnd={onMomentumEnd}
         >
-          {variants.map((v, i) => (
-            <View
-              key={v.label}
-              style={[styles.page, { height: pageHeight }]}
-              accessible={false}
-              accessibilityLabel={`Variant ${i + 1} of ${variants.length}: ${v.label}`}
-            >
-              <Caption style={styles.label}>{v.label}</Caption>
-              <View style={[styles.stage, styles.stagePage, { backgroundColor: colors.surface, borderColor: colors.border }]}>
-                {/* El contenido se centra, pero una variante alta (calendarios)
-                    scrollea dentro de su propia página en vez de recortarse. */}
-                <ScrollView
-                  contentContainerStyle={styles.stageContent}
-                  showsVerticalScrollIndicator={false}
-                  keyboardShouldPersistTaps="handled"
-                >
-                  {v.content}
-                </ScrollView>
+          {variants.map((v, i) => {
+            const isNear = Math.abs(i - index) <= 1;
+            return (
+              <View
+                key={v.label}
+                style={[styles.page, { height: pageHeight }]}
+                accessible={false}
+                accessibilityLabel={`Variant ${i + 1} of ${variants.length}: ${v.label}`}
+              >
+                <Caption style={styles.label}>{v.label}</Caption>
+                <View style={[styles.stage, styles.stagePage, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+                  {isNear && (
+                    <ScrollView
+                      contentContainerStyle={styles.stageContent}
+                      showsVerticalScrollIndicator={false}
+                      keyboardShouldPersistTaps="handled"
+                    >
+                      {v.content}
+                    </ScrollView>
+                  )}
+                </View>
               </View>
-            </View>
-          ))}
+            );
+          })}
         </ScrollView>
       )}
 
@@ -199,8 +186,6 @@ const styles = StyleSheet.create({
   stagePage: { flex: 1 },
   stageFill: { flex: 1, padding: 20 },
   stageContent: { flexGrow: 1, justifyContent: 'center', padding: 20 },
-  // Riel de progreso al borde derecho, fuera del stage: marca posición sin
-  // robarle ancho al componente en exhibición.
   rail: {
     position: 'absolute',
     right: 6,
