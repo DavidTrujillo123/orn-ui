@@ -61,7 +61,9 @@ export function SymmetricGrid<T>({
 
         return (
           <View
-            key={rowIndex}
+            // `columns` en la key: si cambia, las filas no reusan nodos DOM
+            // de una fila armada con otra cantidad de columnas.
+            key={`row-${columns}-${rowIndex}`}
             style={[styles.row, centered ? styles.rowBalanced : styles.rowFull, gap !== undefined && { gap }]}
           >
             {row.map((item, colIndex) => {

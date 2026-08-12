@@ -149,13 +149,17 @@ export const Steps = memo(
           {steps.map((step, index) => {
             const status = statusOf(index, current);
             const isLast = index === steps.length - 1;
-            const Wrapper: any = onStepPress ? TouchableOpacity : View;
+            const Wrapper = onStepPress ? TouchableOpacity : View;
+            // Sólo tocable si hay onStepPress: pasarle onPress/activeOpacity
+            // a un View plano no crashea, pero los deja como ruido silencioso.
+            const interactiveProps = onStepPress
+              ? { onPress: () => onStepPress(index), activeOpacity: 0.7 }
+              : undefined;
             return (
               <Wrapper
-                key={step.label}
+                key={`${step.label}-${index}`}
                 style={styles.vStep}
-                onPress={onStepPress ? () => onStepPress(index) : undefined}
-                activeOpacity={0.7}
+                {...interactiveProps}
                 {...stepAccessibility(index, step, status)}
               >
                 <View style={styles.vIndicatorColumn}>
@@ -190,13 +194,15 @@ export const Steps = memo(
         {steps.map((step, index) => {
           const status = statusOf(index, current);
           const isLast = index === steps.length - 1;
-          const Wrapper: any = onStepPress ? TouchableOpacity : View;
+          const Wrapper = onStepPress ? TouchableOpacity : View;
+          const interactiveProps = onStepPress
+            ? { onPress: () => onStepPress(index), activeOpacity: 0.7 }
+            : undefined;
           return (
-            <React.Fragment key={step.label}>
+            <React.Fragment key={`${step.label}-${index}`}>
               <Wrapper
                 style={styles.hStep}
-                onPress={onStepPress ? () => onStepPress(index) : undefined}
-                activeOpacity={0.7}
+                {...interactiveProps}
                 {...stepAccessibility(index, step, status)}
               >
                 {renderCircle(index, status)}

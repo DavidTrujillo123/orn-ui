@@ -111,16 +111,24 @@ export const BottomSheet = memo(
     const [mounted, setMounted] = useState(visible);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const progress = useRef(new Animated.Value(0)).current;
+    // El PanResponder de más abajo se crea una sola vez; leer `onClose`
+    // directo del closure daría siempre el de ese primer render. El ref
+    // refleja la última prop sin importar cuándo se creó la closure.
+    const onCloseRef = useRef(onClose);
+    onCloseRef.current = onClose;
 
     useEffect(() => {
-      if (visible) {
-        setMounted(true);
-        Animated.timing(progress, { toValue: 1, duration: 250, useNativeDriver: true }).start();
-      } else {
-        Animated.timing(progress, { toValue: 0, duration: 200, useNativeDriver: true }).start(({ finished }) => {
-          if (finished) setMounted(false);
-        });
-      }
+      const animation = visible
+        ? Animated.timing(progress, { toValue: 1, duration: 250, useNativeDriver: true })
+        : Animated.timing(progress, { toValue: 0, duration: 200, useNativeDriver: true });
+      if (visible) setMounted(true);
+      animation.start(({ finished }) => {
+        if (!visible && finished) setMounted(false);
+      });
+      // Si el efecto vuelve a correr (o el componente se desmonta) antes de
+      // que termine, se corta: si no, un `finished` tardío podría llamar
+      // `setMounted` sobre un componente ya desmontado.
+      return () => animation.stop();
     }, [visible, progress]);
 
     useEffect(() => {
@@ -142,7 +150,7 @@ export const BottomSheet = memo(
         },
         onPanResponderRelease: (_, gesture) => {
           if (gesture.dy > DISMISS_THRESHOLD) {
-            onClose();
+            onCloseRef.current();
           } else {
             Animated.timing(progress, { toValue: 1, duration: 150, useNativeDriver: true }).start();
           }

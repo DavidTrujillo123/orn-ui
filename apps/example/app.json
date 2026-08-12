@@ -12,12 +12,17 @@
     "experiments": {
       "typedRoutes": true
     },
+    "backgroundColor": "#f8f9fa",
     "web": {
       "bundler": "metro",
       "output": "static"
     },
     "ios": {
       "bundleIdentifier": "com.anonymous.orn-ui-example"
+    },
+    "android": {
+      "backgroundColor": "#f8f9fa",
+      "package": "com.anonymous.ornuiexample"
     }
   }
 }

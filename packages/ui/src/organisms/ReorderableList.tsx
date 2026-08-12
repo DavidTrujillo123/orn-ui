@@ -60,16 +60,26 @@ export function ReorderableList<T>({
   const targetIndexRef = useRef<number | null>(null);
   const dataRef = useRef(data);
   dataRef.current = data;
+  // Igual razón que targetIndexRef: el responder de cada fila se crea una
+  // sola vez, así que leer `disabled` directo del closure congelaría el
+  // valor del momento en que esa fila se creó.
+  const disabledRef = useRef(disabled);
+  disabledRef.current = disabled;
 
   const panResponders = useRef(new Map<number, ReturnType<typeof PanResponder.create>>()).current;
+  // Si `data` se achica, los responders de índices que ya no existen quedan
+  // colgados en el Map para siempre: se podan en cada render.
+  for (const index of panResponders.keys()) {
+    if (index >= data.length) panResponders.delete(index);
+  }
 
   function panResponderFor(index: number) {
     let responder = panResponders.get(index);
     if (responder) return responder;
 
     responder = PanResponder.create({
-      onStartShouldSetPanResponder: () => !disabled,
-      onMoveShouldSetPanResponder: (_, gesture) => !disabled && Math.abs(gesture.dy) > 2,
+      onStartShouldSetPanResponder: () => !disabledRef.current,
+      onMoveShouldSetPanResponder: (_, gesture) => !disabledRef.current && Math.abs(gesture.dy) > 2,
       onPanResponderGrant: () => {
         activeIndexRef.current = index;
         targetIndexRef.current = index;

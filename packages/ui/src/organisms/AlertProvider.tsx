@@ -63,14 +63,21 @@ const HIDDEN: InternalState = { visible: false, title: '', type: 'info', buttons
 export function AlertProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<InternalState>(HIDDEN);
   const resolverRef = useRef<((value: any) => void) | null>(null);
-
-  const hide = useCallback(() => {
-    setState(HIDDEN);
+  // Si alert()/confirm() se llaman de nuevo mientras ya hay uno abierto, el
+  // pedido anterior se resuelve (no se descarta) antes de mostrar el nuevo:
+  // evita que su promise quede colgada para siempre.
+  const settlePending = useCallback(() => {
     resolverRef.current?.(undefined);
     resolverRef.current = null;
   }, []);
 
+  const hide = useCallback(() => {
+    setState(HIDDEN);
+    settlePending();
+  }, [settlePending]);
+
   const alertFn = useCallback((options: AlertOptions): Promise<void> => {
+    settlePending();
     return new Promise((resolve) => {
       resolverRef.current = resolve;
       setState({
@@ -90,9 +97,10 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
         ],
       });
     });
-  }, []);
+  }, [settlePending]);
 
   const confirmFn = useCallback((options: ConfirmOptions): Promise<boolean> => {
+    settlePending();
     return new Promise((resolve) => {
       resolverRef.current = resolve;
       setState({
@@ -124,7 +132,7 @@ export function AlertProvider({ children }: { children: React.ReactNode }) {
         ],
       });
     });
-  }, []);
+  }, [settlePending]);
 
   const value = useMemo<AlertContextValue>(() => ({ alert: alertFn, confirm: confirmFn, hide }), [alertFn, confirmFn, hide]);
 
