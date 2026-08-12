@@ -1,43 +1,48 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import type { ViewStyle } from 'react-native';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   UIProvider,
+  useInsets,
   type ModalSafeAreaBoundaryProps,
   type UIProviderProps,
 } from '../theme/UIProvider';
+import type { EdgeInsets } from '../theme/insets';
 
 export interface SafeAreaUIProviderProps extends Omit<UIProviderProps, 'insets'> {
-  /**
-   * Insets explícitos. Ganan sobre los medidos — útil para tests, storybook o
-   * una pantalla embebida que no ocupa la ventana entera.
-   */
   insets?: UIProviderProps['insets'];
-  /**
-   * Montar también el `<SafeAreaProvider>`. Ponelo en false si tu app ya tiene
-   * uno arriba (React Navigation lo monta solo en algunas plantillas):
-   * un provider anidado mide el frame de *su* View, no el de la ventana, así
-   * que ahí adentro los insets darían cero.
-   * @default true
-   */
   mountSafeAreaProvider?: boolean;
 }
 
-function ModalBoundaryInner({ children }: ModalSafeAreaBoundaryProps) {
-  // Este hook lee del `SafeAreaProvider` más cercano — el que
-  // `RemeasuringModalSafeAreaBoundary` monta a propósito adentro del árbol
-  // del Modal, no el de la raíz. Un `<Modal>`/`<BottomSheet>` de RN abre su
-  // propia ventana nativa (siempre en Android, según `presentationStyle` en
-  // iOS), y los insets de la raíz no siempre valen ahí adentro: mismo bug que
-  // documenta react-native-safe-area-context para modales anidados.
+const probeStyle: ViewStyle = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 };
+
+function sameInsets(a: EdgeInsets, b: EdgeInsets) {
+  return a.top === b.top && a.right === b.right && a.bottom === b.bottom && a.left === b.left;
+}
+
+function InsetsProbe({ onMeasure }: { onMeasure: (insets: EdgeInsets) => void }) {
   const insets = useSafeAreaInsets();
-  return <>{children(insets)}</>;
+  useEffect(() => {
+    onMeasure(insets);
+  }, [insets, onMeasure]);
+  return null;
 }
 
 function RemeasuringModalSafeAreaBoundary({ children }: ModalSafeAreaBoundaryProps) {
+  const ambient = useInsets();
+  const [measured, setMeasured] = useState<EdgeInsets | null>(null);
+  const onMeasure = React.useCallback(
+    (next: EdgeInsets) => setMeasured((prev) => (prev && sameInsets(prev, next) ? prev : next)),
+    []
+  );
+
   return (
-    <SafeAreaProvider>
-      <ModalBoundaryInner>{children}</ModalBoundaryInner>
-    </SafeAreaProvider>
+    <>
+      <SafeAreaProvider style={probeStyle} pointerEvents="none">
+        <InsetsProbe onMeasure={onMeasure} />
+      </SafeAreaProvider>
+      {children(measured ?? ambient)}
+    </>
   );
 }
 
@@ -54,33 +59,6 @@ function Measured({ insets: override, children, ...rest }: SafeAreaUIProviderPro
   );
 }
 
-/**
- * SafeAreaUIProvider
- * `UIProvider` con los insets ya cableados desde `react-native-safe-area-context`.
- *
- * Vive en su propio subpath (`orn-ui/safe-area`) a propósito: es el único
- * archivo de la librería que importa un paquete de terceros. Nada del entry
- * principal lo referencia, así que quien hace `import { Button } from 'orn-ui'`
- * nunca lo resuelve y el bundle sigue sin dependencias de runtime.
- *
- * ```tsx
- * import { SafeAreaUIProvider } from 'orn-ui/safe-area';
- *
- * export default function App() {
- *   return (
- *     <SafeAreaUIProvider defaultMode="system">
- *       <RootNavigator />
- *     </SafeAreaUIProvider>
- *   );
- * }
- * ```
- *
- * El equivalente a mano — pasarle `insets={useSafeAreaInsets()}` a `UIProvider`
- * desde un componente que ya esté dentro de `<SafeAreaProvider>` — sigue
- * siendo válido. Esto sólo evita el error silencioso de olvidarlo: `insets`
- * por defecto es `{0,0,0,0}`, y con ceros el bottom sheet queda pegado contra
- * la barra de gestos y el modal `full` se mete abajo del notch.
- */
 export function SafeAreaUIProvider({
   mountSafeAreaProvider = true,
   ...props
