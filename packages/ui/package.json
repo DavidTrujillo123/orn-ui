@@ -1,6 +1,6 @@
 {
   "name": "orn-ui",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Fast, tree-shakeable, atomic-design component library for React Native. Zero runtime dependencies.",
   "author": "David Trujillo <davot098@gmail.com>",
   "main": "lib/commonjs/index.js",
