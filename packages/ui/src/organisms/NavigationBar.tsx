@@ -26,11 +26,11 @@ export interface NavigationBarProps {
   items: NavigationBarItem[];
   activeKey: string;
   onChange: (key: string) => void;
-  /** Borde de la pantalla donde vive la barra. @default 'bottom' */
+  /** Screen edge where the bar lives. @default 'bottom' */
   position?: 'bottom' | 'top';
   /** @default true */
   showLabels?: boolean;
-  /** Suma el inset de safe area del borde donde vive la barra. @default true */
+  /** Adds the safe area inset for the edge where the bar lives. @default true */
   safeArea?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;

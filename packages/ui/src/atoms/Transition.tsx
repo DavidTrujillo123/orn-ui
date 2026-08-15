@@ -13,25 +13,25 @@ export type TransitionPreset =
 
 export interface TransitionProps {
   children: React.ReactNode;
-  /** Entra en true, sale (y desmonta) en false. @default true */
+  /** Enters when true, exits (and unmounts) when false. @default true */
   visible?: boolean;
-  /** Uno o varios: 'fade scale' combina opacidad y escala. @default 'fade' */
+  /** One or more: 'fade scale' combines opacity and scale. @default 'fade' */
   preset?: TransitionPreset | TransitionPreset[];
-  /** ms del timing. @default tokens.duration.base */
+  /** Timing duration in ms. @default tokens.duration.base */
   duration?: number;
-  /** ms antes de arrancar. Un índice por delay escalona una lista. @default 0 */
+  /** ms before starting. A per-index delay staggers a list. @default 0 */
   delay?: number;
-  /** Píxeles que recorren los presets de slide. @default 24 */
+  /** Pixels traveled by the slide presets. @default 24 */
   distance?: number;
-  /** Spring en vez de timing (implícito en 'pop'). */
+  /** Spring instead of timing (implicit in 'pop'). */
   spring?: boolean;
-  /** Anima también el primer render. En false arranca ya presente. @default true */
+  /** Also animates the first render. When false it starts already present. @default true */
   appear?: boolean;
-  /** Deja el nodo montado al salir, sólo lo esconde. @default false */
+  /** Keeps the node mounted on exit, only hides it. @default false */
   keepMounted?: boolean;
   /**
-   * Progreso 0→1 manejado desde afuera. Con esto el Transition sólo interpola:
-   * quien lo pasa decide cuándo y cómo avanza (un PanResponder, por ejemplo).
+   * 0→1 progress driven from outside. With this, Transition only interpolates:
+   * whoever passes it decides when and how it advances (a PanResponder, for example).
    */
   value?: Animated.Value;
   onEntered?: () => void;

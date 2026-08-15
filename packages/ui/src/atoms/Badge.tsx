@@ -8,7 +8,7 @@ export type BadgeVariant = 'success' | 'error' | 'warning' | 'info' | 'neutral';
 export interface BadgeProps {
   label: string;
   variant?: BadgeVariant;
-  /** Override manual, gana sobre `variant`. */
+  /** Manual override, takes precedence over `variant`. */
   backgroundColor?: string;
   textColor?: string;
   style?: StyleProp<ViewStyle>;

@@ -20,16 +20,16 @@ export interface ImageProps {
   height?: number;
   /** @default 'cover' */
   resizeMode?: ImageResizeMode;
-  /** Radio de las esquinas, mismo patrón que Avatar/Card. @default 0 */
+  /** Corner radius, same pattern as Avatar/Card. @default 0 */
   radius?: number;
-  /** Qué mostrar mientras carga. `false` para no mostrar nada. @default true (spinner chico) */
+  /** What to show while loading. `false` to show nothing. @default true (small spinner) */
   loading?: React.ReactNode | boolean;
-  /** Qué mostrar si la carga falla. @default un placeholder gris, sin contenido */
+  /** What to show if loading fails. @default a gray placeholder, no content */
   fallback?: React.ReactNode;
   /**
-   * 'high' dispara Image.prefetch() al montar, antes de que <Image> arranque
-   * su propio ciclo de carga — pensado para la imagen above-the-fold de una
-   * pantalla (la primera que el usuario ve). Sin costo si ya está en caché.
+   * 'high' triggers Image.prefetch() on mount, before <Image> starts
+   * its own load cycle — meant for the above-the-fold image of a
+   * screen (the first one the user sees). No cost if it's already cached.
    * @default 'normal'
    */
   priority?: 'low' | 'normal' | 'high';

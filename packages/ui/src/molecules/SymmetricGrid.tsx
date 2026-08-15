@@ -6,13 +6,13 @@ export interface SymmetricGridProps<T> {
   data: T[];
   renderItem: (item: T, index: number) => React.ReactElement;
   keyExtractor: (item: T, index: number) => string;
-  /** Columnas por fila. @default 2 */
+  /** Columns per row. @default 2 */
   columns?: number;
-  /** Separación entre celdas, en ambos ejes. @default theme.tokens.spacing.md */
+  /** Spacing between cells, on both axes. @default theme.tokens.spacing.md */
   gap?: number;
   /**
-   * Última fila incompleta: centrada (simétrica) en vez de pegada a la
-   * izquierda con un hueco a la derecha. @default true
+   * Incomplete last row: centered (symmetric) instead of stuck to the
+   * left with a gap on the right. @default true
    */
   balanceLastRow?: boolean;
   style?: StyleProp<ViewStyle>;

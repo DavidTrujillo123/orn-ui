@@ -38,10 +38,10 @@ export interface SelectProps<T> {
   error?: string;
   isLoading?: boolean;
   disabled?: boolean;
-  /** Agrega un buscador dentro del desplegable. @default false */
+  /** Adds a search box inside the dropdown. @default false */
   searchable?: boolean;
   searchPlaceholder?: string;
-  /** Alto máximo del desplegable, si el espacio disponible lo permite. @default 280 */
+  /** Maximum height of the dropdown, if the available space allows it. @default 280 */
   maxHeight?: number;
   onOpenChange?: (open: boolean) => void;
   containerStyle?: StyleProp<ViewStyle>;

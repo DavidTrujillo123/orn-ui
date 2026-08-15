@@ -11,31 +11,31 @@ export interface DateFieldProps
   label?: string;
   required?: boolean;
   /**
-   * 'single' elige una fecha; 'range' elige un intervalo con dos toques.
+   * 'single' picks one date; 'range' picks an interval with two taps.
    * @default 'single'
    */
   mode?: 'single' | 'range';
-  /** Fecha elegida en mode="single". */
+  /** Selected date in mode="single". */
   value?: Date;
-  /** Se llama en mode="single". */
+  /** Called in mode="single". */
   onChange?: (date: Date) => void;
-  /** Rango elegido en mode="range". */
+  /** Selected range in mode="range". */
   range?: DateRange;
-  /** Se llama en mode="range", tanto al fijar el inicio como al cerrar el rango. */
+  /** Called in mode="range", both when setting the start and when closing the range. */
   onRangeChange?: (range: DateRange) => void;
   placeholder?: string;
   error?: string;
   disabled?: boolean;
-  /** Formatea la fecha en el campo. @default "Month D, YYYY" */
+  /** Formats the date in the field. @default "Month D, YYYY" */
   format?: (date: Date) => string;
-  /** Título del modal del calendario. @default el `selectDate` de `useLabels()` */
+  /** Title of the calendar modal. @default the `selectDate` from `useLabels()` */
   modalTitle?: string;
   /**
-   * Si se pasa, el modal muestra un botón que borra la selección y cierra.
-   * Sin esto no hay botón: el "Clear" anterior sólo cerraba, sin limpiar nada.
+   * If provided, the modal shows a button that clears the selection and closes.
+   * Without this there's no button: the previous "Clear" only closed, without clearing anything.
    */
   onClear?: () => void;
-  /** Texto de ese botón. @default el `clear` de `useLabels()` */
+  /** Text for that button. @default the `clear` from `useLabels()` */
   clearLabel?: string;
   containerStyle?: StyleProp<ViewStyle>;
   testID?: string;

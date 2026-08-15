@@ -8,13 +8,13 @@ import type { IconName } from '../icons/types';
 
 export interface OptionCardProps {
   label: string;
-  /** Línea secundaria: el detalle que decide la elección ("llega en 3 días"). */
+  /** Secondary line: the detail that decides the choice ("arrives in 3 days"). */
   description?: string;
   iconName?: IconName;
   isSelected: boolean;
   onPress: () => void;
   disabled?: boolean;
-  /** 'vertical': ícono arriba, texto abajo centrado. 'horizontal': en fila. @default 'horizontal' */
+  /** 'vertical': icon on top, text centered below. 'horizontal': in a row. @default 'horizontal' */
   layout?: 'vertical' | 'horizontal';
   style?: StyleProp<ViewStyle>;
   testID?: string;

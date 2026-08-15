@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 
 export interface PressableScaleProps extends Omit<PressableProps, 'style'> {
-  /** Escala objetivo al presionar. @default 0.96 */
+  /** Target scale when pressed. @default 0.96 */
   scaleTo?: number;
   style?: StyleProp<ViewStyle>;
   children: React.ReactNode;

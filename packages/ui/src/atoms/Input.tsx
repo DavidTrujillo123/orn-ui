@@ -17,7 +17,7 @@ import type { IconName } from '../icons/types';
 
 export interface InputProps extends Omit<TextInputProps, 'style'> {
   label?: string;
-  /** Muestra un asterisco junto al label. Puramente visual, no valida nada. */
+  /** Shows an asterisk next to the label. Purely visual, doesn't validate anything. */
   required?: boolean;
   error?: string;
   containerStyle?: StyleProp<ViewStyle>;

@@ -9,15 +9,15 @@ export interface SpinnerProps {
   size?: 'small' | 'large';
   color?: string;
   text?: string;
-  /** @default true. En false, no ocupa flex:1 (útil inline, dentro de un botón/fila). */
+  /** @default true. When false, doesn't take up flex:1 (useful inline, inside a button/row). */
   fullscreen?: boolean;
   /**
-   * 'native' usa el ActivityIndicator del sistema; 'dots' y 'ring' son
-   * indicadores propios, iguales en iOS y Android.
+   * 'native' uses the system's ActivityIndicator; 'dots' and 'ring' are
+   * custom indicators, identical on iOS and Android.
    * @default 'native'
    */
   variant?: SpinnerVariant;
-  /** Indicador totalmente propio. Gana sobre `variant`. */
+  /** Fully custom indicator. Takes precedence over `variant`. */
   indicator?: React.ReactNode;
   testID?: string;
 }

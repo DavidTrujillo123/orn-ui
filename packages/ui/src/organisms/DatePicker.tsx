@@ -20,29 +20,29 @@ export interface DateRange {
 
 export interface DatePickerProps {
   /**
-   * 'single' elige una fecha; 'range' elige un intervalo con dos toques.
+   * 'single' picks one date; 'range' picks an interval with two taps.
    * @default 'single'
    */
   mode?: 'single' | 'range';
-  /** Fecha elegida en mode="single". */
+  /** Selected date in mode="single". */
   value?: Date;
-  /** Se llama en mode="single". */
+  /** Called in mode="single". */
   onChange?: (date: Date) => void;
-  /** Rango elegido en mode="range". */
+  /** Selected range in mode="range". */
   range?: DateRange;
-  /** Se llama en mode="range", tanto al fijar el inicio como al cerrar el rango. */
+  /** Called in mode="range", both when setting the start and when closing the range. */
   onRangeChange?: (range: DateRange) => void;
   minDate?: Date;
   maxDate?: Date;
-  /** Mes mostrado al abrir si no hay `value`. @default hoy */
+  /** Month shown on open if there's no `value`. @default today */
   defaultMonth?: Date;
-  /** Nombres de los meses. @default los de `useLabels()` */
+  /** Month names. @default those from `useLabels()` */
   monthNames?: string[];
-  /** Iniciales de los días, índice 0 = domingo. @default las de `useLabels()` */
+  /** Day initials, index 0 = Sunday. @default those from `useLabels()` */
   weekdayNames?: string[];
-  /** 0 = domingo, 1 = lunes. @default 0 */
+  /** 0 = Sunday, 1 = Monday. @default 0 */
   firstDayOfWeek?: 0 | 1;
-  /** Avisa qué mes quedó a la vista al navegar con las flechas. */
+  /** Reports which month became visible when navigating with the arrows. */
   onVisibleMonthChange?: (month: Date) => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;

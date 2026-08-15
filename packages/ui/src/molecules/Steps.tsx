@@ -13,16 +13,16 @@ export type StepStatus = 'completed' | 'current' | 'pending';
 
 export interface StepsProps {
   steps: StepItem[];
-  /** Índice del paso actual (0-based). Los anteriores quedan 'completed'. */
+  /** Index of the current step (0-based). Earlier steps become 'completed'. */
   current: number;
   /** @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
   /**
-   * Qué muestra el círculo de un paso ya completado: un check, o su número.
+   * What the circle of an already-completed step shows: a check, or its number.
    * @default 'check'
    */
   completedIndicator?: 'check' | 'number';
-  /** Si se pasa, cada paso es tocable y reporta su índice. */
+  /** If provided, each step is tappable and reports its index. */
   onStepPress?: (index: number) => void;
   style?: StyleProp<ViewStyle>;
 }

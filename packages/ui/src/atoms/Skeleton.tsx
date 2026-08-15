@@ -13,17 +13,17 @@ import { useTheme } from '../theme/UIProvider';
 export type SkeletonVariant = 'rect' | 'text' | 'circle';
 
 export interface SkeletonProps {
-  /** @default '100%' ('circle' lo usa también como diámetro) */
+  /** @default '100%' ('circle' also uses this as the diameter) */
   width?: DimensionValue;
-  /** @default 16 ('text' usa el alto de línea; 'circle', el ancho) */
+  /** @default 16 ('text' uses the line height; 'circle', the width) */
   height?: DimensionValue;
   /** @default 'rect' */
   variant?: SkeletonVariant;
-  /** Override del radius del theme. */
+  /** Override of the theme's radius. */
   radius?: number;
-  /** Líneas apiladas, sólo para variant="text". @default 1 */
+  /** Stacked lines, only for variant="text". @default 1 */
   lines?: number;
-  /** Ancho de la última línea, para que el párrafo no termine en bloque. @default '60%' */
+  /** Width of the last line, so the paragraph doesn't end as a solid block. @default '60%' */
   lastLineWidth?: DimensionValue;
   /** @default true */
   animated?: boolean;

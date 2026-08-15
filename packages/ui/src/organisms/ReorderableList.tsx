@@ -5,19 +5,19 @@ import { createStyles } from '../theme/createStyles';
 export interface ReorderableListProps<T> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
-  /** Alto fijo de cada fila: necesario para calcular el índice destino sin medir layout async. */
+  /** Fixed height of each row: needed to calculate the target index without measuring layout async. */
   itemHeight: number;
   renderItem: (item: T, index: number, dragging: boolean) => React.ReactElement;
-  /** Se llama al soltar, con el arreglo ya reordenado. No muta `data`. */
+  /** Called on release, with the array already reordered. Does not mutate `data`. */
   onReorder: (data: T[]) => void;
   /**
-   * Empieza el arrastre de la fila `index`. Úsalo para apagar el scroll del
-   * contenedor (`scrollEnabled={false}`) mientras dura: en iOS el
-   * `UIScrollView` padre cancela los toques del contenido apenas su gesto
-   * vertical arranca, y sin eso el arrastre muere a los pocos píxeles.
+   * Starts dragging row `index`. Use it to turn off the container's scroll
+   * (`scrollEnabled={false}`) while it lasts: on iOS the parent
+   * `UIScrollView` cancels touches on the content as soon as its
+   * vertical gesture starts, and without this the drag dies within a few pixels.
    */
   onDragStart?: (index: number) => void;
-  /** Termina el arrastre — soltando o por cancelación. Siempre corre si corrió `onDragStart`. */
+  /** Ends the drag — on release or cancellation. Always runs if `onDragStart` ran. */
   onDragEnd?: () => void;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;

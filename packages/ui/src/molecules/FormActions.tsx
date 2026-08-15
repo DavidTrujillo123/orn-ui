@@ -5,7 +5,7 @@ import type { IconName } from '../icons/types';
 import { useLabels } from '../theme/UIProvider';
 
 export interface FormActionsProps {
-  /** Si se omite, solo se muestra el botón secundario. */
+  /** If omitted, only the secondary button is shown. */
   primaryLabel?: string;
   onPrimaryPress?: () => void;
   primaryDisabled?: boolean;

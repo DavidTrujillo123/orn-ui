@@ -6,10 +6,10 @@ import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
 
 export interface AvatarHeaderProps {
-  /** Ícono a mostrar dentro del círculo. Si se omite, se usan `initials`. */
+  /** Icon to show inside the circle. If omitted, `initials` is used instead. */
   iconName?: IconName;
   iconColor?: string;
-  /** Texto corto (ej. 2 letras) mostrado si no se pasa `iconName`. */
+  /** Short text (e.g. 2 letters) shown when `iconName` isn't provided. */
   initials?: string;
   title: string;
   subtitle?: React.ReactNode;

@@ -27,21 +27,21 @@ export interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
   children: React.ReactNode;
-  /** Con título aparece el header, con su botón de cerrar. */
+  /** With a title, the header appears, with its close button. */
   title?: string;
-  /** Acciones de la hoja. Dónde vive lo decide `footerPlacement`. */
+  /** Sheet actions. Where they live is decided by `footerPlacement`. */
   footer?: React.ReactNode;
   /**
-   * 'fixed' lo ancla al pie de la hoja; 'scroll' lo deja al final del
-   * contenido; 'hide-with-keyboard' lo esconde mientras se escribe, que en un
-   * formulario largo le devuelve esa franja al campo enfocado. @default 'fixed'
+   * 'fixed' anchors it to the bottom of the sheet; 'scroll' leaves it at the
+   * end of the content; 'hide-with-keyboard' hides it while typing, which in a
+   * long form gives that strip back to the focused field. @default 'fixed'
    */
   footerPlacement?: FooterPlacement;
-  /** El contenido scrollea cuando no entra. @default true */
+  /** The content scrolls when it doesn't fit. @default true */
   scrollable?: boolean;
-  /** Arrastrar la hoja hacia abajo la cierra. @default true */
+  /** Dragging the sheet down closes it. @default true */
   draggable?: boolean;
-  /** Fracción de la pantalla (0-1) o píxeles. @default 0.9 */
+  /** Fraction of the screen (0-1) or pixels. @default 0.9 */
   maxHeight?: number;
   closeAccessibilityLabel?: string;
   containerStyle?: ViewStyle;

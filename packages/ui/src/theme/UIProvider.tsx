@@ -42,24 +42,24 @@ const UIContext = createContext<UIContextValue | undefined>(undefined);
 
 export interface UIProviderProps {
   children: React.ReactNode;
-  /** Par light/dark. Por defecto el theme de marca de la librería (créalo con createTheme()). */
+  /** Light/dark pair. Defaults to the library's brand theme (create one with createTheme()). */
   theme?: ThemePair;
-  /** Modo inicial (no controlado) si no se pasa `mode`. @default 'system' */
+  /** Initial mode (uncontrolled) if `mode` isn't passed. @default 'system' */
   defaultMode?: ThemeMode;
-  /** Modo controlado. Si se pasa junto a onModeChange, el provider no gestiona estado propio. */
+  /** Controlled mode. If passed together with onModeChange, the provider doesn't manage its own state. */
   mode?: ThemeMode;
   onModeChange?: (mode: ThemeMode) => void;
-  /** Renderer de íconos. Por defecto usa los glifos zero-dep incluidos. */
+  /** Icon renderer. Defaults to the included zero-dep glyphs. */
   icons?: IconRenderer;
-  /** Insets de safe area (de useSafeAreaInsets()). Por defecto {0,0,0,0}. */
+  /** Safe area insets (from useSafeAreaInsets()). Defaults to {0,0,0,0}. */
   insets?: EdgeInsets;
   labels?: Partial<Labels>;
-  /** @default false, para paridad con el resto de la librería (accesibilidad primero). */
+  /** @default false, for parity with the rest of the library (accessibility first). */
   allowFontScaling?: boolean;
   /**
-   * Fuente de insets que usan `Modal`/`BottomSheet` para su propia ventana
-   * nativa. No la pases a mano — `SafeAreaUIProvider` la cablea sola.
-   * @default repite los insets ambientes (comportamiento sin safe-area-context)
+   * Source of insets used by `Modal`/`BottomSheet` for their own native
+   * window. Don't pass this by hand — `SafeAreaUIProvider` wires it up itself.
+   * @default repeats the ambient insets (behavior without safe-area-context)
    */
   ModalSafeAreaBoundary?: ModalSafeAreaBoundaryComponent;
 }

@@ -19,7 +19,7 @@ import { IconButton } from '../atoms/IconButton';
 import type { IconName } from '../icons/types';
 
 export interface SearchListProps<T> {
-  /** Chrome opcional arriba del buscador (ej. back button + título). */
+  /** Optional chrome above the search bar (e.g. back button + title). */
   header?: React.ReactNode;
 
   searchValue: string;
@@ -34,23 +34,23 @@ export interface SearchListProps<T> {
   keyExtractor: (item: T, index: number) => string;
   renderItem: FlatListProps<T>['renderItem'];
 
-  /** Carga inicial: mientras sea true y no haya datos, se muestran placeholders. */
+  /** Initial load: while true and there's no data, placeholders are shown. */
   isLoading?: boolean;
-  /** 'replace' cambia toda la lista por un spinner/skeleton; 'overlay' lo muestra encima manteniendo el layout. */
+  /** 'replace' swaps the whole list for a spinner/skeleton; 'overlay' shows it on top while keeping the layout. */
   loadingMode?: 'replace' | 'overlay';
-  /** Recarga con datos ya en pantalla (pull-to-refresh). @default false */
+  /** Reload with data already on screen (pull-to-refresh). @default false */
   isRefreshing?: boolean;
   isLoadingMore?: boolean;
-  /** Controlado por el consumidor: mientras es false, se muestra un spinner de pantalla completa. @default true */
+  /** Controlled by the consumer: while false, a fullscreen spinner is shown. @default true */
   isReady?: boolean;
   loadingText?: string;
   loadingMoreText?: string;
   hasMore?: boolean;
   noMoreText?: string;
 
-  /** Filas fantasma de la carga inicial. @default 6 */
+  /** Ghost rows for the initial load. @default 6 */
   skeletonCount?: number;
-  /** Placeholder propio, para que calce con la forma real del ítem. */
+  /** Custom placeholder, to match the real shape of the item. */
   renderSkeletonItem?: () => React.ReactElement;
 
   onLoadMore?: () => void;
@@ -68,7 +68,7 @@ export interface SearchListProps<T> {
   contentContainerStyle?: StyleProp<ViewStyle>;
   containerStyle?: ViewStyle;
 
-  /** Componente de lista a usar (FlashList, etc). @default FlatList */
+  /** List component to use (FlashList, etc). @default FlatList */
   ListComponent?: React.ComponentType<any>;
   listProps?: Record<string, unknown>;
 }

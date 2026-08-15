@@ -10,14 +10,14 @@ export interface ScreenProps {
   style?: ViewStyle;
   scrollable?: boolean;
   contentContainerStyle?: ViewStyle;
-  /** Qué insets de safe area aplicar. @default ['top', 'bottom'] */
+  /** Which safe area insets to apply. @default ['top', 'bottom'] */
   edges?: ScreenEdge[];
   /**
-   * Compensa el teclado: en iOS con scroll lo hace el propio ScrollView, en el
-   * resto de los casos con un KeyboardAvoidingView. Ponelo en false cuando
-   * el contenido ya trae su propio scroller que maneja el teclado (Wizard,
-   * List, SearchList): las dos compensaciones se suman y el campo enfocado
-   * termina empujado fuera de la pantalla.
+   * Compensates for the keyboard: on iOS with scroll the ScrollView itself does it, in
+   * other cases a KeyboardAvoidingView does. Set to false when
+   * the content already brings its own scroller that handles the keyboard (Wizard,
+   * List, SearchList): the two compensations add up and the focused field
+   * ends up pushed off screen.
    * @default true
    */
   keyboardAvoiding?: boolean;

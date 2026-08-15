@@ -13,28 +13,28 @@ export interface WizardStep extends StepItem {
 
 export interface WizardProps {
   steps: WizardStep[];
-  /** Paso actual (controlado). Si se omite, el Wizard maneja su propio estado. */
+  /** Current step (controlled). If omitted, the Wizard manages its own state. */
   current?: number;
   onStepChange?: (index: number) => void;
   onFinish?: () => void;
   /** @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
   completedIndicator?: 'check' | 'number';
-  /** Permite volver a un paso ya completado tocándolo en el indicador. @default true */
+  /** Allows returning to an already-completed step by tapping it in the indicator. @default true */
   allowStepNavigation?: boolean;
   backLabel?: string;
   nextLabel?: string;
   finishLabel?: string;
   /**
-   * El contenido del paso scrollea cuando no entra. Ponelo en false sólo si
-   * un paso renderiza su propia lista virtualizada (anidar una
-   * VirtualizedList dentro de un ScrollView rompe la virtualización).
+   * The step content scrolls when it doesn't fit. Set to false only if
+   * a step renders its own virtualized list (nesting a
+   * VirtualizedList inside a ScrollView breaks virtualization).
    * @default true
    */
   scrollableContent?: boolean;
   /**
-   * El contenido del paso entra deslizándose en el sentido de la navegación.
-   * Sólo opacity y transform, así que la animación corre en el hilo nativo.
+   * The step content slides in following the navigation direction.
+   * Only opacity and transform, so the animation runs on the native thread.
    * @default true
    */
   animated?: boolean;

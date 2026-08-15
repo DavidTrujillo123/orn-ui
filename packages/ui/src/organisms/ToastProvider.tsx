@@ -54,9 +54,9 @@ export interface ToastProviderProps {
   children: React.ReactNode;
   /** @default 'top' */
   position?: 'top' | 'bottom';
-  /** Máximo de toasts simultáneos; los más viejos se descartan. @default 3 */
+  /** Maximum simultaneous toasts; the oldest ones are dropped. @default 3 */
   maxVisible?: number;
-  /** Duración por defecto en ms. @default 4000 */
+  /** Default duration in ms. @default 4000 */
   defaultDuration?: number;
 }
 

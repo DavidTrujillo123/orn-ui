@@ -12,19 +12,19 @@ export interface ListProps<T> {
   keyExtractor: (item: T, index: number) => string;
   renderItem: FlatListProps<T>['renderItem'];
 
-  /** Carga inicial: mientras sea true y no haya datos, se muestran placeholders. */
+  /** Initial load: while true and there's no data, placeholders are shown. */
   isLoading: boolean;
-  /** Recarga con datos ya en pantalla (pull-to-refresh). @default false */
+  /** Reload with data already on screen (pull-to-refresh). @default false */
   isRefreshing?: boolean;
   isLoadingMore?: boolean;
-  /** Controlado por el consumidor: mientras es false, se muestra un spinner de pantalla completa. @default true */
+  /** Controlled by the consumer: while false, a fullscreen spinner is shown. @default true */
   isReady?: boolean;
   loadingText?: string;
   loadingMoreText?: string;
 
-  /** Filas fantasma de la carga inicial. @default 6 */
+  /** Ghost rows for the initial load. @default 6 */
   skeletonCount?: number;
-  /** Placeholder propio, para que calce con la forma real del ítem. */
+  /** Custom placeholder, to match the real shape of the item. */
   renderSkeletonItem?: () => React.ReactElement;
 
   onEndReached?: () => void;
@@ -41,7 +41,7 @@ export interface ListProps<T> {
   contentContainerStyle?: ViewStyle;
   containerStyle?: ViewStyle;
 
-  /** Componente de lista a usar (FlashList, etc). @default FlatList */
+  /** List component to use (FlashList, etc). @default FlatList */
   ListComponent?: React.ComponentType<any>;
   listProps?: Record<string, unknown>;
 }

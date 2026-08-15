@@ -11,23 +11,23 @@ export interface StepperProps {
   onChangeText: (text: string) => void;
   onIncrement: () => void;
   onDecrement: () => void;
-  /** Escala del control: alto, botones, ícono y tipografía. @default 'md' */
+  /** Scale of the control: height, buttons, icon and typography. @default 'md' */
   size?: StepperSize;
-  /** Ocupa todo el ancho disponible y el input se lleva el sobrante. @default false */
+  /** Takes up all available width and the input absorbs the extra space. @default false */
   block?: boolean;
   /**
-   * En false el valor sólo se cambia con los botones: el teclado no se abre y
-   * el campo pierde el fondo que lo anuncia como editable. @default true
+   * When false the value can only be changed with the buttons: the keyboard doesn't open and
+   * the field loses the background that marks it as editable. @default true
    */
   editable?: boolean;
   /**
-   * Mínimo permitido. Deshabilita "-" al alcanzarlo y acota lo tipeado al
-   * salir del campo. Los negativos se aceptan sólo si `min` es negativo.
+   * Minimum allowed value. Disables "-" when reached and clamps the typed value on
+   * blur. Negative values are only accepted if `min` is negative.
    */
   min?: number;
-  /** Máximo permitido. Deshabilita "+" al alcanzarlo y acota lo tipeado. */
+  /** Maximum allowed value. Disables "+" when reached and clamps the typed value. */
   max?: number;
-  /** Acepta un separador decimal, normalizando la coma a punto. @default false */
+  /** Accepts a decimal separator, normalizing comma to dot. @default false */
   allowDecimals?: boolean;
   style?: StyleProp<ViewStyle>;
   incrementAccessibilityLabel?: string;

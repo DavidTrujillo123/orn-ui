@@ -12,10 +12,10 @@ export interface ToastProps {
   title: string;
   message?: string;
   variant?: ToastVariant;
-  /** Se dispara al tocar el toast (además de cerrarlo). */
+  /** Fires when the toast is tapped (in addition to closing it). */
   onPress?: () => void;
   onDismiss?: () => void;
-  /** Oculta la X de cerrar. El toast igual se auto-descarta por tiempo. */
+  /** Hides the close X. The toast still auto-dismisses by timeout. */
   hideCloseButton?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
