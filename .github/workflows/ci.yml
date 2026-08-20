@@ -5,8 +5,47 @@ on:
     tags: ["*"]
 
 jobs:
+  # Un runner por Expo SDK soportado: instala el react-native/react exactos de
+  # ese SDK en un sandbox y corre ahí typecheck + tests. Es lo que respalda la
+  # tabla de compatibilidad del README, y `ci` depende de este job para que un
+  # tag no pueda publicar soporte de un SDK que nadie verificó.
+  compat:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        sdk: ["54", "55", "56", "57"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --ignore-scripts
+
+      - name: Typecheck + test the library against Expo SDK ${{ matrix.sdk }}
+        run: pnpm --filter orn-ui compat --sdk ${{ matrix.sdk }}
+
+      # La matriz de arriba corre la librería aislada; esto corre la app de
+      # ejemplo entera en ese SDK. Es lo que atrapa lo que un sandbox no ve:
+      # copias duplicadas de react/react-native/safe-area-context al mezclar el
+      # SDK de la app con las devDependencies de packages/ui, y APIs de
+      # expo-router que cambiaron de paquete entre SDKs. `--export` bundlea con
+      # el Hermes de ese SDK, así que un mismatch de toolchain también falla acá.
+      - name: Typecheck + bundle apps/example on Expo SDK ${{ matrix.sdk }}
+        run: |
+          pnpm sdk ${{ matrix.sdk }}
+          pnpm --filter example typecheck
+          pnpm sdk ${{ matrix.sdk }} --export
+
   ci:
     runs-on: ubuntu-latest
+    needs: compat
     permissions:
       id-token: write
       contents: read

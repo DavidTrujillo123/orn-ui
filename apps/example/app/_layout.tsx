@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { AlertProvider, ToastProvider, useColors, useThemeMode } from 'orn-ui';
 import { BrandProvider } from '@/components/BrandProvider';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { Stack } from 'expo-router';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@/components/navigationTheme';
 import { StatusBar } from 'expo-status-bar';
 import { useColorScheme } from 'react-native';
 import * as SystemUI from 'expo-system-ui';

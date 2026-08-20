@@ -7,9 +7,12 @@
     "test": "pnpm --filter orn-ui test",
     "test:coverage": "pnpm --filter orn-ui test:coverage",
     "typecheck": "pnpm -r typecheck",
+    "compat": "pnpm --filter orn-ui compat",
     "docs:build": "pnpm --filter docs build",
     "docs:dev": "pnpm --filter docs dev",
     "example": "pnpm --filter example start",
+    "sdk": "pnpm --filter example sdk",
+    "go": "pnpm --filter example go",
     "ios": "pnpm --filter example ios",
     "android": "pnpm --filter example android"
   },
