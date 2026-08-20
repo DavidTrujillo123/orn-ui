@@ -13,12 +13,21 @@
 # confirma contra el header de la categoría (Title suelto, sin agrupar), no
 # contra una fila de la lista (esas concatenan título + descripción en un solo
 # nodo accesible y "Typography" a secas no matchea ese string completo).
+#
+# El primer assert va con extendedWaitUntil y no con assertVisible: este es el
+# único flow que arranca en la pantalla de tabs sin un `openLink` en el medio
+# (los demás pasan por subflows/open-demo.yaml, y ese paso ya le da al bundle
+# el tiempo de arrancar). Con assertVisible pelado, en un arranque en frío de
+# un build Release la jerarquía todavía está vacía cuando corre el assert y el
+# flow falla intermitente contra una pantalla en blanco.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
 ---
 - launchApp
-- assertVisible: "Atoms"
+- extendedWaitUntil:
+    visible: "Atoms"
+    timeout: 20000
 - tapOn: "Dark"
 - tapOn: ".*Molecules.*"
 - assertVisible: "Molecules"

@@ -10,12 +10,21 @@
 # Por eso acá abajo todo lo que no sea el título exacto de una pantalla usa
 # `.*texto.*` — y las aserciones de "llegué" son contra el header de la
 # categoría (Title suelto, sin agrupar), no contra la fila que se tocó.
+#
+# El primer assert va con extendedWaitUntil justamente porque acá no hay
+# `openLink` que le dé al bundle el tiempo de arrancar (los otros 45 flows
+# pasan por subflows/smoke-demo.yaml, que sí lo tiene). Con assertVisible
+# pelado, en un arranque en frío de un build Release la jerarquía todavía
+# está vacía cuando corre el assert y el flow falla intermitente contra una
+# pantalla en blanco.
 appId: com.anonymous.orn-ui-example
 tags:
   - smoke
 ---
 - launchApp
-- assertVisible: "Atoms"
+- extendedWaitUntil:
+    visible: "Atoms"
+    timeout: 20000
 - tapOn: ".*Molecules.*"
 - assertVisible: "Molecules"
 - tapOn: ".*Stepper.*"
