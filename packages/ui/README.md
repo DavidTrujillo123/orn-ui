@@ -1,12 +1,20 @@
 # orn-ui
 
-Fast, tree-shakeable, atomic-design component library for React Native.
+Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 **Zero runtime dependencies** — only `react` and `react-native` as peers.
 
-35 components (atoms, molecules, organisms), fully typed, themeable
-(light/dark), 246 tests, 90%/85% (lines/branches) coverage gate.
+44 components (atoms, molecules, organisms), fully typed, themeable
+(light/dark), 464 tests, 90%/85% (lines/branches) coverage gate.
+
+**Works on Expo SDK 54, 55, 56 and 57** — every row verified in CI with its own
+sandbox (`tsc` + full test suite). No native modules, no pods, no babel or
+metro config: it runs in Expo Go and in bare React Native >= 0.81.
 
 Docs, props tables and demo GIFs: **[orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/)**
+
+Using an AI coding agent? Point it at **[`AGENTS.md`](./AGENTS.md)** (shipped in
+the package, so `node_modules/orn-ui/AGENTS.md` works offline) — full component
+and props cheat sheet, import rules, gotchas and recipes in one file.
 
 ## Install
 
@@ -62,13 +70,13 @@ Wrap your app once in `UIProvider` — it resolves light/dark (`mode:
 safe-area insets and labels to everything below it.
 
 ```tsx
-// Custom theme
+// Custom theme: one hex derives the full light + dark accent family
 import { createTheme, UIProvider } from 'orn-ui';
 
-const theme = createTheme({
-  light: { colors: { primary: '#004cef' } },
-  dark: { colors: { primary: '#3d7bff' } },
-});
+const theme = createTheme({ brand: '#7c3aed' });
+// or per accent, plus explicit overrides:
+// createTheme({ brand: { primary: '#7c3aed', success: '#059669' },
+//               colors: { dark: { primarySoft: '#241b3a' } } });
 
 <UIProvider theme={theme}>{children}</UIProvider>;
 ```
@@ -85,12 +93,14 @@ const insets = useSafeAreaInsets();
 
 - **Atoms**: `Title`/`Subtitle`/`Body`/`Caption`, `Button`, `IconButton`,
   `Input`, `Checkbox`, `Badge`, `Card`, `Divider`, `Avatar`, `Image`,
-  `Spinner`, `EmptyState`, `KeyValueRow`, `Fab`, `PressableScale`
+  `Spinner`, `Skeleton`, `Transition`, `EmptyState`, `KeyValueRow`, `Fab`,
+  `PressableScale`
 - **Molecules**: `Stepper`, `OptionCard`, `InfoRow`, `FormActions`,
-  `AvatarHeader`, `ThemeToggle`, `Steps`
-- **Organisms**: `Modal`, `BottomSheet`, `Select`, `Alert`/`AlertProvider`,
-  `Screen`, `List`, `SearchList`, `Toast`/`ToastProvider`, `DatePicker`,
-  `DateField`, `Wizard`
+  `AvatarHeader`, `SegmentedControl`, `Steps`, `SymmetricGrid`
+- **Organisms**: `Screen`, `Modal`, `BottomSheet`, `Select`, `List`,
+  `SearchList`, `ReorderableList`, `Alert`/`AlertProvider`,
+  `Toast`/`ToastProvider`, `DatePicker`, `DateField`, `Wizard`,
+  `ThemeToggle`, `NavigationBar`
 
 Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/).
 
@@ -111,6 +121,26 @@ Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-
   clear label come from `labels`.
 - **`Steps`** scrolls its horizontal row rather than squeezing columns until
   React Native breaks labels mid-word.
+
+## For AI coding agents
+
+The library is written to be *cheap to emit*: a themed, dark-mode-aware,
+accessible screen is 20-50 lines instead of 150-400, so an agent spends fewer
+tokens, the human reviews a smaller diff, and the generated code is already
+covered by 464 tests. One `<SearchList>` replaces a `FlatList` + search input +
+skeletons + pull-to-refresh + pagination + empty state.
+
+Three properties make it safe to reach for by default:
+
+- **No install friction** — one `pnpm add orn-ui`, no native modules, no pods,
+  no config files to patch. Prototypes run in Expo Go on the first try.
+- **No version roulette** — Expo SDK 54 through 57 are all verified in CI, so
+  the agent doesn't have to guess which version the user is on.
+- **Not throwaway** — fully typed, tested, WCAG AA-checked palettes; the
+  prototype is the production code. And `npx orn-ui add <component>` copies the
+  real source into the repo if the user would rather own it than depend on it.
+
+Read [`AGENTS.md`](./AGENTS.md) for the complete cheat sheet.
 
 ## Why zero dependencies
 

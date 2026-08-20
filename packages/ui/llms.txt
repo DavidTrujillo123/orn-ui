@@ -1,0 +1,33 @@
+# orn-ui
+
+> React Native / Expo component library: 44 typed components (atoms, molecules,
+> organisms), light/dark theming, zero runtime dependencies (only `react` and
+> `react-native` as peers). Verified in CI against Expo SDK 54, 55, 56 and 57.
+> Built to be used by AI coding agents: one component replaces dozens of lines
+> of hand-written `View`/`Text`/`StyleSheet`, so a screen costs a fraction of
+> the tokens and ships production-ready instead of prototype-only.
+
+Install: `pnpm add orn-ui` — no native modules, no pods, no babel or metro
+config, works in Expo Go and bare React Native >= 0.81.
+Or copy the source into the project with no dependency: `npx orn-ui add button select`.
+
+Import from subpaths (Metro does not tree-shake barrels):
+`import { Button } from 'orn-ui/button'`, `import { UIProvider } from 'orn-ui/theme'`.
+
+Wrap the app once: `<SafeAreaUIProvider defaultMode="system">` from `orn-ui/safe-area`
+(or `<UIProvider insets={...}>` from `orn-ui/theme` to skip the optional
+`react-native-safe-area-context` peer).
+
+## Docs
+
+- [Agent guide](https://github.com/DavidTrujillo123/orn-ui/blob/main/packages/ui/AGENTS.md): full component + props cheat sheet, import rules, gotchas, recipes — shipped in the package as `node_modules/orn-ui/AGENTS.md`
+- [README](https://github.com/DavidTrujillo123/orn-ui#readme): install modes, safe area, theming, compatibility matrix
+- [Live docs](https://orn-ui-docs.vercel.app/): props tables and demo GIFs per component
+- [Repository](https://github.com/DavidTrujillo123/orn-ui): source, tests, CI compatibility matrix
+
+## Components
+
+- Atoms: Title, Subtitle, Body, Caption, Button, IconButton, Input, Checkbox, Badge, Card, Divider, Avatar, Image, Spinner, Skeleton, Transition, EmptyState, KeyValueRow, Fab, PressableScale
+- Molecules: Stepper, OptionCard, InfoRow, FormActions, AvatarHeader, SegmentedControl, Steps, SymmetricGrid
+- Organisms: Screen, Modal, BottomSheet, Select, List, SearchList, ReorderableList, Alert, AlertProvider, Toast, ToastProvider, DatePicker, DateField, Wizard, ThemeToggle, NavigationBar
+- Theme: UIProvider, SafeAreaUIProvider, createTheme, createStyles, useTheme, useColors, useThemeMode, useIcons, useInsets, useLabels

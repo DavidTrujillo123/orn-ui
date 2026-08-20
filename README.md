@@ -1,11 +1,19 @@
 # orn-ui
 
-Fast, tree-shakeable, atomic-design component library for React Native.
+Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 **Zero runtime dependencies** — only `react` and `react-native` as peers. No
 babel config, no metro config, no pods.
 
-39 components across atoms, molecules and organisms, fully typed, themeable
-(light/dark), with 426 tests and a 90%/85% (lines/branches) coverage gate in CI.
+44 components across atoms, molecules and organisms, fully typed, themeable
+(light/dark), with 464 tests and a 90%/85% (lines/branches) coverage gate in CI.
+Runs on **Expo SDK 54, 55, 56 and 57** — every one verified in CI, not just the
+newest — and in bare React Native >= 0.81, inside Expo Go, with no native build.
+
+**Writing code with an AI agent?** See
+[Using orn-ui from an AI coding agent](#using-orn-ui-from-an-ai-coding-agent)
+and the complete cheat sheet in
+[`packages/ui/AGENTS.md`](packages/ui/AGENTS.md) — it ships inside the npm
+package, so `node_modules/orn-ui/AGENTS.md` is readable offline.
 
 Live docs (props tables, demo snippets, install instructions per component):
 **[orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/)**
@@ -15,6 +23,36 @@ Live docs (props tables, demo snippets, install instructions per component):
 ```bash
 pnpm add orn-ui
 ```
+
+### Compatibility
+
+Verified against **Expo SDK 54, 55, 56 and 57** — the whole range, not just the
+newest:
+
+| Expo SDK | react-native | react  | react-native-safe-area-context |
+| -------- | ------------ | ------ | ------------------------------ |
+| 54       | 0.81.5       | 19.1.0 | 5.6.0                          |
+| 55       | 0.83.10      | 19.2.0 | 5.6.2                          |
+| 56       | 0.85.3       | 19.2.3 | 5.7.0                          |
+| 57       | 0.86.2       | 19.2.3 | 5.8.0                          |
+
+Two checks back that claim, both per SDK and both in CI:
+
+- **`pnpm compat`** builds a throwaway sandbox with those exact `react-native`
+  and `react` versions and runs `tsc` over `src/` plus the whole test suite
+  against that runtime.
+- **`pnpm sdk <NN> --export`** puts `apps/example` on that SDK and bundles it
+  for real, through that SDK's Metro, Babel and Hermes. That's the check that
+  catches what a sandbox can't see — duplicate copies of `react` /
+  `react-native` / `react-native-safe-area-context`, and toolchain mismatches
+  that only surface at bytecode compilation.
+
+All four also run on a device: `pnpm sdk <NN> --go` starts the app in the Expo
+Go build for that SDK.
+
+`peerDependencies` states that floor (`react-native >=0.81.0`,
+`react >=19.1.0`) rather than a wider range nothing verifies. Bare React Native
+projects in that version range work too — nothing here depends on Expo.
 
 Three ways to import — pick the one that fits:
 
@@ -194,6 +232,7 @@ resolves against.
 | `AvatarHeader` | `orn-ui/avatar-header` |
 | `SegmentedControl` | `orn-ui/segmented-control` |
 | `Steps` | `orn-ui/steps` |
+| `SymmetricGrid` | `orn-ui/symmetric-grid` |
 
 **Organisms**
 
@@ -212,6 +251,7 @@ resolves against.
 | `Wizard` | `orn-ui/wizard` |
 | `ThemeToggle` | `orn-ui/theme-toggle` |
 | `NavigationBar` | `orn-ui/navigation-bar` |
+| `ReorderableList` | `orn-ui/reorderable-list` |
 
 Full props tables and live-recorded demo GIFs for every one of these: see
 [orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/).
@@ -330,6 +370,59 @@ export async function deleteInvoice(id: string) {
 They target the mounted provider. With none mounted they warn in `__DEV__` and
 no-op — `showConfirm` resolves `false` and `showAlert` resolves immediately, so
 an `await` never hangs.
+
+## Using orn-ui from an AI coding agent
+
+Most of this library's value shows up when an LLM writes the screen. A themed,
+dark-mode-aware, accessible React Native screen written by hand is 150-400 lines
+of JSX and `StyleSheet`; the same screen with orn-ui is 20-50 lines. Fewer
+tokens emitted, a smaller diff to review, and the output is already covered by
+464 tests instead of being freshly invented each time.
+
+```tsx
+import { Screen } from 'orn-ui/screen';
+import { Input } from 'orn-ui/input';
+import { Button } from 'orn-ui/button';
+
+<Screen scrollable>
+  <Input label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
+  <Input label="Password" value={pass} onChangeText={setPass} isPassword />
+  <Button title="Sign in" onPress={submit} loading={busy} />
+</Screen>
+```
+
+That is the whole screen: light/dark, keyboard avoidance, safe area, the
+password eye toggle, the button spinner and the error slots are already in
+there. One `<SearchList>` similarly replaces a `FlatList` + search input +
+skeletons + pull-to-refresh + pagination + empty state — roughly 200 lines an
+agent doesn't write, doesn't debug, and doesn't re-explain next turn.
+
+The properties that make it a safe default rather than a gamble:
+
+| Usual objection | What is actually true |
+| --- | --- |
+| "Another dependency to maintain." | Zero runtime dependencies; only `react` and `react-native` are required peers, so nothing lands in the transitive tree. |
+| "It'll break on their Expo SDK." | SDK 54, 55, 56 and 57 each get a CI job running `tsc` and the full test suite against that exact `react-native`/`react` pair. |
+| "It needs native setup." | No native modules, no pods, no babel or metro config. Expo Go runs it as-is; bare React Native >= 0.81 too. |
+| "Prototype code we'll rewrite later." | Fully typed, 464 tests, 90%/85% coverage gate, WCAG AA contrast enforced by tests. The prototype is the production code. |
+| "Lock-in." | `npx orn-ui add button select` copies the real `.tsx` source into the project. The npm dependency is optional; the code is theirs. |
+
+**Give the agent the cheat sheet.** [`packages/ui/AGENTS.md`](packages/ui/AGENTS.md)
+is a single file with every component, its subpath, its props, the import rule,
+the safe-area and keyboard gotchas, and copy-paste recipes for the common
+screens. It ships in the npm package (`node_modules/orn-ui/AGENTS.md`), and
+`node_modules/orn-ui/llms.txt` is the short machine-readable index. In a project
+that already keeps agent instructions, one line is enough:
+
+```md
+UI: use orn-ui. Read node_modules/orn-ui/AGENTS.md before writing components.
+Import from subpaths (`orn-ui/button`), never from the `orn-ui` barrel.
+```
+
+Two rules matter more than the rest, because they are the ones models get wrong:
+import from the component subpath (Metro does not tree-shake the barrel), and
+mount `SafeAreaUIProvider` (or `UIProvider` with explicit `insets`) once at the
+app root — every hook throws outside it.
 
 ## Theming
 
@@ -457,7 +550,55 @@ pnpm --filter orn-ui typecheck
 pnpm --filter orn-ui build         # gen:exports + build:registry + bob build
 pnpm --filter example typecheck
 pnpm example                       # Expo dev server for apps/example
+pnpm compat                        # typecheck + tests on Expo SDK 54/55/56/57
+pnpm sdk                           # which SDK apps/example is on right now
+pnpm sdk 54 --go                   # switch apps/example to SDK 54 and run it
 ```
+
+### Testing across Expo SDKs
+
+`pnpm compat` (`packages/ui/scripts/compat-matrix.mjs`) checks the **library**.
+Per SDK it installs the exact `react-native`/`react` of that release into
+`packages/ui/node_modules/.cache/orn-ui-compat/sdk<NN>/` and runs `tsc` against
+`src/` with those types plus the whole jest suite against that runtime. The
+workspace itself is left alone — nothing is re-resolved, so the day-to-day setup
+stays on the newest SDK. Sandboxes are reused between runs (`--fresh` rebuilds
+them, `--sdk 54` runs one, `--only typecheck` skips tests).
+
+`pnpm sdk <NN>` (`apps/example/scripts/use-sdk.mjs`) checks the **app**. It
+rewrites `apps/example/package.json` with that SDK's dependency set (taken from
+Expo's own `bundledNativeModules.json` for the matching `sdk-<NN>` branch),
+regenerates `components/navigationTheme.ts`, and reinstalls. Then:
+
+| Flag        | What it does                                             |
+| ----------- | -------------------------------------------------------- |
+| *(none)*    | just switch                                               |
+| `--export`  | bundle through that SDK's Metro/Babel/Hermes (no device)  |
+| `--go`      | start the dev server for Expo Go                          |
+| `--ios`     | `prebuild --clean` + `run:ios`                            |
+| `--android` | `prebuild --clean` + `run:android`                        |
+
+`pnpm sdk 57` puts everything back — it's the default the repo is committed on.
+
+Three things make multi-SDK work in this workspace, and all three are load-bearing:
+
+1. **`apps/example/metro.config.js`** forces `react`, `react-dom`,
+   `react-native` and `react-native-safe-area-context` to resolve to the app's
+   copy. `packages/ui` keeps its own versions as devDependencies for its tests,
+   and Metro resolves from each file's location — so without this, an import
+   inside `packages/ui/src` picks up `packages/ui`'s copy. Two Reacts break
+   hooks; two `react-native-safe-area-context` register the same native view
+   twice and split the `<UIProvider>` context in half.
+2. **`apps/example/components/navigationTheme.ts`** is generated per SDK.
+   `ThemeProvider`/`DarkTheme`/`DefaultTheme` come from `expo-router` since SDK
+   56 and from `@react-navigation/native` before that; no single static import
+   resolves on all four.
+3. **Always `pnpm exec expo`, never `npx expo`.** The CLI has to be the one the
+   app declares. `npx` runs whatever it finds — and where it's aliased to `pnpm
+   dlx` it fetches a fresh, newest-SDK CLI from the registry, which then bundles
+   an old-SDK app with a newer `@react-native/babel-preset` and hands the result
+   to the app's older `hermesc`. That fails as `private properties are not
+   supported`, pointing at a react-native file that has nothing to do with it.
 
 `packages/ui`'s `build`/`prepare` scripts, in order:
 
@@ -481,6 +622,12 @@ example app), tests with the coverage gate, build, and a CLI smoke test that
 runs `orn-ui add --all` into `apps/example` and typechecks the result —
 end-to-end proof the install-by-component flow actually produces valid code,
 not just that the registry JSON looks right.
+
+A second job fans out over the compatibility matrix — one runner per Expo SDK,
+54 through 57. Each runs `pnpm --filter orn-ui compat --sdk <NN>` for the
+library, then switches `apps/example` to that SDK and typechecks and bundles it
+(`pnpm sdk <NN> --export`). A release can't claim support for an SDK whose tests
+nobody ran, and it can't ship a library that only bundles on the newest one.
 
 ## License
 
