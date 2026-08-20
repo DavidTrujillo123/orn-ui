@@ -1,7 +1,7 @@
 {
   "name": "orn-ui-monorepo",
   "private": true,
-  "version": "0.2.6",
+  "version": "0.2.7",
   "scripts": {
     "build": "pnpm --filter orn-ui build",
     "test": "pnpm --filter orn-ui test",
