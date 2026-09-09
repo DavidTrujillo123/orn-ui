@@ -56,7 +56,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |
-| "Prototype code that must be thrown away later." | 44 components, fully typed, 464 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
+| "Prototype code that must be thrown away later." | 46 components, fully typed, 501 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
 
 ## Compatibility
 
@@ -105,7 +105,7 @@ import { Button } from 'orn-ui/button';
 ```
 
 ```tsx
-import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 44 components
+import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 46 components
 ```
 
 The subpath is the component name in kebab-case (`SearchList` →
@@ -168,6 +168,7 @@ hex in component styles, use `useColors()`.
 | `Badge` | `orn-ui/badge` | `label`, `variant?: 'success'\|'error'\|'warning'\|'info'\|'neutral'`, `backgroundColor?`, `textColor?` |
 | `Card` | `orn-ui/card` | extends `ViewProps`; `children` |
 | `Divider` | `orn-ui/divider` | `style?`, `testID?` |
+| `Gradient` | `orn-ui/gradient` | `colors: string[]`, `direction?: vertical\|horizontal\|diagonal\|diagonal-reverse`, `steps?`, `children?`, `style?`, `testID?` |
 | `Avatar` | `orn-ui/avatar` | `children`, `size?`, `backgroundColor?` |
 | `Image` | `orn-ui/image` | `source`, `width?`, `height?`, `resizeMode?`, `radius?`, `loading?: ReactNode\|boolean`, `fallback?`, `priority?: 'low'\|'normal'\|'high'`, `onLoadEnd?`, `onError?` |
 | `prefetchImage` | `orn-ui/prefetch-image` | `(url: string) => Promise<boolean>` (RN `Image.prefetch`) — warm the cache before navigating |
@@ -205,6 +206,7 @@ hex in component styles, use `useColors()`.
 | `List` | `orn-ui/list` | `data`, `keyExtractor`, `renderItem`, `isLoading`, `isRefreshing?`, `isLoadingMore?`, `isReady?`, `skeletonCount?` (6), `renderSkeletonItem?`, `onRefresh?`, `onEndReached?`, `emptyTitle?`, `emptyDescription?`, `emptyIconName?`, `ListHeaderComponent?`, `ListFooterComponent?`, `ListComponent?` (FlashList etc), `listProps?` |
 | `SearchList` | `orn-ui/search-list` | everything in `List`, plus `searchValue`, `onSearchChange`, `searchPlaceholder?`, `searchIsLoading?`, `onScanPress?`, `extraActions?`, `header?`, `loadingMode?: 'replace'\|'overlay'`, `onLoadMore?`, `hasMore?`, `noMoreText?` |
 | `ReorderableList` | `orn-ui/reorderable-list` | `data`, `keyExtractor`, `itemHeight`, `renderItem(item, index, dragging)`, `onReorder(next)`, `onDragStart?`, `onDragEnd?`, `disabled?` |
+| `Slides` | `orn-ui/slides` | `data`, `keyExtractor`, `renderItem(item, index)`, `background?(item, index): string\|string[]`, `gradientDirection?`, `orientation?: horizontal\|vertical`, `indicators?: dots\|numbers\|none`, `indicatorPlacement?: overlay\|outside`, `loop?`, `autoPlay?`, `interval?`, `index?`, `defaultIndex?`, `onIndexChange?`, `height?`, `swipeEnabled?`, `slideStyle?` |
 | `Alert` | `orn-ui/alert` | `visible`, `title`, `message?`, `type?: 'success'\|'error'\|'warning'\|'info'\|'question'`, `buttons?`, `confirmText?`, `cancelText?`, `onConfirm?`, `onCancel?`, `onClose?`, `inline?` |
 | `AlertProvider` + `useAlert` | `orn-ui/alert-provider`, `orn-ui/use-alert` | mount once; `showAlert(opts)`, `showConfirm(opts)`, `hideAlert()` also work outside React (`orn-ui/show-alert`, `/show-confirm`, `/hide-alert`) |
 | `Toast` | `orn-ui/toast` | `title`, `message?`, `variant?: 'success'\|'error'\|'warning'\|'info'`, `onPress?`, `onDismiss?`, `hideCloseButton?` |
@@ -343,6 +345,22 @@ import { Wizard } from 'orn-ui/wizard';
     { label: 'Payment', content: <PaymentStep /> },
   ]}
   onFinish={submit}
+/>
+```
+
+**Onboarding carousel**
+
+```tsx
+import { Slides } from 'orn-ui/slides';
+
+<Slides
+  data={pages}
+  keyExtractor={(page) => page.id}
+  background={(page) => page.gradient} // string = flat, string[] = gradient
+  renderItem={(page) => <Onboarding page={page} />}
+  loop
+  autoPlay
+  indicators="dots" // or "numbers"
 />
 ```
 

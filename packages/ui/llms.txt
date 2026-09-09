@@ -1,6 +1,6 @@
 # orn-ui
 
-> React Native / Expo component library: 44 typed components (atoms, molecules,
+> React Native / Expo component library: 46 typed components (atoms, molecules,
 > organisms), light/dark theming, zero runtime dependencies (`react`,
 > `react-native` and `react-native-safe-area-context` are the only peers).
 > Verified in CI against Expo SDK 54, 55, 56 and 57.
@@ -28,7 +28,7 @@ Wrap the app once: `<SafeAreaUIProvider defaultMode="system">` from `orn-ui/safe
 
 ## Components
 
-- Atoms: Title, Subtitle, Body, Caption, Button, IconButton, Input, Checkbox, Badge, Card, Divider, Avatar, Image, Spinner, Skeleton, Transition, EmptyState, KeyValueRow, Fab, PressableScale
+- Atoms: Title, Subtitle, Body, Caption, Button, IconButton, Input, Checkbox, Badge, Card, Divider, Gradient, Avatar, Image, Spinner, Skeleton, Transition, EmptyState, KeyValueRow, Fab, PressableScale
 - Molecules: Stepper, OptionCard, InfoRow, FormActions, AvatarHeader, SegmentedControl, Steps, SymmetricGrid
-- Organisms: Screen, Modal, BottomSheet, Select, List, SearchList, ReorderableList, Alert, AlertProvider, Toast, ToastProvider, DatePicker, DateField, Wizard, ThemeToggle, NavigationBar
+- Organisms: Screen, Modal, BottomSheet, Select, List, SearchList, ReorderableList, Slides, Alert, AlertProvider, Toast, ToastProvider, DatePicker, DateField, Wizard, ThemeToggle, NavigationBar
 - Theme: UIProvider, SafeAreaUIProvider, createTheme, createStyles, useTheme, useColors, useThemeMode, useIcons, useInsets, useLabels
