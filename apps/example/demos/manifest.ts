@@ -41,6 +41,7 @@ import { ThemeToggleDemo } from './ThemeToggle.demo';
 import { NavigationBarDemo } from './NavigationBar.demo';
 import { ReorderableListDemo } from './ReorderableList.demo';
 import { SymmetricGridDemo } from './SymmetricGrid.demo';
+import { SlidesDemo } from './Slides.demo';
 
 export interface DemoEntry {
   slug: string;
@@ -136,6 +137,12 @@ export const ORGANISMS: DemoEntry[] = [
     name: 'NavigationBar',
     description: 'Tab bar with an animated indicator, identical on iOS and Android',
     Demo: NavigationBarDemo,
+  },
+  {
+    slug: 'slides',
+    name: 'Slides',
+    description: 'Carousel: horizontal/vertical, dots or numbers, finite or infinite, autoPlay, gradient or flat background',
+    Demo: SlidesDemo,
   },
   {
     slug: 'reorderable-list',

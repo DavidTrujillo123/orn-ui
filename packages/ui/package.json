@@ -323,6 +323,11 @@
       "react-native": "./src/organisms/ReorderableList.tsx",
       "default": "./lib/module/organisms/ReorderableList.js"
     },
+    "./slides": {
+      "types": "./lib/typescript/organisms/Slides.d.ts",
+      "react-native": "./src/organisms/Slides.tsx",
+      "default": "./lib/module/organisms/Slides.js"
+    },
     "./theme": {
       "types": "./lib/typescript/theme/index.d.ts",
       "react-native": "./src/theme/index.ts",

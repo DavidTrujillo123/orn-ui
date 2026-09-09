@@ -30,3 +30,11 @@ export { NavigationBar } from './NavigationBar';
 export type { NavigationBarProps, NavigationBarItem } from './NavigationBar';
 export { ReorderableList } from './ReorderableList';
 export type { ReorderableListProps } from './ReorderableList';
+export { Slides } from './Slides';
+export type {
+  SlidesProps,
+  SlidesOrientation,
+  SlidesIndicators,
+  SlidesIndicatorPlacement,
+  SlideBackground,
+} from './Slides';
