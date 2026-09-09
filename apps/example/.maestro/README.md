@@ -47,7 +47,7 @@ start-device --platform ios`).
 cd apps/example
 pnpm exec expo prebuild -p ios          # una vez, o si cambió la config nativa
 pnpm e2e:ios:build                      # build Release, sin dev bundler
-pnpm e2e:ios:smoke                      # ~45 flows generados, rápido
+pnpm e2e:ios:smoke                      # ~47 flows generados, rápido
 pnpm e2e:ios:behavior                   # flows de comportamiento a mano
 pnpm e2e:ios                            # todo
 ```

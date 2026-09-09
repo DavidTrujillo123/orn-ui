@@ -1,0 +1,99 @@
+# Slides es todo posición y gesto: qué página quedó encuadrada, si el
+# autoPlay avanza solo, si el degradado de fondo se queda con los toques que
+# iban a un botón de la slide. Nada de eso lo ve jest — ahí las tres páginas
+# existen en el árbol a la vez y ninguna tiene coordenadas.
+#
+# Los indicadores se tapean por `id` y no por su accessibilityLabel
+# ("Slide 2 of 3"): VariantList mantiene montada la variante vecina, así que
+# ese label existe varias veces en el árbol al mismo tiempo. Cada <Slides> del
+# demo lleva su propio testID y de ahí sale un id único por indicador.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "slides"
+      TITLE: "Slides"
+
+# ── variante 1: autoPlay + loop ────────────────────────────────────────────
+# Las tres aserciones en orden son la prueba del ciclo: cada una espera a que
+# aparezca la siguiente slide sin tocar nada, y la última vuelve a la primera
+# — o sea que el clon de cola cerró la vuelta sin rebobinar.
+- assertVisible: "Zero dependencies"
+- extendedWaitUntil:
+    visible: "Light and dark"
+    timeout: 8000
+- extendedWaitUntil:
+    visible: "Expo SDK 54-57"
+    timeout: 8000
+- extendedWaitUntil:
+    visible: "Zero dependencies"
+    timeout: 8000
+
+# ── variante 2: indicadores numerados, finito ──────────────────────────────
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "numbered indicators · flat colors · finite · button inside"
+
+- tapOn:
+    id: "slides-numbers-indicator-2"
+- assertVisible: "Expo SDK 54-57"
+- tapOn:
+    id: "slides-numbers-indicator-0"
+- assertVisible: "Zero dependencies"
+
+# Deslizar la slide, no el indicador: el gesto horizontal tiene que quedárselo
+# el carrusel y no el pager vertical de VariantList que lo envuelve.
+#
+# La línea del gesto va por el título (45%), no por el medio de la slide: a
+# 55% roza el botón "Got it" y el press se queda con el responder. Y el swipe
+# es largo y rápido (70% del ancho en 250 ms) porque con 60%/400 ms la
+# velocidad no siempre alcanzaba para que `pagingEnabled` saltara de página —
+# medido, 5 de 5 con estos números.
+- swipe:
+    start: "85%,45%"
+    end: "15%,45%"
+    duration: 250
+# extendedWaitUntil y no assertVisible: el snap de `pagingEnabled` es una
+# animación, y la aserción puede caer con la slide entrante todavía a medio
+# entrar. Esperar a que termine no debilita nada — tiene que aparecer igual.
+- extendedWaitUntil:
+    visible: "Light and dark"
+    timeout: 5000
+
+# El fondo (degradado o color plano) se pinta con pointerEvents="none": si eso
+# se rompe, el botón sigue viéndose y deja de recibir el toque.
+- tapOn:
+    id: "slides-button-2"
+- assertVisible: "pressed: Light and dark"
+
+# ── variante 3: orientación vertical ───────────────────────────────────────
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "vertical orientation"
+
+- tapOn:
+    id: "slides-vertical-indicator-2"
+- assertVisible: "Expo SDK 54-57"
+
+# El gesto vertical de la slide compite con el pager vertical de VariantList,
+# que la envuelve: si el carrusel no se lo queda, esto termina en la variante
+# siguiente en vez de en la slide siguiente.
+- tapOn:
+    id: "slides-vertical-indicator-0"
+- assertVisible: "Zero dependencies"
+- swipe:
+    start: "50%,68%"
+    end: "50%,44%"
+    duration: 300
+- extendedWaitUntil:
+    visible: "Light and dark"
+    timeout: 5000
