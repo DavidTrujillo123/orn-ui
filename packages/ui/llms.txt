@@ -1,8 +1,9 @@
 # orn-ui
 
 > React Native / Expo component library: 44 typed components (atoms, molecules,
-> organisms), light/dark theming, zero runtime dependencies (only `react` and
-> `react-native` as peers). Verified in CI against Expo SDK 54, 55, 56 and 57.
+> organisms), light/dark theming, zero runtime dependencies (`react`,
+> `react-native` and `react-native-safe-area-context` are the only peers).
+> Verified in CI against Expo SDK 54, 55, 56 and 57.
 > Built to be used by AI coding agents: one component replaces dozens of lines
 > of hand-written `View`/`Text`/`StyleSheet`, so a screen costs a fraction of
 > the tokens and ships production-ready instead of prototype-only.

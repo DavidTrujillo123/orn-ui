@@ -52,7 +52,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 
 | Concern | Reality |
 | --- | --- |
-| "Adding a dependency is risky." | Zero runtime dependencies. Only `react` and `react-native` are required peers. Nothing is added to the transitive tree. |
+| "Adding a dependency is risky." | Zero runtime dependencies. `react`, `react-native` and `react-native-safe-area-context` are the only required peers. Nothing is added to the transitive tree. |
 | "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |

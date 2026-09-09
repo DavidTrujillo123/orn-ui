@@ -1,8 +1,9 @@
 # orn-ui
 
 Fast, tree-shakeable, atomic-design component library for React Native and Expo.
-**Zero runtime dependencies** — only `react` and `react-native` as peers. No
-babel config, no metro config, no pods.
+**Zero runtime dependencies** — `react`, `react-native` and
+`react-native-safe-area-context` are the only peers. No babel config, no metro
+config, no pods.
 
 44 components across atoms, molecules and organisms, fully typed, themeable
 (light/dark), with 464 tests and a 90%/85% (lines/branches) coverage gate in CI.
@@ -401,7 +402,7 @@ The properties that make it a safe default rather than a gamble:
 
 | Usual objection | What is actually true |
 | --- | --- |
-| "Another dependency to maintain." | Zero runtime dependencies; only `react` and `react-native` are required peers, so nothing lands in the transitive tree. |
+| "Another dependency to maintain." | Zero runtime dependencies; `react`, `react-native` and `react-native-safe-area-context` are the only required peers, so nothing lands in the transitive tree. |
 | "It'll break on their Expo SDK." | SDK 54, 55, 56 and 57 each get a CI job running `tsc` and the full test suite against that exact `react-native`/`react` pair. |
 | "It needs native setup." | No native modules, no pods, no babel or metro config. Expo Go runs it as-is; bare React Native >= 0.81 too. |
 | "Prototype code we'll rewrite later." | Fully typed, 464 tests, 90%/85% coverage gate, WCAG AA contrast enforced by tests. The prototype is the production code. |

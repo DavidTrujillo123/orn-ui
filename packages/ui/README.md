@@ -1,7 +1,8 @@
 # orn-ui
 
 Fast, tree-shakeable, atomic-design component library for React Native and Expo.
-**Zero runtime dependencies** — only `react` and `react-native` as peers.
+**Zero runtime dependencies** — `react`, `react-native` and
+`react-native-safe-area-context` are the only peers.
 
 44 components (atoms, molecules, organisms), fully typed, themeable
 (light/dark), 464 tests, 90%/85% (lines/branches) coverage gate.
