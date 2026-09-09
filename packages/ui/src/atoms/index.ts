@@ -14,6 +14,8 @@ export { Card } from './Card';
 export type { CardProps } from './Card';
 export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
+export { Gradient } from './Gradient';
+export type { GradientProps, GradientDirection } from './Gradient';
 export { Avatar } from './Avatar';
 export type { AvatarProps } from './Avatar';
 export { Image, prefetchImage } from './Image';

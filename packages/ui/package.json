@@ -83,6 +83,11 @@
       "react-native": "./src/atoms/Divider.tsx",
       "default": "./lib/module/atoms/Divider.js"
     },
+    "./gradient": {
+      "types": "./lib/typescript/atoms/Gradient.d.ts",
+      "react-native": "./src/atoms/Gradient.tsx",
+      "default": "./lib/module/atoms/Gradient.js"
+    },
     "./avatar": {
       "types": "./lib/typescript/atoms/Avatar.d.ts",
       "react-native": "./src/atoms/Avatar.tsx",

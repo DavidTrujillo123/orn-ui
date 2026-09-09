@@ -8,6 +8,7 @@ import { CheckboxDemo } from './Checkbox.demo';
 import { BadgeDemo } from './Badge.demo';
 import { CardDemo } from './Card.demo';
 import { DividerDemo } from './Divider.demo';
+import { GradientDemo } from './Gradient.demo';
 import { AvatarDemo } from './Avatar.demo';
 import { ImageDemo } from './Image.demo';
 import { SpinnerDemo } from './Spinner.demo';
@@ -70,6 +71,12 @@ export const ATOMS: DemoEntry[] = [
   { slug: 'badge', name: 'Badge', description: 'Status pill: success/error/warning/info/neutral', Demo: BadgeDemo },
   { slug: 'card', name: 'Card', description: 'Container with the theme shadow and radius', Demo: CardDemo },
   { slug: 'divider', name: 'Divider', description: '1px separator line', Demo: DividerDemo },
+  {
+    slug: 'gradient',
+    name: 'Gradient',
+    description: 'Linear gradient with no native dependency: vertical, horizontal or diagonal, any number of stops',
+    Demo: GradientDemo,
+  },
   { slug: 'avatar', name: 'Avatar', description: 'Circle with an icon or initials', Demo: AvatarDemo },
   { slug: 'image', name: 'Image', description: 'Loading/error state, cache and priority="high" (prefetch)', Demo: ImageDemo },
   { slug: 'spinner', name: 'Spinner', description: 'Loading indicator with optional text', Demo: SpinnerDemo },
