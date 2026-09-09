@@ -1,0 +1,58 @@
+# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: checkbox) — 4 variantes
+#
+# Clip para la doc, no un test. Ver .maestro/README.md.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///atoms/checkbox"
+- assertVisible:
+    text: "Checkbox"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- startRecording: checkbox
+
+# 1/4 — Interactive
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- tapOn: "Accept terms"
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- tapOn: "Accept terms"
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 2/4 — Checked
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 3/4 — Disabled
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 4/4 — Custom color
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+
+- stopRecording

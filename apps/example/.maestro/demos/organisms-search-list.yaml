@@ -1,0 +1,32 @@
+# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: search-list) — 2 variantes
+#
+# Clip para la doc, no un test. Ver .maestro/README.md.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///organisms/search-list"
+- assertVisible:
+    text: "SearchList"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- startRecording: search-list
+
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- tapOn: "Search..."
+- inputText: "ban"
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn: "Clear"
+- hideKeyboard
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "700" }
+
+- stopRecording

@@ -1,0 +1,69 @@
+# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: modal) — 3 variantes
+#
+# Clip para la doc, no un test. Ver .maestro/README.md.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///organisms/modal"
+- assertVisible:
+    text: "Modal"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- startRecording: modal
+
+# 1/3 — full
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- tapOn: "Open full"
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
+- tapOn: "Close"
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 2/3 — overlay
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- tapOn: "Open overlay"
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
+- tapOn:
+    point: "50%,90%"
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 3/3 — fullScreen
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- tapOn: "Open fullScreen"
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
+- tapOn: "Close"
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- stopRecording

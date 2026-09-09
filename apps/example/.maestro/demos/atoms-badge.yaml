@@ -1,0 +1,77 @@
+# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: badge) — 7 variantes
+#
+# Clip para la doc, no un test. Ver .maestro/README.md.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///atoms/badge"
+- assertVisible:
+    text: "Badge"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- startRecording: badge
+
+# 1/7 — success
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 2/7 — error
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 3/7 — warning
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 4/7 — info
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 5/7 — neutral
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 6/7 — all together
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 7/7 — custom colors
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+
+- stopRecording

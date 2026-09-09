@@ -20,6 +20,9 @@ presencia.
     smoke/                  # generados, uno por demo del manifest
       nav-tabs-and-list.yaml   # el único que navega a mano (tabs/lista/back)
     behavior/                # escritos a mano, sólo donde hay interacción real
+  demos/                    # clips para la doc — NO son tests, ver abajo
+    _beat.yaml               # pausa de MS ms (Maestro no tiene sleep)
+    <categoría>-<slug>.yaml  # generados: recorrido de variantes
 ```
 
 Cada demo es alcanzable por deep link (`ornui:///organisms/bottom-sheet`),
@@ -75,3 +78,48 @@ un bug de layout sin comparar screenshots.
 - `e2e-ios.yml` (macOS, `workflow_dispatch`): corre el suite completo contra un
   simulador real, con las screenshots subidas como artifact. No bloquea merges
   ni el publish — es señal, no gate.
+
+## Clips para la documentación (`demos/`)
+
+`demos/` no es parte del suite: `config.yaml` incluye sólo `flows/**/*.yaml`,
+así que `maestro test .maestro` —o sea `e2e:ios` y CI— nunca los corre. Es a
+propósito: un clip que se rompe no debe poner en rojo los tests, y no aporta
+cobertura (lo que el componente hace ya lo afirma su flow de behavior).
+
+Lo que sí aportan es que la coreografía del demo que se ve en la doc sea
+código versionado al lado del componente, en vez de una grabación de pantalla
+hecha a mano que envejece en silencio.
+
+```sh
+pnpm --filter example gen:maestro:demos        # regenera .maestro/demos/
+pnpm --filter example gen:maestro:demos:check  # falla si están desactualizados
+
+# desde el repo de la doc (hermano de éste):
+scripts/record-demo.sh bottom-sheet   # uno
+scripts/record-all-demos.sh           # todos
+```
+
+Los flows de `demos/` se generan igual que los de humo, pero con otra cosa
+adentro: `gen-maestro-demos.mjs` lee el manifest **y el `.tsx` del demo** —
+la cantidad de variantes no está en el manifest, vive en el array que el demo
+le pasa a `VariantList`— y emite un swipe de página más un beat por variante.
+Así el clip muestra las N variantes y no sólo la primera.
+
+Lo que el generador no sabe hacer es interacción: abrir la hoja, cancelar el
+form, elegir una opción. Esos van a mano y se listan en `HAND_WRITTEN` dentro
+del generador, que los saltea al regenerar.
+
+El parseo de los manifests lo comparten los dos generadores
+(`scripts/manifest-parse.mjs`); tener dos copias era garantía de que se
+desincronicen.
+
+Ese script corre el flow acá, se queda con el mp4 que deja `startRecording` y
+lo encodea a `public/media/<slug>.mp4`. Detalles del encode y por qué video en
+vez de GIF: `MEDIA.md` en el repo de la doc.
+
+Diferencia de estilo con un flow de test: acá el ritmo importa. Entre acciones
+va `runFlow: _beat.yaml` con `MS`, porque Maestro no tiene comando de pausa
+(`sleep` y `wait` son sintaxis inválida, y `waitForAnimationToEnd` vuelve
+apenas la pantalla queda quieta) y sin ese beat el clip es un parpadeo. Y se
+muestra un solo camino —el gesto característico del componente—, no toda su
+superficie.

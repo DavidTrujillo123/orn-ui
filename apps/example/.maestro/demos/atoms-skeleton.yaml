@@ -1,0 +1,51 @@
+# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: skeleton) — 5 variantes
+#
+# Clip para la doc, no un test. Ver .maestro/README.md.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///atoms/skeleton"
+- assertVisible:
+    text: "Skeleton"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- startRecording: skeleton
+
+# 1/5 — rect (default)
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 2/5 — variant="text" — 3-line paragraph
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 5/5 — reserves the exact space: toggles every 2s
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+
+- stopRecording

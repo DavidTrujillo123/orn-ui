@@ -1,0 +1,71 @@
+# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: date-picker) — 12 variantes
+#
+# Clip para la doc, no un test. Ver .maestro/README.md.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///organisms/date-picker"
+- assertVisible:
+    text: "DatePicker"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- startRecording: date-picker
+
+# 1/12 — Inline calendar
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 2/12 — mode="range" — tap start, then end
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd:
+    timeout: 1200
+# 7/12 — DateField — input that opens the calendar
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- tapOn: "Due date"
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1500" }
+- tapOn:
+    point: "50%,8%"
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- stopRecording

@@ -1,0 +1,32 @@
+# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
+# Fuente: demos/manifest.ts (slug: reorderable-list) — 1 variante
+#
+# Clip para la doc, no un test. Ver .maestro/README.md.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///organisms/reorderable-list"
+- assertVisible:
+    text: "ReorderableList"
+    index: 0
+- waitForAnimationToEnd:
+    timeout: 1200
+
+- startRecording: reorderable-list
+
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- swipe:
+    from:
+      text: "Design review"
+    direction: DOWN
+    duration: 600
+- waitForAnimationToEnd:
+    timeout: 1200
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1000" }
+
+- stopRecording

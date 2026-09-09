@@ -74,6 +74,12 @@ jobs:
       - name: Check Maestro smoke flows are up to date with the demo manifest
         run: pnpm --filter example gen:maestro:check
 
+      # Los flows de .maestro/demos/ no son tests (no los corre el suite), pero
+      # se generan del mismo manifest: si alguien agrega un componente y no los
+      # regenera, su clip de doc no existe y nadie se entera hasta grabar.
+      - name: Check Maestro demo-clip flows are up to date
+        run: pnpm --filter example gen:maestro:demos:check
+
       - name: Typecheck orn-ui
         run: pnpm --filter orn-ui typecheck
 

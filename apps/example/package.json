@@ -13,6 +13,8 @@
     "go": "expo start --go",
     "gen:maestro": "node scripts/gen-maestro-flows.mjs",
     "gen:maestro:check": "node scripts/gen-maestro-flows.mjs --check",
+    "gen:maestro:demos": "node scripts/gen-maestro-demos.mjs",
+    "gen:maestro:demos:check": "node scripts/gen-maestro-demos.mjs --check",
     "e2e:ios:build": "expo run:ios --configuration Release --no-install --no-bundler",
     "e2e:ios:smoke": "maestro test --include-tags smoke .maestro",
     "e2e:ios:behavior": "maestro test --include-tags behavior .maestro",

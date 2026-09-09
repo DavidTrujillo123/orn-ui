@@ -1,0 +1,134 @@
+# Flow de presentación (no de test): graba el clip que la doc muestra en la
+# página de BottomSheet.
+#
+# Vive fuera de flows/ a propósito — config.yaml sólo incluye
+# flows/**/*.yaml, así `maestro test .maestro` (o sea e2e:ios y CI) no lo
+# corre ni lo cuenta como cobertura. Un clip que falla no debe romper el
+# suite, y un assert acá no agrega señal: la regresión de posición de la hoja
+# ya la cubre flows/behavior/bottom-sheet-position-and-dismiss.yaml.
+#
+# Recorre las 5 variantes del demo, una por página del pager vertical de
+# VariantList. Paginar va por subflows/next-variant.yaml, el mismo que usan
+# los tests: `direction: UP` no cambia de página y un swipe más largo saltea
+# variantes. Cada variante se abre, se deja quieta un
+# beat para que se lea, y se cierra por el camino que le corresponde: la que
+# arrastra se arrastra, la que tiene footer se cancela, la fija se cierra por
+# backdrop. El label de la variante queda arriba en pantalla, así el clip se
+# explica solo.
+#
+# startRecording arranca recién después del deep link: el clip empieza en la
+# pantalla del demo, sin splash ni navegación.
+appId: com.anonymous.orn-ui-example
+---
+- launchApp:
+    clearState: true
+- openLink: "ornui:///organisms/bottom-sheet"
+- assertVisible:
+    text: "BottomSheet"
+    index: 0
+- waitForAnimationToEnd
+
+- startRecording: bottom-sheet
+
+# 1 — bare: sólo handle. Se cierra arrastrando, que es el gesto que define al
+# componente. Coordenadas explícitas (no `direction: DOWN`): en esta variante
+# el handle ya vive cerca del borde inferior y hay que arrancar arriba del
+# todo de su hit area para superar el umbral de 100pt.
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
+- tapOn: "Open sheet"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1100" }
+- swipe:
+    start: "50%,86%"
+    end: "50%,100%"
+    duration: 400
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
+
+# 2 — title + footer: un form adentro de la hoja. Cierra por "Cancel", el
+# camino que tiene un footer con acciones.
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd
+- tapOn: "Open form"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
+
+# 3 — contenido largo: la hoja topa en maxHeight y el contenido queda
+# cortado, que es lo que muestra el tope. No se scrollea adentro a propósito:
+# ese gesto arrastraba la hoja y dejaba el pager corrido, y de ahí en adelante
+# el flow abría la variante equivocada.
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd
+- tapOn: "Open long sheet"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
+# Punto explícito arriba de todo, no `tapOn: { id: bottom-sheet-backdrop }`:
+# el backdrop cubre la pantalla entera, así que su centro cae DEBAJO de una
+# hoja alta y el tap termina en el contenido. La hoja quedaba abierta y el
+# resto del flow corría sobre la variante equivocada.
+- tapOn:
+    point: "50%,8%"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
+
+# 4 — footerPlacement="hide-with-keyboard": el form largo conserva la fila de
+# acciones. Sin abrir teclado el clip muestra la hoja llena de campos; el
+# comportamiento con teclado no entra en un loop de pocos segundos.
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd
+- tapOn: "Open long form"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
+
+# 5 — draggable={false} + maxHeight={0.4}: no se arrastra, se cierra tocando
+# afuera. Es la única variante donde el backdrop es el camino principal.
+- runFlow:
+    file: ../subflows/next-variant.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
+- waitForAnimationToEnd
+- tapOn: "Open fixed sheet"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn:
+    point: "50%,8%"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
+
+- stopRecording
