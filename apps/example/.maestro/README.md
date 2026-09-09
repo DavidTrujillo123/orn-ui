@@ -69,7 +69,9 @@ un bug de layout sin comparar screenshots.
 
 ## CI
 
-- `ci.yml` (Ubuntu, en cada push a un tag): sólo `gen:maestro:check` — barato,
-  detecta manifest desincronizado sin simulador.
-- `e2e-ios.yml` (macOS, nightly + manual): corre el suite completo contra un
-  simulador real. No bloquea merges ni el publish — es señal, no gate.
+- `ci.yml` (Ubuntu, en cada push a un tag): `gen:maestro:check` y `pnpm harness`
+  — baratos, detectan manifest desincronizado y componentes sin flow, sin
+  simulador.
+- `e2e-ios.yml` (macOS, `workflow_dispatch`): corre el suite completo contra un
+  simulador real, con las screenshots subidas como artifact. No bloquea merges
+  ni el publish — es señal, no gate.

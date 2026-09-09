@@ -554,9 +554,17 @@ pnpm --filter orn-ui build         # gen:exports + build:registry + bob build
 pnpm --filter example typecheck
 pnpm example                       # Expo dev server for apps/example
 pnpm compat                        # typecheck + tests on Expo SDK 54/55/56/57
+pnpm harness                       # repo checklist: zero deps, layers, tokens, docs, demos, flows
 pnpm sdk                           # which SDK apps/example is on right now
 pnpm sdk 54 --go                   # switch apps/example to SDK 54 and run it
 ```
+
+`pnpm harness` (`scripts/check-harness.mjs`) is what keeps the rules in
+[`AGENTS.md`](AGENTS.md) from rotting: it fails if a component lacks a test, a
+demo, a Maestro flow or a row in the catalog tables, if `src/` imports anything
+outside `react`/`react-native`, if an atom imports an organism, if a color is
+hardcoded instead of read from the theme, or if the component counts in the
+READMEs stop matching the catalog. It runs in CI on every tag.
 
 ### Testing across Expo SDKs
 

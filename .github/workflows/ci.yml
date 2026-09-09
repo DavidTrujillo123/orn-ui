@@ -62,8 +62,17 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
+      # El checklist del repo (AGENTS.md): componente sin test/demo/flow, un
+      # conteo viejo en un README, un import que rompe cero-dependencias, un
+      # átomo importando un organismo. Nada de eso lo ve tsc ni jest.
+      - name: Harness (checklist de componentes, cero deps, capas, tokens, SDK)
+        run: pnpm harness
+
       - name: Check subpath exports are up to date with src/
         run: pnpm --filter orn-ui gen:exports:check
+
+      - name: Check Maestro smoke flows are up to date with the demo manifest
+        run: pnpm --filter example gen:maestro:check
 
       - name: Typecheck orn-ui
         run: pnpm --filter orn-ui typecheck

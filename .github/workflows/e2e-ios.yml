@@ -1,0 +1,62 @@
+# Suite de Maestro contra el simulador de iOS. Manual (workflow_dispatch): un
+# runner de macOS con build Release + simulador cuesta ~20 minutos, y esto es
+# señal, no un gate — el CI de cada tag ya corre typecheck, tests, compat y el
+# harness.
+#
+# Para correrlo local (más rápido y con las screenshots a mano):
+#   cd apps/example && pnpm e2e:ios:build && pnpm e2e:ios
+name: E2E iOS (Maestro)
+
+on:
+  workflow_dispatch:
+    inputs:
+      tags:
+        description: 'Tags de Maestro a correr (smoke, behavior, o vacío = todo)'
+        required: false
+        default: ''
+
+jobs:
+  e2e:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Maestro
+        run: |
+          curl -Ls "https://get.maestro.mobile.dev" | bash
+          echo "$HOME/.maestro/bin" >> "$GITHUB_PATH"
+
+      - name: Boot a simulator
+        run: xcrun simctl boot "iPhone 17" || true
+
+      # Release con el bundle embebido, sin Metro: los tests corren contra lo
+      # que se publica, no contra un dev server que puede tapar un bug de timing.
+      - name: Build the example app (Release)
+        working-directory: apps/example
+        run: pnpm e2e:ios:build
+
+      - name: Run Maestro
+        working-directory: apps/example
+        run: |
+          if [ -n "${{ inputs.tags }}" ]; then
+            maestro test --include-tags "${{ inputs.tags }}" .maestro
+          else
+            maestro test .maestro
+          fi
+
+      - name: Upload Maestro artifacts (screenshots, hierarchy dumps)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: maestro-artifacts
+          path: ~/.maestro/tests

@@ -5,6 +5,7 @@
   "scripts": {
     "build": "pnpm --filter orn-ui build",
     "test": "pnpm --filter orn-ui test",
+    "harness": "node scripts/check-harness.mjs",
     "test:coverage": "pnpm --filter orn-ui test:coverage",
     "typecheck": "pnpm -r typecheck",
     "compat": "pnpm --filter orn-ui compat",
