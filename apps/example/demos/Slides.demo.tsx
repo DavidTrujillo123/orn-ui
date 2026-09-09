@@ -110,6 +110,20 @@ export function SlidesDemo() {
       ),
     },
     {
+      label: 'spacing between slides · gradient background',
+      content: (
+        <Slides
+          testID="slides-spacing"
+          data={SLIDES}
+          keyExtractor={(item) => item.id}
+          background={(item) => item.gradient}
+          renderItem={(item) => <Panel slide={item} />}
+          spacing={16}
+          slideStyle={{ borderRadius: 16 }}
+        />
+      ),
+    },
+    {
       label: 'images as slides',
       content: (
         <Slides

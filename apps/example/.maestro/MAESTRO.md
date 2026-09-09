@@ -96,6 +96,55 @@ Adding a component to `demos/manifest.ts` is enough to get smoke coverage —
 no flow to write by hand. Hand-written flows only live in `flows/behavior/`,
 for interaction a generic "open + assert title" can't exercise.
 
+### After a Release build, the next Debug build can fail to link
+
+`pnpm e2e:ios:build` builds Release, and React Native swaps `Pods/React-Core-prebuilt`
+between a Debug and a Release slice depending on the configuration, remembering
+which one is in place in `Pods/React-Core-prebuilt/.last_build_configuration`.
+A `pod install` (which `expo run:ios` does by default) wipes that marker but
+leaves the Release binary — and RN's heuristic is "no marker plus Debug means
+nothing to replace", so the Debug build links Debug-compiled pods against the
+Release core:
+
+```
+Undefined symbols for architecture arm64:
+  "facebook::react::Sealable::Sealable()", referenced from: … libRNScreens.a …
+  "facebook::react::ShadowNode::getDebugName() const", referenced from: …
+```
+
+The `SwiftUICore` line that comes with it is a red herring — the linker
+mentioning a framework it tried while resolving those symbols. The fix is to
+tell RN what is actually installed, so the next build swaps it:
+
+```sh
+printf 'Release' > apps/example/ios/Pods/React-Core-prebuilt/.last_build_configuration
+```
+
+Expo ships its own modules the same way, with the same marker, and its script
+skips when the marker matches the configuration — so a marker that says `debug`
+next to a release binary is never corrected. That one doesn't fail to link: it
+builds, installs, and segfaults on launch, because the Release build of
+`ExpoModulesCore` lays out `Props` differently than the Debug React core:
+
+```
+EXC_BAD_ACCESS in facebook::react::Props::Props()
+  ← expo::ExpoViewProps::ExpoViewProps(...)   [ExpoModulesCore]
+  ← AppContext.registerNativeViews()
+```
+
+Which variant is actually installed can be read off the size, comparing the
+framework binary against the tarballs next to it in `artifacts/`. To force all
+four back to debug:
+
+```sh
+cd apps/example/ios
+S=$(ls -d ../../../node_modules/.pnpm/expo-modules-autolinking@57*/node_modules/expo-modules-autolinking/scripts/ios/replace-xcframework.js | head -1)
+for m in ExpoModulesCore ExpoModulesWorklets ExpoFileSystem ExpoFont; do
+  rm -f "Pods/$m/artifacts/.last_build_configuration"
+  node "$S" -c debug -m "$m" -x "$PWD/Pods/$m"
+done
+```
+
 ## Debugging a failure
 
 Every run writes artifacts to `~/.maestro/tests/<timestamp>/`:

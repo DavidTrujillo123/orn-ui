@@ -30,6 +30,11 @@ function momentumTo(page: number, orientation: 'horizontal' | 'vertical' = 'hori
   });
 }
 
+/** El punto activo se distingue por el estado de accesibilidad, no por su ancho: ese ancho lo anima Animated. */
+function expectActive(index: number) {
+  expect(screen.getByTestId(`slides-indicator-${index}`).props.accessibilityState.selected).toBe(true);
+}
+
 function renderSlides(props: Partial<React.ComponentProps<typeof Slides<{ id: string }>>> = {}) {
   const result = render(
     withProvider(
@@ -91,8 +96,8 @@ describe('Slides', () => {
       renderSlides();
       expect(screen.getByTestId('slides-dot-0')).toBeOnTheScreen();
       expect(screen.getByTestId('slides-dot-2')).toBeOnTheScreen();
-      expect(screen.getByTestId('slides-dot-0')).toHaveStyle({ width: 20 });
-      expect(screen.getByTestId('slides-dot-1')).toHaveStyle({ width: 8 });
+      expectActive(0);
+      expect(screen.getByTestId('slides-indicator-1').props.accessibilityState.selected).toBe(false);
     });
 
     it('numbers each indicator when asked to', () => {
@@ -248,14 +253,14 @@ describe('Slides', () => {
       }
       render(withProvider(<Controlled />));
       layout();
-      expect(screen.getByTestId('slides-dot-0')).toHaveStyle({ width: 20 });
+      expectActive(0);
       fireEvent.press(screen.getByText('go'));
-      expect(screen.getByTestId('slides-dot-2')).toHaveStyle({ width: 20 });
+      expectActive(2);
     });
 
     it('clamps an out-of-range index', () => {
       renderSlides({ index: 99 });
-      expect(screen.getByTestId('slides-dot-2')).toHaveStyle({ width: 20 });
+      expectActive(2);
     });
   });
 

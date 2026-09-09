@@ -1,22 +1,22 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef } from 'react';
 import {
+  Animated,
+  Easing,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  type LayoutChangeEvent,
-  type NativeScrollEvent,
-  type NativeSyntheticEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useTheme } from '../theme/UIProvider';
 import { useReduceMotion } from '../atoms/Transition';
 import { Gradient, type GradientDirection } from '../atoms/Gradient';
+import { useSlides, type SlidesOrientation } from './useSlides';
 
-export type SlidesOrientation = 'horizontal' | 'vertical';
+export type { SlidesOrientation } from './useSlides';
 export type SlidesIndicators = 'dots' | 'numbers' | 'none';
 export type SlidesIndicatorPlacement = 'overlay' | 'outside';
 
@@ -48,6 +48,15 @@ export interface SlidesProps<T> {
   autoPlay?: boolean;
   /** ms entre avances de `autoPlay`. @default 4000 */
   interval?: number;
+  /**
+   * Botón para frenar el avance automático. Sólo aparece con `autoPlay`, y va
+   * en `true` porque contenido que se mueve solo necesita una forma de
+   * pausarlo (WCAG 2.2.2).
+   * @default true
+   */
+  showAutoPlayToggle?: boolean;
+  /** Hueco entre slides, en px. En 0 quedan pegadas. @default 0 */
+  spacing?: number;
   /** Índice controlado. Sin él, el componente maneja el suyo desde `defaultIndex`. */
   index?: number;
   /** @default 0 */
@@ -57,7 +66,7 @@ export interface SlidesProps<T> {
   height?: number;
   /** @default true */
   swipeEnabled?: boolean;
-  /** Estilos de cada slide — padding y alineación del contenido. */
+  /** Estilos de la caja visible de cada slide — padding, alineación, radio. */
   slideStyle?: StyleProp<ViewStyle>;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -66,6 +75,7 @@ export interface SlidesProps<T> {
 const DOT = 8;
 const DOT_ACTIVE = 20;
 const NUMBER_CIRCLE = 24;
+const TOGGLE = 32;
 const DEFAULT_HEIGHT = 240;
 const DEFAULT_INTERVAL = 4000;
 
@@ -73,6 +83,10 @@ const useStyles = createStyles((theme) => ({
   // Deja redondear el bloque por `style` sin que el degradado se salga.
   root: { overflow: 'hidden' },
   viewport: { flex: 1 },
+  // La slide visible es la caja de adentro: con `spacing` la página es más
+  // ancha que ella, y el fondo tiene que recortarse acá y no en la página, o
+  // el degradado pinta también el hueco.
+  slide: { flex: 1, overflow: 'hidden' },
   // Con indicadores fuera y orientación vertical el contenedor es una fila:
   // sin flex la ventana no tiene ancho propio y colapsa a 0.
   viewportInRow: { flex: 1 },
@@ -87,8 +101,31 @@ const useStyles = createStyles((theme) => ({
   indicatorSlot: { padding: theme.tokens.spacing.xs },
 
   dot: { width: DOT, height: DOT, borderRadius: DOT / 2 },
-  dotActiveHorizontal: { width: DOT_ACTIVE },
-  dotActiveVertical: { height: DOT_ACTIVE },
+
+  autoPlayToggle: {
+    position: 'absolute',
+    top: theme.tokens.spacing.md,
+    right: theme.tokens.spacing.md,
+    width: TOGGLE,
+    height: TOGGLE,
+    borderRadius: TOGGLE / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 3,
+  },
+  pauseBar: { width: 3, height: 12, borderRadius: 1 },
+  // Triángulo con bordes: un "play" sin SVG ni set de íconos.
+  playTriangle: {
+    width: 0,
+    height: 0,
+    marginLeft: 2,
+    borderTopWidth: 6,
+    borderBottomWidth: 6,
+    borderLeftWidth: 10,
+    borderTopColor: 'transparent',
+    borderBottomColor: 'transparent',
+  },
 
   numberCircle: {
     minWidth: NUMBER_CIRCLE,
@@ -105,28 +142,62 @@ const useStyles = createStyles((theme) => ({
   outsideVertical: { flexDirection: 'row' },
 }));
 
-function clampIndex(value: number, total: number): number {
-  if (total === 0) return 0;
-  if (value < 0) return 0;
-  if (value > total - 1) return total - 1;
-  return value;
+interface DotProps {
+  selected: boolean;
+  isHorizontal: boolean;
+  /** En overlay el contraste lo da la opacidad; afuera, el color. */
+  overlay: boolean;
+  activeColor: string;
+  inactiveColor: string;
+  testID?: string;
 }
+
+/**
+ * El punto activo se estira en vez de saltar: el cambio de golpe se lee como
+ * "apareció otro punto", no como "el mismo se movió". Ancho y color son props
+ * de layout/pintura, así que van por el driver de JS.
+ */
+const Dot = memo(({ selected, isHorizontal, overlay, activeColor, inactiveColor, testID }: DotProps) => {
+  const styles = useStyles();
+  const theme = useTheme();
+  const reduceMotion = useReduceMotion();
+  const progress = useRef(new Animated.Value(selected ? 1 : 0)).current;
+
+  useEffect(() => {
+    Animated.timing(progress, {
+      toValue: selected ? 1 : 0,
+      duration: reduceMotion ? 0 : theme.tokens.duration.base,
+      easing: Easing.out(Easing.quad),
+      useNativeDriver: false,
+    }).start();
+  }, [progress, reduceMotion, selected, theme]);
+
+  const length = progress.interpolate({ inputRange: [0, 1], outputRange: [DOT, DOT_ACTIVE] });
+  const backgroundColor = progress.interpolate({ inputRange: [0, 1], outputRange: [inactiveColor, activeColor] });
+
+  return (
+    <Animated.View
+      testID={testID}
+      style={[
+        styles.dot,
+        isHorizontal ? { width: length } : { height: length },
+        { backgroundColor },
+        overlay && { opacity: progress.interpolate({ inputRange: [0, 1], outputRange: [0.45, 1] }) },
+      ]}
+    />
+  );
+});
+Dot.displayName = 'SlidesDot';
 
 /**
  * Slides
  * Carrusel con fondo propio (color plano o degradado) y contenido libre:
- * `renderItem` decide si adentro va una imagen, texto o botones.
+ * `renderItem` decide si adentro va una imagen, texto o botones. El estado
+ * vive en `useSlides`; acá sólo está el árbol.
  *
  * El deslizamiento es un `ScrollView` con `pagingEnabled` en vez de gestos a
  * mano: es lo único que da snap nativo en iOS y Android sin
  * `react-native-gesture-handler`, en todo el rango soportado (Expo SDK 54–57).
- *
- * Modo infinito por clones — la última slide antes de la primera y la primera
- * después de la última —: el dedo siempre cruza a un vecino real y el salto al
- * original ocurre con la animación terminada, así que no se ve ni rebobina
- * (continuidad).
- *
- * `autoPlay` se apaga si el sistema pide reducir movimiento.
  */
 export function Slides<T>({
   data,
@@ -140,6 +211,8 @@ export function Slides<T>({
   loop = false,
   autoPlay = false,
   interval = DEFAULT_INTERVAL,
+  showAutoPlayToggle = true,
+  spacing = 0,
   index,
   defaultIndex = 0,
   onIndexChange,
@@ -152,141 +225,26 @@ export function Slides<T>({
   const colors = useColors();
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
-  const reduceMotion = useReduceMotion();
 
   const total = data.length;
-  const isHorizontal = orientation === 'horizontal';
-  // Un solo elemento no tiene a dónde ciclar: quedaría deslizable entre tres
-  // copias de lo mismo.
-  const isLoop = loop && total > 1;
+  const {
+    active,
+    pages,
+    isHorizontal,
+    size,
+    pageSize,
+    scrollRef,
+    autoPlayPaused,
+    motionReduced,
+    goTo,
+    toggleAutoPlay,
+    onLayout,
+    onMomentumScrollEnd,
+    onScrollBeginDrag,
+    onScrollEndDrag,
+  } = useSlides({ total, orientation, loop, autoPlay, interval, index, defaultIndex, onIndexChange });
 
-  const [uncontrolled, setUncontrolled] = useState(() => clampIndex(defaultIndex, total));
-  const active = clampIndex(index ?? uncontrolled, total);
-  const activeRef = useRef(active);
-  activeRef.current = active;
-
-  const [size, setSize] = useState({ width: 0, height: 0 });
-  const pageSize = isHorizontal ? size.width : size.height;
-
-  const scrollRef = useRef<ScrollView>(null);
-  /** Página realmente visible (índice dentro de `pages`, clones incluidos). */
-  const offsetPageRef = useRef(isLoop ? 1 : 0);
-  const didInitRef = useRef(false);
-  const lastPageSizeRef = useRef(0);
-  const draggingRef = useRef(false);
-
-  const pages = useMemo(() => {
-    if (!isLoop) return data.map((item, i) => ({ item, real: i, key: keyExtractor(item, i) }));
-    const last = data[total - 1] as T;
-    const first = data[0] as T;
-    return [
-      { item: last, real: total - 1, key: 'slides-clone-head' },
-      ...data.map((item, i) => ({ item, real: i, key: keyExtractor(item, i) })),
-      { item: first, real: 0, key: 'slides-clone-tail' },
-    ];
-  }, [data, isLoop, keyExtractor, total]);
-
-  const scrollToPage = useCallback(
-    (page: number, animated: boolean) => {
-      const offset = page * pageSize;
-      scrollRef.current?.scrollTo({
-        x: isHorizontal ? offset : 0,
-        y: isHorizontal ? 0 : offset,
-        animated,
-      });
-    },
-    [isHorizontal, pageSize]
-  );
-
-  const commit = useCallback(
-    (next: number) => {
-      if (next === activeRef.current) return;
-      activeRef.current = next;
-      if (index == null) setUncontrolled(next);
-      onIndexChange?.(next);
-    },
-    [index, onIndexChange]
-  );
-
-  // Sólo actúa cuando el índice y la página visible discrepan: un cambio que
-  // vino del propio gesto no dispara un segundo scroll encima del que frenó.
-  useEffect(() => {
-    if (pageSize === 0 || total === 0) return;
-    const target = isLoop ? active + 1 : active;
-    const resized = lastPageSizeRef.current !== pageSize;
-    if (offsetPageRef.current === target && didInitRef.current && !resized) return;
-    // Ni el primer posicionamiento ni el reacomodo por rotación son un cambio
-    // de slide: animarlos sería un deslizamiento que nadie pidió.
-    const animated = didInitRef.current && !resized;
-    didInitRef.current = true;
-    lastPageSizeRef.current = pageSize;
-    offsetPageRef.current = target;
-    scrollToPage(target, animated);
-  }, [active, isLoop, pageSize, scrollToPage, total]);
-
-  const onLayout = useCallback((event: LayoutChangeEvent) => {
-    const { width, height: measured } = event.nativeEvent.layout;
-    setSize((prev) => (prev.width === width && prev.height === measured ? prev : { width, height: measured }));
-  }, []);
-
-  const onMomentumScrollEnd = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      draggingRef.current = false;
-      if (pageSize === 0) return;
-      const { contentOffset } = event.nativeEvent;
-      const page = Math.round((isHorizontal ? contentOffset.x : contentOffset.y) / pageSize);
-
-      if (isLoop) {
-        if (page === 0) {
-          offsetPageRef.current = total;
-          scrollToPage(total, false);
-          commit(total - 1);
-          return;
-        }
-        if (page === total + 1) {
-          offsetPageRef.current = 1;
-          scrollToPage(1, false);
-          commit(0);
-          return;
-        }
-        offsetPageRef.current = page;
-        commit(page - 1);
-        return;
-      }
-
-      offsetPageRef.current = page;
-      commit(clampIndex(page, total));
-    },
-    [commit, isHorizontal, isLoop, pageSize, scrollToPage, total]
-  );
-
-  const onScrollBeginDrag = useCallback(() => {
-    draggingRef.current = true;
-  }, []);
-
-  const onScrollEndDrag = useCallback(() => {
-    // Un arrastre corto puede soltarse sin inercia y no emitir
-    // momentumScrollEnd: sin esto el autoPlay quedaría pausado para siempre.
-    draggingRef.current = false;
-  }, []);
-
-  useEffect(() => {
-    if (!autoPlay || reduceMotion || total < 2 || pageSize === 0) return;
-    const timer = setInterval(() => {
-      if (draggingRef.current) return;
-      const from = activeRef.current;
-      if (from < total - 1) {
-        commit(from + 1);
-        return;
-      }
-      if (!isLoop) return;
-      // Última en modo infinito: avanza al clon de la primera en vez de
-      // rebobinar; el salto al original lo cierra momentumScrollEnd.
-      offsetPageRef.current = total + 1;
-      scrollToPage(total + 1, true);
-    }, interval);
-    return () => clearInterval(timer);
-  }, [autoPlay, commit, interval, isLoop, pageSize, reduceMotion, scrollToPage, total]);
+  const isOverlay = indicatorPlacement === 'overlay';
 
   const renderBackground = (item: T, real: number) => {
     const value = background?.(item, real);
@@ -296,8 +254,6 @@ export function Slides<T>({
     }
     return <View style={[StyleSheet.absoluteFill, { backgroundColor: value }]} pointerEvents="none" />;
   };
-
-  const isOverlay = indicatorPlacement === 'overlay';
 
   const renderIndicator = (position: number) => {
     const selected = position === active;
@@ -328,19 +284,40 @@ export function Slides<T>({
       );
     }
 
-    const dotColor = isOverlay ? colors.white : selected ? colors.primary : colors.border;
     return (
-      <View
+      <Dot
         testID={`${testID ?? 'slides'}-dot-${position}`}
-        style={[
-          styles.dot,
-          selected && (isHorizontal ? styles.dotActiveHorizontal : styles.dotActiveVertical),
-          { backgroundColor: dotColor },
-          // En overlay el fondo es del consumidor: el contraste lo da la
-          // opacidad, no el color.
-          isOverlay && !selected && { opacity: 0.45 },
-        ]}
+        selected={selected}
+        isHorizontal={isHorizontal}
+        overlay={isOverlay}
+        activeColor={isOverlay ? colors.white : colors.primary}
+        inactiveColor={isOverlay ? colors.white : colors.border}
       />
+    );
+  };
+
+  // Con reduce-motion el autoPlay ya está apagado: no hay nada que pausar.
+  const renderAutoPlayToggle = () => {
+    if (!autoPlay || !showAutoPlayToggle || motionReduced || total < 2) return null;
+    return (
+      <TouchableOpacity
+        testID={`${testID ?? 'slides'}-autoplay-toggle`}
+        style={[styles.autoPlayToggle, { backgroundColor: colors.black, opacity: 0.55 }]}
+        activeOpacity={0.7}
+        onPress={toggleAutoPlay}
+        accessibilityRole="button"
+        accessibilityLabel={autoPlayPaused ? 'Resume automatic slides' : 'Pause automatic slides'}
+        accessibilityState={{ selected: !autoPlayPaused }}
+      >
+        {autoPlayPaused ? (
+          <View style={[styles.playTriangle, { borderLeftColor: colors.white }]} />
+        ) : (
+          <>
+            <View style={[styles.pauseBar, { backgroundColor: colors.white }]} />
+            <View style={[styles.pauseBar, { backgroundColor: colors.white }]} />
+          </>
+        )}
+      </TouchableOpacity>
     );
   };
 
@@ -367,7 +344,7 @@ export function Slides<T>({
             testID={`${testID ?? 'slides'}-indicator-${position}`}
             style={styles.indicatorSlot}
             activeOpacity={0.7}
-            onPress={() => commit(position)}
+            onPress={() => goTo(position)}
             accessibilityRole="button"
             accessibilityLabel={`Slide ${position + 1} of ${total}`}
             accessibilityState={{ selected: position === active }}
@@ -380,7 +357,11 @@ export function Slides<T>({
   };
 
   const viewport = (
-    <View testID={testID} style={[styles.root, { height }, !isOverlay && !isHorizontal && styles.viewportInRow, isOverlay && style]} onLayout={onLayout}>
+    <View
+      testID={testID}
+      style={[styles.root, { height }, !isOverlay && !isHorizontal && styles.viewportInRow, isOverlay && style]}
+      onLayout={onLayout}
+    >
       <ScrollView
         ref={scrollRef}
         testID={`${testID ?? 'slides'}-scroll`}
@@ -395,13 +376,28 @@ export function Slides<T>({
         onScrollEndDrag={onScrollEndDrag}
       >
         {pageSize > 0 &&
-          pages.map(({ item, real, key }) => (
-            <View key={key} style={[{ width: size.width, height: size.height }, slideStyle]}>
-              {renderBackground(item, real)}
-              <View style={styles.slideContent}>{renderItem(item, real)}</View>
-            </View>
-          ))}
+          pages.map(({ real, clone }) => {
+            const item = data[real] as T;
+            return (
+              // El hueco se reparte a los dos lados de cada página: así la
+              // separación entre dos slides es `spacing` entero y la página
+              // sigue midiendo exactamente lo que pagina el ScrollView.
+              <View
+                key={clone ? `slides-clone-${clone}` : keyExtractor(item, real)}
+                style={[
+                  { width: size.width, height: size.height },
+                  isHorizontal ? { paddingHorizontal: spacing / 2 } : { paddingVertical: spacing / 2 },
+                ]}
+              >
+                <View style={[styles.slide, slideStyle]}>
+                  {renderBackground(item, real)}
+                  <View style={styles.slideContent}>{renderItem(item, real)}</View>
+                </View>
+              </View>
+            );
+          })}
       </ScrollView>
+      {renderAutoPlayToggle()}
       {isOverlay && renderIndicators()}
     </View>
   );
