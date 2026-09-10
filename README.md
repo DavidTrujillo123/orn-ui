@@ -546,6 +546,9 @@ only need a native build (`pnpm --filter example ios` / `android`, which run
 
 ## Development
 
+Adding a component or fixing a bug: [`CONTRIBUTING.md`](CONTRIBUTING.md) walks
+the whole path, including the Maestro flows and the documentation site.
+
 ```bash
 pnpm install
 pnpm --filter orn-ui test          # or test:coverage
