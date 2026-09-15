@@ -56,7 +56,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |
-| "Prototype code that must be thrown away later." | 50 components, fully typed, 671 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
+| "Prototype code that must be thrown away later." | 50 components, fully typed, 673 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
 
 ## Compatibility
 

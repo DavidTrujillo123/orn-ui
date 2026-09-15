@@ -244,8 +244,17 @@ export type ChartProps = ChartBaseProps &
 
 const DEFAULT_HEIGHT = 220;
 const DEFAULT_TICKS = 4;
-/** Canal de las etiquetas de valor, a la izquierda. */
+/** Piso del canal de las etiquetas de valor, a la izquierda. */
 const VALUE_GUTTER = 38;
+/**
+ * Ancho estimado de un caracter de etiqueta. React Native no mide texto sin
+ * renderizarlo, y medir para decidir el layout haría aparecer el chart
+ * corrido un frame; a `fontSize.xs` un dígito ronda 0.6em, y de más es mejor
+ * que de menos — sobra aire, no se corta el número.
+ */
+const VALUE_CHAR = 6.5;
+/** Tope del canal: un eje ancho no puede comerse el plot. */
+const VALUE_GUTTER_MAX = 0.3;
 /** Canal de las categorías cuando van a la izquierda (barras horizontales). */
 const CATEGORY_GUTTER = 64;
 /** Canal de las etiquetas de abajo. */
@@ -651,10 +660,7 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
   const horizontal = type === 'bar' && orientation === 'horizontal';
   const keys = useMemo(() => visible.map((entry) => entry.key), [visible]);
 
-  const leftGutter = yAxis ? (horizontal ? CATEGORY_GUTTER : VALUE_GUTTER) : 0;
   const bottomGutter = xAxis ? BOTTOM_GUTTER : 0;
-  const plotW = Math.max(1, width - leftGutter);
-  const plotH = Math.max(1, height - bottomGutter);
 
   // La línea puede no tocar el cero (una temperatura, un ranking); una barra
   // sí tiene que hacerlo, porque su largo es el que dice el valor.
@@ -664,15 +670,38 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
   );
   const [low, high] = useDomain(measured, domain);
 
-  const scale = useMemo(() => {
-    // Un dominio a mano se respeta tal cual; uno medido (o 'sticky') se
-    // redondea, que es lo que hace legible el eje.
-    const nice = Array.isArray(domain) ? exactTicks(low, high, tickCount) : niceScale(low, high, tickCount);
-    const toPixel = horizontal
-      ? linearScale([nice.min, nice.max], [0, plotW])
-      : linearScale([nice.min, nice.max], [plotH, 0]);
-    return { nice, toPixel };
-  }, [domain, low, high, tickCount, horizontal, plotW, plotH]);
+  // Un dominio a mano se respeta tal cual; uno medido (o 'sticky') se
+  // redondea, que es lo que hace legible el eje.
+  const nice = useMemo(
+    () => (Array.isArray(domain) ? exactTicks(low, high, tickCount) : niceScale(low, high, tickCount)),
+    [domain, low, high, tickCount]
+  );
+
+  /**
+   * El canal sale de la etiqueta más larga, no de una constante: con un
+   * `formatValue` propio ("$3000", "1.250 ms") un ancho fijo corta el número
+   * y el eje pasa a decir "$30…". Los ticks no dependen del ancho del plot,
+   * así que se pueden medir antes de repartirlo.
+   */
+  const leftGutter = useMemo(() => {
+    if (!yAxis) return 0;
+    if (horizontal) return CATEGORY_GUTTER;
+    const longest = nice.values.reduce((widest, value) => Math.max(widest, formatValue(value).length), 0);
+    const wanted = Math.ceil(longest * VALUE_CHAR) + theme.tokens.spacing.sm;
+    return Math.max(VALUE_GUTTER, Math.min(wanted, Math.floor(width * VALUE_GUTTER_MAX)));
+  }, [yAxis, horizontal, nice, formatValue, width, theme.tokens.spacing.sm]);
+
+  const plotW = Math.max(1, width - leftGutter);
+  const plotH = Math.max(1, height - bottomGutter);
+
+  const toPixel = useMemo(
+    () =>
+      horizontal
+        ? linearScale([nice.min, nice.max], [0, plotW])
+        : linearScale([nice.min, nice.max], [plotH, 0]),
+    [horizontal, nice, plotW, plotH]
+  );
+  const scale = useMemo(() => ({ nice, toPixel }), [nice, toPixel]);
 
   const band = (horizontal ? plotH : plotW) / Math.max(1, rows.length);
   const centerOf = useCallback((index: number) => (index + 0.5) * band, [band]);

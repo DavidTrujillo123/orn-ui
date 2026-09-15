@@ -420,6 +420,49 @@ describe('Chart', () => {
       expect(screen.getByTestId('c-band-0').props.style.width).toBeCloseTo(320 / 3);
     });
 
+    it('the value gutter widens for a long formatValue instead of truncating it', () => {
+      const { rerender } = render(
+        withProvider(<Chart type="bar" data={ROWS} series={[SERIES[0]!]} accessibilityLabel="Sales" testID="c" />)
+      );
+      act(() => layout());
+      // Con el formato compacto ("200") alcanza el piso de 38px.
+      const compact = screen.getByTestId('c-band-0').props.style.width;
+
+      act(() => {
+        rerender(
+          withProvider(
+            <Chart
+              type="bar"
+              formatValue={(value) => `$${value * 100}`}
+              data={ROWS}
+              series={[SERIES[0]!]}
+              accessibilityLabel="Sales"
+              testID="c"
+            />
+          )
+        );
+      });
+      // "$20000" no entra en 38px: el canal crece y el plot se angosta.
+      expect(screen.getByTestId('c-band-0').props.style.width).toBeLessThan(compact);
+    });
+
+    it('the gutter never eats more than a third of the width', () => {
+      render(
+        withProvider(
+          <Chart
+            type="bar"
+            formatValue={() => 'a very long label indeed'}
+            data={ROWS}
+            series={[SERIES[0]!]}
+            accessibilityLabel="Sales"
+            testID="c"
+          />
+        )
+      );
+      act(() => layout());
+      expect(screen.getByTestId('c-band-0').props.style.width).toBeGreaterThanOrEqual((320 * 0.7) / 3 - 1);
+    });
+
     it('formatValue reaches the axis and the tooltip', () => {
       render(
         withProvider(
