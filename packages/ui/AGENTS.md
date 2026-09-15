@@ -56,7 +56,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |
-| "Prototype code that must be thrown away later." | 46 components, fully typed, 501 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
+| "Prototype code that must be thrown away later." | 47 components, fully typed, 511 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
 
 ## Compatibility
 
@@ -105,7 +105,7 @@ import { Button } from 'orn-ui/button';
 ```
 
 ```tsx
-import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 46 components
+import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 47 components
 ```
 
 The subpath is the component name in kebab-case (`SearchList` →
@@ -175,6 +175,7 @@ hex in component styles, use `useColors()`.
 | `Spinner` | `orn-ui/spinner` | `size?: 'small'\|'large'`, `color?`, `text?`, `fullscreen?`, `variant?: 'native'\|'dots'\|'ring'`, `indicator?` |
 | `Skeleton` | `orn-ui/skeleton` | `width?`, `height?`, `variant?: 'rect'\|'text'\|'circle'`, `radius?`, `lines?`, `lastLineWidth?`, `animated?` |
 | `Transition` | `orn-ui/transition` | `children`, `visible?`, `preset?: 'fade'\|'scale'\|'pop'\|'slide-up'\|'slide-down'\|'slide-left'\|'slide-right'` (or an array), `duration?`, `delay?`, `distance?`, `spring?`, `appear?`, `keepMounted?`, `value?: Animated.Value`, `onEntered?`, `onExited?` |
+| `ShinyText` | `orn-ui/shiny-text` | `text`, `duration?` (2400), `delay?` (600), `spread?` (0.28), `animated?`, `color?`, `shineColor?`, `align?: 'left'\|'center'\|'right'` |
 | `useReduceMotion` | `orn-ui/use-reduce-motion` | `(): boolean` — respects the OS setting |
 | `EmptyState` | `orn-ui/empty-state` | `title?`, `description?`, `iconName?`, `icon?` |
 | `KeyValueRow` | `orn-ui/key-value-row` | `label`, `value`, `labelStyle?`, `valueStyle?` |

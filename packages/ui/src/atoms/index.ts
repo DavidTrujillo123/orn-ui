@@ -26,6 +26,8 @@ export { Skeleton } from './Skeleton';
 export type { SkeletonProps, SkeletonVariant } from './Skeleton';
 export { Transition, useReduceMotion } from './Transition';
 export type { TransitionProps, TransitionPreset } from './Transition';
+export { ShinyText } from './ShinyText';
+export type { ShinyTextProps } from './ShinyText';
 export { EmptyState } from './EmptyState';
 export type { EmptyStateProps } from './EmptyState';
 export { KeyValueRow } from './KeyValueRow';

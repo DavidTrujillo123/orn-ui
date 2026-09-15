@@ -14,6 +14,7 @@ import { ImageDemo } from './Image.demo';
 import { SpinnerDemo } from './Spinner.demo';
 import { SkeletonDemo } from './Skeleton.demo';
 import { TransitionDemo } from './Transition.demo';
+import { ShinyTextDemo } from './ShinyText.demo';
 import { EmptyStateDemo } from './EmptyState.demo';
 import { KeyValueRowDemo } from './KeyValueRow.demo';
 import { FabDemo } from './Fab.demo';
@@ -87,6 +88,12 @@ export const ATOMS: DemoEntry[] = [
     name: 'Transition',
     description: 'Animated enter and exit, opacity/transform only on the native thread',
     Demo: TransitionDemo,
+  },
+  {
+    slug: 'shiny-text',
+    name: 'ShinyText',
+    description: 'A band of light sweeps the text, character by character, on the native thread',
+    Demo: ShinyTextDemo,
   },
   { slug: 'empty-state', name: 'EmptyState', description: 'Icon + title + description for empty lists', Demo: EmptyStateDemo },
   { slug: 'key-value-row', name: 'KeyValueRow', description: 'Label/value row, for totals and details', Demo: KeyValueRowDemo },
