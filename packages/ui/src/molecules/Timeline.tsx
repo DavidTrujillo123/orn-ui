@@ -64,6 +64,7 @@ const useStyles = createStyles((theme) => ({
   sideLeft: { alignItems: 'flex-end', paddingRight: theme.tokens.spacing.md },
   sideRight: { alignItems: 'flex-start', paddingLeft: theme.tokens.spacing.md },
   node: {
+    position: 'absolute',
     width: NODE,
     height: NODE,
     borderRadius: NODE / 2,
@@ -90,10 +91,15 @@ const useStyles = createStyles((theme) => ({
     borderRadius: theme.tokens.radius.full,
     backgroundColor: theme.colors.text,
   },
-  // La línea vive detrás de todo y se dibuja con coordenadas propias, así los
-  // tramos de un vano y del siguiente empalman sin depender del layout de las
-  // filas.
+  // La línea y los nodos viven en la misma capa y se posicionan con las mismas
+  // coordenadas. Es lo único que garantiza que el círculo caiga sobre la
+  // curva: en el flujo de la fila el nodo lo corre el flex —y los paddings que
+  // cada lado necesita para no cortar su píldora—, así que terminaba a un
+  // costado de la línea en vez de encima.
   lineLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center' },
+  // Hueco del ancho del nodo en la fila: la píldora se separa del centro lo
+  // mismo que antes, pero el círculo ya no se dibuja acá.
+  nodeSlot: { width: NODE },
   segment: { position: 'absolute', width: LINE },
   dot: { position: 'absolute', width: DOT, height: DOT, borderRadius: DOT / 2 },
 }));
@@ -207,6 +213,20 @@ export const Timeline = memo(
               />
             )
           )}
+
+          {items.map((item, index) => (
+            <View
+              key={`node-${item.label}-${index}`}
+              style={[
+                styles.node,
+                item.status === 'pending' ? styles.nodePending : styles.nodeDone,
+                {
+                  top: spacing / 2 + index * spacing - NODE / 2,
+                  transform: [{ translateX: offsetAt(index, count, curve) }],
+                },
+              ]}
+            />
+          ))}
         </View>
 
         {items.map((item, index) => {
@@ -272,7 +292,7 @@ export const Timeline = memo(
               >
                 {!onRight && pill}
               </View>
-              <View style={[styles.node, pending ? styles.nodePending : styles.nodeDone]} />
+              <View style={styles.nodeSlot} />
               <View
                 testID={testID && `${testID}-item-${index}-right`}
                 style={[styles.side, styles.sideRight, { paddingRight: roomRight }]}

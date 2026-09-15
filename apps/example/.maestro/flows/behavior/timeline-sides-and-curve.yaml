@@ -23,21 +23,21 @@ tags:
 # 1 — por defecto la primera píldora va a la derecha del eje y la segunda a la
 # izquierda.
 - assertVisible:
-    text: "Award-level design"
+    text: "Zero dependencies"
     rightOf:
       point: "50%,50%"
 - assertVisible:
-    text: "Strictly typed"
+    text: "Expo SDK 54–57"
     leftOf:
       point: "50%,50%"
 - assertVisible:
-    text: "60fps motion"
+    text: "WCAG AA palettes"
     rightOf:
       point: "50%,50%"
 # Los hitos pendientes se ven igual de bien que los cumplidos: lo que cambia es
 # el nodo y la línea, no la legibilidad.
-- assertVisible: "AI-agent ready"
-- assertVisible: "One-command install"
+- assertVisible: "Android device runs"
+- assertVisible: "v1.0 release"
 
 # 2 — curve={0}: el eje es recto y la alternancia sigue igual.
 - runFlow:
@@ -45,11 +45,11 @@ tags:
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 - assertVisible:
-    text: "Ordered"
+    text: "Harness"
     rightOf:
       point: "50%,50%"
 - assertVisible:
-    text: "Packed"
+    text: "Coverage gate"
     leftOf:
       point: "50%,50%"
 
@@ -59,11 +59,11 @@ tags:
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 - assertVisible:
-    text: "Ordered"
+    text: "Harness"
     leftOf:
       point: "50%,50%"
 - assertVisible:
-    text: "Packed"
+    text: "Coverage gate"
     rightOf:
       point: "50%,50%"
 
@@ -72,8 +72,8 @@ tags:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
-- assertVisible: "Award-level design"
-- assertVisible: "One-command install"
+- assertVisible: "Zero dependencies"
+- assertVisible: "v1.0 release"
 
 # 5 — apretada adentro de un Card: con menos alto por fila las píldoras no se
 # pisan entre sí.
@@ -81,12 +81,12 @@ tags:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
-- assertVisible: "Ordered"
-- assertVisible: "Delivered"
+- assertVisible: "Harness"
+- assertVisible: "Publish to npm"
 
 # 6 — un solo hito: no hay vano, así que no hay línea que dibujar.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
-- assertVisible: "Only milestone"
+- assertVisible: "Atomic design"
