@@ -1,4 +1,5 @@
 import React from 'react';
+import { Animated } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { OptionWheel, type OptionWheelOption } from '../OptionWheel';
@@ -34,6 +35,17 @@ describe('OptionWheel', () => {
   it('renders every option', () => {
     render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} testID="wheel" />));
     for (const option of SIZES) expect(screen.getByText(option.label)).toBeOnTheScreen();
+  });
+
+  it('pushes the offset into the animated value when it jumps without animating', () => {
+    // El salto sin animar no siempre emite `onScroll`, y de ahí sale el
+    // progreso que apaga y achica las filas: sin empujarlo a mano la rueda
+    // aparece con la fila centrada tan tenue como las de los bordes.
+    const setValue = jest.spyOn(Animated.Value.prototype, 'setValue');
+    render(withProvider(<OptionWheel options={SIZES} selectedValue="xl" onSelect={jest.fn()} testID="wheel" />));
+
+    expect(setValue).toHaveBeenCalledWith(3 * ITEM_HEIGHT);
+    setValue.mockRestore();
   });
 
   it('re-centres the selection once the layout arrives', () => {

@@ -157,9 +157,16 @@ export function OptionWheel<T extends string | number>({
 
   const scrollToIndex = useCallback(
     (index: number, animated: boolean) => {
-      scrollRef.current?.scrollTo({ y: index * itemHeight, animated });
+      const y = index * itemHeight;
+      scrollRef.current?.scrollTo({ y, animated });
+      // `scrollY` sólo lo alimenta `onScroll`, y un salto sin animar no
+      // siempre lo emite: sin esto el valor se queda en 0, la interpolación
+      // cree que la fila centrada es la primera y apaga la que de verdad está
+      // en la ventana. El scroll animado sí emite en todo el recorrido, así
+      // que ahí forzarlo pelearía con la animación.
+      if (!animated) scrollY.setValue(y);
     },
-    [itemHeight]
+    [itemHeight, scrollY]
   );
 
   useEffect(() => {
