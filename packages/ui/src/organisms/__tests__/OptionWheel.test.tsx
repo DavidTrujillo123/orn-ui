@@ -244,6 +244,37 @@ describe('OptionWheel', () => {
     expect(screen.getAllByText('Medium')).toHaveLength(1);
   });
 
+  it('curveRadius bows the rows onto an arc without changing what is picked', () => {
+    const onSelect = jest.fn();
+    render(
+      withProvider(
+        <OptionWheel
+          options={SIZES}
+          selectedValue="m"
+          onSelect={onSelect}
+          curveRadius={400}
+          curveFrom="right"
+          testID="wheel"
+        />
+      )
+    );
+
+    // La curva es puro transform: el snap y lo que se reporta no cambian.
+    settleAt(2 * ITEM_HEIGHT);
+    expect(onSelect).toHaveBeenCalledWith('l');
+  });
+
+  it('a curveRadius smaller than the rows it has to bend does not blow up', () => {
+    // dy > radio: el arco ya dio la vuelta y hay que cortarlo, o la raíz sale
+    // de un negativo y el transform se llena de NaN.
+    render(
+      withProvider(
+        <OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} curveRadius={10} testID="wheel" />
+      )
+    );
+    expect(screen.getByTestId('wheel-item-0')).toBeTruthy();
+  });
+
   it('perspective={false} drops the tilt', () => {
     render(
       withProvider(

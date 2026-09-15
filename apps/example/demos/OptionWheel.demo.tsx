@@ -39,15 +39,26 @@ const PORTFOLIO: OptionWheelOption<string>[] = [
   { label: 'Pension', value: 'pension' },
 ];
 
-/** Lado del disco: cinco filas de 52 entran justas y el círculo queda parejo. */
-const DISC = 5 * 52;
+const ROW = 52;
+const ROWS = 5;
+/**
+ * Radio de la rueda sobre la que caen las filas. Con el centro afuera y a la
+ * izquierda, a ~1.6 alturas de la ventana el arco se nota sin que la última
+ * fila se escape de la caja.
+ */
+const CURVE = ROWS * ROW * 1.6;
 
 /**
  * 'spotlight' no pinta banda ni fondo: lo único que dice cuál está elegida es
  * que es la nítida y la de más contraste. La superficie de abajo —color y
- * forma— la pone quien compone la rueda, que es lo que hace este demo: un
- * disco con un color del tema, y `textColor` para que las filas contrasten
- * contra él. El componente no elige ningún color acá.
+ * forma— la pone quien compone la rueda, y el color de las filas entra por
+ * `textColor`: el componente no elige ningún color acá.
+ *
+ * `curveRadius` es lo que la hace parecer una rueda y no una lista: las filas
+ * caen sobre el borde de un círculo cuyo centro queda afuera, a la izquierda,
+ * así que se meten hacia adentro y se inclinan con la tangente a medida que se
+ * alejan del centro. Va sin `perspective`: inclinar en dos ejes a la vez
+ * ensucia el arco en vez de reforzarlo.
  */
 function PortfolioWheel() {
   const [bucket, setBucket] = useState('stocks');
@@ -55,15 +66,13 @@ function PortfolioWheel() {
   const current = PORTFOLIO.find((option) => option.value === bucket);
 
   return (
-    <View style={{ gap: 8, alignItems: 'center' }}>
+    <View style={{ gap: 8 }}>
       <View
         style={{
-          width: DISC,
-          height: DISC,
-          borderRadius: DISC / 2,
           backgroundColor: colors.primaryText,
+          borderRadius: 24,
           overflow: 'hidden',
-          justifyContent: 'center',
+          paddingVertical: 12,
         }}
       >
         <OptionWheel
@@ -73,8 +82,10 @@ function PortfolioWheel() {
           onSelect={setBucket}
           variant="spotlight"
           textColor={colors.onPrimary}
-          visibleCount={5}
-          itemHeight={52}
+          curveRadius={CURVE}
+          perspective={false}
+          visibleCount={ROWS}
+          itemHeight={ROW}
           testID="wheel-bucket"
         />
       </View>

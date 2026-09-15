@@ -55,6 +55,15 @@ export interface OptionWheelProps<T> {
    * @default theme.colors.text
    */
   textColor?: string;
+  /**
+   * Radius, in pixels, of the wheel the rows sit on. Its centre is off to the
+   * side, so the rows bow inwards as they get further from the middle and tilt
+   * with the tangent — the wheel reads as a rim seen edge-on instead of a flat
+   * list. Smaller radius, rounder arc. Undefined leaves the rows flat.
+   */
+  curveRadius?: number;
+  /** Which side the wheel's centre is on. @default 'left' */
+  curveFrom?: 'left' | 'right';
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -96,6 +105,28 @@ const RANGES: Record<OptionWheelVariant, { opacity: number[]; scale: number[]; r
  * gaussiano, pero a ese tamaño y con esa opacidad lee igual, y sigue siendo
  * `opacity` y `transform` sobre el mismo scroll, o sea el hilo nativo.
  */
+/**
+ * Dónde cae cada punto del `inputRange` sobre el arco. `Animated` no sabe
+ * calcular raíces ni arcosenos, pero no hace falta: las cinco distancias al
+ * centro son fijas por fila, así que la flecha del arco y el ángulo de la
+ * tangente se resuelven una vez acá y entran como `outputRange`.
+ */
+function arcOffsets(radius: number, itemHeight: number, sign: number) {
+  const shift: number[] = [];
+  const angle: string[] = [];
+  for (let step = -FALLOFF; step <= FALLOFF; step += 1) {
+    // Más allá del radio la fila ya dio la vuelta: se corta ahí en vez de
+    // sacarle la raíz a un negativo.
+    const dy = Math.min(Math.abs(step * itemHeight), radius);
+    // Flecha del arco: cuánto se mete la fila hacia el centro de la rueda.
+    shift.push(sign * (radius - Math.sqrt(radius * radius - dy * dy)));
+    // La tangente del arco, para que la fila siga la curva en vez de cruzarla.
+    const degrees = Math.asin(dy / radius) * (180 / Math.PI);
+    angle.push(`${-sign * Math.sign(step) * degrees}deg`);
+  }
+  return { shift, angle };
+}
+
 const GHOST_SHIFTS = [-1, 1];
 const GHOST_SPREAD = 3;
 const GHOST_OPACITY_RANGE = [0.55, 0.3, 0, 0.3, 0.55];
@@ -181,6 +212,8 @@ export function OptionWheel<T extends string | number>({
   perspective = true,
   variant = 'window',
   textColor,
+  curveRadius,
+  curveFrom = 'left',
   disabled = false,
   style,
   testID,
@@ -276,6 +309,13 @@ export function OptionWheel<T extends string | number>({
   // y con "reducir movimiento" no va, porque ahí la nitidez es lo único que
   // queda para distinguir la fila elegida.
   const smeared = variant === 'spotlight' && !reduceMotion;
+  const arc = useMemo(
+    () =>
+      curveRadius && curveRadius > 0 && !reduceMotion
+        ? arcOffsets(curveRadius, itemHeight, curveFrom === 'left' ? -1 : 1)
+        : undefined,
+    [curveRadius, itemHeight, curveFrom, reduceMotion]
+  );
 
   return (
     <View style={[styles.root, disabled && styles.disabled, style]} testID={testID}>
@@ -329,7 +369,13 @@ export function OptionWheel<T extends string | number>({
               centre + FALLOFF * itemHeight,
             ];
             type Interpolated = Animated.AnimatedInterpolation<string | number>;
-            const transform: Array<{ perspective: number } | { scale: Interpolated } | { rotateX: Interpolated }> = [
+            const transform: Array<
+              | { perspective: number }
+              | { scale: Interpolated }
+              | { rotateX: Interpolated }
+              | { rotateZ: Interpolated }
+              | { translateX: Interpolated }
+            > = [
               { scale: scrollY.interpolate({ inputRange, outputRange: ranges.scale, extrapolate: 'clamp' }) },
             ];
             if (perspective && !reduceMotion) {
@@ -339,6 +385,13 @@ export function OptionWheel<T extends string | number>({
               transform.push({
                 rotateX: scrollY.interpolate({ inputRange, outputRange: ranges.rotation, extrapolate: 'clamp' }),
               });
+            }
+
+            if (arc) {
+              transform.push(
+                { translateX: scrollY.interpolate({ inputRange, outputRange: arc.shift, extrapolate: 'clamp' }) },
+                { rotateZ: scrollY.interpolate({ inputRange, outputRange: arc.angle, extrapolate: 'clamp' }) }
+              );
             }
 
             const label = (
