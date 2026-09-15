@@ -194,7 +194,6 @@ hex in component styles, use `useColors()`.
 | `AvatarHeader` | `orn-ui/avatar-header` | `title`, `subtitle?`, `iconName?`, `iconColor?`, `initials?` |
 | `SegmentedControl` | `orn-ui/segmented-control` | `options: {value,label,disabled?}[]`, `value`, `onChange`, `disabled?` |
 | `Steps` | `orn-ui/steps` | `steps: {label,description?}[]`, `current`, `orientation?: 'horizontal'\|'vertical'`, `completedIndicator?: 'check'\|'number'`, `onStepPress?` |
-| `Timeline` | `orn-ui/timeline` | `items: {label,iconName?,emoji?,status?: 'done'\|'pending'}[]`, `curve?` (28, 0 = straight), `spacing?` (84), `startSide?: 'left'\|'right'` (right), `glow?` (true), `onItemPress?`, `advance?: 'free'\|'sequential'\|'revisit'` (free), `selectedIndex?`, `duration?` (420) |
 | `SymmetricGrid` | `orn-ui/symmetric-grid` | `data`, `renderItem`, `keyExtractor`, `columns?` (2), `gap?`, `balanceLastRow?` |
 
 ### Organisms
@@ -205,6 +204,7 @@ hex in component styles, use `useColors()`.
 | `Modal` | `orn-ui/modal` | `visible`, `children`, `onClose?`, `title?`, `footer?`, `variant?: 'full'\|'overlay'\|'fullScreen'`, `scrollable?`, `containerStyle?`, `contentStyle?`, `closeAccessibilityLabel?` |
 | `BottomSheet` | `orn-ui/bottom-sheet` | `visible`, `onClose`, `children`, `title?`, `footer?`, `footerPlacement?: 'fixed'\|'scroll'\|'hide-with-keyboard'`, `scrollable?`, `draggable?`, `maxHeight?` |
 | `Select` | `orn-ui/select` | `options: {label,value,iconName?,emoji?,disabled?}[]`, `selectedValue`, `onSelect`, `label?`, `required?`, `placeholder?`, `error?`, `isLoading?`, `disabled?`, `searchable?`, `searchPlaceholder?`, `maxHeight?` (280), `onOpenChange?` |
+| `Timeline` | `orn-ui/timeline` | `items: {label,iconName?,emoji?,status?: 'done'\|'pending'}[]`, `curve?` (28, 0 = straight), `spacing?` (84), `startSide?: 'left'\|'right'` (right), `glow?` (true), `onItemPress?`, `advance?: 'free'\|'sequential'\|'revisit'` (free), `selectedIndex?`, `duration?` (420) |
 | `OptionWheel` | `orn-ui/option-wheel` | `options: {label,value,disabled?}[]`, `selectedValue`, `onSelect`, `label?`, `accessibilityLabel?`, `visibleCount?` (5, forced odd), `itemHeight?` (44), `unit?`, `perspective?` (true), `variant?: 'window'\|'spotlight'`, `textColor?`, `curveRadius?`, `curveFrom?: 'left'\|'right'` (left), `disabled?` |
 | `List` | `orn-ui/list` | `data`, `keyExtractor`, `renderItem`, `isLoading`, `isRefreshing?`, `isLoadingMore?`, `isReady?`, `skeletonCount?` (6), `renderSkeletonItem?`, `onRefresh?`, `onEndReached?`, `emptyTitle?`, `emptyDescription?`, `emptyIconName?`, `ListHeaderComponent?`, `ListFooterComponent?`, `ListComponent?` (FlashList etc), `listProps?` |
 | `SearchList` | `orn-ui/search-list` | everything in `List`, plus `searchValue`, `onSearchChange`, `searchPlaceholder?`, `searchIsLoading?`, `onScanPress?`, `extraActions?`, `header?`, `loadingMode?: 'replace'\|'overlay'`, `onLoadMore?`, `hasMore?`, `noMoreText?` |

@@ -96,9 +96,9 @@ const insets = useSafeAreaInsets();
   `Input`, `Checkbox`, `Badge`, `Card`, `Divider`, `Gradient`, `Avatar`, `Image`,
   `Spinner`, `Skeleton`, `Transition`, `ShinyText`, `EmptyState`, `KeyValueRow`, `Fab`,
   `PressableScale`
-- **Molecules**: `Stepper`, `OptionCard`, `InfoRow`, `FormActions`, `Timeline`,
+- **Molecules**: `Stepper`, `OptionCard`, `InfoRow`, `FormActions`,
   `AvatarHeader`, `SegmentedControl`, `Steps`, `SymmetricGrid`
-- **Organisms**: `Screen`, `Modal`, `BottomSheet`, `Select`, `OptionWheel`, `List`,
+- **Organisms**: `Screen`, `Modal`, `BottomSheet`, `Select`, `OptionWheel`, `Timeline`, `List`,
   `SearchList`, `ReorderableList`, `Slides`, `Alert`/`AlertProvider`,
   `Toast`/`ToastProvider`, `DatePicker`, `DateField`, `Wizard`,
   `ThemeToggle`, `NavigationBar`

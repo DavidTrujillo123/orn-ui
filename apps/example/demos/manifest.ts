@@ -117,12 +117,6 @@ export const MOLECULES: DemoEntry[] = [
   },
   { slug: 'steps', name: 'Steps', description: 'Multi-step indicator: horizontal/vertical, check or number', Demo: StepsDemo },
   {
-    slug: 'timeline',
-    name: 'Timeline',
-    description: 'Milestones along a curved line, pills alternating sides, done and pending',
-    Demo: TimelineDemo,
-  },
-  {
     slug: 'symmetric-grid',
     name: 'SymmetricGrid',
     description: 'N-column grid; an incomplete last row centers instead of going ragged',
@@ -139,6 +133,12 @@ export const ORGANISMS: DemoEntry[] = [
     name: 'OptionWheel',
     description: 'iOS-style wheel picker: the option in the centre window is the one picked',
     Demo: OptionWheelDemo,
+  },
+  {
+    slug: 'timeline',
+    name: 'Timeline',
+    description: 'Milestones along a curved line, pills alternating sides, done and pending',
+    Demo: TimelineDemo,
   },
   { slug: 'alert', name: 'Alert', description: 'Dialog: useAlert() in components, showAlert()/showConfirm() anywhere else', Demo: AlertDemo },
   { slug: 'screen', name: 'Screen', description: 'Root container: opens real screens to compare safe area, scroll and keyboard', Demo: ScreenDemo },

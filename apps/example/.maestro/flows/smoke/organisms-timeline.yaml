@@ -8,7 +8,7 @@ tags:
     file: ../../subflows/smoke-demo.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
-      BASE_PATH: "molecules"
+      BASE_PATH: "organisms"
       SLUG: "timeline"
       TITLE: "Timeline"
       PAGED: "true"

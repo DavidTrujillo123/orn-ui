@@ -1,5 +1,3 @@
-export { Timeline } from './Timeline';
-export type { TimelineProps, TimelineItem, TimelineStatus } from './Timeline';
 export { Stepper, sanitizeNumeric } from './Stepper';
 export type { StepperProps, StepperSize } from './Stepper';
 export { OptionCard } from './OptionCard';

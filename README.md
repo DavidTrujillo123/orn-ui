@@ -235,7 +235,6 @@ resolves against.
 | `AvatarHeader` | `orn-ui/avatar-header` |
 | `SegmentedControl` | `orn-ui/segmented-control` |
 | `Steps` | `orn-ui/steps` |
-| `Timeline` | `orn-ui/timeline` |
 | `SymmetricGrid` | `orn-ui/symmetric-grid` |
 
 **Organisms**
@@ -245,6 +244,7 @@ resolves against.
 | `Modal` | `orn-ui/modal` |
 | `BottomSheet` | `orn-ui/bottom-sheet` |
 | `Select` | `orn-ui/select` |
+| `Timeline` | `orn-ui/timeline` |
 | `OptionWheel` | `orn-ui/option-wheel` |
 | `Alert`/`AlertProvider` | `orn-ui/alert`, `orn-ui/alert-provider` |
 | `Screen` | `orn-ui/screen` |

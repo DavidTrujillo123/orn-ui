@@ -1,3 +1,5 @@
+export { Timeline } from './Timeline';
+export type { TimelineProps, TimelineItem, TimelineStatus, TimelineAdvance } from './Timeline';
 export { Modal } from './Modal';
 export type { ModalProps, ModalVariant } from './Modal';
 export { BottomSheet } from './BottomSheet';

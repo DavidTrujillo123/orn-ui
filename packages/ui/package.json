@@ -148,11 +148,6 @@
       "react-native": "./src/atoms/PressableScale.tsx",
       "default": "./lib/module/atoms/PressableScale.js"
     },
-    "./timeline": {
-      "types": "./lib/typescript/molecules/Timeline.d.ts",
-      "react-native": "./src/molecules/Timeline.tsx",
-      "default": "./lib/module/molecules/Timeline.js"
-    },
     "./stepper": {
       "types": "./lib/typescript/molecules/Stepper.d.ts",
       "react-native": "./src/molecules/Stepper.tsx",
@@ -197,6 +192,11 @@
       "types": "./lib/typescript/molecules/SymmetricGrid.d.ts",
       "react-native": "./src/molecules/SymmetricGrid.tsx",
       "default": "./lib/module/molecules/SymmetricGrid.js"
+    },
+    "./timeline": {
+      "types": "./lib/typescript/organisms/Timeline.d.ts",
+      "react-native": "./src/organisms/Timeline.tsx",
+      "default": "./lib/module/organisms/Timeline.js"
     },
     "./modal": {
       "types": "./lib/typescript/organisms/Modal.d.ts",
