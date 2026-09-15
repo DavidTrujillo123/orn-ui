@@ -21,6 +21,8 @@ export interface OptionWheelOption<T> {
   disabled?: boolean;
 }
 
+export type OptionWheelVariant = 'window' | 'spotlight';
+
 export interface OptionWheelProps<T> {
   options: OptionWheelOption<T>[];
   selectedValue: T | undefined;
@@ -40,6 +42,19 @@ export interface OptionWheelProps<T> {
   unit?: string;
   /** Tilts the far rows to suggest a cylinder. @default true */
   perspective?: boolean;
+  /**
+   * 'window' marks the pick with a band behind the centre row. 'spotlight'
+   * drops the band and lets the far rows fall away and blur instead, which
+   * needs a quiet surface under it to read.
+   * @default 'window'
+   */
+  variant?: OptionWheelVariant;
+  /**
+   * Colour of the option labels. The surface the wheel sits on is whoever
+   * composes it to paint — this is how the text keeps contrast against it.
+   * @default theme.colors.text
+   */
+  textColor?: string;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -55,9 +70,35 @@ const DEFAULT_ITEM_HEIGHT = 44;
  * arriba se inclina hacia atrás y la de abajo hacia adelante.
  */
 const FALLOFF = 2;
-const OPACITY_RANGE = [0.22, 0.55, 1, 0.55, 0.22];
-const SCALE_RANGE = [0.8, 0.9, 1, 0.9, 0.8];
-const ROTATION_RANGE = ['60deg', '32deg', '0deg', '-32deg', '-60deg'];
+
+/**
+ * Cada variante es un juego de rangos. 'spotlight' cae mucho más rápido y se
+ * inclina más porque no tiene banda que señale el centro: todo el trabajo de
+ * decir cuál está elegida lo hacen el contraste y la nitidez.
+ */
+const RANGES: Record<OptionWheelVariant, { opacity: number[]; scale: number[]; rotation: string[] }> = {
+  window: {
+    opacity: [0.22, 0.55, 1, 0.55, 0.22],
+    scale: [0.8, 0.9, 1, 0.9, 0.8],
+    rotation: ['60deg', '32deg', '0deg', '-32deg', '-60deg'],
+  },
+  spotlight: {
+    opacity: [0.16, 0.42, 1, 0.42, 0.16],
+    scale: [0.72, 0.87, 1, 0.87, 0.72],
+    rotation: ['72deg', '40deg', '0deg', '-40deg', '-72deg'],
+  },
+};
+
+/**
+ * React Native no tiene desenfoque sin dependencia nativa, así que en
+ * 'spotlight' cada fila que no está en el centro se dibuja además dos veces
+ * corrida y a media tinta. La superposición emborrona el trazo: no es un blur
+ * gaussiano, pero a ese tamaño y con esa opacidad lee igual, y sigue siendo
+ * `opacity` y `transform` sobre el mismo scroll, o sea el hilo nativo.
+ */
+const GHOST_SHIFTS = [-1, 1];
+const GHOST_SPREAD = 3;
+const GHOST_OPACITY_RANGE = [0.55, 0.3, 0, 0.3, 0.55];
 
 const useStyles = createStyles((theme) => ({
   root: { gap: theme.tokens.spacing.sm },
@@ -79,6 +120,15 @@ const useStyles = createStyles((theme) => ({
     backgroundColor: theme.colors.primarySoft,
   },
   row: { justifyContent: 'center', alignItems: 'center' },
+  ghost: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   rowContent: { flexDirection: 'row', alignItems: 'center', gap: theme.tokens.spacing.xs },
   text: { fontSize: theme.tokens.fontSize.lg, color: theme.colors.text },
   textDisabled: { color: theme.colors.textLight },
@@ -129,6 +179,8 @@ export function OptionWheel<T extends string | number>({
   itemHeight = DEFAULT_ITEM_HEIGHT,
   unit,
   perspective = true,
+  variant = 'window',
+  textColor,
   disabled = false,
   style,
   testID,
@@ -219,6 +271,11 @@ export function OptionWheel<T extends string | number>({
   );
 
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
+  const ranges = RANGES[variant];
+  // El desenfoque simulado triplica los nodos de texto: sólo va donde aporta,
+  // y con "reducir movimiento" no va, porque ahí la nitidez es lo único que
+  // queda para distinguir la fila elegida.
+  const smeared = variant === 'spotlight' && !reduceMotion;
 
   return (
     <View style={[styles.root, disabled && styles.disabled, style]} testID={testID}>
@@ -239,10 +296,12 @@ export function OptionWheel<T extends string | number>({
         style={[styles.viewport, { height }]}
         testID={testID && `${testID}-viewport`}
       >
-        <View
-          pointerEvents="none"
-          style={[styles.window, { top: padding, height: itemHeight, borderRadius: theme.tokens.radius.sm }]}
-        />
+        {variant === 'window' && (
+          <View
+            pointerEvents="none"
+            style={[styles.window, { top: padding, height: itemHeight, borderRadius: theme.tokens.radius.sm }]}
+          />
+        )}
 
         <Animated.ScrollView
           ref={scrollRef as never}
@@ -271,16 +330,25 @@ export function OptionWheel<T extends string | number>({
             ];
             type Interpolated = Animated.AnimatedInterpolation<string | number>;
             const transform: Array<{ perspective: number } | { scale: Interpolated } | { rotateX: Interpolated }> = [
-              { scale: scrollY.interpolate({ inputRange, outputRange: SCALE_RANGE, extrapolate: 'clamp' }) },
+              { scale: scrollY.interpolate({ inputRange, outputRange: ranges.scale, extrapolate: 'clamp' }) },
             ];
             if (perspective && !reduceMotion) {
               // El perspective va primero: aplicado después de la rotación no
               // deforma nada y la fila se ve plana aunque esté rotada.
               transform.unshift({ perspective: height * 2 });
               transform.push({
-                rotateX: scrollY.interpolate({ inputRange, outputRange: ROTATION_RANGE, extrapolate: 'clamp' }),
+                rotateX: scrollY.interpolate({ inputRange, outputRange: ranges.rotation, extrapolate: 'clamp' }),
               });
             }
+
+            const label = (
+              <Text
+                allowFontScaling={allowFontScaling}
+                style={[styles.text, option.disabled && styles.textDisabled, !!textColor && { color: textColor }]}
+              >
+                {option.label}
+              </Text>
+            );
 
             return (
               <Animated.View
@@ -292,20 +360,53 @@ export function OptionWheel<T extends string | number>({
                     height: itemHeight,
                     opacity: scrollY.interpolate({
                       inputRange,
-                      outputRange: OPACITY_RANGE,
+                      outputRange: ranges.opacity,
                       extrapolate: 'clamp',
                     }),
                     transform,
                   },
                 ]}
               >
+                {smeared &&
+                  GHOST_SHIFTS.map((direction) => (
+                    <Animated.View
+                      key={direction}
+                      pointerEvents="none"
+                      // `accessibilityElementsHidden` no alcanza: el lector
+                      // leería la fila tres veces igual, porque la rueda entera
+                      // ya es un solo elemento y esto vive adentro.
+                      style={[
+                        styles.ghost,
+                        {
+                          opacity: scrollY.interpolate({
+                            inputRange,
+                            outputRange: GHOST_OPACITY_RANGE,
+                            extrapolate: 'clamp',
+                          }),
+                          transform: [
+                            {
+                              translateX: scrollY.interpolate({
+                                inputRange,
+                                outputRange: [
+                                  direction * GHOST_SPREAD,
+                                  direction * (GHOST_SPREAD / 2),
+                                  0,
+                                  direction * (GHOST_SPREAD / 2),
+                                  direction * GHOST_SPREAD,
+                                ],
+                                extrapolate: 'clamp',
+                              }),
+                            },
+                          ],
+                        },
+                      ]}
+                    >
+                      {label}
+                    </Animated.View>
+                  ))}
+
                 <View style={styles.rowContent}>
-                  <Text
-                    allowFontScaling={allowFontScaling}
-                    style={[styles.text, option.disabled && styles.textDisabled]}
-                  >
-                    {option.label}
-                  </Text>
+                  {label}
                   {!!unit && index === selectedIndex && (
                     <Text allowFontScaling={allowFontScaling} style={styles.unit}>
                       {unit}

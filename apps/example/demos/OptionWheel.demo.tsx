@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Body, Card, OptionWheel, Subtitle, type OptionWheelOption } from 'orn-ui';
+import { Body, Card, OptionWheel, Subtitle, useColors, type OptionWheelOption } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 const SIZES: OptionWheelOption<string>[] = [
@@ -28,6 +28,60 @@ const MINUTES: OptionWheelOption<number>[] = Array.from({ length: 12 }, (_, i) =
   label: String(i * 5).padStart(2, '0'),
   value: i * 5,
 }));
+
+const PORTFOLIO: OptionWheelOption<string>[] = [
+  { label: 'Cash', value: 'cash' },
+  { label: 'Bonds', value: 'bonds' },
+  { label: 'Stocks', value: 'stocks' },
+  { label: 'Index funds', value: 'index' },
+  { label: 'Real estate', value: 'estate' },
+  { label: 'Crypto', value: 'crypto' },
+  { label: 'Pension', value: 'pension' },
+];
+
+/** Lado del disco: cinco filas de 52 entran justas y el círculo queda parejo. */
+const DISC = 5 * 52;
+
+/**
+ * 'spotlight' no pinta banda ni fondo: lo único que dice cuál está elegida es
+ * que es la nítida y la de más contraste. La superficie de abajo —color y
+ * forma— la pone quien compone la rueda, que es lo que hace este demo: un
+ * disco con un color del tema, y `textColor` para que las filas contrasten
+ * contra él. El componente no elige ningún color acá.
+ */
+function PortfolioWheel() {
+  const [bucket, setBucket] = useState('stocks');
+  const colors = useColors();
+  const current = PORTFOLIO.find((option) => option.value === bucket);
+
+  return (
+    <View style={{ gap: 8, alignItems: 'center' }}>
+      <View
+        style={{
+          width: DISC,
+          height: DISC,
+          borderRadius: DISC / 2,
+          backgroundColor: colors.primaryText,
+          overflow: 'hidden',
+          justifyContent: 'center',
+        }}
+      >
+        <OptionWheel
+          accessibilityLabel="Portfolio bucket"
+          options={PORTFOLIO}
+          selectedValue={bucket}
+          onSelect={setBucket}
+          variant="spotlight"
+          textColor={colors.onPrimary}
+          visibleCount={5}
+          itemHeight={52}
+          testID="wheel-bucket"
+        />
+      </View>
+      <Body>Allocating to: {current?.label ?? '—'}</Body>
+    </View>
+  );
+}
 
 function SizeWheel({
   label,
@@ -61,6 +115,7 @@ function MinuteWheel() {
         onSelect={setMinutes}
         unit="min"
         visibleCount={3}
+        testID="wheel-minutes"
       />
       <Body>Reminder in {minutes} minutes</Body>
     </View>
@@ -69,20 +124,45 @@ function MinuteWheel() {
 
 function FlatWheel() {
   const [size, setSize] = useState('l');
+  const current = SIZES.find((option) => option.value === size);
 
   return (
-    <OptionWheel
-      label="No tilt"
-      options={SIZES}
-      selectedValue={size}
-      onSelect={setSize}
-      perspective={false}
-    />
+    <View style={{ gap: 8 }}>
+      <OptionWheel
+        label="No tilt"
+        options={SIZES}
+        selectedValue={size}
+        onSelect={setSize}
+        perspective={false}
+        testID="wheel-flat"
+      />
+      <Body>Flat pick: {current?.label ?? '—'}</Body>
+    </View>
+  );
+}
+
+function LockedWheel() {
+  const [size, setSize] = useState('m');
+  const current = SIZES.find((option) => option.value === size);
+
+  return (
+    <View style={{ gap: 8 }}>
+      <OptionWheel
+        label="Locked"
+        options={SIZES}
+        selectedValue={size}
+        onSelect={setSize}
+        disabled
+        testID="wheel-locked"
+      />
+      <Body>Locked on: {current?.label ?? '—'}</Body>
+    </View>
   );
 }
 
 function InCard() {
   const [size, setSize] = useState('s');
+  const current = SIZES.find((option) => option.value === size);
 
   return (
     <Card>
@@ -94,7 +174,9 @@ function InCard() {
         selectedValue={size}
         onSelect={setSize}
         visibleCount={3}
+        testID="wheel-bag"
       />
+      <Body style={{ marginTop: 8 }}>Bag: {current?.label ?? '—'}</Body>
     </Card>
   );
 }
@@ -120,11 +202,15 @@ export function OptionWheelDemo() {
     },
     {
       label: 'disabled — the whole wheel is frozen',
-      content: <OptionWheel label="Locked" options={SIZES} selectedValue="m" onSelect={() => {}} disabled />,
+      content: <LockedWheel />,
     },
     {
       label: 'inside a Card, named for screen readers',
       content: <InCard />,
+    },
+    {
+      label: "variant='spotlight' — no band, the sharp row is the pick",
+      content: <PortfolioWheel />,
     },
   ];
   return <VariantList variants={variants} />;

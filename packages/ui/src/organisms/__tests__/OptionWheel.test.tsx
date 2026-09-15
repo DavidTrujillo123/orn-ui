@@ -227,6 +227,23 @@ describe('OptionWheel', () => {
     expect(screen.getAllByText('EU')).toHaveLength(1);
   });
 
+  it("variant='spotlight' drops the centre band and smears the rows that are not picked", () => {
+    render(
+      withProvider(
+        <OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} variant="spotlight" testID="wheel" />
+      )
+    );
+
+    // Dos copias corridas por fila, más el texto real: sin desenfoque nativo,
+    // la superposición es lo que emborrona la fila que no está elegida.
+    expect(screen.getAllByText('Medium')).toHaveLength(3);
+  });
+
+  it("variant='window' keeps a single copy of each label", () => {
+    render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} testID="wheel" />));
+    expect(screen.getAllByText('Medium')).toHaveLength(1);
+  });
+
   it('perspective={false} drops the tilt', () => {
     render(
       withProvider(

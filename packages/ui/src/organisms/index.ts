@@ -3,7 +3,7 @@ export type { ModalProps, ModalVariant } from './Modal';
 export { BottomSheet } from './BottomSheet';
 export type { BottomSheetProps, FooterPlacement } from './BottomSheet';
 export { OptionWheel } from './OptionWheel';
-export type { OptionWheelProps, OptionWheelOption } from './OptionWheel';
+export type { OptionWheelProps, OptionWheelOption, OptionWheelVariant } from './OptionWheel';
 export { Select } from './Select';
 export type { SelectProps, SelectOption } from './Select';
 export { Alert } from './Alert';
