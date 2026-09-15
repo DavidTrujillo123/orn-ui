@@ -4,8 +4,8 @@ Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 **Zero runtime dependencies** — `react`, `react-native` and
 `react-native-safe-area-context` are the only peers.
 
-48 components (atoms, molecules, organisms), fully typed, themeable
-(light/dark), 534 tests, 90%/85% (lines/branches) coverage gate.
+49 components (atoms, molecules, organisms), fully typed, themeable
+(light/dark), 544 tests, 90%/85% (lines/branches) coverage gate.
 
 **Works on Expo SDK 54, 55, 56 and 57** — every row verified in CI with its own
 sandbox (`tsc` + full test suite). No native modules, no pods, no babel or
@@ -96,7 +96,7 @@ const insets = useSafeAreaInsets();
   `Input`, `Checkbox`, `Badge`, `Card`, `Divider`, `Gradient`, `Avatar`, `Image`,
   `Spinner`, `Skeleton`, `Transition`, `ShinyText`, `EmptyState`, `KeyValueRow`, `Fab`,
   `PressableScale`
-- **Molecules**: `Stepper`, `OptionCard`, `InfoRow`, `FormActions`,
+- **Molecules**: `Stepper`, `OptionCard`, `InfoRow`, `FormActions`, `Timeline`,
   `AvatarHeader`, `SegmentedControl`, `Steps`, `SymmetricGrid`
 - **Organisms**: `Screen`, `Modal`, `BottomSheet`, `Select`, `OptionWheel`, `List`,
   `SearchList`, `ReorderableList`, `Slides`, `Alert`/`AlertProvider`,
@@ -128,7 +128,7 @@ Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-
 The library is written to be *cheap to emit*: a themed, dark-mode-aware,
 accessible screen is 20-50 lines instead of 150-400, so an agent spends fewer
 tokens, the human reviews a smaller diff, and the generated code is already
-covered by 534 tests. One `<SearchList>` replaces a `FlatList` + search input +
+covered by 544 tests. One `<SearchList>` replaces a `FlatList` + search input +
 skeletons + pull-to-refresh + pagination + empty state.
 
 Three properties make it safe to reach for by default:

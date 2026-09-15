@@ -22,6 +22,7 @@ import { PressableScaleDemo } from './PressableScale.demo';
 
 import { StepperDemo } from './Stepper.demo';
 import { StepsDemo } from './Steps.demo';
+import { TimelineDemo } from './Timeline.demo';
 import { OptionCardDemo } from './OptionCard.demo';
 import { InfoRowDemo } from './InfoRow.demo';
 import { FormActionsDemo } from './FormActions.demo';
@@ -115,6 +116,12 @@ export const MOLECULES: DemoEntry[] = [
     Demo: SegmentedControlDemo,
   },
   { slug: 'steps', name: 'Steps', description: 'Multi-step indicator: horizontal/vertical, check or number', Demo: StepsDemo },
+  {
+    slug: 'timeline',
+    name: 'Timeline',
+    description: 'Milestones along a curved line, pills alternating sides, done and pending',
+    Demo: TimelineDemo,
+  },
   {
     slug: 'symmetric-grid',
     name: 'SymmetricGrid',

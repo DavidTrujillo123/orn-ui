@@ -1,0 +1,92 @@
+# Lo que un render test no puede ver: Timeline es puro layout. Jest confirma en
+# qué columna del árbol cae cada píldora, pero no que esa columna termine
+# realmente de un lado u otro de la línea en pantalla, ni que la curva —que
+# corre la fila entera con un translateX— deje la píldora adentro de la caja en
+# vez de cortarla contra el borde. Eso son píxeles, y sólo el dispositivo los
+# tiene.
+#
+# Los asserts usan `leftOf`/`rightOf` contra el centro de la pantalla, que es
+# por donde pasa el eje de la línea: es la forma de afirmar "alterna de lado"
+# sin depender de coordenadas exactas, que cambian con el ancho del teléfono.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "molecules"
+      SLUG: "timeline"
+      TITLE: "Timeline"
+
+# 1 — por defecto la primera píldora va a la derecha del eje y la segunda a la
+# izquierda.
+- assertVisible:
+    text: "Award-level design"
+    rightOf:
+      point: "50%,50%"
+- assertVisible:
+    text: "Strictly typed"
+    leftOf:
+      point: "50%,50%"
+- assertVisible:
+    text: "60fps motion"
+    rightOf:
+      point: "50%,50%"
+# Los hitos pendientes se ven igual de bien que los cumplidos: lo que cambia es
+# el nodo y la línea, no la legibilidad.
+- assertVisible: "AI-agent ready"
+- assertVisible: "One-command install"
+
+# 2 — curve={0}: el eje es recto y la alternancia sigue igual.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible:
+    text: "Ordered"
+    rightOf:
+      point: "50%,50%"
+- assertVisible:
+    text: "Packed"
+    leftOf:
+      point: "50%,50%"
+
+# 3 — startSide="left" da vuelta el arranque, con una curva más ancha.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible:
+    text: "Ordered"
+    leftOf:
+      point: "50%,50%"
+- assertVisible:
+    text: "Packed"
+    rightOf:
+      point: "50%,50%"
+
+# 4 — sin halo.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Award-level design"
+- assertVisible: "One-command install"
+
+# 5 — apretada adentro de un Card: con menos alto por fila las píldoras no se
+# pisan entre sí.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Ordered"
+- assertVisible: "Delivered"
+
+# 6 — un solo hito: no hay vano, así que no hay línea que dibujar.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Only milestone"
