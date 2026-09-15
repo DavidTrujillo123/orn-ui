@@ -1,7 +1,9 @@
-import React, { memo, useMemo } from 'react';
-import { Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { memo, useEffect, useMemo, useRef } from 'react';
+import { Animated, Easing, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { PressableScale } from '../atoms/PressableScale';
+import { useReduceMotion } from '../atoms/Transition';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
 
@@ -27,6 +29,13 @@ export interface TimelineProps {
   startSide?: 'left' | 'right';
   /** Halo behind each pill. @default true */
   glow?: boolean;
+  /** Makes each pill tappable and reports its index. */
+  onItemPress?: (index: number) => void;
+  /**
+   * Milliseconds the line takes to travel one gap when a milestone is
+   * reached. @default 420
+   */
+  duration?: number;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -38,8 +47,14 @@ const LINE = 2;
 /** Tramos rectos por cada vano: con menos, la curva se ve poligonal. */
 const SEGMENTS = 14;
 const DOT = 3;
-/** Un punto cada cuántos tramos, en el trecho pendiente. */
+/** Un punto cada cuántos tramos: el camino entero va punteado por debajo. */
 const DOT_EVERY = 2;
+const DEFAULT_DURATION = 420;
+/**
+ * Cuánto tarda un tramo en encenderse, medido en hitos. Chico para que el
+ * frente de la línea se lea como un borde y no como un degradado largo.
+ */
+const FADE = 0.06;
 /**
  * Capas del halo, de afuera hacia adentro. Son muchas y muy tenues a
  * propósito: con tres capas se ven los anillos, que es justo lo contrario de
@@ -70,8 +85,9 @@ const useStyles = createStyles((theme) => ({
     borderRadius: NODE / 2,
     borderWidth: LINE,
   },
-  nodeDone: { backgroundColor: theme.colors.textLight, borderColor: theme.colors.textLight },
   nodePending: { backgroundColor: 'transparent', borderColor: theme.colors.border },
+  // Ocupa el círculo entero menos el borde, así el relleno no lo tapa.
+  nodeFill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: NODE / 2 },
   pill: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -121,14 +137,46 @@ export const Timeline = memo(
     spacing = DEFAULT_SPACING,
     startSide = 'right',
     glow = true,
+    onItemPress,
+    duration = DEFAULT_DURATION,
     style,
     testID,
   }: TimelineProps) => {
     const styles = useStyles();
     const colors = useColors();
     const allowFontScaling = useAllowFontScaling();
+    const reduceMotion = useReduceMotion();
 
     const count = items.length;
+
+    /**
+     * Hasta dónde llegó el recorrido, en unidades de hito. Se cuenta desde el
+     * principio y se corta en el primer pendiente: un hito cumplido después de
+     * uno que no lo está no adelanta la línea, porque el camino es un camino.
+     */
+    const reached = useMemo(() => {
+      let last = -1;
+      for (let i = 0; i < items.length; i += 1) {
+        if (items[i]?.status === 'pending') break;
+        last = i;
+      }
+      return last;
+    }, [items]);
+
+    const progress = useRef(new Animated.Value(reached)).current;
+
+    useEffect(() => {
+      const animation = Animated.timing(progress, {
+        toValue: reached,
+        // Un hito por `duration`: avanzar tres de una vez tarda tres veces
+        // más, así se ve el recorrido y no un salto.
+        duration: reduceMotion ? 0 : duration,
+        easing: Easing.inOut(Easing.cubic),
+        useNativeDriver: true,
+      });
+      animation.start();
+      return () => animation.stop();
+    }, [reached, duration, reduceMotion, progress]);
 
     /**
      * Cada vano partido en tramos rectos cortos, cada uno con su largo y su
@@ -137,13 +185,17 @@ export const Timeline = memo(
      * lo bastante chicos como para que el ojo no vea el quiebre.
      */
     const pieces = useMemo(() => {
-      const out: { key: string; x: number; y: number; length: number; angle: string; pending: boolean }[] = [];
+      const out: {
+        key: string;
+        x: number;
+        y: number;
+        length: number;
+        angle: string;
+        at: number;
+        dotted: boolean;
+      }[] = [];
 
       for (let i = 0; i < count - 1; i += 1) {
-        // Un vano es pendiente apenas lo es alguno de sus extremos: el trecho
-        // punteado tiene que arrancar en el último hito cumplido, no después.
-        const pending = items[i]?.status === 'pending' || items[i + 1]?.status === 'pending';
-
         for (let step = 0; step < SEGMENTS; step += 1) {
           const from = i + step / SEGMENTS;
           const to = i + (step + 1) / SEGMENTS;
@@ -163,13 +215,16 @@ export const Timeline = memo(
             // El tramo se dibuja vertical y se gira hasta la pendiente: el
             // ángulo se mide desde el eje Y, no desde el X.
             angle: `${Math.atan2(dx, dy) * (180 / Math.PI) * -1}deg`,
-            pending,
+            // Posición del tramo medida en hitos: es la misma escala que
+            // `progress`, así que comparar una cosa con la otra es directo.
+            at: to,
+            dotted: step % DOT_EVERY === 0,
           });
         }
       }
 
       return out;
-    }, [items, count, curve, spacing]);
+    }, [count, curve, spacing]);
 
     if (count === 0) return null;
 
@@ -183,11 +238,12 @@ export const Timeline = memo(
         testID={testID}
       >
         <View style={styles.lineLayer} pointerEvents="none">
-          {pieces.map((piece) =>
-            piece.pending ? (
-              Number(piece.key.split('-')[1]) % DOT_EVERY === 0 && (
+          {/* El camino entero, punteado: es lo que falta recorrer. */}
+          {pieces.map(
+            (piece) =>
+              piece.dotted && (
                 <View
-                  key={piece.key}
+                  key={`dot-${piece.key}`}
                   style={[
                     styles.dot,
                     {
@@ -198,34 +254,68 @@ export const Timeline = memo(
                   ]}
                 />
               )
-            ) : (
-              <View
-                key={piece.key}
-                style={[
-                  styles.segment,
-                  {
-                    backgroundColor: colors.textLight,
-                    height: piece.length,
-                    top: spacing / 2 + piece.y - piece.length / 2,
-                    transform: [{ translateX: piece.x }, { rotate: piece.angle }],
-                  },
-                ]}
-              />
-            )
           )}
+
+          {/* Y encima la línea llena, que se revela tramo a tramo a medida que
+              `progress` avanza. Lo único que cambia por frame es `opacity`, o
+              sea que el recorrido se dibuja en el hilo nativo. */}
+          {pieces.map((piece) => (
+            <Animated.View
+              key={`line-${piece.key}`}
+              style={[
+                styles.segment,
+                {
+                  backgroundColor: colors.textLight,
+                  height: piece.length,
+                  top: spacing / 2 + piece.y - piece.length / 2,
+                  opacity: progress.interpolate({
+                    inputRange: [piece.at - FADE, piece.at],
+                    outputRange: [0, 1],
+                    extrapolate: 'clamp',
+                  }),
+                  transform: [{ translateX: piece.x }, { rotate: piece.angle }],
+                },
+              ]}
+            />
+          ))}
 
           {items.map((item, index) => (
             <View
               key={`node-${item.label}-${index}`}
               style={[
                 styles.node,
-                item.status === 'pending' ? styles.nodePending : styles.nodeDone,
+                styles.nodePending,
                 {
                   top: spacing / 2 + index * spacing - NODE / 2,
                   transform: [{ translateX: offsetAt(index, count, curve) }],
                 },
               ]}
-            />
+            >
+              {/* El relleno es un nodo aparte encima del hueco: el color no se
+                  puede animar en el hilo nativo, la opacidad sí. */}
+              <Animated.View
+                style={[
+                  styles.nodeFill,
+                  {
+                    backgroundColor: colors.textLight,
+                    opacity: progress.interpolate({
+                      inputRange: [index - FADE, index],
+                      outputRange: [0, 1],
+                      extrapolate: 'clamp',
+                    }),
+                    transform: [
+                      {
+                        scale: progress.interpolate({
+                          inputRange: [index - FADE, index],
+                          outputRange: [0.4, 1],
+                          extrapolate: 'clamp',
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+            </View>
           ))}
         </View>
 
@@ -277,27 +367,41 @@ export const Timeline = memo(
             </View>
           );
 
+          const pressable = onItemPress ? (
+            <PressableScale
+              onPress={() => onItemPress(index)}
+              accessibilityRole="button"
+              accessibilityLabel={item.label}
+              accessibilityState={{ checked: !pending }}
+              testID={testID && `${testID}-press-${index}`}
+            >
+              {pill}
+            </PressableScale>
+          ) : (
+            pill
+          );
+
           return (
             <View
               key={`${item.label}-${index}`}
               testID={testID && `${testID}-item-${index}`}
-              accessibilityRole="text"
-              accessibilityLabel={item.label}
-              accessibilityState={{ checked: !pending }}
+              accessibilityRole={onItemPress ? undefined : 'text'}
+              accessibilityLabel={onItemPress ? undefined : item.label}
+              accessibilityState={onItemPress ? undefined : { checked: !pending }}
               style={[styles.row, { height: spacing, transform: [{ translateX: offset }] }]}
             >
               <View
                 testID={testID && `${testID}-item-${index}-left`}
                 style={[styles.side, styles.sideLeft, { paddingLeft: roomLeft }]}
               >
-                {!onRight && pill}
+                {!onRight && pressable}
               </View>
               <View style={styles.nodeSlot} />
               <View
                 testID={testID && `${testID}-item-${index}-right`}
                 style={[styles.side, styles.sideRight, { paddingRight: roomRight }]}
               >
-                {onRight && pill}
+                {onRight && pressable}
               </View>
             </View>
           );

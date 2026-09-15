@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { Card, Timeline, type TimelineItem } from 'orn-ui';
+import { Body, Card, Timeline, type TimelineItem } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 /**
@@ -23,12 +23,72 @@ const PIPELINE: TimelineItem[] = [
   { label: 'Publish to npm', iconName: 'info', status: 'pending' },
 ];
 
+/** Marca hasta `reached` y deja pendiente el resto. */
+function upTo(items: TimelineItem[], reached: number): TimelineItem[] {
+  return items.map((item, index) => ({ ...item, status: index <= reached ? undefined : 'pending' }));
+}
+
+/**
+ * Tocar un hito lo alcanza, y con él todo lo anterior: la línea viaja hasta
+ * ahí. Tocar el que ya está alcanzado da marcha atrás, para poder mirar la
+ * animación en los dos sentidos sin recargar.
+ */
+function TappableTimeline() {
+  const [reached, setReached] = useState(1);
+
+  return (
+    <View style={{ gap: 8 }}>
+      <Timeline
+        items={upTo(ROADMAP, reached)}
+        onItemPress={(index) => setReached(index === reached ? index - 1 : index)}
+        testID="timeline-tap"
+      />
+      {/* El eco existe para el flow de Maestro: el nodo que se llena y la
+          línea que viaja son píxeles, y un assert no los ve. El texto sí. */}
+      <Body>Reached: {ROADMAP[reached]?.label ?? 'nothing yet'}</Body>
+    </View>
+  );
+}
+
+/**
+ * Avanza solo y vuelve a empezar: el demo existe para mirar el movimiento.
+ *
+ * Sin botón de pausa a propósito. Iba uno, y caía justo donde el pager de
+ * VariantList arranca su swipe (80% de la pantalla): el botón se quedaba con
+ * el gesto y no se podía pasar de variante.
+ */
+function AutoTimeline() {
+  const [reached, setReached] = useState(-1);
+
+  useEffect(() => {
+    const id = setInterval(() => {
+      setReached((previous) => (previous >= ROADMAP.length - 1 ? -1 : previous + 1));
+    }, 1100);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <View style={{ gap: 8 }}>
+      <Timeline items={upTo(ROADMAP, reached)} duration={700} testID="timeline-auto" />
+      <Body>Now at: {ROADMAP[reached]?.label ?? 'the start'}</Body>
+    </View>
+  );
+}
+
 export function TimelineDemo() {
   // #region demo
   const variants: VariantDef[] = [
     {
       label: 'default — the line bows, the pills alternate sides',
       content: <Timeline items={ROADMAP} testID="timeline-roadmap" />,
+    },
+    {
+      label: 'onItemPress — tap a milestone and the line travels there',
+      content: <TappableTimeline />,
+    },
+    {
+      label: 'advancing on its own — the line draws itself, gap by gap',
+      content: <AutoTimeline />,
     },
     {
       label: 'curve={0} — a straight spine',

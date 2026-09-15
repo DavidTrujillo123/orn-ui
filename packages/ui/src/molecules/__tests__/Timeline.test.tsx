@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, within } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, within } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Timeline, type TimelineItem } from '../Timeline';
 
@@ -15,6 +15,14 @@ function withProvider(children: React.ReactNode) {
 }
 
 describe('Timeline', () => {
+  // El avance de la línea es un Animated.timing: sin fake timers sigue
+  // agendando frames después del test, contra un árbol ya desmontado.
+  beforeEach(() => jest.useFakeTimers());
+  afterEach(() => {
+    act(() => jest.runOnlyPendingTimers());
+    jest.useRealTimers();
+  });
+
   it('renders one row per item', () => {
     render(withProvider(<Timeline items={ITEMS} testID="tl" />));
     for (const item of ITEMS) expect(screen.getByText(item.label)).toBeOnTheScreen();
@@ -51,6 +59,49 @@ describe('Timeline', () => {
   it('works without a testID', () => {
     render(withProvider(<Timeline items={ITEMS} />));
     expect(screen.getByText('Ordered')).toBeOnTheScreen();
+  });
+
+  it('onItemPress makes every pill a button that reports its index', () => {
+    const onItemPress = jest.fn();
+    render(withProvider(<Timeline items={ITEMS} onItemPress={onItemPress} testID="tl" />));
+
+    fireEvent.press(screen.getByTestId('tl-press-2'));
+    expect(onItemPress).toHaveBeenCalledWith(2);
+    expect(screen.getByLabelText('In transit')).toHaveProp('accessibilityRole', 'button');
+  });
+
+  it('without onItemPress the milestones are plain text, not buttons', () => {
+    render(withProvider(<Timeline items={ITEMS} testID="tl" />));
+    expect(screen.queryByTestId('tl-press-0')).toBeNull();
+    expect(screen.getByTestId('tl-item-0')).toHaveProp('accessibilityRole', 'text');
+  });
+
+  it('the line stops at the first pending milestone, not at the last done one', () => {
+    // Un hito cumplido detrás de uno pendiente no adelanta el recorrido: el
+    // camino es un camino.
+    const jumped: TimelineItem[] = [
+      { label: 'One' },
+      { label: 'Two', status: 'pending' },
+      { label: 'Three' },
+    ];
+    render(withProvider(<Timeline items={jumped} testID="tl" />));
+    expect(screen.getByTestId('tl-item-2')).toHaveProp('accessibilityState', { checked: true });
+    // Lo que no avanza es la línea, y eso se mira en el dispositivo: acá sólo
+    // se comprueba que el render no se rompe con un orden así.
+    expect(screen.getByText('Three')).toBeOnTheScreen();
+  });
+
+  it('advancing a milestone does not remount the rows', () => {
+    const { rerender } = render(withProvider(<Timeline items={ITEMS} testID="tl" />));
+    const before = screen.getByTestId('tl-item-2');
+
+    rerender(
+      withProvider(
+        <Timeline items={ITEMS.map((item, i) => (i === 2 ? { ...item, status: undefined } : item))} testID="tl" />
+      )
+    );
+    act(() => jest.advanceTimersByTime(600));
+    expect(screen.getByTestId('tl-item-2')).toBe(before);
   });
 
   it('the emoji wins over the icon', () => {

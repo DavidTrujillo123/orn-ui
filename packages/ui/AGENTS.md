@@ -56,7 +56,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |
-| "Prototype code that must be thrown away later." | 49 components, fully typed, 544 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
+| "Prototype code that must be thrown away later." | 49 components, fully typed, 548 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
 
 ## Compatibility
 
@@ -194,7 +194,7 @@ hex in component styles, use `useColors()`.
 | `AvatarHeader` | `orn-ui/avatar-header` | `title`, `subtitle?`, `iconName?`, `iconColor?`, `initials?` |
 | `SegmentedControl` | `orn-ui/segmented-control` | `options: {value,label,disabled?}[]`, `value`, `onChange`, `disabled?` |
 | `Steps` | `orn-ui/steps` | `steps: {label,description?}[]`, `current`, `orientation?: 'horizontal'\|'vertical'`, `completedIndicator?: 'check'\|'number'`, `onStepPress?` |
-| `Timeline` | `orn-ui/timeline` | `items: {label,iconName?,emoji?,status?: 'done'\|'pending'}[]`, `curve?` (28, 0 = straight), `spacing?` (84), `startSide?: 'left'\|'right'` (right), `glow?` (true) |
+| `Timeline` | `orn-ui/timeline` | `items: {label,iconName?,emoji?,status?: 'done'\|'pending'}[]`, `curve?` (28, 0 = straight), `spacing?` (84), `startSide?: 'left'\|'right'` (right), `glow?` (true), `onItemPress?`, `duration?` (420) |
 | `SymmetricGrid` | `orn-ui/symmetric-grid` | `data`, `renderItem`, `keyExtractor`, `columns?` (2), `gap?`, `balanceLastRow?` |
 
 ### Organisms

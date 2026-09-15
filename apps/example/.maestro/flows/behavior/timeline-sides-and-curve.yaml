@@ -39,7 +39,42 @@ tags:
 - assertVisible: "Android device runs"
 - assertVisible: "v1.0 release"
 
-# 2 — curve={0}: el eje es recto y la alternancia sigue igual.
+# 2 — onItemPress: tocar un hito lleva la línea hasta ahí. Lo que viaja son
+# píxeles y un assert no los ve, así que lo que se mira es el eco que el demo
+# imprime: si el tap no hubiera llegado a la píldora, seguiría diciendo el
+# hito anterior.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+#
+# Los taps van por `id` y no por texto: apuntando al texto, Maestro da el tap
+# por hecho y el estado no cambia — el nodo que encuentra no es el Pressable.
+# Con el testID de la píldora el tap llega siempre.
+- assertVisible: "Reached: Expo SDK 54–57"
+- tapOn:
+    id: "timeline-tap-press-4"
+- waitForAnimationToEnd
+- assertVisible: "Reached: v1.0 release"
+# Volver a tocar el hito alcanzado da marcha atrás: la línea tiene que poder
+# retroceder, no sólo avanzar.
+- tapOn:
+    id: "timeline-tap-press-4"
+- waitForAnimationToEnd
+- assertVisible: "Reached: Android device runs"
+
+# 3 — avanza solo. Se lo deja correr y se espera a que el eco cambie: eso
+# prueba que el intervalo mueve el recorrido de verdad, no que quedó pegado en
+# el primer hito.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- extendedWaitUntil:
+    visible: "Now at: WCAG AA palettes"
+    timeout: 8000
+
+# 4 — curve={0}: el eje es recto y la alternancia sigue igual.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -53,7 +88,7 @@ tags:
     leftOf:
       point: "50%,50%"
 
-# 3 — startSide="left" da vuelta el arranque, con una curva más ancha.
+# 5 — startSide="left" da vuelta el arranque, con una curva más ancha.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -67,7 +102,7 @@ tags:
     rightOf:
       point: "50%,50%"
 
-# 4 — sin halo.
+# 6 — sin halo.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -75,7 +110,7 @@ tags:
 - assertVisible: "Zero dependencies"
 - assertVisible: "v1.0 release"
 
-# 5 — apretada adentro de un Card: con menos alto por fila las píldoras no se
+# 7 — apretada adentro de un Card: con menos alto por fila las píldoras no se
 # pisan entre sí.
 - runFlow:
     file: ../../subflows/next-variant.yaml
@@ -84,7 +119,7 @@ tags:
 - assertVisible: "Harness"
 - assertVisible: "Publish to npm"
 
-# 6 — un solo hito: no hay vano, así que no hay línea que dibujar.
+# 8 — un solo hito: no hay vano, así que no hay línea que dibujar.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
