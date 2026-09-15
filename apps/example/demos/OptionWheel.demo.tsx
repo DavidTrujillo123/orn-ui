@@ -42,11 +42,12 @@ const PORTFOLIO: OptionWheelOption<string>[] = [
 const ROW = 52;
 const ROWS = 5;
 /**
- * Radio de la rueda sobre la que caen las filas. Con el centro afuera y a la
- * izquierda, a ~1.6 alturas de la ventana el arco se nota sin que la última
- * fila se escape de la caja.
+ * Radio de la rueda sobre la que caen las filas: con el centro afuera y a la
+ * izquierda, cuanto más chico, más cerrada la curva. A 0.7 alturas de ventana
+ * la circunferencia se lee de una, y la fila de más afuera todavía entra en la
+ * caja.
  */
-const CURVE = ROWS * ROW * 1.6;
+const CURVE = ROWS * ROW * 0.7;
 
 /**
  * 'spotlight' no pinta banda ni fondo: lo único que dice cuál está elegida es
@@ -69,8 +70,10 @@ function PortfolioWheel() {
     <View style={{ gap: 8 }}>
       <View
         style={{
-          backgroundColor: colors.primaryText,
+          backgroundColor: colors.surface,
           borderRadius: 24,
+          borderWidth: 1,
+          borderColor: colors.border,
           overflow: 'hidden',
           paddingVertical: 12,
         }}
@@ -81,7 +84,7 @@ function PortfolioWheel() {
           selectedValue={bucket}
           onSelect={setBucket}
           variant="spotlight"
-          textColor={colors.onPrimary}
+          textColor={colors.text}
           curveRadius={CURVE}
           perspective={false}
           visibleCount={ROWS}
