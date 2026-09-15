@@ -62,6 +62,14 @@ const CLIP_VARIANTS = {
   // `setInterval` no deja que la pantalla se aquiete nunca, así que cada
   // `waitForAnimationToEnd` posterior se come su timeout entero.
   'organisms/chart': [0, 1, 2, 3, 4, 5],
+  // Timeline ocupa la pantalla entera y su halo es puro degradado: con las
+  // diez variantes el clip daba 29 segundos y 2 MB. Quedan la forma por
+  // defecto, el toque que hace viajar la línea, y las dos que cambian el
+  // camino (recto, y arrancando por la izquierda).
+  //
+  // La que avanza sola queda afuera por lo mismo que la variante en vivo de
+  // Chart: su intervalo no deja que la pantalla se aquiete nunca.
+  'organisms/timeline': [0, 1, 5, 6],
 };
 
 // `waitForAnimationToEnd` sin timeout espera a que la pantalla se quede
@@ -176,6 +184,13 @@ const INTERACTIONS = {
       '- tapOn:\n    id: "chart-interactive-filter-range-3"',
       1100,
     ],
+  },
+  'organisms/timeline': {
+    // Tocar un hito lleva la línea hasta ahí, y tocar el ya alcanzado la
+    // devuelve: los dos sentidos en una sola variante. El selector es el del
+    // flow de comportamiento — apuntando al texto, Maestro da el tap por hecho
+    // y el estado no cambia, porque el nodo que encuentra no es el Pressable.
+    1: ['- tapOn:\n    id: "timeline-tap-press-4"', 1300, '- tapOn:\n    id: "timeline-tap-press-4"', 1100],
   },
   'organisms/slides': {
     1: ['- tapOn:\n    id: "slides-numbers-indicator-2"', 1000, '- tapOn:\n    id: "slides-numbers-indicator-0"', 800],
