@@ -1,0 +1,68 @@
+# Lo que un render test no puede ver: Chart no tiene layout propio hasta que el
+# dispositivo le dice cuánto mide. En jsdom el ancho es 0 y el componente no
+# dibuja nada; el test lo suple disparando un `layout` a mano, o sea que afirma
+# sobre una medida inventada. Acá la medida es real, y con ella:
+#
+# - que el tap caiga adentro de la banda que le corresponde (las bandas son
+#   cajas absolutas repartidas sobre un ancho que sólo existe en pantalla),
+# - que la serie que elige el tap sea la que tiene la marca más cerca del dedo
+#   —eso se decide con la coordenada del toque, que jsdom no produce—,
+# - que cambiar el filtro redibuje el chart con otras columnas.
+#
+# Los asserts miran el eco de texto que imprime el demo: la barra resaltada, el
+# globo y la animación son píxeles, y un assert no los ve.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "chart"
+      TITLE: "Chart"
+
+# 1 — arranca sin nada elegido, con los seis meses.
+- assertVisible: "Tap a month"
+- assertVisible: "Jan"
+- assertVisible: "Jun"
+
+# 2 — tocar una banda elige ese mes. El tap va por `id`: la banda es una caja
+# transparente sobre la columna, no tiene texto al que apuntar.
+- tapOn:
+    id: "chart-interactive-band-1"
+- waitForAnimationToEnd
+- assertVisible: "Feb: .*"
+
+# 3 — volver a tocar el mismo punto lo suelta. Sin esto no habría forma de
+# volver al chart entero sin tocar afuera.
+- tapOn:
+    id: "chart-interactive-band-1"
+- waitForAnimationToEnd
+- assertVisible: "Tap a month"
+
+# 4 — la leyenda es el filtro: apagar "Costs" saca esa serie del chart, y con
+# una sola serie prendida el tap sólo puede caer en ella.
+- tapOn:
+    id: "chart-interactive-legend-costs"
+- waitForAnimationToEnd
+- tapOn:
+    id: "chart-interactive-band-1"
+- waitForAnimationToEnd
+- assertVisible: "Feb: sales .*"
+
+# 5 — el filtro de rango recorta los datos y el chart se redibuja: los meses
+# que salieron ya no tienen columna ni etiqueta.
+- tapOn:
+    id: "chart-interactive-filter-range-3"
+- waitForAnimationToEnd
+- assertVisible: "Tap a month"
+- assertVisible: "Jun"
+- assertNotVisible: "Jan"
+
+# 6 — y el chart recortado sigue respondiendo, con las bandas reindexadas.
+- tapOn:
+    id: "chart-interactive-band-0"
+- waitForAnimationToEnd
+- assertVisible: "Apr: sales .*"

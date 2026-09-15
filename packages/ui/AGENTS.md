@@ -56,7 +56,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |
-| "Prototype code that must be thrown away later." | 49 components, fully typed, 554 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
+| "Prototype code that must be thrown away later." | 50 components, fully typed, 671 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
 
 ## Compatibility
 
@@ -105,7 +105,7 @@ import { Button } from 'orn-ui/button';
 ```
 
 ```tsx
-import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 49 components
+import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 50 components
 ```
 
 The subpath is the component name in kebab-case (`SearchList` →
@@ -210,6 +210,7 @@ hex in component styles, use `useColors()`.
 | `SearchList` | `orn-ui/search-list` | everything in `List`, plus `searchValue`, `onSearchChange`, `searchPlaceholder?`, `searchIsLoading?`, `onScanPress?`, `extraActions?`, `header?`, `loadingMode?: 'replace'\|'overlay'`, `onLoadMore?`, `hasMore?`, `noMoreText?` |
 | `ReorderableList` | `orn-ui/reorderable-list` | `data`, `keyExtractor`, `itemHeight`, `renderItem(item, index, dragging)`, `onReorder(next)`, `onDragStart?`, `onDragEnd?`, `disabled?` |
 | `Slides` | `orn-ui/slides` | `data`, `keyExtractor`, `renderItem(item, index)`, `background?(item, index): string\|string[]`, `gradientDirection?`, `orientation?: horizontal\|vertical`, `indicators?: dots\|numbers\|none`, `indicatorPlacement?: overlay\|outside`, `loop?`, `autoPlay?`, `interval?`, `showAutoPlayToggle?`, `spacing?`, `index?`, `defaultIndex?`, `onIndexChange?`, `height?`, `swipeEnabled?`, `slideStyle?` |
+| `Chart` | `orn-ui/chart` | `type: 'bar'\|'line'\|'area'\|'pie'\|'donut'\|'radar'`, `data: Record<string, string\|number\|null>[]`, `series: {key,label?,color?}[]`, `xKey?` ('x'), `accessibilityLabel` (required), `height?` (220), `legend?: 'auto'\|'none'\|'static'\|'toggle'`, `hiddenKeys?`/`defaultHiddenKeys?`/`onHiddenKeysChange?`, `filters?: {key,options,value,onChange}[]`, `selected?`/`onSelect?`, `selectBy?(row,i): string`, `window?` (last N rows), `tooltip?`, `formatValue?`, `animate?`, `emptyText?`; bar: `orientation?`, `stacked?`, `barRadius?`; line/area: `smooth?`, `thickness?`, `dots?`, `fillOpacity?`, `stacked?`, `decimate?: number\|false` (LTTB, auto from width); cartesian: `domain?: [min,max]\|'sticky'`, `grid?`, `ticks?`, `xAxis?`, `yAxis?`; pie/donut: `innerRadius?`, `sliceLabels?`; radar: `domain?`, `levels?`, `fill?` |
 | `Alert` | `orn-ui/alert` | `visible`, `title`, `message?`, `type?: 'success'\|'error'\|'warning'\|'info'\|'question'`, `buttons?`, `confirmText?`, `cancelText?`, `onConfirm?`, `onCancel?`, `onClose?`, `inline?` |
 | `AlertProvider` + `useAlert` | `orn-ui/alert-provider`, `orn-ui/use-alert` | mount once; `showAlert(opts)`, `showConfirm(opts)`, `hideAlert()` also work outside React (`orn-ui/show-alert`, `/show-confirm`, `/hide-alert`) |
 | `Toast` | `orn-ui/toast` | `title`, `message?`, `variant?: 'success'\|'error'\|'warning'\|'info'`, `onPress?`, `onDismiss?`, `hideCloseButton?` |

@@ -42,3 +42,13 @@ export type {
   SlidesIndicatorPlacement,
   SlideBackground,
 } from './Slides';
+export { Chart } from './Chart';
+export type {
+  ChartProps,
+  ChartType,
+  ChartSeries,
+  ChartRow,
+  ChartFilter,
+  ChartFilterOption,
+  ChartSelection,
+} from './Chart';

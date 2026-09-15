@@ -45,6 +45,7 @@ import { NavigationBarDemo } from './NavigationBar.demo';
 import { ReorderableListDemo } from './ReorderableList.demo';
 import { SymmetricGridDemo } from './SymmetricGrid.demo';
 import { SlidesDemo } from './Slides.demo';
+import { ChartDemo } from './Chart.demo';
 
 export interface DemoEntry {
   slug: string;
@@ -164,6 +165,12 @@ export const ORGANISMS: DemoEntry[] = [
     name: 'Slides',
     description: 'Carousel: horizontal/vertical, dots or numbers, finite or infinite, autoPlay, gradient or flat background',
     Demo: SlidesDemo,
+  },
+  {
+    slug: 'chart',
+    name: 'Chart',
+    description: 'Bar (vertical/horizontal, grouped/stacked), line, area, pie, donut and radar — one component, no native dependency',
+    Demo: ChartDemo,
   },
   {
     slug: 'reorderable-list',

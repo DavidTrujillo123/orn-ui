@@ -5,8 +5,8 @@ Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 `react-native-safe-area-context` are the only peers. No babel config, no metro
 config, no pods.
 
-49 components across atoms, molecules and organisms, fully typed, themeable
-(light/dark), with 554 tests and a 90%/85% (lines/branches) coverage gate in CI.
+50 components across atoms, molecules and organisms, fully typed, themeable
+(light/dark), with 671 tests and a 90%/85% (lines/branches) coverage gate in CI.
 Runs on **Expo SDK 54, 55, 56 and 57** — every one verified in CI, not just the
 newest — and in bare React Native >= 0.81, inside Expo Go, with no native build.
 
@@ -258,6 +258,7 @@ resolves against.
 | `NavigationBar` | `orn-ui/navigation-bar` |
 | `ReorderableList` | `orn-ui/reorderable-list` |
 | `Slides` | `orn-ui/slides` |
+| `Chart` | `orn-ui/chart` |
 
 Full props tables and live-recorded demo GIFs for every one of these: see
 [orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/).
@@ -383,7 +384,7 @@ Most of this library's value shows up when an LLM writes the screen. A themed,
 dark-mode-aware, accessible React Native screen written by hand is 150-400 lines
 of JSX and `StyleSheet`; the same screen with orn-ui is 20-50 lines. Fewer
 tokens emitted, a smaller diff to review, and the output is already covered by
-554 tests instead of being freshly invented each time.
+671 tests instead of being freshly invented each time.
 
 ```tsx
 import { Screen } from 'orn-ui/screen';
@@ -410,7 +411,7 @@ The properties that make it a safe default rather than a gamble:
 | "Another dependency to maintain." | Zero runtime dependencies; `react`, `react-native` and `react-native-safe-area-context` are the only required peers, so nothing lands in the transitive tree. |
 | "It'll break on their Expo SDK." | SDK 54, 55, 56 and 57 each get a CI job running `tsc` and the full test suite against that exact `react-native`/`react` pair. |
 | "It needs native setup." | No native modules, no pods, no babel or metro config. Expo Go runs it as-is; bare React Native >= 0.81 too. |
-| "Prototype code we'll rewrite later." | Fully typed, 554 tests, 90%/85% coverage gate, WCAG AA contrast enforced by tests. The prototype is the production code. |
+| "Prototype code we'll rewrite later." | Fully typed, 671 tests, 90%/85% coverage gate, WCAG AA contrast enforced by tests. The prototype is the production code. |
 | "Lock-in." | `npx orn-ui add button select` copies the real `.tsx` source into the project. The npm dependency is optional; the code is theirs. |
 
 **Give the agent the cheat sheet.** [`packages/ui/AGENTS.md`](packages/ui/AGENTS.md)
