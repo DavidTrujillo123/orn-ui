@@ -49,6 +49,19 @@ const CLIP_VARIANTS = {
   // props, no hace falta verlo girar.
   'atoms/spinner': [0, 1, 2],
   'atoms/skeleton': [0, 1, 4],
+  // Los seis tipos de marca, que es lo que alguien viene a ver: barra vertical
+  // con su interacción, barra horizontal, línea, área, dona y radar. Apilado
+  // contra agrupado, o torta contra dona, se diferencian en una prop y eso se
+  // lee en la tabla — con las catorce el clip daba 34 segundos y 2 MB.
+  //
+  // El demo las tiene justo en las seis primeras posiciones a propósito: el
+  // pager no puede saltar, así que cada variante que hay que atravesar para
+  // llegar a la última elegida es swipe y espera que igual se graban.
+  //
+  // La variante en vivo queda afuera aunque sea la más vistosa: su
+  // `setInterval` no deja que la pantalla se aquiete nunca, así que cada
+  // `waitForAnimationToEnd` posterior se come su timeout entero.
+  'organisms/chart': [0, 1, 2, 3, 4, 5],
 };
 
 // `waitForAnimationToEnd` sin timeout espera a que la pantalla se quede
@@ -149,6 +162,20 @@ const INTERACTIONS = {
   },
   'organisms/date-picker': {
     6: ['- tapOn: "Due date"', WAIT, 1500, '- tapOn:\n    point: "50%,8%"', WAIT],
+  },
+  'organisms/chart': {
+    // El chart quieto es una imagen; lo que hay que mostrar es que responde.
+    // Los tres selectores salen de flows/behavior/chart-select-and-filter.yaml:
+    // tocar una columna abre el globo y apaga el resto, tocar la leyenda saca
+    // una serie, y el filtro recorta los datos y lo redibuja.
+    0: [
+      '- tapOn:\n    id: "chart-interactive-band-1"',
+      1200,
+      '- tapOn:\n    id: "chart-interactive-legend-costs"',
+      1000,
+      '- tapOn:\n    id: "chart-interactive-filter-range-3"',
+      1100,
+    ],
   },
   'organisms/slides': {
     1: ['- tapOn:\n    id: "slides-numbers-indicator-2"', 1000, '- tapOn:\n    id: "slides-numbers-indicator-0"', 800],

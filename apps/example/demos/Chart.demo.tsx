@@ -139,22 +139,6 @@ export function ChartDemo() {
   const variants: VariantDef[] = [
     { label: 'interactive: filter, legend, tooltip', content: <Interactive /> },
     {
-      label: 'bar: grouped',
-      content: (
-        <Card>
-          <Chart type="bar" data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs per month" />
-        </Card>
-      ),
-    },
-    {
-      label: 'bar: stacked',
-      content: (
-        <Card>
-          <Chart type="bar" stacked data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs stacked per month" />
-        </Card>
-      ),
-    },
-    {
       label: 'bar: horizontal',
       content: (
         <Card>
@@ -169,14 +153,6 @@ export function ChartDemo() {
       ),
     },
     {
-      label: 'bar: negative values',
-      content: (
-        <Card>
-          <Chart type="bar" data={NET} series={[{ key: 'net', label: 'Net' }]} accessibilityLabel="Net result per quarter" />
-        </Card>
-      ),
-    },
-    {
       label: 'line',
       content: (
         <Card>
@@ -185,34 +161,10 @@ export function ChartDemo() {
       ),
     },
     {
-      label: 'line: smooth',
-      content: (
-        <Card>
-          <Chart type="line" smooth data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs per month, smoothed" />
-        </Card>
-      ),
-    },
-    {
       label: 'area',
       content: (
         <Card>
           <Chart type="area" smooth data={MONTHS} series={[{ key: 'sales', label: 'Sales' }]} accessibilityLabel="Sales per month" />
-        </Card>
-      ),
-    },
-    {
-      label: 'area: stacked',
-      content: (
-        <Card>
-          <Chart type="area" stacked data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs stacked per month" />
-        </Card>
-      ),
-    },
-    {
-      label: 'pie',
-      content: (
-        <Card>
-          <Chart type="pie" data={SHARE} series={[{ key: 'users' }]} accessibilityLabel="Share of users per platform" />
         </Card>
       ),
     },
@@ -238,6 +190,54 @@ export function ChartDemo() {
             ]}
             accessibilityLabel="Library comparison"
           />
+        </Card>
+      ),
+    },
+    {
+      label: 'bar: grouped',
+      content: (
+        <Card>
+          <Chart type="bar" data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs per month" />
+        </Card>
+      ),
+    },
+    {
+      label: 'bar: stacked',
+      content: (
+        <Card>
+          <Chart type="bar" stacked data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs stacked per month" />
+        </Card>
+      ),
+    },
+    {
+      label: 'bar: negative values',
+      content: (
+        <Card>
+          <Chart type="bar" data={NET} series={[{ key: 'net', label: 'Net' }]} accessibilityLabel="Net result per quarter" />
+        </Card>
+      ),
+    },
+    {
+      label: 'line: smooth',
+      content: (
+        <Card>
+          <Chart type="line" smooth data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs per month, smoothed" />
+        </Card>
+      ),
+    },
+    {
+      label: 'area: stacked',
+      content: (
+        <Card>
+          <Chart type="area" stacked data={MONTHS} series={SERIES} accessibilityLabel="Sales and costs stacked per month" />
+        </Card>
+      ),
+    },
+    {
+      label: 'pie',
+      content: (
+        <Card>
+          <Chart type="pie" data={SHARE} series={[{ key: 'users' }]} accessibilityLabel="Share of users per platform" />
         </Card>
       ),
     },
