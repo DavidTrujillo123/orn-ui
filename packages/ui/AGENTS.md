@@ -175,7 +175,7 @@ hex in component styles, use `useColors()`.
 | `Spinner` | `orn-ui/spinner` | `size?: 'small'\|'large'`, `color?`, `text?`, `fullscreen?`, `variant?: 'native'\|'dots'\|'ring'`, `indicator?` |
 | `Skeleton` | `orn-ui/skeleton` | `width?`, `height?`, `variant?: 'rect'\|'text'\|'circle'`, `radius?`, `lines?`, `lastLineWidth?`, `animated?` |
 | `Transition` | `orn-ui/transition` | `children`, `visible?`, `preset?: 'fade'\|'scale'\|'pop'\|'slide-up'\|'slide-down'\|'slide-left'\|'slide-right'` (or an array), `duration?`, `delay?`, `distance?`, `spring?`, `appear?`, `keepMounted?`, `value?: Animated.Value`, `onEntered?`, `onExited?` |
-| `ShinyText` | `orn-ui/shiny-text` | `text`, `duration?` (2400), `delay?` (600), `spread?` (0.28), `animated?`, `color?`, `shineColor?`, `align?: 'left'\|'center'\|'right'` |
+| `ShinyText` | `orn-ui/shiny-text` | `text`, `duration?` (2400), `delay?` (600), `spread?` (0.28), `animated?`, `color?` (theme `textLight`), `shineColor?` (theme `primary`), `align?: 'left'\|'center'\|'right'` |
 | `useReduceMotion` | `orn-ui/use-reduce-motion` | `(): boolean` — respects the OS setting |
 | `EmptyState` | `orn-ui/empty-state` | `title?`, `description?`, `iconName?`, `icon?` |
 | `KeyValueRow` | `orn-ui/key-value-row` | `label`, `value`, `labelStyle?`, `valueStyle?` |

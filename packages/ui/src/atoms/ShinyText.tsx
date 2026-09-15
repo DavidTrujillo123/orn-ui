@@ -28,7 +28,7 @@ export interface ShinyTextProps {
   animated?: boolean;
   /** Resting color of the characters. @default theme.colors.textLight */
   color?: string;
-  /** Color of the band that travels across. @default theme.colors.text */
+  /** Color of the band that travels across. @default theme.colors.primary */
   shineColor?: string;
   /** @default 'left' */
   align?: 'left' | 'center' | 'right';
@@ -132,7 +132,10 @@ export const ShinyText = memo(
     const progress = useRef(new Animated.Value(0)).current;
 
     const base = color ?? theme.colors.textLight;
-    const shine = shineColor ?? theme.colors.text;
+    // El acento, no `text`: contra `textLight` la diferencia es sólo de
+    // luminancia y el barrido casi no se ve. El brillo cambia tono además de
+    // claridad, que es lo que hace legible el movimiento.
+    const shine = shineColor ?? theme.colors.primary;
     const running = animated && !reduceMotion && text.length > 0;
 
     useEffect(() => {

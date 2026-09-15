@@ -1,0 +1,73 @@
+# Recorre las seis variantes del demo, una por página del pager.
+#
+# Lo que un render test no puede ver: ShinyText no renderiza un <Text>, sino
+# dos nodos por letra dentro de un View con `accessible`. Jest confirma el prop
+# `accessibilityLabel`; sólo el dispositivo confirma que el sistema fusiona
+# esos nodos en uno y que la frase sigue siendo un string buscable — si la
+# fusión no ocurriera, Maestro vería "D", "e", "f"... y no el texto.
+#
+# Cada variante tiene un texto propio justamente para esto: con dos páginas
+# diciendo lo mismo, un swipe que se queda corto pasaría desapercibido porque
+# el assert seguiría encontrando el texto de la página anterior.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "atoms"
+      SLUG: "shiny-text"
+      TITLE: "ShinyText"
+
+# 1 — los dos pares de color conviven en la misma página.
+- assertVisible: "Default pair"
+- assertVisible: "Maximum contrast"
+
+# El barrido es un loop infinito: waitForAnimationToEnd no sirve de ancla acá.
+# Que el texto siga visible después de un ciclo completo (2400ms + 600 de
+# pausa) prueba que ninguna letra se queda en opacidad 0 entre vueltas.
+- extendedWaitUntil:
+    visible: "Default pair"
+    timeout: 4000
+
+# 2 — wrap por palabra: la frase larga tiene que aparecer entera.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "A headline long enough to wrap onto more than one line"
+
+# 3 — spread angosto y ancho, dos instancias animando a la vez.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Narrow glint"
+- assertVisible: "Soft wide wave"
+
+# 4 — duration 4000 / delay 1200: el ciclo más lento del demo.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Taking its time"
+- extendedWaitUntil:
+    visible: "Taking its time"
+    timeout: 6000
+
+# 5 — animated={false}: un solo <Text> plano, no el árbol por letra.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "No sweep at all"
+
+# 6 — dentro de un Card, con el acento de marca.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Pro plan"
+- assertVisible: "Unlimited invoices · priority support"
