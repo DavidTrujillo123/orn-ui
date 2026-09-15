@@ -31,6 +31,7 @@ import { SegmentedControlDemo } from './SegmentedControl.demo';
 import { ModalDemo } from './Modal.demo';
 import { BottomSheetDemo } from './BottomSheet.demo';
 import { SelectDemo } from './Select.demo';
+import { OptionWheelDemo } from './OptionWheel.demo';
 import { AlertDemo } from './Alert.demo';
 import { ScreenDemo } from './Screen.demo';
 import { ListDemo } from './List.demo';
@@ -126,6 +127,12 @@ export const ORGANISMS: DemoEntry[] = [
   { slug: 'modal', name: 'Modal', description: 'full / overlay / fullScreen', Demo: ModalDemo },
   { slug: 'bottom-sheet', name: 'BottomSheet', description: 'Sheet from the bottom: drag to dismiss, optional header, footer and scroll', Demo: BottomSheetDemo },
   { slug: 'select', name: 'Select', description: 'Anchored dropdown: emoji/icon per option, search, and it escapes any clipping parent', Demo: SelectDemo },
+  {
+    slug: 'option-wheel',
+    name: 'OptionWheel',
+    description: 'iOS-style wheel picker: the option in the centre window is the one picked',
+    Demo: OptionWheelDemo,
+  },
   { slug: 'alert', name: 'Alert', description: 'Dialog: useAlert() in components, showAlert()/showConfirm() anywhere else', Demo: AlertDemo },
   { slug: 'screen', name: 'Screen', description: 'Root container: opens real screens to compare safe area, scroll and keyboard', Demo: ScreenDemo },
   { slug: 'list', name: 'List', description: 'List with first load, refresh, pagination and empty solved', Demo: ListDemo, hostsList: true },

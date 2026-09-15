@@ -56,7 +56,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |
-| "Prototype code that must be thrown away later." | 47 components, fully typed, 511 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
+| "Prototype code that must be thrown away later." | 48 components, fully typed, 529 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
 
 ## Compatibility
 
@@ -105,7 +105,7 @@ import { Button } from 'orn-ui/button';
 ```
 
 ```tsx
-import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 47 components
+import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 48 components
 ```
 
 The subpath is the component name in kebab-case (`SearchList` →
@@ -204,6 +204,7 @@ hex in component styles, use `useColors()`.
 | `Modal` | `orn-ui/modal` | `visible`, `children`, `onClose?`, `title?`, `footer?`, `variant?: 'full'\|'overlay'\|'fullScreen'`, `scrollable?`, `containerStyle?`, `contentStyle?`, `closeAccessibilityLabel?` |
 | `BottomSheet` | `orn-ui/bottom-sheet` | `visible`, `onClose`, `children`, `title?`, `footer?`, `footerPlacement?: 'fixed'\|'scroll'\|'hide-with-keyboard'`, `scrollable?`, `draggable?`, `maxHeight?` |
 | `Select` | `orn-ui/select` | `options: {label,value,iconName?,emoji?,disabled?}[]`, `selectedValue`, `onSelect`, `label?`, `required?`, `placeholder?`, `error?`, `isLoading?`, `disabled?`, `searchable?`, `searchPlaceholder?`, `maxHeight?` (280), `onOpenChange?` |
+| `OptionWheel` | `orn-ui/option-wheel` | `options: {label,value,disabled?}[]`, `selectedValue`, `onSelect`, `label?`, `accessibilityLabel?`, `visibleCount?` (5, forced odd), `itemHeight?` (44), `unit?`, `perspective?` (true), `disabled?` |
 | `List` | `orn-ui/list` | `data`, `keyExtractor`, `renderItem`, `isLoading`, `isRefreshing?`, `isLoadingMore?`, `isReady?`, `skeletonCount?` (6), `renderSkeletonItem?`, `onRefresh?`, `onEndReached?`, `emptyTitle?`, `emptyDescription?`, `emptyIconName?`, `ListHeaderComponent?`, `ListFooterComponent?`, `ListComponent?` (FlashList etc), `listProps?` |
 | `SearchList` | `orn-ui/search-list` | everything in `List`, plus `searchValue`, `onSearchChange`, `searchPlaceholder?`, `searchIsLoading?`, `onScanPress?`, `extraActions?`, `header?`, `loadingMode?: 'replace'\|'overlay'`, `onLoadMore?`, `hasMore?`, `noMoreText?` |
 | `ReorderableList` | `orn-ui/reorderable-list` | `data`, `keyExtractor`, `itemHeight`, `renderItem(item, index, dragging)`, `onReorder(next)`, `onDragStart?`, `onDragEnd?`, `disabled?` |

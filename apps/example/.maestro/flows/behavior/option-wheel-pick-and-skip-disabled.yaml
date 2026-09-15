@@ -1,0 +1,91 @@
+# Lo que un render test no puede ver: la rueda es un ScrollView anidado adentro
+# del pager vertical de VariantList, o sea dos scrolls verticales compitiendo
+# por el mismo gesto. Jest dispara `momentumScrollEnd` a mano y nunca prueba
+# que el dedo llegue a la rueda en vez de pasar la página. Tampoco ve el snap:
+# en jsdom no hay inercia, así que "soltar entre dos filas termina con una
+# centrada" sólo se puede afirmar acá.
+#
+# El swipe va por coordenadas y no `from: { id: ... }`: el swipe por elemento
+# de Maestro arranca en su centro y viaja casi la pantalla entera, lo que en
+# esta rueda son más filas que opciones y además le da al gesto la velocidad
+# justa para que el pager se lo robe.
+#
+# Los asserts miran el "Picked:" que el demo imprime debajo, no la fila
+# centrada: el texto de la fila está igual de visible esté elegida o no, así
+# que sólo el eco de abajo prueba que el gesto movió la selección.
+#
+# Después de cada swipe se vuelve a afirmar el label de la rueda ("Size", "In
+# stock"). Sin eso el flow se miente solo: si el pager se quedara con el gesto
+# y pasara de página, "Picked: Medium" también dejaría de estar visible y el
+# assertNotVisible pasaría sin que la rueda se hubiera movido.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "option-wheel"
+      TITLE: "OptionWheel"
+
+# 1 — arranca centrada en Medium y el gesto la mueve.
+- assertVisible: "Picked: Medium"
+- swipe:
+    start: "50%,52%"
+    end: "50%,44%"
+    duration: 400
+- waitForAnimationToEnd
+- assertVisible: "Size"
+- assertNotVisible: "Picked: Medium"
+- assertVisible: "Picked: .*"
+
+# 2 — Small y Wide están deshabilitadas: la rueda no puede quedarse en
+# ninguna de las dos, se corra lo que se corra. Las etiquetas de esta variante
+# no comparten prefijo justamente por esto: con 'Large' y 'X-Large' el
+# assertNotVisible encuentra la una adentro de la otra y nunca falla.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Picked: Medium"
+- swipe:
+    start: "50%,52%"
+    end: "50%,44%"
+    duration: 400
+- waitForAnimationToEnd
+- assertVisible: "In stock"
+- assertNotVisible: "Picked: Small"
+- assertNotVisible: "Picked: Wide"
+- assertVisible: "Picked: .*"
+
+# 3 — rueda compacta con unidad.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Remind me in"
+- assertVisible: "Reminder in 15 minutes"
+
+# 4 — sin inclinación.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "No tilt"
+
+# 5 — deshabilitada entera: el gesto no cambia nada.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Locked"
+
+# 6 — dentro de un Card.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Bag size"
+- assertVisible: "Ships free over 2 kg"
