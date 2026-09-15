@@ -104,6 +104,88 @@ describe('Timeline', () => {
     expect(screen.getByTestId('tl-item-2')).toBe(before);
   });
 
+  it("advance='sequential' only answers the milestone right after the line", () => {
+    const onItemPress = jest.fn();
+    // Alcanzado: 'Ordered' (0) y 'Packed' (1). El siguiente es el 2.
+    render(
+      withProvider(<Timeline items={ITEMS} onItemPress={onItemPress} advance="sequential" testID="tl" />)
+    );
+
+    fireEvent.press(screen.getByTestId('tl-press-3'));
+    expect(onItemPress).not.toHaveBeenCalled();
+    fireEvent.press(screen.getByTestId('tl-press-1'));
+    expect(onItemPress).not.toHaveBeenCalled();
+
+    fireEvent.press(screen.getByTestId('tl-press-2'));
+    expect(onItemPress).toHaveBeenCalledWith(2);
+  });
+
+  it("advance='revisit' answers everything already walked, plus the next one", () => {
+    const onItemPress = jest.fn();
+    render(withProvider(<Timeline items={ITEMS} onItemPress={onItemPress} advance="revisit" testID="tl" />));
+
+    fireEvent.press(screen.getByTestId('tl-press-0'));
+    expect(onItemPress).toHaveBeenCalledWith(0);
+    fireEvent.press(screen.getByTestId('tl-press-2'));
+    expect(onItemPress).toHaveBeenCalledWith(2);
+
+    // El 3 está más allá del frente: todavía no.
+    onItemPress.mockClear();
+    fireEvent.press(screen.getByTestId('tl-press-3'));
+    expect(onItemPress).not.toHaveBeenCalled();
+  });
+
+  it('a milestone out of reach says it is disabled instead of staying mute', () => {
+    render(withProvider(<Timeline items={ITEMS} onItemPress={jest.fn()} advance="sequential" testID="tl" />));
+    expect(screen.getByTestId('tl-press-3')).toHaveProp('accessibilityState', {
+      checked: false,
+      disabled: true,
+      selected: false,
+    });
+  });
+
+  it('the line keeps its furthest point when the parent hands back less progress', () => {
+    const { rerender } = render(withProvider(<Timeline items={ITEMS} advance="revisit" testID="tl" />));
+    act(() => jest.advanceTimersByTime(600));
+
+    // Todo pendiente salvo el primero: en 'revisit' el recorrido no se
+    // desanda, así que el siguiente alcanzable sigue siendo el 2.
+    const walkedBack = ITEMS.map((item, i) => (i === 0 ? item : { ...item, status: 'pending' as const }));
+    rerender(withProvider(<Timeline items={walkedBack} advance="revisit" onItemPress={jest.fn()} testID="tl" />));
+    act(() => jest.advanceTimersByTime(600));
+
+    expect(screen.getByTestId('tl-press-2')).toHaveProp('accessibilityState', {
+      checked: false,
+      disabled: false,
+      selected: false,
+    });
+  });
+
+  it("advance='free' lets the line go back", () => {
+    const { rerender } = render(withProvider(<Timeline items={ITEMS} onItemPress={jest.fn()} testID="tl" />));
+    act(() => jest.advanceTimersByTime(600));
+
+    const walkedBack = ITEMS.map((item, i) => (i === 0 ? item : { ...item, status: 'pending' as const }));
+    rerender(withProvider(<Timeline items={walkedBack} onItemPress={jest.fn()} testID="tl" />));
+    act(() => jest.advanceTimersByTime(600));
+
+    // Sin restricción, todos siguen respondiendo.
+    expect(screen.getByTestId('tl-press-3')).toHaveProp('accessibilityState', {
+      checked: false,
+      disabled: false,
+      selected: false,
+    });
+  });
+
+  it('selectedIndex highlights the milestone being looked at without moving the line', () => {
+    render(withProvider(<Timeline items={ITEMS} onItemPress={jest.fn()} selectedIndex={0} testID="tl" />));
+    expect(screen.getByTestId('tl-press-0')).toHaveProp('accessibilityState', {
+      checked: true,
+      disabled: false,
+      selected: true,
+    });
+  });
+
   it('the emoji wins over the icon', () => {
     render(withProvider(<Timeline items={[{ label: 'Both', emoji: '🎯', iconName: 'check' }]} testID="tl" />));
     expect(screen.getByText('🎯')).toBeOnTheScreen();

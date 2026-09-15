@@ -9,6 +9,19 @@ import type { IconName } from '../icons/types';
 
 export type TimelineStatus = 'done' | 'pending';
 
+/**
+ * Qué puede hacer un toque.
+ * - 'free': cualquier hito responde y la línea sigue a `items` para donde
+ *   vaya, adelante o atrás. Es el que sirve cuando el recorrido no es un
+ *   progreso, o cuando lo maneja otra cosa.
+ * - 'sequential': sólo responde el que sigue al alcanzado, y la línea no
+ *   retrocede nunca. Avance estricto.
+ * - 'revisit': responden el que sigue y todos los ya alcanzados, y la línea
+ *   tampoco retrocede. Es el caso de "puedo volver a mirar lo anterior sin
+ *   perder lo que llevo".
+ */
+export type TimelineAdvance = 'free' | 'sequential' | 'revisit';
+
 export interface TimelineItem {
   label: string;
   /** Glyph from the library's set, to the left of the label. */
@@ -31,6 +44,20 @@ export interface TimelineProps {
   glow?: boolean;
   /** Makes each pill tappable and reports its index. */
   onItemPress?: (index: number) => void;
+  /**
+   * Which taps are allowed, and whether the line may go back. @default 'free'
+   *
+   * In 'sequential' and 'revisit' the line keeps the furthest point it has
+   * been asked to draw, so a parent that hands back a shorter `items` does not
+   * undo the progress. Swapping in a different list keeps it too — reset it by
+   * remounting (a `key`).
+   */
+  advance?: TimelineAdvance;
+  /**
+   * The milestone being looked at right now, highlighted. It is not the
+   * progress: it can sit behind the line without pulling it back.
+   */
+  selectedIndex?: number;
   /**
    * Milliseconds the line takes to travel one gap when a milestone is
    * reached. @default 420
@@ -99,6 +126,9 @@ const useStyles = createStyles((theme) => ({
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.surface,
   },
+  // El foco se marca con el borde, no con el relleno: el relleno ya está
+  // diciendo otra cosa (si el hito está alcanzado o no).
+  pillSelected: { borderColor: theme.colors.primary, borderWidth: 2 },
   label: { fontSize: theme.tokens.fontSize.md, color: theme.colors.text },
   labelPending: { color: theme.colors.textLight },
   emoji: { fontSize: theme.tokens.fontSize.md },
@@ -138,6 +168,8 @@ export const Timeline = memo(
     startSide = 'right',
     glow = true,
     onItemPress,
+    advance = 'free',
+    selectedIndex,
     duration = DEFAULT_DURATION,
     style,
     testID,
@@ -163,11 +195,21 @@ export const Timeline = memo(
       return last;
     }, [items]);
 
-    const progress = useRef(new Animated.Value(reached)).current;
+    /**
+     * Marca de agua: salvo en 'free', la línea se queda en lo más lejos que
+     * llegó. El progreso es del usuario, no del render — que el padre mande
+     * una lista más corta no puede desandar lo que ya recorrió.
+     */
+    const furthest = useRef(reached);
+    if (advance === 'free') furthest.current = reached;
+    else furthest.current = Math.max(furthest.current, reached);
+    const lineTo = furthest.current;
+
+    const progress = useRef(new Animated.Value(lineTo)).current;
 
     useEffect(() => {
       const animation = Animated.timing(progress, {
-        toValue: reached,
+        toValue: lineTo,
         // Un hito por `duration`: avanzar tres de una vez tarda tres veces
         // más, así se ve el recorrido y no un salto.
         duration: reduceMotion ? 0 : duration,
@@ -176,7 +218,7 @@ export const Timeline = memo(
       });
       animation.start();
       return () => animation.stop();
-    }, [reached, duration, reduceMotion, progress]);
+    }, [lineTo, duration, reduceMotion, progress]);
 
     /**
      * Cada vano partido en tramos rectos cortos, cada uno con su largo y su
@@ -350,7 +392,7 @@ export const Timeline = memo(
                     ]}
                   />
                 ))}
-              <View style={styles.pill}>
+              <View style={[styles.pill, index === selectedIndex && styles.pillSelected]}>
                 {item.emoji ? (
                   <Text allowFontScaling={allowFontScaling} style={styles.emoji}>
                     {item.emoji}
@@ -367,12 +409,24 @@ export const Timeline = memo(
             </View>
           );
 
+          // 'sequential' deja tocar sólo el que sigue; 'revisit' también los
+          // ya recorridos. El que no responde se marca como deshabilitado en
+          // vez de quedarse mudo: un botón que no hace nada y no lo dice es
+          // peor que un botón apagado.
+          const reachable =
+            advance === 'sequential'
+              ? index === lineTo + 1
+              : advance === 'revisit'
+                ? index <= lineTo + 1
+                : true;
+
           const pressable = onItemPress ? (
             <PressableScale
               onPress={() => onItemPress(index)}
+              disabled={!reachable}
               accessibilityRole="button"
               accessibilityLabel={item.label}
-              accessibilityState={{ checked: !pending }}
+              accessibilityState={{ checked: !pending, disabled: !reachable, selected: index === selectedIndex }}
               testID={testID && `${testID}-press-${index}`}
             >
               {pill}

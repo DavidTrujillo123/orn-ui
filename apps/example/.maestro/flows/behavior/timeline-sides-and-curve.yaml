@@ -63,7 +63,48 @@ tags:
 - waitForAnimationToEnd
 - assertVisible: "Reached: Android device runs"
 
-# 3 — avanza solo. Se lo deja correr y se espera a que el eco cambie: eso
+# 3 — advance="sequential": sólo responde el hito que sigue. Tocar uno más
+# adelante no hace nada, y tocar uno ya alcanzado tampoco: el avance es
+# estricto y no se devuelve.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: 'Only "Expo SDK 54–57" answers'
+- tapOn:
+    id: "timeline-seq-press-3"
+- waitForAnimationToEnd
+- assertVisible: 'Only "Expo SDK 54–57" answers'
+- tapOn:
+    id: "timeline-seq-press-0"
+- waitForAnimationToEnd
+- assertVisible: 'Only "Expo SDK 54–57" answers'
+- tapOn:
+    id: "timeline-seq-press-1"
+- waitForAnimationToEnd
+- assertVisible: 'Only "WCAG AA palettes" answers'
+
+# 4 — advance="revisit": tocar para atrás mueve el foco, no el recorrido. Es
+# lo que jest no puede afirmar: que las dos cosas se ven distintas al mismo
+# tiempo en la misma pantalla.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Looking at: WCAG AA palettes"
+- assertVisible: "Progress stays at: WCAG AA palettes"
+- tapOn:
+    id: "timeline-revisit-press-0"
+- waitForAnimationToEnd
+- assertVisible: "Looking at: Zero dependencies"
+- assertVisible: "Progress stays at: WCAG AA palettes"
+# Y el que sigue al recorrido sí lo empuja.
+- tapOn:
+    id: "timeline-revisit-press-3"
+- waitForAnimationToEnd
+- assertVisible: "Progress stays at: Android device runs"
+
+# 5 — avanza solo. Se lo deja correr y se espera a que el eco cambie: eso
 # prueba que el intervalo mueve el recorrido de verdad, no que quedó pegado en
 # el primer hito.
 - runFlow:
@@ -74,7 +115,7 @@ tags:
     visible: "Now at: WCAG AA palettes"
     timeout: 8000
 
-# 4 — curve={0}: el eje es recto y la alternancia sigue igual.
+# 6 — curve={0}: el eje es recto y la alternancia sigue igual.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -88,7 +129,7 @@ tags:
     leftOf:
       point: "50%,50%"
 
-# 5 — startSide="left" da vuelta el arranque, con una curva más ancha.
+# 7 — startSide="left" da vuelta el arranque, con una curva más ancha.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -102,7 +143,7 @@ tags:
     rightOf:
       point: "50%,50%"
 
-# 6 — sin halo.
+# 8 — sin halo.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -110,7 +151,7 @@ tags:
 - assertVisible: "Zero dependencies"
 - assertVisible: "v1.0 release"
 
-# 7 — apretada adentro de un Card: con menos alto por fila las píldoras no se
+# 9 — apretada adentro de un Card: con menos alto por fila las píldoras no se
 # pisan entre sí.
 - runFlow:
     file: ../../subflows/next-variant.yaml
@@ -119,7 +160,7 @@ tags:
 - assertVisible: "Harness"
 - assertVisible: "Publish to npm"
 
-# 8 — un solo hito: no hay vano, así que no hay línea que dibujar.
+# 10 — un solo hito: no hay vano, así que no hay línea que dibujar.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:

@@ -75,6 +75,59 @@ function AutoTimeline() {
   );
 }
 
+/**
+ * Avance estricto: sólo responde el hito que sigue, y lo alcanzado no se
+ * devuelve. Es el onboarding que no deja saltear pasos.
+ */
+function SequentialTimeline() {
+  const [reached, setReached] = useState(0);
+
+  return (
+    <View style={{ gap: 8 }}>
+      <Timeline
+        items={upTo(ROADMAP, reached)}
+        advance="sequential"
+        onItemPress={setReached}
+        testID="timeline-seq"
+      />
+      <Body>
+        {reached >= ROADMAP.length - 1
+          ? 'All done — nothing left to tap'
+          : `Only "${ROADMAP[reached + 1]?.label}" answers`}
+      </Body>
+    </View>
+  );
+}
+
+/**
+ * Progreso guardado, contenido revisitable: tocar un hito anterior cambia lo
+ * que estoy mirando, no lo que llevo recorrido. La línea se queda donde
+ * llegó y el borde marca dónde estoy parado.
+ */
+function RevisitTimeline() {
+  const [reached, setReached] = useState(2);
+  const [looking, setLooking] = useState(2);
+
+  return (
+    <View style={{ gap: 8 }}>
+      <Timeline
+        items={upTo(ROADMAP, reached)}
+        advance="revisit"
+        selectedIndex={looking}
+        onItemPress={(index) => {
+          setLooking(index);
+          // Sólo el hito que sigue empuja el recorrido; los de atrás son una
+          // visita.
+          if (index > reached) setReached(index);
+        }}
+        testID="timeline-revisit"
+      />
+      <Body>Looking at: {ROADMAP[looking]?.label}</Body>
+      <Body>Progress stays at: {ROADMAP[reached]?.label}</Body>
+    </View>
+  );
+}
+
 export function TimelineDemo() {
   // #region demo
   const variants: VariantDef[] = [
@@ -85,6 +138,14 @@ export function TimelineDemo() {
     {
       label: 'onItemPress — tap a milestone and the line travels there',
       content: <TappableTimeline />,
+    },
+    {
+      label: 'advance="sequential" — only the next milestone answers, no going back',
+      content: <SequentialTimeline />,
+    },
+    {
+      label: 'advance="revisit" — revisit the past, keep the progress',
+      content: <RevisitTimeline />,
     },
     {
       label: 'advancing on its own — the line draws itself, gap by gap',
