@@ -9,9 +9,9 @@ import { VariantList, type VariantDef } from '@/components/VariantList';
  */
 const ROADMAP: TimelineItem[] = [
   { label: 'Zero dependencies', emoji: '📦' },
-  { label: 'Expo SDK 54–57', emoji: '📱' },
+  { label: 'Expo SDK', emoji: '📱' },
   { label: 'WCAG AA palettes', emoji: '🎨' },
-  { label: 'Android device runs', emoji: '🤖', status: 'pending' },
+  { label: 'Android runs', emoji: '🤖', status: 'pending' },
   { label: 'v1.0 release', emoji: '🏁', status: 'pending' },
 ];
 
