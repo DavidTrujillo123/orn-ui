@@ -46,7 +46,7 @@ export function GradientDemo() {
       label: 'children stay tappable — the gradient never takes the touch',
       content: (
         <Gradient
-          colors={['#004cef', '#00cae1']}
+          colors={['#0b2a8f', '#004cef']}
           direction="diagonal"
           style={{ ...BOX, alignItems: 'center', justifyContent: 'center', gap: 8 }}
         >
