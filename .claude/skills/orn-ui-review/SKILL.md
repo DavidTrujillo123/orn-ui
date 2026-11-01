@@ -186,6 +186,11 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
   emulando el dispositivo por CDP (Chrome headless no baja de ~500px de ancho
   con `--window-size`; da falsos desbordes). Componente estático: borrar su
   `.mp4`. Si `astro dev` sirve CSS viejo, `touch` al `.astro`.
+  La docs compila contra `orn-ui` **publicado en npm**, no contra el repo:
+  una API nueva (export, tipo) rompe `pnpm run build` de la docs hasta que se
+  publique. Correr el build de la docs antes de commitear; si falla por eso,
+  copiar lo necesario en el demo de docs con un comentario "al publicar,
+  reemplazar por el import".
 
 Antes de decir "hecho" (desde `orn-ui/`):
 
