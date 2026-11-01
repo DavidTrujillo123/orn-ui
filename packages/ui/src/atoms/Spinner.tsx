@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { ActivityIndicator, Animated, Easing, Text, View } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useLabels } from '../theme/UIProvider';
 
 export type SpinnerVariant = 'native' | 'dots' | 'ring';
 
@@ -19,8 +19,16 @@ export interface SpinnerProps {
   variant?: SpinnerVariant;
   /** Fully custom indicator. Takes precedence over `variant`. */
   indicator?: React.ReactNode;
+  /** What screen readers announce. @default text ?? labels.loading */
+  accessibilityLabel?: string;
   testID?: string;
 }
+
+// Ritmo de los indicadores en loop. No son transiciones de UI (esas usan
+// theme.tokens.duration): son el pulso de una animación continua.
+const DOT_PULSE_MS = 320;
+const DOT_STAGGER_MS = 140;
+const RING_TURN_MS = 900;
 
 const useStyles = createStyles((theme) => ({
   container: { justifyContent: 'center', alignItems: 'center', padding: theme.tokens.spacing.xl },
@@ -36,10 +44,10 @@ const DotsIndicator = memo(({ color, dotSize }: { color: string; dotSize: number
     const animations = dots.map((dot, i) =>
       Animated.loop(
         Animated.sequence([
-          Animated.delay(i * 140),
-          Animated.timing(dot, { toValue: 1, duration: 320, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
-          Animated.timing(dot, { toValue: 0, duration: 320, useNativeDriver: true, easing: Easing.in(Easing.quad) }),
-          Animated.delay((2 - i) * 140),
+          Animated.delay(i * DOT_STAGGER_MS),
+          Animated.timing(dot, { toValue: 1, duration: DOT_PULSE_MS, useNativeDriver: true, easing: Easing.out(Easing.quad) }),
+          Animated.timing(dot, { toValue: 0, duration: DOT_PULSE_MS, useNativeDriver: true, easing: Easing.in(Easing.quad) }),
+          Animated.delay((2 - i) * DOT_STAGGER_MS),
         ])
       )
     );
@@ -69,37 +77,70 @@ const DotsIndicator = memo(({ color, dotSize }: { color: string; dotSize: number
 });
 DotsIndicator.displayName = 'DotsIndicator';
 
-/** Anillo que gira: un borde con un solo lado coloreado. */
+/**
+ * Anillo que gira: un riel tenue fijo y encima un arco (un solo lado del
+ * borde) que gira. El riel usa `opacity` en vez de concatenar alpha al color
+ * (`color + '33'`), que solo funcionaba con hex de 6 dígitos y rompía con
+ * `rgb()` o nombres de color.
+ */
 const RingIndicator = memo(({ color, diameter }: { color: string; diameter: number }) => {
   const spin = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const animation = Animated.loop(
-      Animated.timing(spin, { toValue: 1, duration: 900, useNativeDriver: true, easing: Easing.linear })
+      Animated.timing(spin, { toValue: 1, duration: RING_TURN_MS, useNativeDriver: true, easing: Easing.linear })
     );
     animation.start();
     return () => animation.stop();
   }, []);
 
+  const ring = { width: diameter, height: diameter, borderRadius: diameter / 2, borderWidth: Math.max(2, diameter / 10) };
   return (
-    <Animated.View
-      style={{
-        width: diameter,
-        height: diameter,
-        borderRadius: diameter / 2,
-        borderWidth: Math.max(2, diameter / 10),
-        borderColor: color + '33',
-        borderTopColor: color,
-        transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }],
-      }}
-    />
+    <View style={{ width: diameter, height: diameter }}>
+      <View style={[ring, { position: 'absolute', borderColor: color, opacity: 0.2 }]} />
+      <Animated.View
+        style={[
+          ring,
+          {
+            borderColor: 'transparent',
+            borderTopColor: color,
+            transform: [{ rotate: spin.interpolate({ inputRange: [0, 1], outputRange: ['0deg', '360deg'] }) }],
+          },
+        ]}
+      />
+    </View>
   );
 });
 RingIndicator.displayName = 'RingIndicator';
 
+/**
+ * Spinner
+ * Indicador de carga indeterminada, con texto opcional debajo.
+ *
+ * Gestalt:
+ * - Destino común: los tres puntos de `dots` laten en secuencia, con el
+ *   mismo ritmo, y se leen como un solo indicador que avanza.
+ * - Proximidad: el texto va a `spacing.md` del indicador, así se lee como su
+ *   explicación y no como texto suelto de la pantalla.
+ *
+ * Accesibilidad: se anuncia como `progressbar` ocupado, con `text` (o
+ * `labels.loading`) como nombre. La animación no se detiene con Reduce
+ * Motion: es la señal de que algo está pasando, como el ActivityIndicator del
+ * sistema.
+ */
 export const Spinner = memo(
-  ({ size = 'large', color, text, fullscreen = true, variant = 'native', indicator, testID }: SpinnerProps) => {
+  ({
+    size = 'large',
+    color,
+    text,
+    fullscreen = true,
+    variant = 'native',
+    indicator,
+    accessibilityLabel,
+    testID,
+  }: SpinnerProps) => {
     const colors = useColors();
+    const labels = useLabels();
     const styles = useStyles();
     const allowFontScaling = useAllowFontScaling();
     const resolvedColor = color || colors.primary;
@@ -113,9 +154,17 @@ export const Spinner = memo(
     };
 
     return (
-      <View style={[styles.container, fullscreen && { flex: 1 }]} testID={testID}>
+      <View
+        style={[styles.container, fullscreen && { flex: 1 }]}
+        testID={testID}
+        accessible
+        accessibilityRole="progressbar"
+        accessibilityLabel={accessibilityLabel ?? (text || labels.loading)}
+        accessibilityState={{ busy: true }}
+        accessibilityLiveRegion="polite"
+      >
         {renderIndicator()}
-        {text && (
+        {!!text && (
           <Text allowFontScaling={allowFontScaling} style={styles.text}>
             {text}
           </Text>

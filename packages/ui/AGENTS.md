@@ -172,7 +172,7 @@ hex in component styles, use `useColors()`.
 | `Avatar` | `orn-ui/avatar` | `size?` (44), `source?` (photo; falls back to initials on error), `name?` (initials + accessible name), `iconName?` (user), `backgroundColor?`, `color?`, `children?` (overrides all), `accessibilityLabel?`; also exports `initialsOf(name)` |
 | `Image` | `orn-ui/image` | `source`, `width?`, `height?`, `resizeMode?`, `radius?`, `loading?: ReactNode\|boolean`, `fallback?`, `priority?: 'low'\|'normal'\|'high'`, `accessibilityLabel?` (omit = decorative), `onLoadEnd?` (success or failure), `onError?` |
 | `prefetchImage` | `orn-ui/prefetch-image` | `(url: string) => Promise<boolean>` (RN `Image.prefetch`) — warm the cache before navigating |
-| `Spinner` | `orn-ui/spinner` | `size?: 'small'\|'large'`, `color?`, `text?`, `fullscreen?`, `variant?: 'native'\|'dots'\|'ring'`, `indicator?` |
+| `Spinner` | `orn-ui/spinner` | `size?: 'small'\|'large'`, `color?`, `text?`, `fullscreen?`, `variant?: 'native'\|'dots'\|'ring'`, `indicator?`, `accessibilityLabel?` (text ?? labels.loading) |
 | `Skeleton` | `orn-ui/skeleton` | `width?`, `height?`, `variant?: 'rect'\|'text'\|'circle'`, `radius?`, `lines?`, `lastLineWidth?`, `animated?` |
 | `Transition` | `orn-ui/transition` | `children`, `visible?`, `preset?: 'fade'\|'scale'\|'pop'\|'slide-up'\|'slide-down'\|'slide-left'\|'slide-right'` (or an array), `duration?`, `delay?`, `distance?`, `spring?`, `appear?`, `keepMounted?`, `value?: Animated.Value`, `onEntered?`, `onExited?` |
 | `ShinyText` | `orn-ui/shiny-text` | `text`, `duration?` (2400), `delay?` (600), `spread?` (0.28), `animated?`, `color?` (theme `textLight`), `shineColor?` (theme `primary`), `align?: 'left'\|'center'\|'right'` |

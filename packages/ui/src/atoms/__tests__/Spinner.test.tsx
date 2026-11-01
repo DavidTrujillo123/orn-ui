@@ -44,4 +44,24 @@ describe('Spinner', () => {
     const { unmount } = render(withProvider(<Spinner variant="ring" />));
     expect(() => unmount()).not.toThrow();
   });
+
+  it('is announced as a busy progressbar, named by text or labels.loading', () => {
+    const { rerender } = render(withProvider(<Spinner text="Syncing..." fullscreen={false} />));
+    expect(screen.getByRole('progressbar', { name: 'Syncing...' })).toBeOnTheScreen();
+    rerender(withProvider(<Spinner fullscreen={false} />));
+    expect(screen.getByRole('progressbar', { name: 'Loading...' })).toBeOnTheScreen();
+  });
+
+  it('does not crash with empty text', () => {
+    render(withProvider(<Spinner text="" fullscreen={false} />));
+    expect(screen.getByRole('progressbar')).toBeOnTheScreen();
+  });
+
+  it('the ring works with non-hex colors (track uses opacity, not a hex suffix)', () => {
+    render(withProvider(<Spinner variant="ring" color="rgb(255, 0, 0)" fullscreen={false} testID="s" />));
+    const json = JSON.stringify(screen.toJSON());
+    expect(json).not.toContain('rgb(255, 0, 0)33');
+    expect(json).toContain('"opacity":0.2');
+  });
 });
+

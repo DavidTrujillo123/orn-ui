@@ -18,7 +18,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | Gradient | gradient | arreglado | 2026-10-31 | diagonal en caja no cuadrada dejaba esquinas sin pintar (plano ahora mide la diagonal real con onLayout); líneas finas entre bandas (capas acumuladas hasta el final del plano); doc Gestalt figura/fondo; demo con texto blanco sobre celeste (fallaba contraste) ahora azul oscuro; steps por defecto 24→48 (bandas visibles en cajas anchas). Docs: 5 capturas, sin mp4 |
 | Avatar | avatar | arreglado | 2026-10-31 | API nueva: source (foto, cae a iniciales si falla), name (iniciales + nombre accesible, initialsOf exportado), iconName (default user), color; overflow hidden; role image con nombre, decorativo sin él; doc Gestalt; demo con theme y tamaños centrados. Docs: 6 capturas, sin mp4 |
 | Image | image | arreglado | 2026-10-31 | BUG: el fallback nunca se veía (RN dispara onLoadEnd también al fallar y pisaba el error) → éxito con onLoad; fallback default con ícono warning y centrado (también el propio); accessibilityLabel (role image, decorativo sin él); fadeDuration de token; doc Gestalt cierre. Docs: 5 capturas, sin mp4 |
-| Spinner | spinner | pendiente | | |
+| Spinner | spinner | arreglado | 2026-10-31 | ring rompía con colores no-hex (color+"33") → riel con opacity; a11y progressbar ocupado con nombre (text ?? labels.loading) + accessibilityLabel; crash text=""; ritmos de loop como constantes nombradas; doc Gestalt destino común; demo con colores del theme y fila de tamaños alineada. Docs: 7 capturas; mp4 quitado (las capturas muestran cada variante) |
 | Skeleton | skeleton | pendiente | | |
 | Transition | transition | pendiente | | |
 | ShinyText | shiny-text | pendiente | | |

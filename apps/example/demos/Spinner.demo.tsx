@@ -1,10 +1,11 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Spinner, Avatar, Icon } from 'orn-ui';
+import { Spinner, Avatar, useColors } from 'orn-ui';
 import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
 
 export function SpinnerDemo() {
   // #region demo
+  const colors = useColors();
   const variants: VariantDef[] = [
     {
       label: 'variant="native" (default — system ActivityIndicator)',
@@ -21,21 +22,21 @@ export function SpinnerDemo() {
     {
       label: 'sizes',
       content: (
-        <VariantRow>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
           <Spinner variant="dots" size="small" fullscreen={false} />
           <Spinner variant="dots" size="large" fullscreen={false} />
           <Spinner variant="ring" size="small" fullscreen={false} />
           <Spinner variant="ring" size="large" fullscreen={false} />
-        </VariantRow>
+        </View>
       ),
     },
     {
       label: 'custom color',
       content: (
         <VariantRow>
-          <Spinner variant="dots" color="#00cae1" fullscreen={false} />
-          <Spinner variant="ring" color="#ff3b30" fullscreen={false} />
-          <Spinner color="#34c759" fullscreen={false} />
+          <Spinner variant="dots" color={colors.secondary} fullscreen={false} />
+          <Spinner variant="ring" color={colors.error} fullscreen={false} />
+          <Spinner color={colors.success} fullscreen={false} />
         </VariantRow>
       ),
     },
@@ -46,9 +47,7 @@ export function SpinnerDemo() {
           fullscreen={false}
           text="Uploading..."
           indicator={
-            <Avatar size={48} backgroundColor="#004cef20">
-              <Icon name="plus" size={24} color="#004cef" />
-            </Avatar>
+            <Avatar size={48} iconName="share" />
           }
         />
       ),
