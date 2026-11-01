@@ -206,7 +206,11 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
   que cada variante y la portada sean `.mp4` (regla del usuario: con
   movimiento, la docs va en video). Estáticos: solo capturas y sin `.mp4`.
   Interactivos (requieren tocar): conservar el `.mp4` existente hasta
-  regrabarlo con Maestro. Luego
+  regrabarlo con Maestro. **Excepción: si el componente ES una animación
+  (Transition, cualquier cosa cuyo propósito es moverse), nunca stills** — el
+  demo se anima solo con un intervalo (el botón sigue funcionando) y se graba
+  con `VIDEO=1` (`CLIP_S` que cubra un ciclo completo). Error del 2026-11-01:
+  Transition se publicó con capturas fijas. Luego
   revisar la página en móvil 390, tablet 820 y PC 1440, claro y oscuro,
   emulando el dispositivo por CDP (Chrome headless no baja de ~500px de ancho
   con `--window-size`; da falsos desbordes). Componente estático: borrar su

@@ -3,8 +3,20 @@ import { View } from 'react-native';
 import { Body, Button, Card, Caption, Subtitle, Transition, type TransitionPreset } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
+// Los demos se animan solos (y el botón sigue funcionando): una transición
+// que hay que tocar para ver no se puede grabar para la docs, y es justo lo
+// que la docs tiene que mostrar.
+const AUTO_TOGGLE_MS = 1600;
+const AUTO_REPLAY_MS = 3000;
+const AUTO_REMOVE_MS = 900;
+
 function Toggle({ preset, distance }: { preset: TransitionPreset | TransitionPreset[]; distance?: number }) {
   const [visible, setVisible] = useState(true);
+
+  useEffect(() => {
+    const id = setInterval(() => setVisible((v) => !v), AUTO_TOGGLE_MS);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <View style={{ gap: 12 }}>
@@ -25,6 +37,11 @@ const ROWS = ['Acme Studio', 'Bright Labs', 'Northwind', 'Contoso'];
 
 function StaggeredList() {
   const [round, setRound] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setRound((r) => r + 1), AUTO_REPLAY_MS);
+    return () => clearInterval(id);
+  }, []);
 
   return (
     <View style={{ gap: 12 }}>
@@ -48,10 +65,14 @@ function ExitBeforeUnmount() {
 
   useEffect(() => {
     if (items.length === 0) {
-      const id = setTimeout(() => setItems(ROWS), 900);
+      const id = setTimeout(() => setItems(ROWS), AUTO_REMOVE_MS);
       return () => clearTimeout(id);
     }
-  }, [items]);
+    // Sin toques, va sacando la primera fila: cada una sale animada.
+    if (removing) return;
+    const id = setTimeout(() => setRemoving(items[0]!), AUTO_REMOVE_MS);
+    return () => clearTimeout(id);
+  }, [items, removing]);
 
   return (
     <View style={{ gap: 8 }}>
