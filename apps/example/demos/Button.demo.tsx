@@ -24,6 +24,7 @@ export function ButtonDemo() {
       ),
     },
     { label: 'Disabled', content: <Button title="Disabled" disabled onPress={() => {}} /> },
+    { label: 'Loading (static)', content: <Button title="Saving" loading onPress={() => {}} /> },
     {
       label: 'Loading',
       content: (

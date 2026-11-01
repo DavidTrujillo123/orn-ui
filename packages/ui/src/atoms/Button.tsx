@@ -4,6 +4,8 @@ import {
   Animated,
   Pressable,
   Text,
+  View,
+  type Insets,
   type GestureResponderEvent,
   type StyleProp,
   type TextStyle,
@@ -12,6 +14,7 @@ import {
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors, useTheme } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
+import { useReduceMotion } from './Transition';
 import type { IconName } from '../icons/types';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
@@ -46,11 +49,11 @@ const useStyles = createStyles((theme) => ({
     borderWidth: 0,
   },
   sm: { paddingVertical: theme.tokens.spacing.sm, paddingHorizontal: theme.tokens.spacing.md },
-  md: { paddingVertical: theme.tokens.spacing.lg - 1, paddingHorizontal: theme.tokens.spacing.xl },
-  lg: { paddingVertical: theme.tokens.spacing.lg + 2, paddingHorizontal: theme.tokens.spacing.xxl },
+  md: { paddingVertical: theme.tokens.spacing.lg, paddingHorizontal: theme.tokens.spacing.xl },
+  lg: { paddingVertical: theme.tokens.spacing.xl, paddingHorizontal: theme.tokens.spacing.xxl },
   link: { paddingVertical: theme.tokens.spacing.xs, paddingHorizontal: 0, justifyContent: 'flex-start' },
   outline: { borderWidth: 1 },
-  filledShadow: { ...theme.tokens.shadow.md, shadowColor: '#000' },
+  filledShadow: theme.tokens.shadow.md,
   text: { fontWeight: theme.tokens.fontWeight.semibold, textAlign: 'center' },
   textSm: { fontSize: theme.tokens.fontSize.sm },
   textMd: { fontSize: theme.tokens.fontSize.lg },
@@ -58,7 +61,29 @@ const useStyles = createStyles((theme) => ({
   underline: { textDecorationLine: 'underline' },
   iconLeft: { marginRight: theme.tokens.spacing.sm },
   iconRight: { marginLeft: theme.tokens.spacing.sm },
+  // El label sigue ocupando su lugar (invisible) mientras carga: el botón no
+  // cambia de ancho y el spinner se centra encima.
+  hidden: { opacity: 0 },
+  spinner: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' },
 }));
+
+/**
+ * Área táctil extra para los tamaños que quedan por debajo de 44pt de alto
+ * (Fitts): `sm` mide ~30pt y `link` ~27pt. hitSlop agranda la zona que recibe
+ * el toque sin cambiar cómo se ve.
+ */
+function useHitSlop(size: ButtonSize, variant: ButtonVariant): Insets | undefined {
+  const theme = useTheme();
+  if (variant === 'link') {
+    const v = theme.tokens.spacing.md;
+    return { top: v, bottom: v, left: theme.tokens.spacing.sm, right: theme.tokens.spacing.sm };
+  }
+  if (size === 'sm') {
+    const v = theme.tokens.spacing.sm;
+    return { top: v, bottom: v };
+  }
+  return undefined;
+}
 
 function resolveColors(variant: ButtonVariant, disabled: boolean, colors: ReturnType<typeof useColors>) {
   if (disabled) {
@@ -87,7 +112,22 @@ function resolveColors(variant: ButtonVariant, disabled: boolean, colors: Return
  * Button
  * Único componente de botón de la librería. `variant` decide el estilo
  * semántico, `size` la densidad. El feedback de "presionado" anima solo
- * `transform` (Animated.spring, useNativeDriver) — nunca opacity ni layout.
+ * `transform` (Animated.spring, useNativeDriver) — nunca opacity ni layout —
+ * y se omite con Reduce Motion activo.
+ *
+ * Gestalt:
+ * - Punto focal (Von Restorff): `primary` es el único relleno con el acento y
+ *   sombra; debe haber uno por pantalla o grupo. El resto de variantes baja
+ *   el peso visual en escalones (secondary → outline → ghost → link).
+ * - Similitud: todas las variantes comparten forma, radio y tipografía, así
+ *   que una fila de botones se lee como un solo grupo de acciones; solo cambia
+ *   lo que comunica la jerarquía (relleno, borde, color).
+ * - Proximidad: ícono y label van a `spacing.sm`, mucho menos que el padding,
+ *   así que se leen como una sola etiqueta.
+ *
+ * Fitts: `sm` y `link` miden menos de 44pt de alto y compensan con `hitSlop`.
+ * Mientras `loading`, el label queda invisible pero ocupa su lugar: el botón no
+ * cambia de ancho (sin saltos de layout).
  */
 export const Button = memo(
   ({
@@ -112,6 +152,8 @@ export const Button = memo(
     const theme = useTheme();
     const allowFontScaling = useAllowFontScaling();
     const scale = useRef(new Animated.Value(1)).current;
+    const reduceMotion = useReduceMotion();
+    const hitSlop = useHitSlop(size, variant);
     const isDisabled = disabled || loading;
     const isFilled = variant === 'primary' || variant === 'secondary' || variant === 'destructive';
 
@@ -119,6 +161,7 @@ export const Button = memo(
     const effectiveIconColor = iconColor ?? resolved.text;
 
     const animateTo = (value: number) => {
+      if (reduceMotion) return;
       Animated.spring(scale, { toValue: value, useNativeDriver: true, speed: 50, bounciness: 6 }).start();
     };
 
@@ -129,7 +172,10 @@ export const Button = memo(
       variant === 'outline' && [styles.outline, { borderColor: resolved.border }],
       { backgroundColor: resolved.background },
       isFilled && !disabled && styles.filledShadow,
-      { opacity: isDisabled ? 0.7 : 1 },
+      // Disabled ya se marca con sus colores (resolveColors); bajar además la
+      // opacidad lo dejaba casi invisible (figura y fondo). Solo `loading`
+      // atenúa, para indicar que el botón está ocupado.
+      { opacity: loading && !disabled ? 0.7 : 1 },
       style,
     ];
 
@@ -158,28 +204,38 @@ export const Button = memo(
           if (!isDisabled) animateTo(1);
         }}
         disabled={isDisabled}
+        hitSlop={hitSlop}
         testID={testID}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel ?? title}
         accessibilityState={{ disabled: isDisabled, busy: loading }}
         style={[containerStyle, { transform: [{ scale }] }]}
       >
-        {loading ? (
-          <ActivityIndicator size="small" color={resolved.text} />
-        ) : (
-          <>
-            {leftIcon}
-            {!leftIcon && leftIconName && (
-              <Icon name={leftIconName} size={iconSize} color={effectiveIconColor} style={styles.iconLeft} />
-            )}
-            <Text allowFontScaling={allowFontScaling} style={labelStyle}>
-              {title}
-            </Text>
-            {rightIcon}
-            {!rightIcon && rightIconName && (
-              <Icon name={rightIconName} size={iconSize} color={effectiveIconColor} style={styles.iconRight} />
-            )}
-          </>
+        {leftIcon ? <View style={[styles.iconLeft, loading && styles.hidden]}>{leftIcon}</View> : null}
+        {!leftIcon && leftIconName && (
+          <Icon
+            name={leftIconName}
+            size={iconSize}
+            color={effectiveIconColor}
+            style={[styles.iconLeft, loading && styles.hidden]}
+          />
+        )}
+        <Text allowFontScaling={allowFontScaling} style={[labelStyle, loading && styles.hidden]}>
+          {title}
+        </Text>
+        {rightIcon ? <View style={[styles.iconRight, loading && styles.hidden]}>{rightIcon}</View> : null}
+        {!rightIcon && rightIconName && (
+          <Icon
+            name={rightIconName}
+            size={iconSize}
+            color={effectiveIconColor}
+            style={[styles.iconRight, loading && styles.hidden]}
+          />
+        )}
+        {loading && (
+          <View style={styles.spinner} pointerEvents="none">
+            <ActivityIndicator size="small" color={resolved.text} />
+          </View>
         )}
       </AnimatedPressable>
     );
