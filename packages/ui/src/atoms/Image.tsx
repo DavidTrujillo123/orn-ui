@@ -45,7 +45,10 @@ export interface ImageProps {
 }
 
 const useStyles = createStyles((theme) => ({
-  container: { overflow: 'hidden', backgroundColor: theme.colors.skeleton },
+  container: { overflow: 'hidden' },
+  // Solo mientras carga o si falla: con la imagen ya cargada, un PNG con
+  // transparencia (un logo) dejaba ver este gris detrás.
+  placeholder: { backgroundColor: theme.colors.skeleton },
   overlay: { alignItems: 'center', justifyContent: 'center' },
   fallback: { flex: 1, backgroundColor: theme.colors.skeleton, alignItems: 'center', justifyContent: 'center' },
 }));
@@ -121,7 +124,7 @@ export const Image = memo(
 
     return (
       <View
-        style={[styles.container, { width, height, borderRadius: radius }, style]}
+        style={[styles.container, status !== 'loaded' && styles.placeholder, { width, height, borderRadius: radius }, style]}
         testID={testID}
         accessible={!!accessibilityLabel}
         accessibilityRole={accessibilityLabel ? 'image' : undefined}

@@ -126,5 +126,12 @@ describe('Image', () => {
     render(withProvider(<Image source={{ uri: 'https://example.com/a.png' }} accessibilityLabel="Sunset" testID="img" />));
     expect(screen.getByRole('image', { name: 'Sunset' })).toBeOnTheScreen();
   });
+
+  it('drops the placeholder background once loaded, so transparent images do not show gray', () => {
+    render(withProvider(<Image source={{ uri: 'https://example.com/logo.png' }} testID="img" />));
+    expect(screen.getByTestId('img')).toHaveStyle({ backgroundColor: '#eceef1' });
+    fireEvent(screen.UNSAFE_getByType(RNImage), 'load');
+    expect(screen.getByTestId('img')).not.toHaveStyle({ backgroundColor: '#eceef1' });
+  });
 });
 

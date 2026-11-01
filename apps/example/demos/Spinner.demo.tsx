@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Spinner, Avatar, useColors } from 'orn-ui';
+import { Spinner, Avatar, Image, useColors } from 'orn-ui';
 import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
 
 export function SpinnerDemo() {
@@ -58,6 +58,26 @@ export function SpinnerDemo() {
         <View style={{ alignItems: 'center' }}>
           <Spinner variant="ring" fullscreen={false} />
         </View>
+      ),
+    },
+    {
+      label: 'logo — splash / first load',
+      content: (
+        <Spinner
+          variant="dots"
+          text="Starting..."
+          fullscreen={false}
+          logo={
+            <Image
+              source={{ uri: 'https://reactnative.dev/img/tiny_logo.png' }}
+              width={72}
+              height={72}
+              resizeMode="contain"
+              loading={false}
+              accessibilityLabel="App logo"
+            />
+          }
+        />
       ),
     },
   ];

@@ -19,6 +19,11 @@ export interface SpinnerProps {
   variant?: SpinnerVariant;
   /** Fully custom indicator. Takes precedence over `variant`. */
   indicator?: React.ReactNode;
+  /**
+   * Shown above the indicator — typically the app logo on a splash or
+   * first-load screen (an `<Image>`, an `<Avatar>`, any node).
+   */
+  logo?: React.ReactNode;
   /** What screen readers announce. @default text ?? labels.loading */
   accessibilityLabel?: string;
   testID?: string;
@@ -33,6 +38,7 @@ const RING_TURN_MS = 900;
 const useStyles = createStyles((theme) => ({
   container: { justifyContent: 'center', alignItems: 'center', padding: theme.tokens.spacing.xl },
   text: { marginTop: theme.tokens.spacing.md, color: theme.colors.textLight, fontSize: theme.tokens.fontSize.md },
+  logo: { marginBottom: theme.tokens.spacing.xl },
   dots: { flexDirection: 'row', gap: theme.tokens.spacing.sm },
 }));
 
@@ -121,7 +127,10 @@ RingIndicator.displayName = 'RingIndicator';
  * - Destino común: los tres puntos de `dots` laten en secuencia, con el
  *   mismo ritmo, y se leen como un solo indicador que avanza.
  * - Proximidad: el texto va a `spacing.md` del indicador, así se lee como su
- *   explicación y no como texto suelto de la pantalla.
+ *   explicación y no como texto suelto de la pantalla. El `logo` va más lejos
+ *   (`spacing.xl`): es la marca de la pantalla, no parte del indicador.
+ * - Punto focal: con `logo`, el logo es lo primero que se ve y el indicador
+ *   queda como señal secundaria de que la app está cargando.
  *
  * Accesibilidad: se anuncia como `progressbar` ocupado, con `text` (o
  * `labels.loading`) como nombre. La animación no se detiene con Reduce
@@ -136,6 +145,7 @@ export const Spinner = memo(
     fullscreen = true,
     variant = 'native',
     indicator,
+    logo,
     accessibilityLabel,
     testID,
   }: SpinnerProps) => {
@@ -163,6 +173,7 @@ export const Spinner = memo(
         accessibilityState={{ busy: true }}
         accessibilityLiveRegion="polite"
       >
+        {logo != null && <View style={styles.logo}>{logo}</View>}
         {renderIndicator()}
         {!!text && (
           <Text allowFontScaling={allowFontScaling} style={styles.text}>

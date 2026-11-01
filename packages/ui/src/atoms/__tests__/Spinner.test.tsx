@@ -63,5 +63,11 @@ describe('Spinner', () => {
     expect(json).not.toContain('rgb(255, 0, 0)33');
     expect(json).toContain('"opacity":0.2');
   });
+
+  it('renders a logo above the indicator', () => {
+    const { Text } = require('react-native');
+    render(withProvider(<Spinner logo={<Text>LOGO</Text>} text="Starting..." fullscreen={false} />));
+    expect(screen.getByText('LOGO')).toBeOnTheScreen();
+  });
 });
 
