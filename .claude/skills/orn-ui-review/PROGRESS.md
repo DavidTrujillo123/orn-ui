@@ -12,7 +12,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | IconButton | icon-button | arreglado | 2026-10-31 | hitSlop hasta 44pt (el comentario decía 44 garantizado pero eran 40, y 32 con size 16), doc Gestalt figura/fondo, demo color theme (error). PressableScale ahora respeta Reduce Motion (afecta IconButton). Docs: catálogo + 7 capturas, sin mp4. Íconos: +10 (menu, more, home, settings, user, trash, edit, share, heart, star), IconName abierto a string, BUILT_IN_ICON_NAMES, warning ahora triángulo, glifo interior de alert/warning con contraste (onColor) |
 | Input | input | arreglado | 2026-10-31 | crash con label="" (!!label), "required" y error anunciados a lectores, textos del ojo/clear en labels (i18n) + rightIconAccessibilityLabel, botón derecho 44pt, read-only sin relleno (affordance), duración desde token, doc Gestalt. Docs: 6 capturas; el mp4 queda (interactivo) pero está desactualizado: regrabar con Maestro |
 | Checkbox | checkbox | arreglado | 2026-10-31 | Arreglado: crash label="", prop accessibilityLabel, label atenuado en disabled, check con onColor en color propio, Reduce Motion, tokens (duración, margen md), doc Gestalt, demo color theme. Fila minHeight 44 (Fitts, decisión usuario: opción A, reemplaza marginBottom). Docs: 4 capturas, mp4 queda (interactivo, regrabar) |
-| Badge | badge | pendiente | | |
+| Badge | badge | arreglado | 2026-10-31 | padding a tokens (md/xs, antes 10/5), letterSpacing.wide (token nuevo), una línea con …, doc Gestalt similitud + no solo color, demo custom con colores del theme (VIP morado fallaba AA en dark). Docs: 7 capturas, sin mp4 |
 | Card | card | pendiente | | |
 | Divider | divider | pendiente | | |
 | Gradient | gradient | pendiente | | |

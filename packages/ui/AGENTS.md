@@ -249,7 +249,7 @@ roles that are not interchangeable: `primary` (solid fill), `onPrimary`
 `skeleton`, `white`, `black`.
 
 Tokens: `spacing` (xxs 2 … xxxl 32), `radius` (none … full 9999), `fontSize`
-(xs 11 … xxl 24), `fontWeight`, `lineHeight` (sm 16 … xl 30), `letterSpacing` (tight/normal), `duration` (fast/base/slow),
+(xs 11 … xxl 24), `fontWeight`, `lineHeight` (sm 16 … xl 30), `letterSpacing` (tight/normal/wide), `duration` (fast/base/slow),
 `shadow`. Use them in app styles instead of magic numbers:
 
 ```tsx

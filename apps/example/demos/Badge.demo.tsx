@@ -1,9 +1,10 @@
 import React from 'react';
-import { Badge } from 'orn-ui';
+import { Badge, useColors } from 'orn-ui';
 import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
 
 export function BadgeDemo() {
   // #region demo
+  const colors = useColors();
   const variants: VariantDef[] = [
     { label: 'success', content: <Badge label="PAID" variant="success" /> },
     { label: 'error', content: <Badge label="OVERDUE" variant="error" /> },
@@ -22,7 +23,7 @@ export function BadgeDemo() {
         </VariantRow>
       ),
     },
-    { label: 'custom colors', content: <Badge label="VIP" backgroundColor="#7c3aed20" textColor="#7c3aed" /> },
+    { label: 'custom colors', content: <Badge label="VIP" backgroundColor={colors.primarySoft} textColor={colors.primaryText} /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

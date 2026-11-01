@@ -25,4 +25,12 @@ describe('Badge', () => {
       expect(screen.getByText('X')).toBeOnTheScreen();
     }
   );
+
+  it('stays on one line and reads its spacing from tokens', () => {
+    render(withProvider(<Badge label="A very long status label" />));
+    const text = screen.getByText('A very long status label');
+    expect(text.props.numberOfLines).toBe(1);
+    expect(text).toHaveStyle({ letterSpacing: 0.3 });
+  });
 });
+

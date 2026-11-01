@@ -16,12 +16,12 @@ export interface BadgeProps {
 
 const useStyles = createStyles((theme) => ({
   badge: {
-    paddingHorizontal: theme.tokens.spacing.md - 2,
-    paddingVertical: theme.tokens.spacing.xs + 1,
+    paddingHorizontal: theme.tokens.spacing.md,
+    paddingVertical: theme.tokens.spacing.xs,
     borderRadius: theme.tokens.radius.full,
     alignSelf: 'flex-start',
   },
-  text: { fontSize: theme.tokens.fontSize.xs, fontWeight: theme.tokens.fontWeight.bold, letterSpacing: 0.3 },
+  text: { fontSize: theme.tokens.fontSize.xs, fontWeight: theme.tokens.fontWeight.bold, letterSpacing: theme.tokens.letterSpacing.wide },
 }));
 
 /**
@@ -29,6 +29,14 @@ const useStyles = createStyles((theme) => ({
  * Pill de estado. `variant` cubre los casos comunes (éxito/error/advertencia/
  * info/neutral); `backgroundColor`/`textColor` quedan para casos que no
  * encajan en el set semántico.
+ *
+ * Gestalt, similitud: todos los badges comparten forma, tamaño y tipografía;
+ * solo el color cambia, y cambia por significado (verde = ok, rojo = error…),
+ * así una columna de estados se escanea de un vistazo. El significado también
+ * va en el texto: nunca depender solo del color (daltonismo).
+ * Cada par `*Soft`/`*Text` del theme cumple WCAG AA en light y dark; con
+ * colores propios el contraste queda a cargo de quien los pasa.
+ * Una sola línea: un label largo se corta con "…" en vez de deformar la pill.
  */
 export const Badge = memo(({ label, variant = 'neutral', backgroundColor, textColor, style }: BadgeProps) => {
   const theme = useTheme();
@@ -48,7 +56,7 @@ export const Badge = memo(({ label, variant = 'neutral', backgroundColor, textCo
 
   return (
     <View style={[styles.badge, { backgroundColor: backgroundColor ?? palette[variant].bg }, style]}>
-      <Text allowFontScaling={allowFontScaling} style={[styles.text, { color: textColor ?? palette[variant].fg }]}>
+      <Text allowFontScaling={allowFontScaling} numberOfLines={1} style={[styles.text, { color: textColor ?? palette[variant].fg }]}>
         {label}
       </Text>
     </View>

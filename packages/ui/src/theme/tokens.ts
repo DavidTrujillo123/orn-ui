@@ -58,11 +58,14 @@ export const lineHeight: Record<'sm' | 'md' | 'lg' | 'xl', number> = {
 
 /**
  * Tracking (letterSpacing) en puntos. `tight` compensa el aire extra que
- * los tamaños grandes traen por defecto (títulos); `normal` es el del sistema.
+ * los tamaños grandes traen por defecto (títulos); `normal` es el del sistema;
+ * `wide` separa mayúsculas chicas.
  */
-export const letterSpacing: Record<'tight' | 'normal', number> = {
+export const letterSpacing: Record<'tight' | 'normal' | 'wide', number> = {
   tight: -0.5,
   normal: 0,
+  /** Etiquetas cortas en mayúsculas y tamaño chico (Badge): un poco de aire las hace legibles. */
+  wide: 0.3,
 };
 
 /** Duraciones en ms para Animated.timing/spring. */
