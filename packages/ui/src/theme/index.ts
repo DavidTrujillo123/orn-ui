@@ -1,4 +1,4 @@
-export { spacing, radius, fontSize, fontWeight, lineHeight, duration, shadow, tokens } from './tokens';
+export { spacing, radius, fontSize, fontWeight, lineHeight, letterSpacing, duration, shadow, tokens } from './tokens';
 export type { Tokens } from './tokens';
 export { lightPalette, darkPalette } from './palettes';
 export type { ThemeColors } from './palettes';

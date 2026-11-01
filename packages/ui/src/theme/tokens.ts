@@ -49,10 +49,20 @@ export const fontWeight = {
   bold: '700',
 } as const;
 
-export const lineHeight: Record<'sm' | 'md' | 'lg', number> = {
+export const lineHeight: Record<'sm' | 'md' | 'lg' | 'xl', number> = {
   sm: 16,
   md: 20,
   lg: 24,
+  xl: 30,
+};
+
+/**
+ * Tracking (letterSpacing) en puntos. `tight` compensa el aire extra que
+ * los tamaños grandes traen por defecto (títulos); `normal` es el del sistema.
+ */
+export const letterSpacing: Record<'tight' | 'normal', number> = {
+  tight: -0.5,
+  normal: 0,
 };
 
 /** Duraciones en ms para Animated.timing/spring. */
@@ -106,6 +116,7 @@ export const tokens = {
   fontSize,
   fontWeight,
   lineHeight,
+  letterSpacing,
   duration,
   shadow,
 };

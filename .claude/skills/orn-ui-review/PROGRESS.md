@@ -7,7 +7,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 | componente | slug | estado | fecha | notas |
 |---|---|---|---|---|
-| Typography (Title/Subtitle/Body/Caption) | typography | en-curso | 2026-10-31 | Title revisado: visual ok light/dark; 5 hallazgos (sin header role, sin doc comment Gestalt, letterSpacing literal, Dynamic Type off por defecto, sin lineHeight). Pendiente: decidir arreglos; a11y tree no verificado (driver Maestro no arranca). Falta Subtitle/Body/Caption |
+| Typography (Title/Subtitle/Body/Caption) | typography | en-curso | 2026-10-31 | Title arreglado: accessibilityRole header (sobreescribible), doc comment Gestalt (punto focal/Prägnanz), tokens nuevos letterSpacing.tight y lineHeight.xl, demo multilínea, 5 tests nuevos. Tests 679 ok, harness y typecheck ok. Pendiente: captura de la variante multilínea y árbol a11y real (Maestro roto); revisar Subtitle/Body/Caption |
 | Button | button | pendiente | | |
 | IconButton | icon-button | pendiente | | |
 | Input | input | pendiente | | |
@@ -61,4 +61,9 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | Slides | slides | pendiente | | |
 | Chart | chart | pendiente | | |
 | ReorderableList | reorderable-list | pendiente | | |
+
+## Decisiones y trabajo futuro
+
+- 2026-10-31 — `allowFontScaling`: se queda **opcional y en `false` por defecto** (decisión del usuario). Captura `-ax` idéntica a `-light` NO es hallazgo mientras siga así.
+- Futuro: "controlador de tamaños" para el escalado de fuente (tope tipo `maxFontSizeMultiplier` controlado desde `UIProvider`) para poder activar `allowFontScaling` sin romper layouts. Al hacerlo, revisar todos los componentes con fuente grande.
 

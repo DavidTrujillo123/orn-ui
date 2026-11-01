@@ -97,7 +97,8 @@ APP=$(xcrun simctl get_app_container booted com.anonymous.orn-ui-example app) \
   && ls "$APP" | grep -q main.jsbundle && echo release || echo debug-o-no-instalada
 
 # Debug: solo levantar Metro (background, run_in_background), NO recompilar:
-cd /Users/david/work/projects/orn-ui/orn-ui/apps/example && CI=1 pnpm exec expo start --port 8081
+cd /Users/david/work/projects/orn-ui/orn-ui/apps/example && pnpm exec expo start --port 8081 < /dev/null
+# NO usar CI=1: desactiva el watch y los cambios no llegan a la app
 # esperar con loop acotado: curl -s localhost:8081/status | grep -q running
 # Solo si la app no está instalada: pnpm ios (build largo, avisar al usuario).
 # Release sin Metro, igual que CI: pnpm e2e:ios:build
@@ -119,9 +120,10 @@ xcrun simctl io booted screenshot $S/$SLUG-ax.png
 xcrun simctl ui booted content_size large
 ```
 
-Si la captura `-ax` sale idéntica a `-light`, el texto **no** escala con
-Dynamic Type: es hallazgo de a11y (hoy `UIProvider` trae
-`allowFontScaling = false` por defecto).
+`allowFontScaling` es opcional y `false` por defecto (decisión del usuario):
+con el demo por defecto la captura `-ax` sale igual a `-light` y eso **no** es
+hallazgo. La captura `-ax` sirve para el futuro controlador de tamaños; hasta
+entonces, solo reportar si un componente ignora `allowFontScaling={true}`.
 
 ### Árbol de accesibilidad
 
@@ -130,7 +132,10 @@ timeout 90 maestro --udid $UDID hierarchy > $S/$SLUG-hier.json
 ```
 
 Si da `IOSDriverTimeoutException` (driver XCUITest no arranca), no reintentar
-en bucle: ver la entrada de ese error en `apps/example/.maestro/MAESTRO.md`.
+en bucle. Causa conocida (2026-10-31): macOS 27.2 con Xcode 26.5 — AMFI bloquea
+`DTServiceHub` (`/usr/bin/log show --last 5m | grep DTServiceHub` muestra
+`disallowed without correct com.apple.private.amfi.version-restriction`). No
+tiene arreglo desde Maestro: hace falta un Xcode compatible con macOS 27.x.
 Mientras tanto, cubrir la a11y con tests de RTL (`getByRole('header')`,
 `toHaveAccessibilityValue`, etc.) y marcar el árbol real como pendiente.
 

@@ -37,4 +37,28 @@ describe('Typography', () => {
     render(withProvider(<Body align="center">b</Body>));
     expect(screen.getByText('b')).toHaveStyle({ textAlign: 'center' });
   });
+
+  it('Title is announced as a header so screen readers can jump between titles', () => {
+    render(withProvider(<Title>Invoice</Title>));
+    expect(screen.getByRole('header', { name: 'Invoice' })).toBeOnTheScreen();
+  });
+
+  it.each([
+    ['Subtitle', Subtitle],
+    ['Body', Body],
+    ['Caption', Caption],
+  ] as const)('%s is not a header', (_name, Component) => {
+    render(withProvider(<Component>plain</Component>));
+    expect(screen.queryByRole('header')).toBeNull();
+  });
+
+  it('Title accepts an explicit accessibilityRole override', () => {
+    render(withProvider(<Title accessibilityRole="text">t</Title>));
+    expect(screen.queryByRole('header')).toBeNull();
+  });
+
+  it('Title takes lineHeight and letterSpacing from the theme tokens', () => {
+    render(withProvider(<Title>t</Title>));
+    expect(screen.getByText('t')).toHaveStyle({ lineHeight: 30, letterSpacing: -0.5 });
+  });
 });

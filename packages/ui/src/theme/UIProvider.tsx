@@ -54,7 +54,12 @@ export interface UIProviderProps {
   /** Safe area insets (from useSafeAreaInsets()). Defaults to {0,0,0,0}. */
   insets?: EdgeInsets;
   labels?: Partial<Labels>;
-  /** @default false, for parity with the rest of the library (accessibility first). */
+  /**
+   * Lets every orn-ui text follow the system font size (Dynamic Type / Android
+   * font scale). Opt-in: layouts are tuned for the default size, so turn it on
+   * only after checking your screens at large sizes.
+   * @default false
+   */
   allowFontScaling?: boolean;
   /**
    * Source of insets used by `Modal`/`BottomSheet` for their own native
