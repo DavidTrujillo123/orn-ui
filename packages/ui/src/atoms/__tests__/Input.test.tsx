@@ -57,4 +57,39 @@ describe('Input', () => {
     render(withProvider(<Input label="Search" rightIconName="close" isLoading />));
     expect(screen.queryByRole('button', { name: 'Clear' })).not.toBeOnTheScreen();
   });
+
+  it('does not crash with an empty label', () => {
+    render(withProvider(<Input label="" placeholder="x" />));
+    expect(screen.getByPlaceholderText('x')).toBeOnTheScreen();
+  });
+
+  it('adds "required" to the accessible name and announces the error as a hint', () => {
+    render(withProvider(<Input label="Email" required error="Invalid email" />));
+    const field = screen.getByLabelText('Email, required');
+    expect(field.props.accessibilityHint).toBe('Invalid email');
+  });
+
+  it('names the right icon button from labels, or from rightIconAccessibilityLabel', () => {
+    const { rerender } = render(withProvider(<Input rightIconName="close" onRightIconPress={() => {}} />));
+    expect(screen.getByRole('button', { name: 'Clear' })).toBeOnTheScreen();
+    rerender(
+      withProvider(<Input rightIconName="search" rightIconAccessibilityLabel="Search now" onRightIconPress={() => {}} />)
+    );
+    expect(screen.getByRole('button', { name: 'Search now' })).toBeOnTheScreen();
+  });
+
+  it('localizes the password toggle through labels', () => {
+    render(
+      <UIProvider mode="light" labels={{ showPassword: 'Mostrar contraseña' }}>
+        <Input isPassword />
+      </UIProvider>
+    );
+    expect(screen.getByRole('button', { name: 'Mostrar contraseña' })).toBeOnTheScreen();
+  });
+
+  it('read-only has no fill and reports itself disabled', () => {
+    render(withProvider(<Input label="Name" value="Ada" editable={false} />));
+    expect(screen.getByLabelText('Name').props.accessibilityState).toEqual({ disabled: true, busy: false });
+  });
 });
+

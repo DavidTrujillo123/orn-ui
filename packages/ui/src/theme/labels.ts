@@ -14,6 +14,11 @@ export interface Labels {
   weekdaysShort: string[];
   selectDate: string;
   clear: string;
+  /** Botón del ojo en Input con `isPassword`. */
+  showPassword: string;
+  hidePassword: string;
+  /** Se agrega al nombre accesible de un campo `required` (el asterisco es solo visual). */
+  required: string;
 }
 
 export const defaultLabels: Labels = {
@@ -33,4 +38,7 @@ export const defaultLabels: Labels = {
   weekdaysShort: ['S', 'M', 'T', 'W', 'T', 'F', 'S'],
   selectDate: 'Select date',
   clear: 'Clear',
+  showPassword: 'Show password',
+  hidePassword: 'Hide password',
+  required: 'required',
 };

@@ -163,7 +163,7 @@ hex in component styles, use `useColors()`.
 | `Title` `Subtitle` `Body` `Caption` | `orn-ui/title` `/subtitle` `/body` `/caption` | extends RN `TextProps`; `color?`, `align?: 'left'\|'center'\|'right'` |
 | `Button` | `orn-ui/button` | `title`, `onPress`, `variant?: 'primary'\|'secondary'\|'outline'\|'ghost'\|'link'\|'destructive'`, `size?: 'sm'\|'md'\|'lg'`, `loading?`, `disabled?`, `leftIconName?`, `rightIconName?`, `leftIcon?`, `rightIcon?`, `iconColor?`, `textStyle?`, `accessibilityLabel?`, `testID?` |
 | `IconButton` | `orn-ui/icon-button` | `accessibilityLabel` (required), `iconName?`, `icon?`, `onPress?`, `size?`, `color?`, `disabled?`, `testID?` |
-| `Input` | `orn-ui/input` | extends RN `TextInputProps`; `label?`, `required?`, `error?`, `leftIconName?`, `rightIconName?`, `onRightIconPress?`, `isPassword?`, `isLoading?`, `containerStyle?` |
+| `Input` | `orn-ui/input` | extends RN `TextInputProps`; `label?`, `required?`, `error?`, `leftIconName?`, `rightIconName?`, `onRightIconPress?`, `rightIconAccessibilityLabel?` (labels.clear), `isPassword?`, `isLoading?`, `containerStyle?`; `editable={false}` renders read-only (no fill) |
 | `Checkbox` | `orn-ui/checkbox` | `value`, `onValueChange`, `label?`, `color?`, `disabled?`, `testID?` |
 | `Badge` | `orn-ui/badge` | `label`, `variant?: 'success'\|'error'\|'warning'\|'info'\|'neutral'`, `backgroundColor?`, `textColor?` |
 | `Card` | `orn-ui/card` | extends `ViewProps`; `children` |
@@ -266,7 +266,8 @@ over `StyleSheet.create` in app code that uses orn-ui.
 All built-in strings live in one `labels` object on `UIProvider`
 (`close`, `cancel`, `confirm`, `loading`, `loadingMore`, `noResultsTitle`,
 `noResultsDescription`, `search`, `selectPlaceholder`, `months`,
-`weekdaysShort`, `selectDate`, `clear`) — localise there, not per component.
+`weekdaysShort`, `selectDate`, `clear`, `showPassword`, `hidePassword`,
+`required`) — localise there, not per component.
 
 ## Rules and common mistakes
 
