@@ -71,33 +71,72 @@ Leer el componente, su demo, su test y su behavior flow (si existe en
 
 Jest corre en jsdom: no ve posiciones, gestos ni clipping. Este paso no se salta.
 
+### Presupuesto de tiempo (obligatorio)
+
+El usuario quiere avances rápidos. Reglas:
+
+- **Reportar primero la revisión estática** (Paso 1) en cuanto esté lista; la
+  verificación en simulador viene después y se suma al reporte.
+- Ninguna herramienta bloquea más de ~2 min. Si un comando falla o cuelga
+  (Maestro, build, Metro), **un solo reintento**; si vuelve a fallar, seguir
+  con lo que hay, decir qué no se pudo verificar y proponer delegarlo a un
+  agente en background. Nunca encadenar reintentos con timeouts largos.
+- Mandar al usuario una línea de estado antes de cualquier paso lento
+  (arrancar Metro, build, Maestro).
+- Agrupar capturas en un solo comando, no uno por paso.
+
+### Setup (una vez por sesión)
+
 ```sh
-# simulador
-xcrun simctl list devices | grep -E "Booted|iPhone"
-xcrun simctl boot "iPhone 17" 2>/dev/null; open -a Simulator
+UDID=C655D194-9AA0-4A27-BC90-C8534AFD3DE0        # iPhone 17
+xcrun simctl boot $UDID 2>/dev/null; open -a Simulator
+xcrun simctl bootstatus $UDID -b >/dev/null
 
-# app (Debug + Metro, para iterar rápido)
-cd /Users/david/work/projects/orn-ui/orn-ui && pnpm ios        # en background
-# (Release sin Metro, igual que CI: cd apps/example && pnpm e2e:ios:build)
+# ¿app instalada? ¿Debug (necesita Metro) o Release (trae main.jsbundle)?
+APP=$(xcrun simctl get_app_container booted com.anonymous.orn-ui-example app) \
+  && ls "$APP" | grep -q main.jsbundle && echo release || echo debug-o-no-instalada
 
-# abrir el demo directo por deep link
-xcrun simctl openurl booted "ornui:///<atoms|molecules|organisms>/<slug>"
-
-# capturas (guardarlas en el scratchpad de la sesión, luego leerlas con Read)
-xcrun simctl io booted screenshot <scratchpad>/<slug>-light.png
-xcrun simctl ui booted appearance dark
-xcrun simctl io booted screenshot <scratchpad>/<slug>-dark.png
-xcrun simctl ui booted appearance light
-
-# árbol de accesibilidad real (lo que Maestro y VoiceOver ven)
-maestro hierarchy
+# Debug: solo levantar Metro (background, run_in_background), NO recompilar:
+cd /Users/david/work/projects/orn-ui/orn-ui/apps/example && CI=1 pnpm exec expo start --port 8081
+# esperar con loop acotado: curl -s localhost:8081/status | grep -q running
+# Solo si la app no está instalada: pnpm ios (build largo, avisar al usuario).
+# Release sin Metro, igual que CI: pnpm e2e:ios:build
 ```
+
+### Por componente (un solo comando)
+
+```sh
+S=<scratchpad>; SLUG=<slug>; LAYER=<atoms|molecules|organisms>
+xcrun simctl launch booted com.anonymous.orn-ui-example >/dev/null
+xcrun simctl openurl booted "ornui:///$LAYER/$SLUG"; /bin/sleep 4
+xcrun simctl ui booted appearance light
+xcrun simctl io booted screenshot $S/$SLUG-light.png
+xcrun simctl ui booted appearance dark; /bin/sleep 2
+xcrun simctl io booted screenshot $S/$SLUG-dark.png
+xcrun simctl ui booted appearance light
+xcrun simctl ui booted content_size accessibility-extra-extra-extra-large; /bin/sleep 2
+xcrun simctl io booted screenshot $S/$SLUG-ax.png
+xcrun simctl ui booted content_size large
+```
+
+Si la captura `-ax` sale idéntica a `-light`, el texto **no** escala con
+Dynamic Type: es hallazgo de a11y (hoy `UIProvider` trae
+`allowFontScaling = false` por defecto).
+
+### Árbol de accesibilidad
+
+```sh
+timeout 90 maestro --udid $UDID hierarchy > $S/$SLUG-hier.json
+```
+
+Si da `IOSDriverTimeoutException` (driver XCUITest no arranca), no reintentar
+en bucle: ver la entrada de ese error en `apps/example/.maestro/MAESTRO.md`.
+Mientras tanto, cubrir la a11y con tests de RTL (`getByRole('header')`,
+`toHaveAccessibilityValue`, etc.) y marcar el árbol real como pendiente.
 
 - Mirar **cada** captura con Read: alineación, recortes, contraste, espaciados,
   estados. Comparar light vs dark. Juzgar con las leyes de `DESIGN-LAWS.md`
   (proximidad, región común, figura/fondo, punto focal, área táctil).
-- Probar también tamaño de fuente grande: `xcrun simctl ui booted
-  content_size extra-extra-large` (volver con `large`).
 - El demo usa un pager vertical (`VariantList`): avanzar variantes con el subflow
   `.maestro/subflows/` de swipe calibrado, no con swipes largos.
 - Interacción: escribir un flow ad hoc en el scratchpad (`appId:
@@ -151,4 +190,4 @@ Reportar resultados reales; si algo falla, decirlo con la salida.
 Cambiar estado (`pendiente` → `en-curso` → `ok` | `arreglado` | `bloqueado`),
 fecha absoluta (YYYY-MM-DD) y una línea de notas: qué se encontró, qué se
 arregló, qué queda. Esto es lo que permite retomar en otra conversación.
-No hacer commits salvo que el usuario lo pida.
+No hacer commits salvo que el usuario lo pida. Cuando lo pida: commit **directo en `main`** (no crear ramas salvo que lo pida), incluyendo los cambios de la skill y `PROGRESS.md`, y confirmar con `git log --oneline -1` en qué rama quedó.

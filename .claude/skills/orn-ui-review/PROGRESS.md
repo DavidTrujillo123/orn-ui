@@ -7,7 +7,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 | componente | slug | estado | fecha | notas |
 |---|---|---|---|---|
-| Typography (Title/Subtitle/Body/Caption) | typography | pendiente | | |
+| Typography (Title/Subtitle/Body/Caption) | typography | en-curso | 2026-10-31 | Title revisado: visual ok light/dark; 5 hallazgos (sin header role, sin doc comment Gestalt, letterSpacing literal, Dynamic Type off por defecto, sin lineHeight). Pendiente: decidir arreglos; a11y tree no verificado (driver Maestro no arranca). Falta Subtitle/Body/Caption |
 | Button | button | pendiente | | |
 | IconButton | icon-button | pendiente | | |
 | Input | input | pendiente | | |
