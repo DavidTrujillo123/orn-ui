@@ -15,9 +15,9 @@ Or copy the source into the project with no dependency: `npx orn-ui add button s
 Import from subpaths (Metro does not tree-shake barrels):
 `import { Button } from 'orn-ui/button'`, `import { UIProvider } from 'orn-ui/theme'`.
 
-Wrap the app once: `<SafeAreaUIProvider defaultMode="system">` from `orn-ui/safe-area`
-(or `<UIProvider insets={...}>` from `orn-ui/theme` to skip the optional
-`react-native-safe-area-context` peer).
+Wrap the app once: `<UIProvider defaultMode="system">` from `orn-ui/theme`. It
+measures the safe-area insets itself (`react-native-safe-area-context` is a
+required peer). `SafeAreaUIProvider` from `orn-ui/safe-area` is a deprecated alias.
 
 ## Docs
 
@@ -31,4 +31,4 @@ Wrap the app once: `<SafeAreaUIProvider defaultMode="system">` from `orn-ui/safe
 - Atoms: Title, Subtitle, Body, Caption, Button, IconButton, Input, Checkbox, Badge, Card, Divider, Gradient, Avatar, Image, Spinner, Skeleton, Transition, ShinyText, EmptyState, KeyValueRow, Fab, PressableScale
 - Molecules: Stepper, OptionCard, InfoRow, FormActions, AvatarHeader, SegmentedControl, Steps, SymmetricGrid
 - Organisms: Screen, Modal, BottomSheet, Select, OptionWheel, Timeline, List, SearchList, ReorderableList, Slides, Chart, Alert, AlertProvider, Toast, ToastProvider, DatePicker, DateField, Wizard, ThemeToggle, NavigationBar
-- Theme: UIProvider, SafeAreaUIProvider, createTheme, createStyles, useTheme, useColors, useThemeMode, useIcons, useInsets, useLabels
+- Theme: UIProvider, SafeAreaUIProvider (deprecated alias), createTheme, createStyles, useTheme, useColors, useThemeMode, useIcons, useInsets, useLabels

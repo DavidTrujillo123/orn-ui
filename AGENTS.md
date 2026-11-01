@@ -28,7 +28,7 @@ pnpm harness                       # the repo's own checklist — run it before 
 
 - **Zero runtime dependencies is a hard constraint.** Only `react` and
   `react-native` may be imported by `src/`, with one exception:
-  `src/safe-area/` may import `react-native-safe-area-context` (optional peer).
+  `src/theme/UIProvider.tsx` imports `react-native-safe-area-context` (required peer).
   A PR that adds a runtime dependency breaks the library's core promise.
 - **Support Expo SDK 54 through 57.** Don't use APIs newer than React Native
   0.81 / React 19.1 without gating them; `pnpm compat` is what proves it.
@@ -95,7 +95,7 @@ the rules above:
 |---|---|
 | `components` | every exported component has a test, a demo, a manifest entry, a Maestro smoke flow, and a row in the four docs |
 | `count` | the "N components" claims in the READMEs, `llms.txt` and `package.json` all match the catalog table |
-| `deps` | nothing outside `react`/`react-native` is imported by `src/` (only `src/safe-area/` may import the optional peer) |
+| `deps` | nothing outside `react`/`react-native` is imported by `src/` (only `src/theme/UIProvider.tsx` may import the safe-area peer) |
 | `layers` | atomic design: no atom importing a molecule or organism, no molecule importing an organism |
 | `theme` | no hardcoded colors in `atoms/`, `molecules/`, `organisms/` |
 | `sdk` | the SDKs in `compat-matrix.mjs`, the `expo-sdk-*` keywords and the README all name the same range |

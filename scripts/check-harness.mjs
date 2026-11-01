@@ -187,8 +187,9 @@ function checkDeps() {
       const spec = match[1];
       if (spec.startsWith('.')) continue;
       if (ALLOWED_IMPORTS.some((re) => re.test(spec))) continue;
-      // safe-area/ es la única excepción, y es un peer opcional declarado.
-      if (SAFE_AREA_ONLY.test(spec) && rel.startsWith('safe-area/')) continue;
+      // Única excepción: el UIProvider mide los insets con
+      // react-native-safe-area-context, peer obligatorio declarado.
+      if (SAFE_AREA_ONLY.test(spec) && rel === path.join('theme', 'UIProvider.tsx')) continue;
       fail('deps', `${rel}: importa '${spec}' — src/ sólo puede importar react y react-native`);
     }
   }

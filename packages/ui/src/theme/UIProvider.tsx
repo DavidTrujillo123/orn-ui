@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useMemo, useState, useCallback, useRef } from 'react';
-import { Appearance, useColorScheme } from 'react-native';
+import React, { createContext, useContext, useMemo, useState, useCallback, useEffect } from 'react';
+import { Appearance, useColorScheme, type ViewStyle } from 'react-native';
+import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { defaultTheme } from './createTheme';
 import { defaultLabels, type Labels } from './labels';
-import { zeroInsets, type EdgeInsets } from './insets';
+import type { EdgeInsets } from './insets';
 import type { Theme, ThemePair } from './types';
 import { renderDefaultIcon } from '../icons/defaultIcons';
 import type { IconRenderer } from '../icons/types';
@@ -12,19 +13,45 @@ export type ThemeMode = 'system' | 'light' | 'dark';
 /**
  * Un `<Modal>`/`<BottomSheet>` nativo abre su propia ventana (en Android
  * siempre; en iOS según `presentationStyle`), así que los insets medidos en
- * la raíz de la app pueden no valer ahí adentro. Este boundary es el punto de
- * inyección: el default sólo repite los insets ambientes (comportamiento de
- * siempre, cero deps), pero `SafeAreaUIProvider` lo reemplaza por uno que
- * monta un `<SafeAreaProvider>` nuevo y remide dentro de esa ventana.
+ * la raíz de la app pueden no valer ahí adentro. El boundary monta un
+ * `<SafeAreaProvider>` nuevo dentro de esa ventana y remide; mientras no llega
+ * la primera medición repite los insets ambientes.
  */
 export interface ModalSafeAreaBoundaryProps {
   children: (insets: EdgeInsets) => React.ReactNode;
 }
 export type ModalSafeAreaBoundaryComponent = React.ComponentType<ModalSafeAreaBoundaryProps>;
 
-function DefaultModalSafeAreaBoundary({ children }: ModalSafeAreaBoundaryProps) {
-  const insets = useInsets();
-  return <>{children(insets)}</>;
+const probeStyle: ViewStyle = { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 };
+
+function sameInsets(a: EdgeInsets, b: EdgeInsets) {
+  return a.top === b.top && a.right === b.right && a.bottom === b.bottom && a.left === b.left;
+}
+
+function InsetsProbe({ onMeasure }: { onMeasure: (insets: EdgeInsets) => void }) {
+  const insets = useSafeAreaInsets();
+  useEffect(() => {
+    onMeasure(insets);
+  }, [insets, onMeasure]);
+  return null;
+}
+
+function RemeasuringModalSafeAreaBoundary({ children }: ModalSafeAreaBoundaryProps) {
+  const ambient = useInsets();
+  const [measured, setMeasured] = useState<EdgeInsets | null>(null);
+  const onMeasure = useCallback(
+    (next: EdgeInsets) => setMeasured((prev) => (prev && sameInsets(prev, next) ? prev : next)),
+    []
+  );
+
+  return (
+    <>
+      <SafeAreaProvider style={probeStyle} pointerEvents="none">
+        <InsetsProbe onMeasure={onMeasure} />
+      </SafeAreaProvider>
+      {children(measured ?? ambient)}
+    </>
+  );
 }
 
 interface UIContextValue {
@@ -51,7 +78,10 @@ export interface UIProviderProps {
   onModeChange?: (mode: ThemeMode) => void;
   /** Icon renderer. Defaults to the included zero-dep glyphs. */
   icons?: IconRenderer;
-  /** Safe area insets (from useSafeAreaInsets()). Defaults to {0,0,0,0}. */
+  /**
+   * Overrides the measured safe area insets. Leave it out: the provider
+   * measures them itself with react-native-safe-area-context.
+   */
   insets?: EdgeInsets;
   labels?: Partial<Labels>;
   /**
@@ -62,32 +92,52 @@ export interface UIProviderProps {
    */
   allowFontScaling?: boolean;
   /**
-   * Source of insets used by `Modal`/`BottomSheet` for their own native
-   * window. Don't pass this by hand — `SafeAreaUIProvider` wires it up itself.
-   * @default repeats the ambient insets (behavior without safe-area-context)
+   * Mounts a `<SafeAreaProvider>` around the app. Pass `false` only if the app
+   * already mounts one above (e.g. expo-router does): insets are then read
+   * from that one.
+   * @default true
    */
-  ModalSafeAreaBoundary?: ModalSafeAreaBoundaryComponent;
+  mountSafeAreaProvider?: boolean;
+}
+
+interface UIProviderBaseProps extends Omit<UIProviderProps, 'insets' | 'mountSafeAreaProvider'> {
+  insets: EdgeInsets;
 }
 
 /**
  * UIProvider
  * Único punto de entrada de la librería: resuelve el theme activo (sistema u
- * override manual), e inyecta íconos, insets y textos por defecto a todo el
+ * override manual), mide los insets de safe area (react-native-safe-area-context,
+ * peer obligatorio) e inyecta íconos, insets y textos por defecto a todo el
  * árbol. No persiste el modo — si el consumidor quiere recordar la preferencia
  * entre sesiones, controla `mode`/`onModeChange` y persiste donde prefiera.
  */
-export function UIProvider({
+export function UIProvider({ mountSafeAreaProvider = true, ...props }: UIProviderProps) {
+  if (!mountSafeAreaProvider) return <MeasuredUIProvider {...props} />;
+  return (
+    <SafeAreaProvider>
+      <MeasuredUIProvider {...props} />
+    </SafeAreaProvider>
+  );
+}
+
+function MeasuredUIProvider({ insets: override, ...rest }: Omit<UIProviderProps, 'mountSafeAreaProvider'>) {
+  const measured = useSafeAreaInsets();
+  return <UIProviderBase insets={override ?? measured} {...rest} />;
+}
+
+function UIProviderBase({
   children,
   theme = defaultTheme,
   defaultMode = 'system',
   mode: controlledMode,
   onModeChange,
   icons = renderDefaultIcon,
-  insets = zeroInsets,
+  insets,
   labels: labelOverrides,
   allowFontScaling = false,
-  ModalSafeAreaBoundary = DefaultModalSafeAreaBoundary,
-}: UIProviderProps) {
+}: UIProviderBaseProps) {
+  const ModalSafeAreaBoundary = RemeasuringModalSafeAreaBoundary;
   const systemScheme = useColorScheme();
   const [uncontrolledMode, setUncontrolledMode] = useState<ThemeMode>(defaultMode);
   const isControlled = controlledMode !== undefined;
@@ -100,23 +150,6 @@ export function UIProvider({
     },
     [isControlled, onModeChange]
   );
-
-  // Por instancia, no por módulo: dos `<UIProvider>` en el mismo árbol (tests,
-  // un modal con su propio provider) avisan cada uno si le faltan insets, en
-  // vez de que el segundo se calle porque el primero ya avisó una vez.
-  const warnedAboutInsets = useRef(false);
-
-  // Olvidar `insets` no rompe nada visible al montar: el default de ceros
-  // recién se nota cuando abrís un Modal `full` (se mete abajo del notch) o un
-  // BottomSheet (queda pegado a la barra de gestos). El aviso llega antes.
-  if (__DEV__ && insets === zeroInsets && !warnedAboutInsets.current) {
-    warnedAboutInsets.current = true;
-    console.warn(
-      'orn-ui: <UIProvider> sin `insets`, se usan {top:0,bottom:0,left:0,right:0}. ' +
-        'Los modales y el Screen quedan sin safe area. Pasá `insets={useSafeAreaInsets()}` ' +
-        "o usá <SafeAreaUIProvider> de 'orn-ui/safe-area', que lo cablea solo."
-    );
-  }
 
   const scheme: 'light' | 'dark' =
     mode === 'system' ? (systemScheme === 'dark' ? 'dark' : 'light') : mode;

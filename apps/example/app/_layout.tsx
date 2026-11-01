@@ -14,7 +14,7 @@ function Providers({ children }: { children: ReactNode }) {
   // setMode, el provider delegaba en `onModeChange` (que no existía) y el tema
   // nunca cambiaba — el modo oscuro solo se podía activar desde el sistema.
   const [mode, setMode] = useState<ThemeMode>('system');
-  // BrandProvider monta el SafeAreaUIProvider (que mide los insets: olvidarlos
+  // BrandProvider monta el UIProvider (que mide los insets: olvidarlos
   // deja los modales abajo del notch) con el theme derivado del color de marca
   // que el ejemplo de theming cambia en vivo.
   return (

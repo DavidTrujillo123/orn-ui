@@ -38,7 +38,7 @@ describe('Modal safe area boundary', () => {
     expect(screen.getByTestId('sheet')).toHaveStyle({ paddingBottom: 34 });
   });
 
-  it('a bare UIProvider (sin SafeAreaUIProvider) sigue usando los insets ambientes, sin romper', () => {
+  it('a bare UIProvider remeasures too (safe-area-context is a required peer now)', () => {
     render(
       <UIProvider insets={{ top: 1, bottom: 2, left: 3, right: 4 }}>
         <BottomSheet visible onClose={() => {}} testID="sheet">
@@ -46,6 +46,10 @@ describe('Modal safe area boundary', () => {
         </BottomSheet>
       </UIProvider>
     );
-    expect(screen.getByTestId('sheet')).toHaveStyle({ paddingBottom: 20 });
+    expect(screen.getByTestId('sheet')).toHaveStyle({ paddingBottom: 34 });
+  });
+
+  it('SafeAreaUIProvider is a deprecated alias of UIProvider', () => {
+    expect(SafeAreaUIProvider).toBe(UIProvider);
   });
 });

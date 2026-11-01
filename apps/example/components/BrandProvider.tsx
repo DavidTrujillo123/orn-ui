@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
-import { createTheme, type ThemeMode } from 'orn-ui';
-import { SafeAreaUIProvider } from 'orn-ui/safe-area';
+import { createTheme, UIProvider, type ThemeMode } from 'orn-ui';
 
 export const BRANDS = [
   { label: 'Default', hex: '#004cef' },
@@ -36,9 +35,9 @@ export function BrandProvider({
 
   return (
     <BrandContext.Provider value={value}>
-      <SafeAreaUIProvider theme={theme} mode={mode} onModeChange={onModeChange}>
+      <UIProvider theme={theme} mode={mode} onModeChange={onModeChange}>
         {children}
-      </SafeAreaUIProvider>
+      </UIProvider>
     </BrandContext.Provider>
   );
 }

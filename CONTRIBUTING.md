@@ -35,8 +35,8 @@ These are not style preferences. Breaking one breaks the library's promise, and
 `pnpm harness` fails on most of them:
 
 - **Zero runtime dependencies.** `src/` may import `react` and `react-native`
-  and nothing else. The one exception is `src/safe-area/`, which may import
-  `react-native-safe-area-context` as an optional peer. If the platform doesn't
+  and nothing else. The one exception is `src/theme/UIProvider.tsx`, which
+  imports `react-native-safe-area-context` (required peer) to measure insets. If the platform doesn't
   ship a primitive, compose it — `atoms/Gradient.tsx` builds a gradient out of
   bands, `organisms/ReorderableList.tsx` uses `PanResponder` instead of
   gesture-handler.

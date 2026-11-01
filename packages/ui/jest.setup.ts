@@ -8,13 +8,11 @@
 // warning "Animated: `useNativeDriver` is not supported" en cada test que anima.
 jest.mock('react-native/src/private/animated/NativeAnimatedHelper');
 
-// Casi todos los tests montan <UIProvider> sin `insets` — es lo correcto ahí,
-// un renderer sin ventana no tiene safe area que medir. El aviso de dev que eso
-// dispara es útil en una app real e inútil acá, y aparecía una vez por archivo
-// de test tapando la salida. Se filtra por su texto exacto, no se silencia
-// console.warn entero: cualquier otro warning tiene que seguir viéndose.
-const realWarn = console.warn;
-console.warn = (...args: unknown[]) => {
-  if (typeof args[0] === 'string' && args[0].startsWith('orn-ui: <UIProvider> sin `insets`')) return;
-  realWarn(...args);
-};
+// UIProvider mide los insets con react-native-safe-area-context. Bajo el
+// renderer de test no hay ventana nativa: el SafeAreaProvider real no pinta
+// sus hijos hasta recibir la primera medición, que nunca llega. El mock
+// oficial del paquete le da métricas iniciales en cero. Los tests que
+// necesitan insets distintos hacen su propio jest.mock, que gana sobre éste.
+jest.mock('react-native-safe-area-context', () =>
+  jest.requireActual('react-native-safe-area-context/jest/mock').default
+);

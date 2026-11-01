@@ -82,13 +82,9 @@ const theme = createTheme({ brand: '#7c3aed' });
 <UIProvider theme={theme}>{children}</UIProvider>;
 ```
 
-```tsx
-// Safe-area insets from your app (react-native-safe-area-context, optional)
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-
-const insets = useSafeAreaInsets();
-<UIProvider insets={insets}>{children}</UIProvider>;
-```
+Safe-area insets are measured by `UIProvider` itself:
+`react-native-safe-area-context` is a required peer (Expo apps already have
+it). Pass `insets` only to override them.
 
 ## Components
 

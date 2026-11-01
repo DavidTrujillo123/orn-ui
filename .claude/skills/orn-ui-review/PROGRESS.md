@@ -64,6 +64,8 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 ## Decisiones y trabajo futuro
 
+- **2026-11-01 — safe-area obligatoria.** `react-native-safe-area-context` (>=5.4.0, sin dependencias propias) pasa a peer obligatorio. `UIProvider` mide los insets (monta `SafeAreaProvider`, `mountSafeAreaProvider={false}` si ya hay uno) y el boundary de Modal/BottomSheet remide siempre. `orn-ui/safe-area` queda como alias deprecado (`SafeAreaUIProvider === UIProvider`); borrarlo en una minor posterior. Se quitó el aviso dev de "UIProvider sin insets". Requiere publicar como 0.3.0. La docs web (`orn-ui-docs`) aún muestra `SafeAreaUIProvider`: actualizarla.
+
 - 2026-10-31 — `allowFontScaling`: se queda **opcional y en `false` por defecto** (decisión del usuario). Captura `-ax` idéntica a `-light` NO es hallazgo mientras siga así.
 - Futuro: "controlador de tamaños" para el escalado de fuente (tope tipo `maxFontSizeMultiplier` controlado desde `UIProvider`) para poder activar `allowFontScaling` sin romper layouts. Al hacerlo, revisar todos los componentes con fuente grande.
 - Futuro (después de revisar todos los componentes): compatibilidad web (PC/tablet) con react-native-web. Hallazgo ya visto: Title con role header sale como `<div>` sin `role=heading`/nivel en web; propuesta prop `level` (h1…h6). Chromium headless disponible en `~/Library/Caches/ms-playwright/chromium-1234` para capturas.

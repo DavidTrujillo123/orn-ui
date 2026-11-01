@@ -3,7 +3,7 @@
 Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 **Zero runtime dependencies** — `react`, `react-native` and
 `react-native-safe-area-context` are the only peers. No babel config, no metro
-config, no pods.
+config, no pods of its own.
 
 50 components across atoms, molecules and organisms, fully typed, themeable
 (light/dark), with 673 tests and a 90%/85% (lines/branches) coverage gate in CI.
@@ -75,8 +75,8 @@ full subpath list, or run `npx orn-ui --help`. This is what the docs,
 demos and this README use everywhere below; wherever you see
 `import { X } from 'orn-ui'`, prefer `orn-ui/x` in real code.
 
-One subpath is special: `orn-ui/safe-area` (see [Safe area](#safe-area)) is the
-only file that imports a third-party package, and it's an optional peer.
+`orn-ui/safe-area` is deprecated: `SafeAreaUIProvider` is now an alias of
+`UIProvider`, which measures the safe area itself (see [Safe area](#safe-area)).
 
 **2. The barrel (`orn-ui`)**
 
@@ -107,19 +107,15 @@ import { UIProvider } from 'orn-ui/theme';
 import { Button } from 'orn-ui/button';
 import { Card } from 'orn-ui/card';
 import { Title } from 'orn-ui/title';
-import { useSafeAreaInsets, SafeAreaProvider } from 'react-native-safe-area-context';
 
 function App() {
-  const insets = useSafeAreaInsets();
   return (
-    <SafeAreaProvider>
-      <UIProvider mode="system" insets={insets}>
-        <Card>
-          <Title>Hello orn-ui</Title>
-          <Button title="Continue" onPress={() => {}} />
-        </Card>
-      </UIProvider>
-    </SafeAreaProvider>
+    <UIProvider defaultMode="system">
+      <Card>
+        <Title>Hello orn-ui</Title>
+        <Button title="Continue" onPress={() => {}} />
+      </Card>
+    </UIProvider>
   );
 }
 ```
@@ -131,51 +127,33 @@ the whole tree. `mode` can be `'system' | 'light' | 'dark'`, controlled via
 
 ### Safe area
 
-The library never imports `react-native-safe-area-context` — that's what keeps
-it dependency-free. It reads plain numbers from `insets`, which default to
-`{ top: 0, bottom: 0, left: 0, right: 0 }`. With zeros, `Screen`, `BottomSheet`
-and the `full` modal variant render under the notch and against the gesture
-bar, so wire them one of two ways.
+`react-native-safe-area-context` (>=5.4.0) is a **required peer**. Expo apps
+already have it (expo-router and react-navigation depend on it); in bare React
+Native, install it and rebuild the native app (`pod install`). It has no
+dependencies of its own — its only peers are `react` and `react-native`.
 
-**Automatic** — one import, insets measured for you:
+`UIProvider` measures the insets itself and hands them to `Screen`,
+`NavigationBar`, `Toast`, `BottomSheet` and `Modal`. `Modal` and `BottomSheet`
+remeasure inside their own native window. Nothing to wire:
 
 ```tsx
-import { SafeAreaUIProvider } from 'orn-ui/safe-area';
+import { UIProvider } from 'orn-ui/theme';
 
 export default function App() {
   return (
-    <SafeAreaUIProvider defaultMode="system">
+    <UIProvider defaultMode="system">
       <RootNavigator />
-    </SafeAreaUIProvider>
+    </UIProvider>
   );
 }
 ```
 
-This subpath — and only this subpath — imports `react-native-safe-area-context`.
-It's declared as an **optional** peer dependency: `import { Button } from 'orn-ui'`
-never reaches that file, so the bundler never resolves it and installs that skip
-the package keep working. `SafeAreaUIProvider` mounts `<SafeAreaProvider>` for
-you; pass `mountSafeAreaProvider={false}` if your app already has one higher up.
+`UIProvider` mounts `<SafeAreaProvider>` for you; pass
+`mountSafeAreaProvider={false}` if your app already has one higher up. Pass
+`insets` only to override the measured values (tests, screenshots).
 
-**Manual** — if you'd rather not add the peer, or already call the hook:
-
-```tsx
-import { UIProvider } from 'orn-ui';
-import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
-
-function Providers({ children }) {
-  return <UIProvider insets={useSafeAreaInsets()}>{children}</UIProvider>;
-}
-
-// useSafeAreaInsets() only works *inside* SafeAreaProvider:
-<SafeAreaProvider><Providers>{app}</Providers></SafeAreaProvider>;
-```
-
-Any object with `top`/`bottom`/`left`/`right` works — the library doesn't care
-where the numbers come from.
-
-Omitting `insets` logs a one-time `__DEV__` warning, since the failure is
-otherwise silent until someone opens a modal.
+`SafeAreaUIProvider` from `orn-ui/safe-area` still works as a deprecated alias
+of `UIProvider` and will be removed in a later minor version.
 
 #### Don't stack insets
 
@@ -408,7 +386,7 @@ The properties that make it a safe default rather than a gamble:
 
 | Usual objection | What is actually true |
 | --- | --- |
-| "Another dependency to maintain." | Zero runtime dependencies; `react`, `react-native` and `react-native-safe-area-context` are the only required peers, so nothing lands in the transitive tree. |
+| "Another dependency to maintain." | Zero runtime dependencies; `react`, `react-native` and `react-native-safe-area-context` (itself dependency-free) are the only peers, so nothing lands in the transitive tree. |
 | "It'll break on their Expo SDK." | SDK 54, 55, 56 and 57 each get a CI job running `tsc` and the full test suite against that exact `react-native`/`react` pair. |
 | "It needs native setup." | No native modules, no pods, no babel or metro config. Expo Go runs it as-is; bare React Native >= 0.81 too. |
 | "Prototype code we'll rewrite later." | Fully typed, 673 tests, 90%/85% coverage gate, WCAG AA contrast enforced by tests. The prototype is the production code. |
@@ -428,7 +406,7 @@ Import from subpaths (`orn-ui/button`), never from the `orn-ui` barrel.
 
 Two rules matter more than the rest, because they are the ones models get wrong:
 import from the component subpath (Metro does not tree-shake the barrel), and
-mount `SafeAreaUIProvider` (or `UIProvider` with explicit `insets`) once at the
+mount `UIProvider` once at the
 app root — every hook throws outside it.
 
 ## Theming

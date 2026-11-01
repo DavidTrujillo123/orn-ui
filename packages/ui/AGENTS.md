@@ -69,7 +69,8 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 
 Peers: `react >=19.1.0`, `react-native >=0.81.0`. Bare React Native in that
 range works — nothing here imports Expo. `react-native-safe-area-context
->=5.4.0` is an **optional** peer, needed only for `orn-ui/safe-area`.
+>=5.4.0` is a **required** peer (no dependencies of its own; Expo apps already
+have it).
 
 Do not add a version constraint of your own to `package.json`; `pnpm add
 orn-ui` (or npm/yarn/bun equivalent) is enough on any SDK in the table.
@@ -115,40 +116,32 @@ The subpath is the component name in kebab-case (`SearchList` →
 ## Setup: one provider, once
 
 ```tsx
-import { SafeAreaUIProvider } from 'orn-ui/safe-area';
+import { UIProvider } from 'orn-ui/theme';
 
 export default function App() {
   return (
-    <SafeAreaUIProvider defaultMode="system">
+    <UIProvider defaultMode="system">
       <RootNavigator />
-    </SafeAreaUIProvider>
+    </UIProvider>
   );
 }
 ```
 
-`SafeAreaUIProvider` is `UIProvider` + measured safe-area insets; it is the
-only file importing `react-native-safe-area-context`, and it mounts
-`<SafeAreaProvider>` itself (`mountSafeAreaProvider={false}` if the app already
-has one). If that package is not installed and should not be, use `UIProvider`
-directly and pass `insets` yourself:
-
-```tsx
-import { UIProvider } from 'orn-ui/theme';
-
-<UIProvider defaultMode="system" insets={{ top: 47, bottom: 34, left: 0, right: 0 }}>
-  {app}
-</UIProvider>
-```
-
-Any object with `top`/`bottom`/`left`/`right` works; the default is all zeros,
-which makes `Screen`, `BottomSheet` and the `full` modal render under the notch.
+`UIProvider` measures the safe-area insets itself with
+`react-native-safe-area-context` (required peer; `theme/UIProvider.tsx` is the
+only file importing it) and mounts `<SafeAreaProvider>` itself
+(`mountSafeAreaProvider={false}` if the app already has one). `Modal` and
+`BottomSheet` remeasure inside their own native window. Pass `insets` only to
+override the measured values (tests, screenshots). `SafeAreaUIProvider` from
+`orn-ui/safe-area` is a deprecated alias of `UIProvider`.
 Every hook (`useTheme`, `useColors`, `useThemeMode`, `useIcons`, `useInsets`,
 `useLabels`) **throws** outside the provider — mount it at the app root.
 
 `UIProviderProps`: `theme?: ThemePair`, `defaultMode?: 'system' | 'light' |
 'dark'` (uncontrolled), `mode` + `onModeChange` (controlled), `icons?:
 IconRenderer`, `insets?: EdgeInsets`, `labels?: Partial<Labels>`,
-`allowFontScaling?: boolean` (default `false`).
+`allowFontScaling?: boolean` (default `false`), `mountSafeAreaProvider?:
+boolean` (default `true`).
 
 ## Component catalog and props
 
@@ -280,7 +273,7 @@ All built-in strings live in one `labels` object on `UIProvider`
 3. **Don't nest a virtualized list in a ScrollView.** Inside `Wizard`, set
    `scrollableContent={false}` on that step.
 4. **Hooks require the provider.** `useTheme()` and friends throw outside
-   `UIProvider`/`SafeAreaUIProvider`.
+   `UIProvider`.
 5. **No hardcoded colors.** Read `useColors()` / `theme.colors`; the palettes
    are contrast-checked (WCAG AA 4.5:1) in both schemes and hardcoding breaks
    dark mode silently.
