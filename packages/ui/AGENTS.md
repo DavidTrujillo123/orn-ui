@@ -221,11 +221,15 @@ hex in component styles, use `useColors()`.
 | `ThemeToggle` | `orn-ui/theme-toggle` | `labels?: Partial<Record<'system'\|'light'\|'dark', string>>` |
 | `NavigationBar` | `orn-ui/navigation-bar` | `items: {key,label,iconName?,badge?}[]`, `activeKey`, `onChange`, `position?: 'bottom'\|'top'`, `showLabels?`, `safeArea?` |
 
-Icon names (`IconName`, the built-in zero-dependency glyph set): `check`,
-`close`, `chevron-down`, `chevron-up`, `chevron-left`, `chevron-right`, `eye`,
-`eye-off`, `search`, `plus`, `minus`, `alert`, `info`, `warning`, `question`.
+Built-in icons (`BuiltInIconName`, zero-dependency glyphs; the list is also
+exported as `BUILT_IN_ICON_NAMES`): `check`, `close`, `plus`, `minus`,
+`search`, `menu`, `more`, `home`, `settings`, `user`, `trash`, `edit`,
+`share`, `heart`, `star`, `eye`, `eye-off`, `chevron-left`, `chevron-right`,
+`chevron-up`, `chevron-down`, `alert`, `warning`, `info`, `question`.
 Pass a custom `icons: IconRenderer` to `UIProvider` to swap in
-`lucide-react-native`, `@expo/vector-icons` or anything else.
+`lucide-react-native`, `@expo/vector-icons` or anything else; `iconName` then
+accepts any name your renderer knows (`IconName` is the built-ins plus any
+string).
 
 ## Theming
 

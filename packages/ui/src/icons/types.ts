@@ -1,7 +1,10 @@
 import type { ReactNode } from 'react';
 
-/** Glifos que los componentes de la librería necesitan internamente. */
-export type IconName =
+/**
+ * Glifos incluidos (dibujados con primitivas de RN, cero dependencias): los
+ * que la librería usa por dentro más un set básico para apps.
+ */
+export type BuiltInIconName =
   | 'check'
   | 'close'
   | 'chevron-down'
@@ -16,7 +19,25 @@ export type IconName =
   | 'alert'
   | 'info'
   | 'warning'
-  | 'question';
+  | 'question'
+  | 'menu'
+  | 'more'
+  | 'home'
+  | 'settings'
+  | 'user'
+  | 'trash'
+  | 'edit'
+  | 'share'
+  | 'heart'
+  | 'star';
+
+/**
+ * Nombre de ícono aceptado por `iconName`, `leftIconName`, etc. Autocompleta
+ * los incluidos y además acepta cualquier string, para quien conecta su propio
+ * set con `<UIProvider icons={...}>` (p. ej. `iconName="calendar"`). Un nombre
+ * que el renderer activo no conoce no dibuja nada (y avisa en desarrollo).
+ */
+export type IconName = BuiltInIconName | (string & {});
 
 export interface IconRenderProps {
   size: number;
