@@ -99,11 +99,14 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   const onMomentumEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (pageHeight <= 0) return;
-      const next = Math.round(e.nativeEvent.contentOffset.y / pageHeight);
+      // Acotado: con `?v=N` el primer scrollTo usa el alto de la ventana y, al
+      // medirse la página real, iOS recorta el offset y dispara este evento con
+      // un índice fuera de rango (página en blanco, ningún tick activo).
+      const next = Math.min(Math.max(Math.round(e.nativeEvent.contentOffset.y / pageHeight), 0), variants.length - 1);
       indexRef.current = next;
       setIndex(next);
     },
-    [pageHeight],
+    [pageHeight, variants.length],
   );
 
   if (fill) {

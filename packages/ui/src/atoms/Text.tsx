@@ -92,5 +92,15 @@ export const Title = makeVariant('title', 'text', 'header');
  * `lineHeight.lg` (1.5×) mantiene legible el texto cuando ocupa varias líneas.
  */
 export const Subtitle = makeVariant('subtitle', 'text');
+/**
+ * Texto corrido: el estilo por defecto de párrafos, descripciones y valores.
+ *
+ * Gestalt, similitud: todo el contenido de lectura comparte tamaño (`md`),
+ * peso regular y color `text`, así que se percibe como un solo nivel y los
+ * escalones de arriba (Title, Subtitle) y de abajo (Caption) destacan por
+ * contraste. `lineHeight.md` (≈1.43×) da el aire entre líneas para leer
+ * párrafos largos. Si se pasa `color`, el par color/fondo debe cumplir WCAG AA
+ * (4.5:1); los colores del theme ya lo garantizan.
+ */
 export const Body = makeVariant('body', 'text');
 export const Caption = makeVariant('caption', 'textLight');
