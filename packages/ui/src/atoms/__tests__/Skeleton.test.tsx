@@ -1,4 +1,5 @@
 import React from 'react';
+import { AccessibilityInfo } from 'react-native';
 import { act, render, screen } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Skeleton } from '../Skeleton';
@@ -44,5 +45,31 @@ describe('Skeleton', () => {
   it('stays out of the accessibility tree', () => {
     render(withProvider(<Skeleton testID="sk" />));
     expect(screen.queryByTestId('sk')).toBeNull();
+  });
+
+  it('each text line takes exactly Body\'s line height (bar + half leading above and below)', () => {
+    render(withProvider(<Skeleton variant="text" lines={2} testID="sk" />));
+    // fontSize.md 14 + 2 × 3 = lineHeight.md 20, igual que un renglón de Body.
+    expect(screen.getByTestId('sk-0', { includeHiddenElements: true })).toHaveStyle({
+      height: 14,
+      marginVertical: 3,
+    });
+  });
+
+  it('stops pulsing when the system asks to reduce motion', async () => {
+    // Once, sin mockRestore: el preset ya trae isReduceMotionEnabled como jest.fn
+    // y restaurarlo le borra la implementación al resto del archivo.
+    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValueOnce(true);
+    render(withProvider(<Skeleton testID="sk" />));
+    await act(async () => {});
+    // A mitad de ciclo un bloque que late ya está en 0.4; uno quieto sigue en 1.
+    act(() => jest.advanceTimersByTime(700));
+    expect(getBlock()).toHaveStyle({ opacity: 1 });
+  });
+
+  it('pulses by default', () => {
+    render(withProvider(<Skeleton testID="sk" />));
+    act(() => jest.advanceTimersByTime(700));
+    expect(getBlock()).not.toHaveStyle({ opacity: 1 });
   });
 });

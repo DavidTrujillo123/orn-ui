@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { Badge, Body, Card, Skeleton, Subtitle } from 'orn-ui';
+import { Avatar, Badge, Body, Card, Skeleton, Subtitle } from 'orn-ui';
 import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
 
 function LoadingCard() {
@@ -15,7 +15,7 @@ function LoadingCard() {
     <Card>
       {loaded ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <View style={{ width: 48, height: 48, borderRadius: 24, backgroundColor: '#004cef20' }} />
+          <Avatar name="Acme Studio" size={48} />
           <View style={{ flex: 1, gap: 4 }}>
             <Subtitle>Acme Studio</Subtitle>
             <Body>Invoice #1042 · paid</Body>
@@ -44,8 +44,19 @@ export function SkeletonDemo() {
       content: <Skeleton height={20} />,
     },
     {
-      label: 'variant="text" — 3-line paragraph',
-      content: <Skeleton variant="text" lines={3} />,
+      label: 'variant="text" — 3 lines, same height as the Body below',
+      content: (
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Skeleton variant="text" lines={3} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Body numberOfLines={3}>
+              Each bar takes one Body line, so the text lands without a jump.
+            </Body>
+          </View>
+        </View>
+      ),
     },
     {
       label: 'variant="circle" — avatars',
