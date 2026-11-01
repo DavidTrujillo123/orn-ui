@@ -7,6 +7,7 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
+import { useReduceMotion } from './Transition';
 
 export interface PressableScaleProps extends Omit<PressableProps, 'style'> {
   /** Target scale when pressed. @default 0.96 */
@@ -26,8 +27,10 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 export const PressableScale = memo(
   ({ scaleTo = 0.96, style, children, onPressIn, onPressOut, disabled, ...props }: PressableScaleProps) => {
     const scale = useRef(new Animated.Value(1)).current;
+    const reduceMotion = useReduceMotion();
 
     const animateTo = (value: number) => {
+      if (reduceMotion) return;
       Animated.spring(scale, {
         toValue: value,
         useNativeDriver: true,

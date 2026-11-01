@@ -9,7 +9,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 |---|---|---|---|---|
 | Typography (Title/Subtitle/Body/Caption) | typography | arreglado | 2026-10-31 | Title arreglado y verificado (multilínea ok). Subtitle arreglado: lineHeight.lg, doc comment Gestalt, demo multilínea, test; captura ok. Peso subido a semibold 600 (decisión usuario). Body arreglado: doc comment Gestalt; demo usaba #00cae1 (≈1.9:1, falla AA) ahora colors.primary; pager ?v=N último índice arreglado (clamp). Body se queda en 14px (decisión usuario). Caption arreglado: lineHeight.sm, doc comment Gestalt, demo multilínea, test; contraste AA ok (5.7:1 light, 6.4:1 dark). Typography completo salvo árbol a11y real (Maestro roto) |
 | Button | button | arreglado | 2026-10-31 | Arreglado: hitSlop sm/link (Fitts), loading sin cambio de ancho, ícono custom con separación, Reduce Motion, sin #000 literal, doc Gestalt; 685 tests ok. Disabled sin opacidad extra y padding md 16 / lg 20 (decisión usuario). Variante "Loading (static)" para capturas |
-| IconButton | icon-button | pendiente | | |
+| IconButton | icon-button | arreglado | 2026-10-31 | hitSlop hasta 44pt (el comentario decía 44 garantizado pero eran 40, y 32 con size 16), doc Gestalt figura/fondo, demo color theme (error). PressableScale ahora respeta Reduce Motion (afecta IconButton). Docs: 7 capturas, sin mp4 |
 | Input | input | pendiente | | |
 | Checkbox | checkbox | pendiente | | |
 | Badge | badge | pendiente | | |

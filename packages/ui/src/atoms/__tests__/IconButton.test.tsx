@@ -43,4 +43,18 @@ describe('IconButton', () => {
     );
     expect(screen.getByTestId('custom')).toBeOnTheScreen();
   });
+
+  it.each([
+    [24, 2],
+    [16, 6],
+  ] as const)('size %i extends its touch area to 44pt with hitSlop %i (Fitts)', (size, slop) => {
+    render(withProvider(<IconButton iconName="close" size={size} accessibilityLabel="Close" testID="ib" />));
+    expect(screen.getByTestId('ib').props.hitSlop).toEqual({ top: slop, bottom: slop, left: slop, right: slop });
+  });
+
+  it('needs no hitSlop when the icon is already large enough', () => {
+    render(withProvider(<IconButton iconName="close" size={32} accessibilityLabel="Close" testID="ib" />));
+    expect(screen.getByTestId('ib').props.hitSlop).toBeUndefined();
+  });
 });
+

@@ -4,6 +4,7 @@ import { PressableScale } from './PressableScale';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
 import { createStyles } from '../theme/createStyles';
+import { useTheme } from '../theme/UIProvider';
 
 export interface IconButtonProps {
   iconName?: IconName;
@@ -25,20 +26,35 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+/** Área táctil mínima recomendada por Apple (44pt) y Material (48dp ≈ 44pt). */
+const MIN_TOUCH = 44;
+
 /**
  * IconButton
- * Botón de solo ícono con área táctil mínima de 44x44 garantizada por el
- * padding (icon 24 + padding 8*2 = 40; sube a 44 con size>=24 default RN).
- * `accessibilityLabel` es obligatorio: sin texto visible, es la única forma
- * de que un lector de pantalla anuncie qué hace el botón.
+ * Botón de solo ícono. `accessibilityLabel` es obligatorio: sin texto
+ * visible, es la única forma de que un lector de pantalla anuncie qué hace.
+ *
+ * Fitts: el área visible es ícono + `spacing.sm` por lado (24 + 16 = 40pt con
+ * el tamaño por defecto, 32pt con `size={16}`). `hitSlop` completa lo que
+ * falta hasta 44pt sin agrandar el layout, así una fila de íconos conserva su
+ * ritmo y cada uno sigue siendo fácil de tocar.
+ *
+ * Gestalt, figura y fondo: no tiene fondo propio, el ícono es la figura sobre
+ * lo que haya detrás; por eso el color por defecto es `colors.text` (contraste
+ * AA garantizado) y `disabled` lo atenúa a la mitad.
  */
 export const IconButton = memo(
   ({ iconName, icon, onPress, size = 24, color, disabled, style, accessibilityLabel, testID }: IconButtonProps) => {
     const styles = useStyles();
+    const theme = useTheme();
+    const visible = size + theme.tokens.spacing.sm * 2;
+    const extra = Math.max(0, Math.ceil((MIN_TOUCH - visible) / 2));
+    const hitSlop = extra > 0 ? { top: extra, bottom: extra, left: extra, right: extra } : undefined;
     return (
       <PressableScale
         onPress={onPress}
         disabled={disabled}
+        hitSlop={hitSlop}
         style={[styles.hitArea, { opacity: disabled ? 0.5 : 1 }, style]}
         accessibilityRole="button"
         accessibilityLabel={accessibilityLabel}
