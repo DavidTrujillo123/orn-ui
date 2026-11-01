@@ -182,6 +182,12 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
   `demos/<Name>.demo.tsx` con el del example app (solo cambia el import de
   `VariantList`), capturar variantes con
   `scripts/capture-variants.sh <capa> <slug> <n> [y alto]` (ver `MEDIA.md`) y
+  **si el componente tiene movimiento propio** (spinner, skeleton, shiny text,
+  transition, cualquier animación que no requiere tocar) usar `VIDEO=1` para
+  que cada variante y la portada sean `.mp4` (regla del usuario: con
+  movimiento, la docs va en video). Estáticos: solo capturas y sin `.mp4`.
+  Interactivos (requieren tocar): conservar el `.mp4` existente hasta
+  regrabarlo con Maestro. Luego
   revisar la página en móvil 390, tablet 820 y PC 1440, claro y oscuro,
   emulando el dispositivo por CDP (Chrome headless no baja de ~500px de ancho
   con `--window-size`; da falsos desbordes). Componente estático: borrar su
