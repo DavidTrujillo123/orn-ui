@@ -177,6 +177,17 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
 - Si cambian props/variantes: actualizar el demo; si cambia la API pública, la
   fila en `README.md`, `packages/ui/README.md`, `packages/ui/AGENTS.md`,
   `packages/ui/llms.txt`.
+- **Docs: verificación obligatoria antes de commitear** (error repetido el
+  2026-11-01: ShinyText publicó tarjetas vacías y capturas cruzadas):
+  1. Sincronizar el demo y correr `pnpm run extract` en `orn-ui-docs` — falla
+     si capturas y variantes del demo no coinciden 1:1.
+  2. Capturar con `BAND_H` (alto que entre el contenido más alto del demo);
+     el script aborta si una captura sale vacía o cortada en el borde: subir
+     `BAND_H`, nunca saltar el chequeo.
+  3. Mirar una hoja de contacto con **todas** las capturas (claro y oscuro).
+  4. Captura CDP de la sección Variantes de la página (en `/es/` y en inglés)
+     y mirarla: cada tarjeta muestra la variante de su título y su código.
+  Sin los cuatro pasos, no se commitea la docs.
 - JSDoc de props públicas **siempre en inglés** (es el texto de la docs en
   inglés). Toda prop nueva o cambiada lleva su traducción en
   `orn-ui-docs/src/i18n/components/<slug>/es.json` (`props.<name>.description`);
