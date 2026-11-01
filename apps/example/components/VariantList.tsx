@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native';
 import { Caption, useColors } from 'orn-ui';
+import { useLocalSearchParams } from 'expo-router';
 
 export interface VariantDef {
   label: string;
@@ -48,12 +49,16 @@ export interface VariantListProps {
 export function VariantList({ variants, fill = false }: VariantListProps) {
   const colors = useColors();
   const [pageHeight, setPageHeight] = useState(() => Dimensions.get('window').height);
-  const [index, setIndex] = useState(0);
+  // `?v=N` (1-based) abre directo la variante N: deja revisar cada variante por
+  // deep link (`ornui:///atoms/typography?v=3`) sin depender de un swipe.
+  const { v } = useLocalSearchParams<{ v?: string }>();
+  const initialIndex = Math.min(Math.max((parseInt(v ?? '', 10) || 1) - 1, 0), Math.max(variants.length - 1, 0));
+  const [index, setIndex] = useState(initialIndex);
   const [scrollLocked, setScrollLocked] = useState(false);
   const hintOpacity = useRef(new Animated.Value(1)).current;
   const hintDismissed = useRef(false);
   const pagerRef = useRef<ScrollView>(null);
-  const indexRef = useRef(0);
+  const indexRef = useRef(initialIndex);
   const keyboardOpen = useRef(false);
 
   const onLayout = useCallback((e: LayoutChangeEvent) => {

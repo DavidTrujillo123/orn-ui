@@ -109,7 +109,7 @@ cd /Users/david/work/projects/orn-ui/orn-ui/apps/example && pnpm exec expo start
 ```sh
 S=<scratchpad>; SLUG=<slug>; LAYER=<atoms|molecules|organisms>
 xcrun simctl launch booted com.anonymous.orn-ui-example >/dev/null
-xcrun simctl openurl booted "ornui:///$LAYER/$SLUG"; /bin/sleep 4
+xcrun simctl openurl booted "ornui:///$LAYER/$SLUG?v=1"; /bin/sleep 4   # ?v=N abre la variante N (1-based)
 xcrun simctl ui booted appearance light
 xcrun simctl io booted screenshot $S/$SLUG-light.png
 xcrun simctl ui booted appearance dark; /bin/sleep 2
@@ -142,8 +142,9 @@ Mientras tanto, cubrir la a11y con tests de RTL (`getByRole('header')`,
 - Mirar **cada** captura con Read: alineación, recortes, contraste, espaciados,
   estados. Comparar light vs dark. Juzgar con las leyes de `DESIGN-LAWS.md`
   (proximidad, región común, figura/fondo, punto focal, área táctil).
-- El demo usa un pager vertical (`VariantList`): avanzar variantes con el subflow
-  `.maestro/subflows/` de swipe calibrado, no con swipes largos.
+- El demo usa un pager vertical (`VariantList`). Para ver la variante N sin
+  swipe: `ornui:///<capa>/<slug>?v=N`. El parámetro solo se lee al montar:
+  para cambiar de variante, `simctl terminate` + `launch` y abrir el link de nuevo.
 - Interacción: escribir un flow ad hoc en el scratchpad (`appId:
   com.anonymous.orn-ui-example`) con `tapOn`, `inputText`, `swipe`,
   `assertVisible`, `takeScreenshot` y correrlo con `maestro test <archivo>`.

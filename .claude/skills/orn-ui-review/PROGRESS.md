@@ -7,7 +7,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 | componente | slug | estado | fecha | notas |
 |---|---|---|---|---|
-| Typography (Title/Subtitle/Body/Caption) | typography | en-curso | 2026-10-31 | Title arreglado: accessibilityRole header (sobreescribible), doc comment Gestalt (punto focal/Prägnanz), tokens nuevos letterSpacing.tight y lineHeight.xl, demo multilínea, 5 tests nuevos. Tests 679 ok, harness y typecheck ok. Pendiente: captura de la variante multilínea y árbol a11y real (Maestro roto); revisar Subtitle/Body/Caption |
+| Typography (Title/Subtitle/Body/Caption) | typography | en-curso | 2026-10-31 | Title arreglado y verificado (multilínea ok). Subtitle arreglado: lineHeight.lg, doc comment Gestalt, demo multilínea, test; captura ok. Peso subido a semibold 600 (decisión usuario). Falta Body, Caption; árbol a11y real (Maestro roto) |
 | Button | button | pendiente | | |
 | IconButton | icon-button | pendiente | | |
 | Input | input | pendiente | | |
@@ -66,4 +66,4 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 - 2026-10-31 — `allowFontScaling`: se queda **opcional y en `false` por defecto** (decisión del usuario). Captura `-ax` idéntica a `-light` NO es hallazgo mientras siga así.
 - Futuro: "controlador de tamaños" para el escalado de fuente (tope tipo `maxFontSizeMultiplier` controlado desde `UIProvider`) para poder activar `allowFontScaling` sin romper layouts. Al hacerlo, revisar todos los componentes con fuente grande.
-
+- Futuro (después de revisar todos los componentes): compatibilidad web (PC/tablet) con react-native-web. Hallazgo ya visto: Title con role header sale como `<div>` sin `role=heading`/nivel en web; propuesta prop `level` (h1…h6). Chromium headless disponible en `~/Library/Caches/ms-playwright/chromium-1234` para capturas.

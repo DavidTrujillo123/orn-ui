@@ -26,7 +26,8 @@ const useStyles = createStyles((theme) => ({
   },
   subtitle: {
     fontSize: theme.tokens.fontSize.lg,
-    fontWeight: theme.tokens.fontWeight.medium,
+    lineHeight: theme.tokens.lineHeight.lg,
+    fontWeight: theme.tokens.fontWeight.semibold,
     color: theme.colors.text,
   },
   body: {
@@ -79,6 +80,17 @@ function makeVariant(
  * sobreescribir pasando otro `accessibilityRole`.
  */
 export const Title = makeVariant('title', 'text', 'header');
+/**
+ * Segundo escalón de la jerarquía: encabeza un grupo dentro de la pantalla o
+ * acompaña a un Title con un dato breve.
+ *
+ * Gestalt, similitud: comparte color con Body pero sube tamaño (`lg`) y peso
+ * (`semibold`), así que se percibe como de la misma familia y a la vez como el
+ * rótulo del bloque que sigue. Proximidad: debe ir más cerca del contenido que
+ * encabeza que del bloque anterior. No es un encabezado de accesibilidad: si
+ * marca una sección navegable, usar Title (o pasar `accessibilityRole="header"`).
+ * `lineHeight.lg` (1.5×) mantiene legible el texto cuando ocupa varias líneas.
+ */
 export const Subtitle = makeVariant('subtitle', 'text');
 export const Body = makeVariant('body', 'text');
 export const Caption = makeVariant('caption', 'textLight');
