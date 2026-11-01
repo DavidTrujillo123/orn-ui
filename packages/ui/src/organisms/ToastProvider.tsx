@@ -9,7 +9,7 @@ export interface ToastOptions {
   title: string;
   message?: string;
   variant?: ToastVariant;
-  /** ms antes de auto-descartar. 0 = no se descarta solo. @default 4000 */
+  /** Milliseconds before auto-dismiss. 0 = never dismisses on its own. @default 4000 */
   duration?: number;
   onPress?: () => void;
   hideCloseButton?: boolean;
@@ -20,7 +20,7 @@ interface ToastEntry extends ToastOptions {
 }
 
 interface ToastContextValue {
-  /** Muestra un toast y devuelve su id (por si querés cerrarlo antes de tiempo). */
+  /** Shows a toast and returns its id (to close it early if needed). */
   show: (options: ToastOptions) => string;
   hide: (id: string) => void;
   hideAll: () => void;

@@ -7,7 +7,7 @@ import { Transition } from '../atoms/Transition';
 
 export interface WizardStep extends StepItem {
   content: React.ReactNode;
-  /** false bloquea el avance desde este paso (validación). @default true */
+  /** `false` blocks advancing from this step (validation). @default true */
   canGoNext?: boolean;
 }
 

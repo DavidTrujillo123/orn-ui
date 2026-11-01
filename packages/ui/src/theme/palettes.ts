@@ -52,9 +52,9 @@ export interface ThemeColors {
   border: string;
   inputBackground: string;
   overlay: string;
-  /** Velo semitransparente sobre contenido propio (footer de carga de List). */
+  /** Semi-transparent veil over custom content (List's loading footer). */
   scrim: string;
-  /** Fondo de placeholder mientras carga una imagen. */
+  /** Placeholder background while an image loads. */
   skeleton: string;
 }
 

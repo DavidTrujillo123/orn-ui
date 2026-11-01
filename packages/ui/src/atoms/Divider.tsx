@@ -4,9 +4,9 @@ import { useTheme } from '../theme/UIProvider';
 import type { Tokens } from '../theme/tokens';
 
 export interface DividerProps {
-  /** `vertical` separa elementos en una fila; se estira al alto de la fila. @default 'horizontal' */
+  /** `vertical` separates items in a row and stretches to the row's height. @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
-  /** Aire a cada lado de la línea, de la escala de espaciado. Sin valor, la línea no agrega margen. */
+  /** Space on each side of the line, from the spacing scale. Unset, the line adds no margin. */
   spacing?: keyof Tokens['spacing'];
   style?: StyleProp<ViewStyle>;
   testID?: string;

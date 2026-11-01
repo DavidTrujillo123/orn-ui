@@ -43,11 +43,11 @@ export type { ChartRow } from './chart/math';
 export type ChartType = 'bar' | 'line' | 'area' | 'pie' | 'donut' | 'radar';
 
 export interface ChartSeries {
-  /** Columna de `data` que lee esta serie. */
+  /** Column of `data` this series reads. */
   key: string;
-  /** Lo que dicen la leyenda y el tooltip. Por defecto, `key`. */
+  /** Text shown in the legend and tooltip. Defaults to `key`. */
   label?: string;
-  /** Pisa el color derivado del theme. */
+  /** Overrides the color derived from the theme. */
   color?: string;
 }
 
@@ -70,21 +70,21 @@ export interface ChartFilter {
 
 export interface ChartSelection {
   /**
-   * Identidad de la fila, estable a través de un `window` o un diezmado.
-   * Sale de `selectBy`; sin él es el índice, y entonces no sobrevive a que
-   * los datos corran.
+   * Row identity, stable across a `window` or decimation. Comes from
+   * `selectBy`; without it, it is the index, which does not survive the data
+   * shifting.
    */
   id: string;
   /**
-   * Índice adentro de las filas **dibujadas**, no de `data`: con `window` o
-   * con diezmado no son la misma lista. Para volver al dato está `row`.
+   * Index within the **drawn** rows, not `data`: with `window` or decimation
+   * they are not the same list. Use `row` to get back to the datum.
    */
   index: number;
-  /** La fila entera, sin tener que resolver el índice contra nada. */
+  /** The whole row, without resolving the index against anything. */
   row: ChartRow;
-  /** Valor de `xKey` en esa fila. */
+  /** Value of `xKey` in that row. */
   label: string;
-  /** Serie tocada. En torta es la fila, que ahí es la categoría. */
+  /** Series that was touched. In a pie it is the row, which is the category there. */
   seriesKey: string;
   value: number;
 }
@@ -92,52 +92,52 @@ export interface ChartSelection {
 interface ChartBaseProps {
   data: ChartRow[];
   /**
-   * Series a dibujar. En 'pie'/'donut' sólo se usa la primera: las categorías
-   * de una torta son las filas, no las columnas.
+   * Series to draw. 'pie'/'donut' only use the first one: a pie's categories
+   * are the rows, not the columns.
    */
   series: ChartSeries[];
-  /** Columna con la etiqueta de cada fila. @default 'x' */
+  /** Column holding each row's label. @default 'x' */
   xKey?: string;
   /**
-   * Identidad estable de una fila. Sin esto la selección se guarda por índice,
-   * y en una ventana deslizante el índice corre: el punto resaltado pasa a
-   * señalar otro dato sin que nadie lo toque. Con esto el resaltado sigue al
-   * dato, y desaparece solo cuando el dato sale de la ventana.
+   * Stable identity of a row. Without it the selection is stored by index,
+   * and in a sliding window the index shifts: the highlighted point ends up
+   * pointing at another datum without anyone touching it. With it the
+   * highlight follows the datum and disappears only when it leaves the window.
    */
   selectBy?: (row: ChartRow, index: number) => string;
   /**
-   * Dibuja sólo las últimas N filas. Es la ventana deslizante de un chart en
-   * vivo: quien empuja los datos no tiene que recortarlos en cada tick.
+   * Draws only the last N rows. It is the sliding window of a live chart: the
+   * code pushing data doesn't have to trim it on every tick.
    */
   window?: number;
-  /** Alto del área de dibujo, sin contar filtros ni leyenda. @default 220 */
+  /** Height of the plot area, excluding filters and legend. @default 220 */
   height?: number;
   /**
-   * 'toggle' convierte la leyenda en el filtro más barato que tiene un chart:
-   * tocar una serie la apaga. @default 'auto' (toggle con 2+ series, none con una)
+   * 'toggle' turns the legend into the cheapest filter a chart has: tapping a
+   * series hides it. @default 'auto' (toggle with 2+ series, none with one)
    */
   legend?: 'auto' | 'none' | 'static' | 'toggle';
-  /** Series apagadas, controlado. Sin esto, Chart se las acuerda solo. */
+  /** Hidden series (controlled). Without it, Chart tracks them itself. */
   hiddenKeys?: string[];
   /** @default [] */
   defaultHiddenKeys?: string[];
   onHiddenKeysChange?: (keys: string[]) => void;
-  /** Controles arriba del chart, uno por filtro. */
+  /** Controls above the chart, one per filter. */
   filters?: ChartFilter[];
-  /** Punto resaltado, controlado. `null` es "ninguno". */
+  /** Highlighted point (controlled). `null` means none. */
   selected?: ChartSelection | null;
   onSelect?: (selection: ChartSelection | null) => void;
-  /** Globo con los valores de la categoría tocada. @default true */
+  /** Bubble with the values of the touched category. @default true */
   tooltip?: boolean;
-  /** @default formato compacto: 1.2k, 3.4M */
+  /** @default compact format: 1.2k, 3.4M */
   formatValue?: (value: number) => string;
   /** @default true */
   animate?: boolean;
-  /** ms de la animación de las marcas. @default tokens.duration.slow * 2 */
+  /** Duration in ms of the marks' animation. @default tokens.duration.slow * 2 */
   duration?: number;
-  /** Texto cuando no queda nada que dibujar. */
+  /** Text shown when there is nothing left to draw. */
   emptyText?: string;
-  /** Obligatorio: un chart no tiene texto que lo describa. */
+  /** Required: a chart has no text that describes it. */
   accessibilityLabel: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -145,55 +145,55 @@ interface ChartBaseProps {
 
 interface CartesianProps {
   /**
-   * Fija el eje de valores. Por defecto se recalcula con cada dato, que es lo
-   * correcto para un chart estático y lo peor para uno en vivo: llega un valor
-   * más alto, la escala entera se reacomoda y la línea salta aunque el dato no
-   * se haya movido.
+   * Fixes the value axis. By default it is recomputed with every datum, which
+   * is right for a static chart and worst for a live one: a higher value
+   * arrives, the whole scale shifts and the line jumps even though the data
+   * didn't move.
    *
-   * - `[min, max]` — exacto, sin redondear a números lindos.
-   * - `'sticky'` — arranca del dato y crece cuando algo no entra, pero no se
-   *   vuelve a achicar.
+   * - `[min, max]` — exact, not rounded to nice numbers.
+   * - `'sticky'` — starts from the data and grows when something doesn't fit,
+   *   but never shrinks back.
    */
   domain?: [number, number] | 'sticky';
-  /** Líneas de referencia del eje de valores. @default true */
+  /** Reference lines on the value axis. @default true */
   grid?: boolean;
-  /** Ticks buscados en el eje de valores; el redondeo puede dar uno más o uno menos. @default 4 */
+  /** Target tick count on the value axis; rounding may yield one more or one fewer. @default 4 */
   ticks?: number;
-  /** Etiquetas del eje horizontal. @default true */
+  /** Labels on the horizontal axis. @default true */
   xAxis?: boolean;
-  /** Etiquetas del eje vertical. @default true */
+  /** Labels on the vertical axis. @default true */
   yAxis?: boolean;
 }
 
 interface BarChartProps extends CartesianProps {
   type: 'bar';
-  /** 'horizontal' pone las categorías en el eje vertical. @default 'vertical' */
+  /** 'horizontal' puts the categories on the vertical axis. @default 'vertical' */
   orientation?: 'vertical' | 'horizontal';
-  /** Apila las series en vez de ponerlas lado a lado. @default false */
+  /** Stacks the series instead of placing them side by side. @default false */
   stacked?: boolean;
-  /** Radio del extremo libre de cada barra. @default radius.xs */
+  /** Radius of each bar's free end. @default radius.xs */
   barRadius?: number;
 }
 
 interface LineChartProps extends CartesianProps {
   type: 'line';
   /**
-   * Cuántos puntos dibujar como mucho, eligiéndolos con LTTB. Por defecto sale
-   * del ancho medido: más de un punto cada dos píxeles no se ve y sí se paga.
-   * `false` los dibuja todos.
+   * Maximum number of points to draw, picked with LTTB. Defaults to a value
+   * derived from the measured width: more than one point every two pixels
+   * isn't visible but still costs. `false` draws them all.
    */
   decimate?: number | false;
-  /** Catmull-Rom en vez de tramos rectos. @default false */
+  /** Catmull-Rom curves instead of straight segments. @default false */
   smooth?: boolean;
   /** @default 2 */
   thickness?: number;
-  /** Punto en cada dato. @default true */
+  /** A dot on each datum. @default true */
   dots?: boolean;
 }
 
 interface AreaChartProps extends CartesianProps {
   type: 'area';
-  /** Igual que en 'line'. */
+  /** Same as in 'line'. */
   decimate?: number | false;
   smooth?: boolean;
   thickness?: number;
@@ -201,14 +201,14 @@ interface AreaChartProps extends CartesianProps {
   dots?: boolean;
   /** @default false */
   stacked?: boolean;
-  /** Opacidad del relleno bajo la línea. @default 0.22 */
+  /** Opacity of the fill under the line. @default 0.22 */
   fillOpacity?: number;
 }
 
 interface PieBaseProps {
-  /** Agujero como fracción del radio, 0–0.9. @default 0 en 'pie', 0.6 en 'donut' */
+  /** Hole as a fraction of the radius, 0–0.9. @default 0 for 'pie', 0.6 for 'donut' */
   innerRadius?: number;
-  /** Qué escribir sobre cada porción. @default 'percent' */
+  /** What to write on each slice. @default 'percent' */
   sliceLabels?: 'none' | 'percent' | 'value';
 }
 
@@ -226,13 +226,13 @@ interface DonutChartProps extends PieBaseProps {
 interface RadarChartProps {
   type: 'radar';
   /**
-   * Fija el alcance de los ejes. El radar mide desde el centro, así que el
-   * mínimo es siempre 0 y de `[min, max]` sólo se usa `max`.
+   * Fixes the axes' range. A radar measures from the center, so the minimum is
+   * always 0 and only `max` of `[min, max]` is used.
    */
   domain?: [number, number] | 'sticky';
-  /** Anillos de la telaraña. @default 4 */
+  /** Rings of the web. @default 4 */
   levels?: number;
-  /** Rellena el polígono además de dibujar su contorno. @default true */
+  /** Fills the polygon in addition to drawing its outline. @default true */
   fill?: boolean;
   thickness?: number;
   /** @default true */

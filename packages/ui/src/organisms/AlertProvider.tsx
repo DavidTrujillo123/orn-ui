@@ -11,14 +11,14 @@ export interface AlertOptions {
 }
 
 export interface ConfirmOptions extends AlertOptions {
-  /** Botón de confirmar en rojo/destructivo (para "eliminar", etc). */
+  /** Shows the confirm button as destructive/red (for "delete", etc.). */
   destructive?: boolean;
 }
 
 interface AlertContextValue {
-  /** Muestra un alert de un solo botón. Resuelve cuando se cierra. */
+  /** Shows a single-button alert. Resolves when it closes. */
   alert: (options: AlertOptions) => Promise<void>;
-  /** Muestra confirmar/cancelar. Resuelve true si se confirmó, false si se canceló. */
+  /** Shows confirm/cancel. Resolves true if confirmed, false if cancelled. */
   confirm: (options: ConfirmOptions) => Promise<boolean>;
   hide: () => void;
 }

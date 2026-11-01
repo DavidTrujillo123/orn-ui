@@ -25,7 +25,7 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   leftIconName?: IconName;
   rightIconName?: IconName;
   onRightIconPress?: () => void;
-  /** Nombre accesible del botón de `rightIconName`. @default labels.clear */
+  /** Accessible name of the `rightIconName` button. @default labels.clear */
   rightIconAccessibilityLabel?: string;
   isPassword?: boolean;
   isLoading?: boolean;

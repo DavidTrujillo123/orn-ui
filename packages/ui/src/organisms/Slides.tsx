@@ -26,47 +26,47 @@ export type SlideBackground = string | string[];
 export interface SlidesProps<T> {
   data: T[];
   keyExtractor: (item: T, index: number) => string;
-  /** Contenido de la slide: imágenes, botones, lo que sea. Se dibuja sobre `background`. */
+  /** Slide content: images, buttons, anything. Drawn on top of `background`. */
   renderItem: (item: T, index: number) => React.ReactNode;
-  /** Fondo por slide: `'#101014'` pinta plano, `['#004cef', '#00cae1']` degrada. */
+  /** Per-slide background: `'#101014'` paints flat, `['#004cef', '#00cae1']` paints a gradient. */
   background?: (item: T, index: number) => SlideBackground | undefined;
-  /** Dirección del degradado cuando `background` devuelve varios colores. @default 'vertical' */
+  /** Gradient direction when `background` returns several colors. @default 'vertical' */
   gradientDirection?: GradientDirection;
   /** @default 'horizontal' */
   orientation?: SlidesOrientation;
-  /** Círculos, círculos numerados, o ninguno. @default 'dots' */
+  /** Dots, numbered dots, or none. @default 'dots' */
   indicators?: SlidesIndicators;
   /**
-   * 'overlay' los apoya sobre la slide, en blanco; 'outside' los saca fuera
-   * del área deslizable, con los colores del tema.
+   * 'overlay' places them on the slide, in white; 'outside' moves them out of
+   * the swipeable area, in theme colors.
    * @default 'overlay'
    */
   indicatorPlacement?: SlidesIndicatorPlacement;
-  /** Después de la última vuelve a la primera (y al revés). @default false */
+  /** After the last slide, wraps to the first (and vice versa). @default false */
   loop?: boolean;
-  /** Avanza solo. Se pausa mientras el dedo arrastra. @default false */
+  /** Advances automatically. Pauses while a finger is dragging. @default false */
   autoPlay?: boolean;
-  /** ms entre avances de `autoPlay`. @default 4000 */
+  /** Milliseconds between `autoPlay` advances. @default 4000 */
   interval?: number;
   /**
-   * Botón para frenar el avance automático. Sólo aparece con `autoPlay`, y va
-   * en `true` porque contenido que se mueve solo necesita una forma de
-   * pausarlo (WCAG 2.2.2).
+   * Button that pauses auto-advance. Only shown with `autoPlay`; on by default
+   * because content that moves on its own needs a way to pause it
+   * (WCAG 2.2.2).
    * @default true
    */
   showAutoPlayToggle?: boolean;
-  /** Hueco entre slides, en px. En 0 quedan pegadas. @default 0 */
+  /** Gap between slides, in px. At 0 they touch. @default 0 */
   spacing?: number;
-  /** Índice controlado. Sin él, el componente maneja el suyo desde `defaultIndex`. */
+  /** Controlled index. Without it, the component manages its own from `defaultIndex`. */
   index?: number;
   /** @default 0 */
   defaultIndex?: number;
   onIndexChange?: (index: number) => void;
-  /** Alto del área deslizable. @default 240 */
+  /** Height of the swipeable area. @default 240 */
   height?: number;
   /** @default true */
   swipeEnabled?: boolean;
-  /** Estilos de la caja visible de cada slide — padding, alineación, radio. */
+  /** Styles for each slide's visible box — padding, alignment, radius. */
   slideStyle?: StyleProp<ViewStyle>;
   style?: StyleProp<ViewStyle>;
   testID?: string;

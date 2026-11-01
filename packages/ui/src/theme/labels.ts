@@ -8,16 +8,16 @@ export interface Labels {
   noResultsDescription: string;
   search: string;
   selectPlaceholder: string;
-  /** Nombres de los meses, de enero a diciembre. */
+  /** Month names, January to December. */
   months: string[];
-  /** Iniciales de los días, índice 0 = domingo (alinea con `Date.getDay()`). */
+  /** Weekday initials, index 0 = Sunday (matches `Date.getDay()`). */
   weekdaysShort: string[];
   selectDate: string;
   clear: string;
-  /** Botón del ojo en Input con `isPassword`. */
+  /** Eye button in Input with `isPassword`. */
   showPassword: string;
   hidePassword: string;
-  /** Se agrega al nombre accesible de un campo `required` (el asterisco es solo visual). */
+  /** Appended to the accessible name of a `required` field (the asterisk is visual only). */
   required: string;
 }
 

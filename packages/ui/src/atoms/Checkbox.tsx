@@ -12,7 +12,7 @@ export interface CheckboxProps {
   label?: string;
   color?: string;
   disabled?: boolean;
-  /** Obligatorio en la práctica si no hay `label`: es lo único que oye un lector de pantalla. */
+  /** Effectively required without `label`: it is all a screen reader announces. */
   accessibilityLabel?: string;
   testID?: string;
 }

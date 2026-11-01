@@ -14,7 +14,7 @@ export const DEFAULT_WEEKDAY_NAMES = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export interface DateRange {
   start: Date;
-  /** Falta mientras el rango está a medio elegir (sólo se tocó el inicio). */
+  /** Missing while the range is half-picked (only the start was tapped). */
   end?: Date;
 }
 

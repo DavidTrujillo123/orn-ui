@@ -23,10 +23,10 @@ export type BrandAccent = 'primary' | 'secondary' | 'success' | 'error' | 'warni
 
 export interface ThemeOverrides {
   /**
-   * Un hex por acento; de cada uno se derivan sus cuatro roles (relleno, lo
-   * que va encima, el fondo tenue y la variante legible sobre `surface`) para
-   * light y para dark, con el contraste ya resuelto. Un string suelto define
-   * `primary`. Lo que se pase en `colors` gana sobre lo derivado.
+   * One hex per accent; each one derives its four roles (fill, content on top,
+   * subtle background and the variant legible on `surface`) for light and
+   * dark, with contrast already resolved. A plain string sets `primary`.
+   * Anything passed in `colors` wins over the derived values.
    */
   brand?: string | Partial<Record<BrandAccent, string>>;
   colors?: {

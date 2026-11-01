@@ -13,18 +13,18 @@ import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
 
 export interface AvatarProps {
-  /** Diámetro en pt. @default 44 */
+  /** Diameter in pt. @default 44 */
   size?: number;
-  /** Foto. Si falla al cargar, cae a las iniciales de `name` (o al ícono). */
+  /** Photo. If it fails to load, falls back to the initials of `name` (or the icon). */
   source?: ImageSourcePropType;
-  /** Nombre de la persona: genera las iniciales y el nombre accesible. */
+  /** Person's name: produces the initials and the accessible name. */
   name?: string;
-  /** Ícono cuando no hay foto ni nombre. @default 'user' */
+  /** Icon shown when there is no photo or name. @default 'user' */
   iconName?: IconName;
   backgroundColor?: string;
-  /** Color de iniciales e ícono. @default colors.primaryText */
+  /** Color of the initials and icon. @default colors.primaryText */
   color?: string;
-  /** Contenido propio; tiene prioridad sobre source/name/iconName. */
+  /** Custom content; takes precedence over source/name/iconName. */
   children?: React.ReactNode;
   /** @default name */
   accessibilityLabel?: string;

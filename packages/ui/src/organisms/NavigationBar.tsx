@@ -18,7 +18,7 @@ export interface NavigationBarItem {
   key: string;
   label: string;
   iconName?: IconName;
-  /** Contador sobre el ícono. `true` pinta sólo el punto. */
+  /** Counter over the icon. `true` shows only the dot. */
   badge?: number | string | true;
 }
 

@@ -21,9 +21,9 @@ import type { IconName } from '../icons/types';
 export interface SelectOption<T> {
   label: string;
   value: T;
-  /** Glifo del set de la librería, a la izquierda del label. */
+  /** Glyph from the library's icon set, left of the label. */
   iconName?: IconName;
-  /** Emoji a la izquierda del label. Gana sobre `iconName`. */
+  /** Emoji left of the label. Takes precedence over `iconName`. */
   emoji?: string;
   disabled?: boolean;
 }

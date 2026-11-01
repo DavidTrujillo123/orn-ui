@@ -4,22 +4,21 @@ import { StyleSheet, View, type LayoutChangeEvent, type StyleProp, type ViewStyl
 export type GradientDirection = 'vertical' | 'horizontal' | 'diagonal' | 'diagonal-reverse';
 
 export interface GradientProps {
-  /** Paradas del degradado. Uno solo pinta plano; ninguno no pinta nada. */
+  /** Gradient stops. A single color paints flat; none paints nothing. */
   colors: string[];
   /**
-   * 'vertical' va de arriba a abajo, 'horizontal' de izquierda a derecha,
-   * 'diagonal' de arriba-izquierda a abajo-derecha y 'diagonal-reverse' de
-   * arriba-derecha a abajo-izquierda.
+   * 'vertical' runs top to bottom, 'horizontal' left to right, 'diagonal'
+   * top-left to bottom-right and 'diagonal-reverse' top-right to bottom-left.
    * @default 'vertical'
    */
   direction?: GradientDirection;
   /**
-   * Bandas por tramo (un tramo = un par de colores consecutivos). Más bandas
-   * = transición más suave y más vistas en el árbol.
+   * Bands per segment (a segment = a pair of consecutive colors). More bands
+   * = a smoother transition and more views in the tree.
    * @default 48
    */
   steps?: number;
-  /** Contenido por encima del degradado. */
+  /** Content rendered on top of the gradient. */
   children?: React.ReactNode;
   style?: StyleProp<ViewStyle>;
   testID?: string;

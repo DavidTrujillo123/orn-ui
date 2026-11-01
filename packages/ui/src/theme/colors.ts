@@ -20,13 +20,13 @@ export interface Hsl {
 
 /** Roles que necesita un acento del theme, en un esquema concreto. */
 export interface AccentRoles {
-  /** Relleno pleno: fondo de botón, círculo del paso actual. */
+  /** Solid fill: button background, current step's circle. */
   base: string;
-  /** Texto/ícono que va encima del relleno. */
+  /** Text/icon placed on top of the fill. */
   on: string;
-  /** Fondo tenue: badges, pill del indicador activo. */
+  /** Subtle background: badges, active indicator pill. */
   soft: string;
-  /** El acento legible sobre `surface`: labels, links. */
+  /** The accent legible on `surface`: labels, links. */
   text: string;
 }
 
