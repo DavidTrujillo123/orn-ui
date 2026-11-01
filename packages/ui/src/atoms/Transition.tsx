@@ -21,7 +21,7 @@ export interface TransitionProps {
   duration?: number;
   /** ms before starting. A per-index delay staggers a list. @default 0 */
   delay?: number;
-  /** Pixels traveled by the slide presets. @default 24 */
+  /** Pixels traveled by the slide presets. @default tokens.spacing.xxl (24) */
   distance?: number;
   /** Spring instead of timing (implicit in 'pop'). */
   spring?: boolean;
@@ -41,6 +41,9 @@ export interface TransitionProps {
 }
 
 const SCALE_FROM: Record<'scale' | 'pop', number> = { scale: 0.92, pop: 0.8 };
+const hiddenStyle: ViewStyle = { pointerEvents: 'none' };
+/** Resorte de 'pop': rebota una vez y asienta (~350 ms), sin oscilar. */
+const POP_SPRING = { friction: 9, tension: 90 } as const;
 
 /**
  * Sigue el ajuste de "reducir movimiento" del sistema: con él activo las
@@ -77,7 +80,12 @@ export function useReduceMotion(): boolean {
  *
  * El nodo se mantiene montado hasta que termina la animación de salida, y el
  * comportamiento es idéntico en iOS y Android: no hay ninguna rama por
- * plataforma.
+ * plataforma. Mientras sale (o queda oculto con `keepMounted`) deja de
+ * recibir toques y sale del árbol de accesibilidad: lo invisible no se lee.
+ *
+ * Gestalt, destino común: lo que entra o sale junto se percibe como un grupo;
+ * con `delay` por índice la lista entra en orden de lectura (continuidad).
+ * Respeta Reduce Motion: salta al estado final, los callbacks se mantienen.
  */
 export const Transition = memo(
   ({
@@ -86,7 +94,7 @@ export const Transition = memo(
     preset = 'fade',
     duration,
     delay = 0,
-    distance = 24,
+    distance,
     spring,
     appear = true,
     keepMounted = false,
@@ -97,6 +105,10 @@ export const Transition = memo(
     testID,
   }: TransitionProps) => {
     const theme = useTheme();
+    const travel = distance ?? theme.tokens.spacing.xxl;
+    // Resuelto acá, no adentro del efecto: depender de `theme` reiniciaba la
+    // animación (y volvía a disparar onEntered) cada vez que cambiaba el tema.
+    const resolvedDuration = duration ?? theme.tokens.duration.base;
     const reduceMotion = useReduceMotion();
     const internal = useRef(new Animated.Value(visible && !appear ? 1 : 0)).current;
     const progress = value ?? internal;
@@ -126,11 +138,11 @@ export const Transition = memo(
       const animation = reduceMotion
         ? Animated.timing(progress, { toValue, duration: 0, delay, useNativeDriver: true })
         : useSpring
-          ? Animated.spring(progress, { toValue, delay, friction: 9, tension: 90, useNativeDriver: true })
+          ? Animated.spring(progress, { toValue, delay, ...POP_SPRING, useNativeDriver: true })
           : Animated.timing(progress, {
               toValue,
               delay,
-              duration: duration ?? theme.tokens.duration.base,
+              duration: resolvedDuration,
               easing: visible ? Easing.out(Easing.cubic) : Easing.in(Easing.cubic),
               useNativeDriver: true,
             });
@@ -146,7 +158,7 @@ export const Transition = memo(
       });
 
       return () => animation.stop();
-    }, [visible, driven, reduceMotion, spring, delay, duration, keepMounted, presets, progress, theme]);
+    }, [visible, driven, reduceMotion, spring, delay, resolvedDuration, keepMounted, presets, progress]);
 
     const animatedStyle = useMemo(() => {
       type Interpolated = Animated.AnimatedInterpolation<number>;
@@ -165,21 +177,22 @@ export const Transition = memo(
           continue;
         }
         const vertical = item === 'slide-up' || item === 'slide-down';
-        const from = item === 'slide-up' || item === 'slide-left' ? distance : -distance;
+        const from = item === 'slide-up' || item === 'slide-left' ? travel : -travel;
         const offset = progress.interpolate({ inputRange: [0, 1], outputRange: [from, 0] });
         transform.push(vertical ? { translateY: offset } : { translateX: offset });
       }
 
       return { opacity, transform };
-    }, [presets, progress, distance]);
+    }, [presets, progress, travel]);
 
     if (!mounted) return null;
 
     return (
       <Animated.View
         testID={testID}
-        pointerEvents={visible ? undefined : 'none'}
-        style={[style, animatedStyle]}
+        accessibilityElementsHidden={!visible}
+        importantForAccessibility={visible ? 'auto' : 'no-hide-descendants'}
+        style={[style, animatedStyle, !visible && hiddenStyle]}
       >
         {children}
       </Animated.View>

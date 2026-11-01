@@ -55,11 +55,13 @@ describe('Transition', () => {
         </Transition>
       )
     );
-    expect(screen.getByText('content')).toBeOnTheScreen();
+    // Saliendo: sigue montado, pero ya fuera del árbol de accesibilidad.
+    expect(screen.getByText('content', { includeHiddenElements: true })).toBeOnTheScreen();
+    expect(screen.queryByText('content')).toBeNull();
 
     settle();
     expect(onExited).toHaveBeenCalledTimes(1);
-    expect(screen.queryByText('content')).not.toBeOnTheScreen();
+    expect(screen.queryByText('content', { includeHiddenElements: true })).not.toBeOnTheScreen();
   });
 
   it('keepMounted hides the children instead of unmounting them', () => {
@@ -80,8 +82,28 @@ describe('Transition', () => {
     );
     settle();
 
-    expect(screen.getByText('content')).toBeOnTheScreen();
-    expect(screen.getByTestId('t')).toHaveProp('pointerEvents', 'none');
+    // Oculto pero montado: no recibe toques y el lector de pantalla no lo lee.
+    expect(screen.queryByText('content')).toBeNull();
+    const node = screen.getByTestId('t', { includeHiddenElements: true });
+    expect(node).toHaveStyle({ pointerEvents: 'none' });
+    expect(node).toHaveProp('importantForAccessibility', 'no-hide-descendants');
+    expect(screen.getByText('content', { includeHiddenElements: true })).toBeTruthy();
+  });
+
+  it('does not replay the enter animation (nor onEntered) when the theme changes', () => {
+    const onEntered = jest.fn();
+    const tree = (mode: 'light' | 'dark') => (
+      <UIProvider mode={mode}>
+        <Transition onEntered={onEntered}>
+          <Text>content</Text>
+        </Transition>
+      </UIProvider>
+    );
+    render(tree('light'));
+    settle();
+    screen.rerender(tree('dark'));
+    settle();
+    expect(onEntered).toHaveBeenCalledTimes(1);
   });
 
   it('reports the end of the enter animation', () => {
@@ -170,6 +192,6 @@ describe('Transition', () => {
       )
     );
     settle();
-    expect(screen.getByText('content')).toBeOnTheScreen();
+    expect(screen.getByText('content', { includeHiddenElements: true })).toBeOnTheScreen();
   });
 });

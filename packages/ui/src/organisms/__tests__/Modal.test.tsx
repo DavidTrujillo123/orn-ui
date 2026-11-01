@@ -71,12 +71,12 @@ describe('Modal', () => {
       )
     );
     // todavía montado: la animación de salida no terminó
-    expect(screen.getByText('content')).toBeOnTheScreen();
+    expect(screen.getByText('content', { includeHiddenElements: true })).toBeOnTheScreen();
 
     act(() => {
       jest.advanceTimersByTime(300);
     });
-    expect(screen.queryByText('content')).not.toBeOnTheScreen();
+    expect(screen.queryByText('content', { includeHiddenElements: true })).not.toBeOnTheScreen();
   });
 
   it('renders the footer when provided', () => {
