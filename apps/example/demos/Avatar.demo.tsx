@@ -1,49 +1,29 @@
 import React from 'react';
-import { Avatar, Icon, Body } from 'orn-ui';
-import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
+import { View } from 'react-native';
+import { Avatar, useColors } from 'orn-ui';
+import { VariantList, type VariantDef } from '@/components/VariantList';
 
 export function AvatarDemo() {
   // #region demo
+  const colors = useColors();
   const variants: VariantDef[] = [
-    {
-      label: 'With icon',
-      content: (
-        <Avatar size={44}>
-          <Icon name="check" size={20} />
-        </Avatar>
-      ),
-    },
-    {
-      label: 'With initials',
-      content: (
-        <Avatar size={44}>
-          <Body style={{ fontWeight: '700' }}>JD</Body>
-        </Avatar>
-      ),
-    },
+    { label: 'Initials from name', content: <Avatar name="Ada Lovelace" /> },
+    { label: 'Photo', content: <Avatar name="Ada Lovelace" source={{ uri: 'https://picsum.photos/id/64/200' }} /> },
+    { label: 'Broken photo falls back to initials', content: <Avatar name="Grace Hopper" source={{ uri: 'https://invalid.example/x.png' }} /> },
+    { label: 'Icon (no name)', content: <Avatar /> },
     {
       label: 'Sizes',
       content: (
-        <VariantRow>
-          <Avatar size={28}>
-            <Body style={{ fontWeight: '700', fontSize: 11 }}>SM</Body>
-          </Avatar>
-          <Avatar size={44}>
-            <Body style={{ fontWeight: '700' }}>MD</Body>
-          </Avatar>
-          <Avatar size={64}>
-            <Body style={{ fontWeight: '700', fontSize: 18 }}>LG</Body>
-          </Avatar>
-        </VariantRow>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
+          <Avatar name="Small Size" size={28} />
+          <Avatar name="Medium Size" size={44} />
+          <Avatar name="Large Size" size={64} />
+        </View>
       ),
     },
     {
       label: 'Custom color',
-      content: (
-        <Avatar size={44} backgroundColor="#00cae130">
-          <Icon name="info" size={22} color="#00cae1" />
-        </Avatar>
-      ),
+      content: <Avatar iconName="star" backgroundColor={colors.secondarySoft} color={colors.secondaryText} />,
     },
   ];
   return <VariantList variants={variants} />;

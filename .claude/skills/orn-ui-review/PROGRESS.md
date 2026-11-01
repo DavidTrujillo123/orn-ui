@@ -16,7 +16,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | Card | card | arreglado | 2026-10-31 | en dark era invisible (sombra no se ve, surface≈fondo): borde hairline solo en dark; style acepta StyleProp (arrays); doc Gestalt región común; demo alineado y con colores del theme. Docs: 3 capturas, sin mp4 |
 | Divider | divider | arreglado | 2026-10-31 | props nuevas orientation (vertical) y spacing (token), oculto a lectores (decorativo), doc Gestalt, demo con vertical y color del theme. Docs: PENDIENTE hasta publicar 0.2.11 (la docs usa la API publicada) |
 | Gradient | gradient | arreglado | 2026-10-31 | diagonal en caja no cuadrada dejaba esquinas sin pintar (plano ahora mide la diagonal real con onLayout); líneas finas entre bandas (capas acumuladas hasta el final del plano); doc Gestalt figura/fondo; demo con texto blanco sobre celeste (fallaba contraste) ahora azul oscuro; steps por defecto 24→48 (bandas visibles en cajas anchas). Docs: 5 capturas, sin mp4 |
-| Avatar | avatar | pendiente | | |
+| Avatar | avatar | arreglado | 2026-10-31 | API nueva: source (foto, cae a iniciales si falla), name (iniciales + nombre accesible, initialsOf exportado), iconName (default user), color; overflow hidden; role image con nombre, decorativo sin él; doc Gestalt; demo con theme y tamaños centrados. Docs: PENDIENTE hasta publicar 0.2.11 |
 | Image | image | pendiente | | |
 | Spinner | spinner | pendiente | | |
 | Skeleton | skeleton | pendiente | | |

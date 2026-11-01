@@ -16,7 +16,7 @@ export { Divider } from './Divider';
 export type { DividerProps } from './Divider';
 export { Gradient } from './Gradient';
 export type { GradientProps, GradientDirection } from './Gradient';
-export { Avatar } from './Avatar';
+export { Avatar, initialsOf } from './Avatar';
 export type { AvatarProps } from './Avatar';
 export { Image, prefetchImage } from './Image';
 export type { ImageProps } from './Image';

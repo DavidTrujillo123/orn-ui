@@ -169,7 +169,7 @@ hex in component styles, use `useColors()`.
 | `Card` | `orn-ui/card` | extends `ViewProps`; `children` |
 | `Divider` | `orn-ui/divider` | `orientation?: 'horizontal'\|'vertical'`, `spacing?` (spacing token, margin on both sides), `style?`, `testID?` |
 | `Gradient` | `orn-ui/gradient` | `colors: string[]`, `direction?: vertical\|horizontal\|diagonal\|diagonal-reverse`, `steps?` (48 bands per segment), `children?`, `style?`, `testID?` |
-| `Avatar` | `orn-ui/avatar` | `children`, `size?`, `backgroundColor?` |
+| `Avatar` | `orn-ui/avatar` | `size?` (44), `source?` (photo; falls back to initials on error), `name?` (initials + accessible name), `iconName?` (user), `backgroundColor?`, `color?`, `children?` (overrides all), `accessibilityLabel?`; also exports `initialsOf(name)` |
 | `Image` | `orn-ui/image` | `source`, `width?`, `height?`, `resizeMode?`, `radius?`, `loading?: ReactNode\|boolean`, `fallback?`, `priority?: 'low'\|'normal'\|'high'`, `onLoadEnd?`, `onError?` |
 | `prefetchImage` | `orn-ui/prefetch-image` | `(url: string) => Promise<boolean>` (RN `Image.prefetch`) — warm the cache before navigating |
 | `Spinner` | `orn-ui/spinner` | `size?: 'small'\|'large'`, `color?`, `text?`, `fullscreen?`, `variant?: 'native'\|'dots'\|'ring'`, `indicator?` |

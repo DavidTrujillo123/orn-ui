@@ -93,6 +93,11 @@
       "react-native": "./src/atoms/Avatar.tsx",
       "default": "./lib/module/atoms/Avatar.js"
     },
+    "./initials-of": {
+      "types": "./lib/typescript/atoms/Avatar.d.ts",
+      "react-native": "./src/atoms/Avatar.tsx",
+      "default": "./lib/module/atoms/Avatar.js"
+    },
     "./image": {
       "types": "./lib/typescript/atoms/Image.d.ts",
       "react-native": "./src/atoms/Image.tsx",
