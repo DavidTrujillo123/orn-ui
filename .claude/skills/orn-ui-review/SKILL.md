@@ -178,6 +178,14 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
   fila en `README.md`, `packages/ui/README.md`, `packages/ui/AGENTS.md`,
   `packages/ui/llms.txt`.
 - Re-verificar en simulador (Paso 2) tras el arreglo.
+- **Docs web** (`/Users/david/work/projects/orn-ui/orn-ui-docs`): sincronizar
+  `demos/<Name>.demo.tsx` con el del example app (solo cambia el import de
+  `VariantList`), capturar variantes con
+  `scripts/capture-variants.sh <capa> <slug> <n> [y alto]` (ver `MEDIA.md`) y
+  revisar la página en móvil 390, tablet 820 y PC 1440, claro y oscuro,
+  emulando el dispositivo por CDP (Chrome headless no baja de ~500px de ancho
+  con `--window-size`; da falsos desbordes). Componente estático: borrar su
+  `.mp4`. Si `astro dev` sirve CSS viejo, `touch` al `.astro`.
 
 Antes de decir "hecho" (desde `orn-ui/`):
 
