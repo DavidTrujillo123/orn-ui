@@ -187,6 +187,8 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
   3. Mirar una hoja de contacto con **todas** las capturas (claro y oscuro).
   4. Captura CDP de la sección Variantes de la página (en `/es/` y en inglés)
      y mirarla: cada tarjeta muestra la variante de su título y su código.
+     Viewport alto (p. ej. 1440x5000): con `captureBeyondViewport` las
+     imágenes fuera de pantalla salen en blanco y parecen un bug que no es.
   Sin los cuatro pasos, no se commitea la docs.
 - JSDoc de props públicas **siempre en inglés** (es el texto de la docs en
   inglés). Toda prop nueva o cambiada lleva su traducción en
