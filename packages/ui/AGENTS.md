@@ -168,7 +168,7 @@ hex in component styles, use `useColors()`.
 | `Badge` | `orn-ui/badge` | `label`, `variant?: 'success'\|'error'\|'warning'\|'info'\|'neutral'`, `backgroundColor?`, `textColor?` |
 | `Card` | `orn-ui/card` | extends `ViewProps`; `children` |
 | `Divider` | `orn-ui/divider` | `orientation?: 'horizontal'\|'vertical'`, `spacing?` (spacing token, margin on both sides), `style?`, `testID?` |
-| `Gradient` | `orn-ui/gradient` | `colors: string[]`, `direction?: vertical\|horizontal\|diagonal\|diagonal-reverse`, `steps?`, `children?`, `style?`, `testID?` |
+| `Gradient` | `orn-ui/gradient` | `colors: string[]`, `direction?: vertical\|horizontal\|diagonal\|diagonal-reverse`, `steps?` (48 bands per segment), `children?`, `style?`, `testID?` |
 | `Avatar` | `orn-ui/avatar` | `children`, `size?`, `backgroundColor?` |
 | `Image` | `orn-ui/image` | `source`, `width?`, `height?`, `resizeMode?`, `radius?`, `loading?: ReactNode\|boolean`, `fallback?`, `priority?: 'low'\|'normal'\|'high'`, `onLoadEnd?`, `onError?` |
 | `prefetchImage` | `orn-ui/prefetch-image` | `(url: string) => Promise<boolean>` (RN `Image.prefetch`) — warm the cache before navigating |

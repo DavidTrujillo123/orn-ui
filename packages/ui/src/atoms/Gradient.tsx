@@ -16,7 +16,7 @@ export interface GradientProps {
   /**
    * Bandas por tramo (un tramo = un par de colores consecutivos). Más bandas
    * = transición más suave y más vistas en el árbol.
-   * @default 24
+   * @default 48
    */
   steps?: number;
   /** Contenido por encima del degradado. */
@@ -25,7 +25,7 @@ export interface GradientProps {
   testID?: string;
 }
 
-const DEFAULT_STEPS = 24;
+const DEFAULT_STEPS = 48;
 
 const styles = StyleSheet.create({
   // Recorta el plano rotado de las diagonales y el degradado al borderRadius.
