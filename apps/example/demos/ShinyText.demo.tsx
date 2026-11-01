@@ -13,20 +13,18 @@ function ColorPairs() {
         <ShinyText text="Default pair" />
       </View>
       <View style={{ gap: 4 }}>
-        <Caption>border → text — the widest pair the theme has</Caption>
-        <ShinyText text="Maximum contrast" color={colors.border} shineColor={colors.text} />
+        <Caption>text → primary — both colors stay readable at rest</Caption>
+        <ShinyText text="Custom pair" color={colors.text} shineColor={colors.primary} />
       </View>
     </View>
   );
 }
 
 function Spreads() {
-  const colors = useColors();
-
   return (
     <View style={{ gap: 12 }}>
-      <ShinyText text="Narrow glint" spread={0.08} color={colors.border} shineColor={colors.text} />
-      <ShinyText text="Soft wide wave" spread={0.6} color={colors.border} shineColor={colors.text} />
+      <ShinyText text="Narrow glint" spread={0.08} />
+      <ShinyText text="Soft wide wave" spread={0.6} />
     </View>
   );
 }
@@ -36,7 +34,7 @@ function UpgradeCard() {
 
   return (
     <Card>
-      <ShinyText text="Pro plan" color={colors.primarySoft} shineColor={colors.primary} />
+      <ShinyText text="Pro plan" color={colors.text} shineColor={colors.primary} />
       <Body style={{ marginTop: 4 }}>Unlimited invoices · priority support</Body>
     </Card>
   );
@@ -44,11 +42,8 @@ function UpgradeCard() {
 
 export function ShinyTextDemo() {
   // #region demo
-  const colors = useColors();
-  // El par por defecto sólo cambia luminancia; para mirar *cómo* se mueve la
-  // banda conviene el par más separado del tema, que cambia tono también.
-  const strong = { color: colors.border, shineColor: colors.text };
-
+  // Los colores de reposo siempre legibles (AA): el brillo es decorativo, el
+  // texto tiene que leerse también cuando la banda no está encima.
   const variants: VariantDef[] = [
     {
       label: 'colors — the resting/shine pair is what makes it readable',
@@ -57,7 +52,7 @@ export function ShinyTextDemo() {
     {
       label: 'align="center" — wraps by word on several lines',
       content: (
-        <ShinyText text="A headline long enough to wrap onto more than one line" align="center" {...strong} />
+        <ShinyText text="A headline long enough to wrap onto more than one line" align="center" />
       ),
     },
     {
@@ -66,13 +61,13 @@ export function ShinyTextDemo() {
     },
     {
       label: 'duration and delay — slow sweep, long pause',
-      content: <ShinyText text="Taking its time" duration={4000} delay={1200} {...strong} />,
+      content: <ShinyText text="Taking its time" duration={4000} delay={1200} />,
     },
     {
       label: 'animated={false} — plain text in shineColor, same box',
       content: (
         <VariantRow>
-          <ShinyText text="No sweep at all" animated={false} {...strong} />
+          <ShinyText text="No sweep at all" animated={false} />
         </VariantRow>
       ),
     },

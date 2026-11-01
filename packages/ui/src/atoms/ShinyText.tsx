@@ -26,7 +26,7 @@ export interface ShinyTextProps {
   spread?: number;
   /** When false it renders plain text in `shineColor`. @default true */
   animated?: boolean;
-  /** Resting color of the characters. @default theme.colors.textLight */
+  /** Resting color of the characters. Keep it readable on its own (WCAG AA): the shine is decorative. @default theme.colors.textLight */
   color?: string;
   /** Color of the band that travels across. @default theme.colors.primary */
   shineColor?: string;

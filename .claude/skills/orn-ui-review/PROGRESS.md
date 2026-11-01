@@ -21,7 +21,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | Spinner | spinner | arreglado | 2026-10-31 | ring rompía con colores no-hex (color+"33") → riel con opacity; a11y progressbar ocupado con nombre (text ?? labels.loading) + accessibilityLabel; crash text=""; ritmos de loop como constantes nombradas; doc Gestalt destino común; demo con colores del theme y fila de tamaños alineada. prop logo (imagen sobre el indicador, splash) pedida por el usuario. Docs: clip por variante (claro/oscuro) + portada mp4 (tiene movimiento) |
 | Skeleton | skeleton | arreglado | 2026-11-01 | Respeta Reduce Motion (sin latido); renglones `text` = lineHeight.md exacto (barra fontSize.md + marginVertical 3, antes 22pt vs 20pt de Body); color `skeleton` más visible (#e3e5e8 / #2c2c30, aprobado por el usuario); demo usa Avatar y compara con Body real; docs en video (VIDEO=1 BAND_H=560). Menor pendiente: Badge del demo de carga alineado al centro vs arriba en la tarjeta real. |
 | Transition | transition | arreglado | 2026-11-01 | Oculto o saliendo: fuera del árbol de accesibilidad (antes `keepMounted` dejaba leer lo invisible) y `pointerEvents` en style (prop deprecada); cambiar el tema ya no reinicia la animación ni re-dispara `onEntered`; `distance` por defecto = `spacing.xxl`; resorte con nombre; Gestalt (destino común) en el doc comment. Docs: stills por variante, se conserva el mp4 (interactivo, regrabar con Maestro). |
-| ShinyText | shiny-text | pendiente | | |
+| ShinyText | shiny-text | arreglado | 2026-11-01 | Componente ok (reduce motion, a11y label, nativo, Gestalt). Demo usaba `border`/`primarySoft` como color de texto en reposo (contraste ~1.2:1, ilegible sin la banda): ahora pares legibles; JSDoc de `color` pide AA. Docs en video (VIDEO=1). |
 | EmptyState | empty-state | pendiente | | |
 | KeyValueRow | key-value-row | pendiente | | |
 | Fab | fab | pendiente | | |
@@ -63,6 +63,8 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | ReorderableList | reorderable-list | pendiente | | |
 
 ## Decisiones y trabajo futuro
+
+- 2026-11-01 — Docs i18n: Chart muestra la tabla de props vacía (el extractor no lee `ChartProps` por ser unión); override `firstDayOfWeek` huérfano en DateField. 255 props públicas sin descripción (List/SearchList, Button/Fab, Modal/BottomSheet, Select): completarlas al revisar cada componente.
 
 - **2026-11-01 — safe-area obligatoria.** `react-native-safe-area-context` (>=5.4.0, sin dependencias propias) pasa a peer obligatorio. `UIProvider` mide los insets (monta `SafeAreaProvider`, `mountSafeAreaProvider={false}` si ya hay uno) y el boundary de Modal/BottomSheet remide siempre. `orn-ui/safe-area` queda como alias deprecado (`SafeAreaUIProvider === UIProvider`); borrarlo en una minor posterior. Se quitó el aviso dev de "UIProvider sin insets". Requiere publicar como 0.3.0. La docs web (`orn-ui-docs`) aún muestra `SafeAreaUIProvider`: actualizarla.
 
