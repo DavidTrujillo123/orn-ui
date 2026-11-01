@@ -16,3 +16,8 @@ pnpm compat                        # Expo SDK 54/55/56/57
 If the change touches layout, gestures, animation or anything positional, jest
 is not enough — add or run a Maestro flow against the example app
 (`apps/example/.maestro/MAESTRO.md`).
+
+**Always invoke the `orn-ui-review` skill (Skill tool) before working on any
+component** — it holds the review/fix workflow and the persistent progress log
+(`.claude/skills/orn-ui-review/PROGRESS.md`) that tells where the
+component-by-component review left off.
