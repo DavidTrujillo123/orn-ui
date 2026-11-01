@@ -129,9 +129,9 @@ describe('Image', () => {
 
   it('drops the placeholder background once loaded, so transparent images do not show gray', () => {
     render(withProvider(<Image source={{ uri: 'https://example.com/logo.png' }} testID="img" />));
-    expect(screen.getByTestId('img')).toHaveStyle({ backgroundColor: '#eceef1' });
+    expect(screen.getByTestId('img')).toHaveStyle({ backgroundColor: '#e3e5e8' });
     fireEvent(screen.UNSAFE_getByType(RNImage), 'load');
-    expect(screen.getByTestId('img')).not.toHaveStyle({ backgroundColor: '#eceef1' });
+    expect(screen.getByTestId('img')).not.toHaveStyle({ backgroundColor: '#e3e5e8' });
   });
 });
 

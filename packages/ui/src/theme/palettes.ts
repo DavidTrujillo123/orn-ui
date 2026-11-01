@@ -102,7 +102,7 @@ export const lightPalette: ThemeColors = {
   inputBackground: '#f5f7fa',
   overlay: 'rgba(0,0,0,0.5)',
   scrim: 'rgba(248,249,250,0.8)',
-  skeleton: '#eceef1',
+  skeleton: '#e3e5e8',
 };
 
 /**
@@ -146,5 +146,5 @@ export const darkPalette: ThemeColors = {
   inputBackground: '#232326',
   overlay: 'rgba(0,0,0,0.6)',
   scrim: 'rgba(18,18,18,0.8)',
-  skeleton: '#26262a',
+  skeleton: '#2c2c30',
 };
