@@ -7,7 +7,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 | componente | slug | estado | fecha | notas |
 |---|---|---|---|---|
-| Typography (Title/Subtitle/Body/Caption) | typography | en-curso | 2026-10-31 | Title arreglado y verificado (multilínea ok). Subtitle arreglado: lineHeight.lg, doc comment Gestalt, demo multilínea, test; captura ok. Peso subido a semibold 600 (decisión usuario). Body arreglado: doc comment Gestalt; demo usaba #00cae1 (≈1.9:1, falla AA) ahora colors.primary; pager ?v=N último índice arreglado (clamp). Body se queda en 14px (decisión usuario). Falta Caption; árbol a11y real (Maestro roto) |
+| Typography (Title/Subtitle/Body/Caption) | typography | arreglado | 2026-10-31 | Title arreglado y verificado (multilínea ok). Subtitle arreglado: lineHeight.lg, doc comment Gestalt, demo multilínea, test; captura ok. Peso subido a semibold 600 (decisión usuario). Body arreglado: doc comment Gestalt; demo usaba #00cae1 (≈1.9:1, falla AA) ahora colors.primary; pager ?v=N último índice arreglado (clamp). Body se queda en 14px (decisión usuario). Caption arreglado: lineHeight.sm, doc comment Gestalt, demo multilínea, test; contraste AA ok (5.7:1 light, 6.4:1 dark). Typography completo salvo árbol a11y real (Maestro roto) |
 | Button | button | pendiente | | |
 | IconButton | icon-button | pendiente | | |
 | Input | input | pendiente | | |

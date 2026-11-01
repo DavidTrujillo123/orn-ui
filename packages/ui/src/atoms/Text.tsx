@@ -37,6 +37,7 @@ const useStyles = createStyles((theme) => ({
   },
   caption: {
     fontSize: theme.tokens.fontSize.sm,
+    lineHeight: theme.tokens.lineHeight.sm,
     color: theme.colors.textLight,
   },
 }));
@@ -103,4 +104,14 @@ export const Subtitle = makeVariant('subtitle', 'text');
  * (4.5:1); los colores del theme ya lo garantizan.
  */
 export const Body = makeVariant('body', 'text');
+/**
+ * Texto secundario: pistas, metadatos, fechas, ayudas bajo un campo.
+ *
+ * Gestalt, figura y fondo: tamaño `sm` y color `textLight` lo bajan un escalón
+ * respecto a Body, así que se lee como contexto y no compite con el contenido.
+ * Proximidad: va pegado al elemento que explica. `textLight` cumple WCAG AA
+ * sobre `surface` y `background` en light y dark (tests de palettes); no
+ * aclararlo más. `lineHeight.sm` (≈1.33×) mantiene juntas las líneas cuando
+ * la pista ocupa varias.
+ */
 export const Caption = makeVariant('caption', 'textLight');

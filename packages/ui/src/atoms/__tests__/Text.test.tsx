@@ -66,4 +66,9 @@ describe('Typography', () => {
     render(withProvider(<Subtitle>s</Subtitle>));
     expect(screen.getByText('s')).toHaveStyle({ lineHeight: 24, fontWeight: '600' });
   });
+
+  it('Caption takes its lineHeight from the theme tokens', () => {
+    render(withProvider(<Caption>c</Caption>));
+    expect(screen.getByText('c')).toHaveStyle({ lineHeight: 16 });
+  });
 });

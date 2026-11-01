@@ -15,6 +15,14 @@ export function TextDemo() {
     },
     { label: 'Body', content: <Body>Body text, the default paragraph style for most content.</Body> },
     { label: 'Caption', content: <Caption>Caption, used for secondary hints and metadata.</Caption> },
+    {
+      label: 'Caption, multiline',
+      content: (
+        <Caption>
+          Updated 3 minutes ago by the billing service. Amounts include taxes and are shown in your local currency.
+        </Caption>
+      ),
+    },
     { label: 'align="center"', content: <Body align="center">Centered text</Body> },
     { label: 'custom color', content: <Body color={colors.primary}>Text with an explicit color override</Body> },
   ];
