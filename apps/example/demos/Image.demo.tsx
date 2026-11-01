@@ -13,6 +13,7 @@ export function ImageDemo() {
           width={120}
           height={120}
           radius={12}
+          accessibilityLabel="Random landscape photo"
         />
       ),
     },
@@ -27,6 +28,10 @@ export function ImageDemo() {
       ),
     },
     {
+      label: 'Broken URL: default fallback',
+      content: <Image source={{ uri: 'https://example.com/broken.png' }} width={120} height={120} radius={12} />,
+    },
+    {
       label: 'Custom fallback',
       content: (
         <Image
@@ -34,7 +39,7 @@ export function ImageDemo() {
           width={120}
           height={120}
           radius={12}
-          fallback={<Body style={{ textAlign: 'center', padding: 8 }}>Couldn’t load</Body>}
+          fallback={<Body align="center">Couldn’t load</Body>}
         />
       ),
     },

@@ -12,6 +12,8 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
+import { useColors, useTheme } from '../theme/UIProvider';
+import { Icon } from '../icons/Icon';
 import { Spinner } from './Spinner';
 
 export interface ImageProps {
@@ -24,7 +26,7 @@ export interface ImageProps {
   radius?: number;
   /** What to show while loading. `false` to show nothing. @default true (small spinner) */
   loading?: React.ReactNode | boolean;
-  /** What to show if loading fails. @default a gray placeholder, no content */
+  /** What to show if loading fails. @default placeholder with a warning icon */
   fallback?: React.ReactNode;
   /**
    * 'high' triggers Image.prefetch() on mount, before <Image> starts
@@ -34,7 +36,10 @@ export interface ImageProps {
    */
   priority?: 'low' | 'normal' | 'high';
   style?: StyleProp<ViewStyle>;
+  /** Called when loading finishes, successfully or not (same as RN). */
   onLoadEnd?: () => void;
+  /** Describes the image for screen readers. Without it the image is decorative. */
+  accessibilityLabel?: string;
   onError?: (error: NativeSyntheticEvent<ImageErrorEventData>) => void;
   testID?: string;
 }
@@ -42,7 +47,7 @@ export interface ImageProps {
 const useStyles = createStyles((theme) => ({
   container: { overflow: 'hidden', backgroundColor: theme.colors.skeleton },
   overlay: { alignItems: 'center', justifyContent: 'center' },
-  fallback: { flex: 1, backgroundColor: theme.colors.skeleton },
+  fallback: { flex: 1, backgroundColor: theme.colors.skeleton, alignItems: 'center', justifyContent: 'center' },
 }));
 
 function sourceUri(source: ImageSourcePropType): string | undefined {
@@ -59,6 +64,14 @@ function sourceUri(source: ImageSourcePropType): string | undefined {
  * fuerza `cache="force-cache"` (usa el disco aunque el header HTTP no lo
  * pida); en Android el cache de disco de la imagen nativa ya está siempre
  * activo, no hay knob equivalente que tocar.
+ *
+ * Gestalt, cierre: el contenedor ocupa su tamaño final desde el primer frame
+ * (fondo `skeleton`), así el layout no salta cuando la imagen llega y el ojo
+ * completa la forma que va a ocupar. Si la carga falla, el mismo hueco muestra
+ * un ícono de advertencia: el estado se ve, no queda un gris mudo.
+ *
+ * El éxito se detecta con `onLoad`, no con `onLoadEnd`: RN llama a
+ * `onLoadEnd` también cuando falla, y usarlo para "cargó" pisaba el error.
  */
 export const Image = memo(
   ({
@@ -74,8 +87,11 @@ export const Image = memo(
     onLoadEnd,
     onError,
     testID,
+    accessibilityLabel,
   }: ImageProps) => {
     const styles = useStyles();
+    const colors = useColors();
+    const theme = useTheme();
     const [status, setStatus] = useState<'loading' | 'loaded' | 'error'>('loading');
     const uri = sourceUri(source);
 
@@ -99,21 +115,27 @@ export const Image = memo(
       [onError]
     );
 
-    const handleLoadEnd = useCallback(() => {
+    const handleLoad = useCallback(() => {
       setStatus('loaded');
-      onLoadEnd?.();
-    }, [onLoadEnd]);
+    }, []);
 
     return (
-      <View style={[styles.container, { width, height, borderRadius: radius }, style]} testID={testID}>
+      <View
+        style={[styles.container, { width, height, borderRadius: radius }, style]}
+        testID={testID}
+        accessible={!!accessibilityLabel}
+        accessibilityRole={accessibilityLabel ? 'image' : undefined}
+        accessibilityLabel={accessibilityLabel}
+      >
         {status !== 'error' && (
           <RNImage
             source={source}
             resizeMode={resizeMode}
             style={StyleSheet.absoluteFill}
-            fadeDuration={Platform.OS === 'android' ? 150 : undefined}
+            fadeDuration={Platform.OS === 'android' ? theme.tokens.duration.fast : undefined}
             {...(Platform.OS === 'ios' ? { cache: 'force-cache' as const } : null)}
-            onLoadEnd={handleLoadEnd}
+            onLoad={handleLoad}
+            onLoadEnd={onLoadEnd}
             onError={handleError}
           />
         )}
@@ -122,7 +144,18 @@ export const Image = memo(
             {loading === true ? <Spinner size="small" fullscreen={false} /> : loading}
           </View>
         )}
-        {status === 'error' && (fallback ?? <View style={styles.fallback} />)}
+        {status === 'error' && (
+          // Fallback propio o el default: siempre centrado en el hueco.
+          <View style={styles.fallback}>
+            {fallback ?? (
+              <Icon
+                name="warning"
+                size={Math.max(16, Math.min(32, Math.round(Math.min(width ?? 64, height ?? 64) * 0.3)))}
+                color={colors.textLight}
+              />
+            )}
+          </View>
+        )}
       </View>
     );
   }

@@ -17,7 +17,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | Divider | divider | arreglado | 2026-10-31 | props nuevas orientation (vertical) y spacing (token), oculto a lectores (decorativo), doc Gestalt, demo con vertical y color del theme. Docs: 3 capturas (con vertical), sin mp4 |
 | Gradient | gradient | arreglado | 2026-10-31 | diagonal en caja no cuadrada dejaba esquinas sin pintar (plano ahora mide la diagonal real con onLayout); líneas finas entre bandas (capas acumuladas hasta el final del plano); doc Gestalt figura/fondo; demo con texto blanco sobre celeste (fallaba contraste) ahora azul oscuro; steps por defecto 24→48 (bandas visibles en cajas anchas). Docs: 5 capturas, sin mp4 |
 | Avatar | avatar | arreglado | 2026-10-31 | API nueva: source (foto, cae a iniciales si falla), name (iniciales + nombre accesible, initialsOf exportado), iconName (default user), color; overflow hidden; role image con nombre, decorativo sin él; doc Gestalt; demo con theme y tamaños centrados. Docs: 6 capturas, sin mp4 |
-| Image | image | pendiente | | |
+| Image | image | arreglado | 2026-10-31 | BUG: el fallback nunca se veía (RN dispara onLoadEnd también al fallar y pisaba el error) → éxito con onLoad; fallback default con ícono warning y centrado (también el propio); accessibilityLabel (role image, decorativo sin él); fadeDuration de token; doc Gestalt cierre. Docs: 5 capturas, sin mp4 |
 | Spinner | spinner | pendiente | | |
 | Skeleton | skeleton | pendiente | | |
 | Transition | transition | pendiente | | |

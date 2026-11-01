@@ -108,4 +108,23 @@ describe('Image', () => {
   it('re-exports Image.prefetch as prefetchImage', () => {
     expect(prefetchImage).toBe(RNImage.prefetch);
   });
+
+  it('keeps the fallback when RN fires loadEnd right after error (regression)', () => {
+    const { Text } = require('react-native');
+    render(
+      withProvider(
+        <Image source={{ uri: 'https://example.com/broken.png' }} fallback={<Text>Couldn't load</Text>} />
+      )
+    );
+    const native = screen.UNSAFE_getByType(RNImage);
+    fireEvent(native, 'error', { nativeEvent: { error: 'boom' } });
+    fireEvent(native, 'loadEnd');
+    expect(screen.getByText("Couldn't load")).toBeOnTheScreen();
+  });
+
+  it('is announced as an image only when it has an accessibilityLabel', () => {
+    render(withProvider(<Image source={{ uri: 'https://example.com/a.png' }} accessibilityLabel="Sunset" testID="img" />));
+    expect(screen.getByRole('image', { name: 'Sunset' })).toBeOnTheScreen();
+  });
 });
+
