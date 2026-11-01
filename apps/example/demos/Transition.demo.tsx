@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { Body, Button, Card, Caption, Subtitle, Transition, type TransitionPreset } from 'orn-ui';
+import { Body, Card, Caption, Subtitle, Transition, type TransitionPreset } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-// Los demos se animan solos (y el botón sigue funcionando): una transición
-// que hay que tocar para ver no se puede grabar para la docs, y es justo lo
-// que la docs tiene que mostrar.
+// Los demos se animan solos, sin botones: una transición se entiende viéndola
+// moverse, y así también se puede grabar para la docs.
 const AUTO_TOGGLE_MS = 1600;
 const AUTO_REPLAY_MS = 3000;
 const AUTO_REMOVE_MS = 900;
@@ -19,16 +18,13 @@ function Toggle({ preset, distance }: { preset: TransitionPreset | TransitionPre
   }, []);
 
   return (
-    <View style={{ gap: 12 }}>
-      <Button title={visible ? 'Hide' : 'Show'} variant="outline" onPress={() => setVisible((v) => !v)} />
-      <View style={{ height: 120, justifyContent: 'center' }}>
-        <Transition visible={visible} preset={preset} distance={distance}>
-          <Card>
-            <Subtitle>Order #4821</Subtitle>
-            <Body style={{ marginTop: 4 }}>2 items · standard shipping</Body>
-          </Card>
-        </Transition>
-      </View>
+    <View style={{ height: 120, justifyContent: 'center' }}>
+      <Transition visible={visible} preset={preset} distance={distance}>
+        <Card>
+          <Subtitle>Order #4821</Subtitle>
+          <Body style={{ marginTop: 4 }}>2 items · standard shipping</Body>
+        </Card>
+      </Transition>
     </View>
   );
 }
@@ -44,17 +40,14 @@ function StaggeredList() {
   }, []);
 
   return (
-    <View style={{ gap: 12 }}>
-      <Button title="Replay" variant="outline" onPress={() => setRound((r) => r + 1)} />
-      <View key={round} style={{ gap: 8 }}>
-        {ROWS.map((name, i) => (
-          <Transition key={name} preset={['fade', 'slide-up']} delay={i * 70}>
-            <Card>
-              <Body>{name}</Body>
-            </Card>
-          </Transition>
-        ))}
-      </View>
+    <View key={round} style={{ gap: 8 }}>
+      {ROWS.map((name, i) => (
+        <Transition key={name} preset={['fade', 'slide-up']} delay={i * 70}>
+          <Card>
+            <Body>{name}</Body>
+          </Card>
+        </Transition>
+      ))}
     </View>
   );
 }
@@ -68,14 +61,14 @@ function ExitBeforeUnmount() {
       const id = setTimeout(() => setItems(ROWS), AUTO_REMOVE_MS);
       return () => clearTimeout(id);
     }
-    // Sin toques, va sacando la primera fila: cada una sale animada.
+    // Va sacando la primera fila: cada una sale animada antes de desmontarse.
     if (removing) return;
     const id = setTimeout(() => setRemoving(items[0]!), AUTO_REMOVE_MS);
     return () => clearTimeout(id);
   }, [items, removing]);
 
   return (
-    <View style={{ gap: 8 }}>
+    <View style={{ gap: 8, minHeight: 280 }}>
       <Caption>Each row animates out before it unmounts.</Caption>
       {items.map((name) => (
         <Transition
@@ -87,7 +80,9 @@ function ExitBeforeUnmount() {
             setRemoving(null);
           }}
         >
-          <Button title={`Remove ${name}`} variant="ghost" onPress={() => setRemoving(name)} />
+          <Card>
+            <Body>{name}</Body>
+          </Card>
         </Transition>
       ))}
     </View>
