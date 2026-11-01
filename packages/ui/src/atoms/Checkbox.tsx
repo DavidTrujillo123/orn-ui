@@ -1,8 +1,10 @@
 import React, { memo, useEffect, useRef } from 'react';
 import { Animated, Text, TouchableOpacity } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useTheme } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
+import { onColor } from '../icons/defaultIcons';
+import { useReduceMotion } from './Transition';
 
 export interface CheckboxProps {
   value: boolean;
@@ -10,11 +12,15 @@ export interface CheckboxProps {
   label?: string;
   color?: string;
   disabled?: boolean;
+  /** Obligatorio en la práctica si no hay `label`: es lo único que oye un lector de pantalla. */
+  accessibilityLabel?: string;
   testID?: string;
 }
 
 const useStyles = createStyles((theme) => ({
-  container: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.tokens.spacing.sm },
+  // 44pt de alto: la fila entera es el área táctil (Fitts). Reemplaza al
+  // marginBottom que separaba checkboxes apilados; ahora el aire lo da la fila.
+  container: { flexDirection: 'row', alignItems: 'center', minHeight: 44 },
   box: {
     width: 24,
     height: 24,
@@ -22,31 +28,54 @@ const useStyles = createStyles((theme) => ({
     borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: theme.tokens.spacing.sm + 2,
+    marginRight: theme.tokens.spacing.md,
   },
   label: { fontSize: theme.tokens.fontSize.md, color: theme.colors.text },
+  labelDisabled: { color: theme.colors.textLight },
 }));
 
-export const Checkbox = memo(({ value, onValueChange, label, color, disabled, testID }: CheckboxProps) => {
+/**
+ * Checkbox
+ * Casilla + label opcional; toda la fila es tocable.
+ *
+ * Gestalt:
+ * - Proximidad: la casilla y su label van a `spacing.md`, menos que la
+ *   separación entre filas, así cada label se lee con su casilla.
+ * - Región común: la fila entera es el área táctil, no solo la casilla, y
+ *   mide al menos 44pt de alto (Fitts).
+ * - Figura y fondo: marcada, la casilla se rellena con el acento y el check
+ *   toma negro o blanco según ese relleno (también con `color` propio).
+ *
+ * `disabled` atenúa la casilla y el label (no solo la casilla). La animación
+ * del check se omite con Reduce Motion.
+ */
+export const Checkbox = memo(({ value, onValueChange, label, color, disabled, accessibilityLabel, testID }: CheckboxProps) => {
   const colors = useColors();
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
   const activeColor = color || colors.primary;
-  // El check va encima del relleno: con `color` propio no sabemos qué tono
-  // contrasta, así que ahí seguimos con blanco (decisión del consumidor).
-  const checkColor = color ? colors.white : colors.onPrimary;
+  // El check va encima del relleno: con `color` propio se elige negro o blanco
+  // por luminancia (un blanco fijo desaparecía sobre colores claros).
+  const checkColor = color ? onColor(color) : colors.onPrimary;
+  const theme = useTheme();
+  const reduceMotion = useReduceMotion();
   const progress = useRef(new Animated.Value(value ? 1 : 0)).current;
   const checkScale = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {
-    Animated.timing(progress, { toValue: value ? 1 : 0, duration: 150, useNativeDriver: false }).start();
+    if (reduceMotion) {
+      progress.setValue(value ? 1 : 0);
+      checkScale.setValue(value ? 1 : 0);
+      return;
+    }
+    Animated.timing(progress, { toValue: value ? 1 : 0, duration: theme.tokens.duration.fast, useNativeDriver: false }).start();
     Animated.spring(checkScale, {
       toValue: value ? 1 : 0,
       useNativeDriver: true,
       speed: 40,
       bounciness: 10,
     }).start();
-  }, [value]);
+  }, [value, reduceMotion]);
 
   const backgroundColor = progress.interpolate({ inputRange: [0, 1], outputRange: [colors.surface, activeColor] });
   const borderColor = progress.interpolate({ inputRange: [0, 1], outputRange: [colors.border, activeColor] });
@@ -59,7 +88,7 @@ export const Checkbox = memo(({ value, onValueChange, label, color, disabled, te
       onPress={() => onValueChange(!value)}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: value, disabled: !!disabled }}
-      accessibilityLabel={label}
+      accessibilityLabel={accessibilityLabel ?? label}
       testID={testID}
     >
       <Animated.View style={[styles.box, { backgroundColor, borderColor, opacity: disabled ? 0.5 : 1 }]}>
@@ -67,8 +96,8 @@ export const Checkbox = memo(({ value, onValueChange, label, color, disabled, te
           <Icon name="check" size={16} color={checkColor} />
         </Animated.View>
       </Animated.View>
-      {label && (
-        <Text allowFontScaling={allowFontScaling} style={styles.label}>
+      {!!label && (
+        <Text allowFontScaling={allowFontScaling} style={[styles.label, disabled && styles.labelDisabled]}>
           {label}
         </Text>
       )}
