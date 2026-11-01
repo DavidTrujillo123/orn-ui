@@ -177,6 +177,12 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
 - Si cambian props/variantes: actualizar el demo; si cambia la API pública, la
   fila en `README.md`, `packages/ui/README.md`, `packages/ui/AGENTS.md`,
   `packages/ui/llms.txt`.
+- JSDoc de props públicas **siempre en inglés** (es el texto de la docs en
+  inglés). Toda prop nueva o cambiada lleva su traducción en
+  `orn-ui-docs/src/i18n/components/<slug>/es.json` (`props.<name>.description`);
+  sin eso la página `/es` la muestra en inglés.
+- Changelog: agregar lo cambiado (en y es) en
+  `orn-ui-docs/src/data/changelog.ts`, entrada sin publicar.
 - Re-verificar en simulador (Paso 2) tras el arreglo.
 - **Docs web** (`/Users/david/work/projects/orn-ui/orn-ui-docs`): sincronizar
   `demos/<Name>.demo.tsx` con el del example app (solo cambia el import de
