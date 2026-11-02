@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import { useReduceMotion } from './useReduceMotion';
 
-/** Un campo enfocado que el host tiene que mantener a la vista. */
+/** A focused field the host has to keep in view. */
 export interface KeyboardField {
-  /** Caja del campo en coordenadas de ventana (label, campo y error incluidos). */
+  /** The field's box in window coordinates (label, field and error included). */
   measure: () => Promise<{ y: number; height: number } | null>;
 }
 
@@ -23,30 +23,30 @@ export interface KeyboardHost {
 
 const KeyboardHostContext = createContext<KeyboardHost | null>(null);
 
-/** El host activo, o null si un contenedor ya resuelve el teclado (o está apagado). */
+/** The active host, or null if a container already handles the keyboard (or it is off). */
 export function useKeyboardHost(): KeyboardHost | null {
   return useContext(KeyboardHostContext);
 }
 
 /**
- * Para contenedores que ya mantienen visible el campo enfocado por su cuenta:
- * un Modal o BottomSheet (ventana nativa propia, que el desplazamiento de la
- * raíz no mueve) o un ScrollView con `automaticallyAdjustKeyboardInsets`.
- * Adentro, los Input no le piden nada al host y el teclado no se compensa dos
- * veces.
+ * For containers that already keep the focused field visible on their own:
+ * a Modal or BottomSheet (its own native window, which the root's shift
+ * doesn't move) or a ScrollView with `automaticallyAdjustKeyboardInsets`.
+ * Inside, Inputs ask nothing of the host and the keyboard isn't compensated
+ * twice.
  */
 export function KeyboardHandled({ children }: { children: React.ReactNode }) {
   return <KeyboardHostContext.Provider value={null}>{children}</KeyboardHostContext.Provider>;
 }
 
-/** Duración cuando el evento del teclado no la trae (Android). */
+/** Duration when the keyboard event doesn't carry one (Android). */
 const FALLBACK_DURATION = 250;
 
 /**
- * Desplazamiento vertical (≤ 0) para que el campo quede entero por encima del
- * teclado, con `margin` de aire, sin que su borde superior pase de `topLimit`.
- * `fieldY` es la posición medida con el desplazamiento `current` aplicado.
- * Si el campo ya se ve, vuelve hacia 0: nunca sube más de lo necesario.
+ * Vertical shift (≤ 0) so the whole field sits above the keyboard, with
+ * `margin` of room, without its top edge going past `topLimit`.
+ * `fieldY` is the position measured with the `current` shift applied.
+ * If the field is already visible, it moves back toward 0: it never rises more than needed.
  */
 export function computeKeyboardOffset({
   fieldY,
@@ -65,26 +65,26 @@ export function computeKeyboardOffset({
 }): number {
   const base = fieldY - current;
   let target = Math.min(0, keyboardTop - margin - (base + fieldHeight));
-  // Un campo más alto que el hueco disponible: prima ver dónde se escribe
-  // (su parte de arriba) antes que su error.
+  // A field taller than the available gap: seeing where you type (its top
+  // part) takes priority over its error.
   target = Math.max(target, topLimit - base);
   return Math.min(0, target);
 }
 
 /**
- * Un área que se desplaza para que el Input enfocado de adentro quede sobre
- * el teclado (transform en el hilo nativo; al cerrarse vuelve a 0). Es el
- * `adjustPan` de Android, igual en las dos plataformas.
+ * An area that shifts so the focused Input inside it sits above the
+ * keyboard (transform on the native thread; it returns to 0 on close). It is
+ * Android's `adjustPan`, the same on both platforms.
  *
- * - El UIProvider raíz monta una alrededor de toda la app: el respaldo, para
- *   que un Input se vea aunque no esté dentro de un Screen.
- * - Screen monta otra alrededor de su contenido, con `clip`: se mueve solo el
- *   contenido y el header (prop `header`) y la barra de pestañas quedan
- *   quietos, como en una app nativa. El Input se registra con el área más
- *   cercana, así que adentro de un Screen la raíz no se mueve.
+ * - The root UIProvider mounts one around the whole app: the fallback, so
+ *   an Input is visible even when it isn't inside a Screen.
+ * - Screen mounts another around its content, with `clip`: only the content
+ *   moves and the header (`header` prop) and the tab bar stay still, as in a
+ *   native app. The Input registers with the nearest area, so inside a
+ *   Screen the root doesn't move.
  *
- * Con `clip`, lo que sube se recorta en el borde superior del área y el campo
- * nunca pasa por encima de ese borde (queda bajo el header).
+ * With `clip`, whatever rises is clipped at the area's top edge and the field
+ * never goes above that edge (it stays under the header).
  */
 export function KeyboardPanArea({
   margin,
@@ -93,7 +93,7 @@ export function KeyboardPanArea({
   children,
 }: {
   margin: number;
-  /** Límite superior en coordenadas de ventana. Con `clip`, se toma el borde del área si es más bajo. */
+  /** Top limit in window coordinates. With `clip`, the area's edge is used if it is lower. */
   topLimit: number;
   clip?: boolean;
   children: React.ReactNode;
@@ -124,7 +124,7 @@ export function KeyboardPanArea({
       const top = keyboardTop.current;
       if (!current || top === null) return;
       const box = await current.measure();
-      // Mientras se medía, el foco pudo pasar a otro campo o el teclado cerrarse.
+      // While measuring, focus may have moved to another field or the keyboard closed.
       if (!box || field.current !== current || keyboardTop.current === null) return;
       let limit = config.current.topLimit;
       if (config.current.clip) {
@@ -147,19 +147,19 @@ export function KeyboardPanArea({
     return {
       focus(next) {
         field.current = next;
-        // Con el teclado ya abierto (pasar de un campo a otro) se reajusta ya.
+        // With the keyboard already open (moving from one field to another) it readjusts right away.
         if (keyboardTop.current !== null) void adjust(FALLBACK_DURATION);
       },
       blur(prev) {
         if (field.current === prev) field.current = null;
       },
-      // Uso interno de los listeners de abajo.
+      // Internal use by the listeners below.
       _show(e: KeyboardEvent | undefined) {
         if (!e?.endCoordinates) return;
         keyboardTop.current = e.endCoordinates.screenY;
         const duration = e.duration || FALLBACK_DURATION;
-        // Android emite didShow después de redimensionar la ventana: se mide en
-        // el frame siguiente, con el layout ya asentado.
+        // Android emits didShow after resizing the window: measure on the
+        // next frame, with the layout already settled.
         if (Platform.OS === 'android') requestAnimationFrame(() => void adjust(duration));
         else void adjust(duration);
       },
@@ -172,8 +172,8 @@ export function KeyboardPanArea({
 
   useEffect(() => {
     const h = host as KeyboardHost & { _show: (e: KeyboardEvent) => void; _hide: (e?: KeyboardEvent) => void };
-    // iOS avisa antes de animar (will*): el desplazamiento acompaña al teclado.
-    // Android solo tiene did*.
+    // iOS notifies before animating (will*): the shift follows the keyboard.
+    // Android only has did*.
     const subs =
       Platform.OS === 'ios'
         ? [
@@ -199,7 +199,7 @@ export function KeyboardPanArea({
   );
 }
 
-/** Si la medición no vuelve (nodo desmontado), se sigue sin ese límite. */
+/** If the measurement never comes back (node unmounted), carry on without that limit. */
 const MEASURE_TIMEOUT_MS = 100;
 
 function measureTop(node: View | null): Promise<number | null> {

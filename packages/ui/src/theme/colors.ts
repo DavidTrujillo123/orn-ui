@@ -35,7 +35,7 @@ const HEX = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i;
 export function hexToRgb(hex: string): Rgb {
   const match = HEX.exec(hex.trim());
   if (!match) {
-    throw new Error(`orn-ui: se esperaba un color hex como "#7c3aed", se recibió "${hex}".`);
+    throw new Error(`orn-ui: expected a hex color like "#7c3aed", got "${hex}".`);
   }
   const digits = match[1]!;
   const full = digits.length === 3 ? digits.replace(/./g, (c) => c + c) : digits;

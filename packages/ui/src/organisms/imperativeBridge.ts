@@ -19,7 +19,7 @@ export function createImperativeBridge<T>(providerName: string): ImperativeBridg
     get: () => {
       if (!current && __DEV__) {
         console.warn(
-          `orn-ui: se llamó a la API imperativa sin un <${providerName}> montado. La llamada se ignoró.`
+          `orn-ui: the imperative API was called without a mounted <${providerName}>. The call was ignored.`
         );
       }
       return current;

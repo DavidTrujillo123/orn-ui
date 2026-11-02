@@ -5,10 +5,10 @@ on:
     tags: ["*"]
 
 jobs:
-  # Un runner por Expo SDK soportado: instala el react-native/react exactos de
-  # ese SDK en un sandbox y corre ahí typecheck + tests. Es lo que respalda la
-  # tabla de compatibilidad del README, y `ci` depende de este job para que un
-  # tag no pueda publicar soporte de un SDK que nadie verificó.
+  # One runner per supported Expo SDK: installs that SDK's exact
+  # react-native/react in a sandbox and runs typecheck + tests there. This is
+  # what backs the README compatibility table, and `ci` depends on this job so
+  # a tag can't publish support for an SDK nobody verified.
   compat:
     runs-on: ubuntu-latest
     strategy:
@@ -31,12 +31,12 @@ jobs:
       - name: Typecheck + test the library against Expo SDK ${{ matrix.sdk }}
         run: pnpm --filter orn-ui compat --sdk ${{ matrix.sdk }}
 
-      # La matriz de arriba corre la librería aislada; esto corre la app de
-      # ejemplo entera en ese SDK. Es lo que atrapa lo que un sandbox no ve:
-      # copias duplicadas de react/react-native/safe-area-context al mezclar el
-      # SDK de la app con las devDependencies de packages/ui, y APIs de
-      # expo-router que cambiaron de paquete entre SDKs. `--export` bundlea con
-      # el Hermes de ese SDK, así que un mismatch de toolchain también falla acá.
+      # The matrix above runs the library in isolation; this runs the whole
+      # example app on that SDK. It catches what a sandbox can't see: duplicate
+      # copies of react/react-native/safe-area-context when the app's SDK mixes
+      # with packages/ui devDependencies, and expo-router APIs that moved
+      # packages between SDKs. `--export` bundles with that SDK's Hermes, so a
+      # toolchain mismatch fails here too.
       - name: Typecheck + bundle apps/example on Expo SDK ${{ matrix.sdk }}
         run: |
           pnpm sdk ${{ matrix.sdk }}
@@ -62,9 +62,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --ignore-scripts
 
-      # El checklist del repo (AGENTS.md): componente sin test/demo/flow, un
-      # conteo viejo en un README, un import que rompe cero-dependencias, un
-      # átomo importando un organismo. Nada de eso lo ve tsc ni jest.
+      # The repo checklist (AGENTS.md): a component without test/demo/flow, a
+      # stale count in a README, an import that breaks zero dependencies, an
+      # atom importing an organism. Neither tsc nor jest sees any of that.
       - name: Harness (checklist de componentes, cero deps, capas, tokens, SDK)
         run: pnpm harness
 
@@ -74,9 +74,10 @@ jobs:
       - name: Check Maestro smoke flows are up to date with the demo manifest
         run: pnpm --filter example gen:maestro:check
 
-      # Los flows de .maestro/demos/ no son tests (no los corre el suite), pero
-      # se generan del mismo manifest: si alguien agrega un componente y no los
-      # regenera, su clip de doc no existe y nadie se entera hasta grabar.
+      # The .maestro/demos/ flows aren't tests (the suite doesn't run them), but
+      # they are generated from the same manifest: if someone adds a component
+      # and doesn't regenerate them, its doc clip doesn't exist and nobody
+      # notices until recording.
       - name: Check Maestro demo-clip flows are up to date
         run: pnpm --filter example gen:maestro:demos:check
 
