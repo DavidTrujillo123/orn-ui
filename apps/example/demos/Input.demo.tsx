@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
 import { Input } from 'orn-ui';
-
-const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 export function InputDemo() {
@@ -40,7 +38,7 @@ export function InputDemo() {
         <Input
           label="Work email"
           required
-          rules={{ pattern: { value: EMAIL, message: 'Enter a valid email' } }}
+          rules={{ pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: 'Enter a valid email' } }}
           placeholder="you@company.com"
           keyboardType="email-address"
           autoCapitalize="none"
