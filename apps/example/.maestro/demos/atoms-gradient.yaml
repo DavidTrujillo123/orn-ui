@@ -42,7 +42,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 4/5 — steps: 3 (visible banding) vs 24 (default)
+# 4/5 — steps: 3 (visible banding) vs 48 (default)
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
