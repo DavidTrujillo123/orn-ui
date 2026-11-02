@@ -1,15 +1,27 @@
-import React, { memo, useState } from 'react';
-import { TextInput, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { memo, useRef, useState } from 'react';
+import {
+  TextInput,
+  TouchableOpacity,
+  View,
+  type AccessibilityActionEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors, useTheme } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useLabels, useTheme } from '../theme/UIProvider';
+import { useKeyboardField } from '../theme/useKeyboardField';
 import { Icon } from '../icons/Icon';
 
 export type StepperSize = 'sm' | 'md' | 'lg';
 
 export interface StepperProps {
+  /** Current value, as text (it may be mid-typing, e.g. "" or "1."). */
   value: string;
+  /** Receives the cleaned-up text while typing, and the clamped value on blur. */
   onChangeText: (text: string) => void;
+  /** "+" pressed (or swipe up with a screen reader). Do the arithmetic here. */
   onIncrement: () => void;
+  /** "-" pressed (or swipe down with a screen reader). */
   onDecrement: () => void;
   /** Scale of the control: height, buttons, icon and typography. @default 'md' */
   size?: StepperSize;
@@ -30,7 +42,11 @@ export interface StepperProps {
   /** Accepts a decimal separator, normalizing comma to dot. @default false */
   allowDecimals?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Accessible name of the numeric field. @default labels.quantity */
+  accessibilityLabel?: string;
+  /** Accessible name of the "+" button. @default labels.increment */
   incrementAccessibilityLabel?: string;
+  /** Accessible name of the "-" button. @default labels.decrement */
   decrementAccessibilityLabel?: string;
   testID?: string;
 }
@@ -40,6 +56,14 @@ const SIZES: Record<StepperSize, { height: number; icon: number; inputWidth: num
   md: { height: 44, icon: 20, inputWidth: 56 },
   lg: { height: 52, icon: 22, inputWidth: 64 },
 };
+
+/** Minimum touch target (Fitts): smaller buttons reach it with hitSlop. */
+const MIN_TOUCH = 44;
+
+const ADJUST_ACTIONS = [
+  { name: 'increment' as const },
+  { name: 'decrement' as const },
+];
 
 const useStyles = createStyles((theme) => ({
   control: {
@@ -60,12 +84,12 @@ const useStyles = createStyles((theme) => ({
     borderRightWidth: 1,
     borderColor: theme.colors.border,
   },
-  // El fondo distingue el campo de un valor de sólo lectura: es la única
-  // señal de que ahí se puede tipear antes de tocarlo.
+  // The background tells the field apart from a read-only value: it is the
+  // only hint that you can type there before touching it.
   editable: { backgroundColor: theme.colors.inputBackground },
 }));
 
-/** Deja sólo lo que puede formar parte del número permitido por el rango. */
+/** Keeps only what can be part of a number allowed by the range. */
 export function sanitizeNumeric(text: string, { allowDecimals = false, allowNegative = false } = {}): string {
   const normalized = allowDecimals ? text.replace(',', '.') : text;
   const negative = allowNegative && normalized.trimStart().startsWith('-');
@@ -77,12 +101,20 @@ export function sanitizeNumeric(text: string, { allowDecimals = false, allowNega
 
 /**
  * Stepper
- * Botón "-" + input numérico editable + botón "+". `size` controla sólo la
- * escala y `block` sólo el ancho, así que los dos ejes se combinan libremente.
+ * "-" button + editable numeric input + "+" button. `size` controls only the
+ * scale and `block` only the width, so both axes combine freely.
  *
- * El componente no hace la aritmética de los botones —eso vive en
- * `onIncrement`/`onDecrement`—, pero sí limpia lo que se tipea y avisa cuándo
- * el valor llegó a un extremo del rango deshabilitando el botón que lo pasaría.
+ * The component doesn't do the buttons' arithmetic —that lives in
+ * `onIncrement`/`onDecrement`—, but it does clean up what is typed and signals
+ * when the value hit an end of the range by disabling the button that would pass it.
+ *
+ * Gestalt, common region: the three parts share one border, so they read as a
+ * single control; the field is set apart by its fill (it can be typed into).
+ * Fitts: every button reaches 44pt, `sm` through hitSlop.
+ *
+ * Accessibility: the field is an adjustable element — VoiceOver/TalkBack users
+ * swipe up/down to step the value — and every name comes from `labels`. Like
+ * Input, it stays visible above the keyboard while typing.
  */
 export const Stepper = memo(
   ({
@@ -97,19 +129,25 @@ export const Stepper = memo(
     max,
     allowDecimals = false,
     style,
-    incrementAccessibilityLabel = 'Increment',
-    decrementAccessibilityLabel = 'Decrement',
+    accessibilityLabel,
+    incrementAccessibilityLabel,
+    decrementAccessibilityLabel,
     testID,
   }: StepperProps) => {
     const theme = useTheme();
     const colors = useColors();
     const styles = useStyles();
+    const labels = useLabels();
     const allowFontScaling = useAllowFontScaling();
     const [focused, setFocused] = useState(false);
+    const controlRef = useRef<View>(null);
+    const keyboard = useKeyboardField(controlRef);
 
     const { height, icon, inputWidth } = SIZES[size];
     const fontSize =
       size === 'sm' ? theme.tokens.fontSize.md : size === 'md' ? theme.tokens.fontSize.lg : theme.tokens.fontSize.xl;
+    const slopV = Math.max(0, (MIN_TOUCH - height) / 2);
+    const hitSlop = slopV > 0 ? { top: slopV, bottom: slopV, left: slopV, right: slopV } : undefined;
 
     const allowNegative = min !== undefined && min < 0;
     const numeric = Number(value);
@@ -121,13 +159,20 @@ export const Stepper = memo(
       onChangeText(sanitizeNumeric(text, { allowDecimals, allowNegative }));
     };
 
-    // El recorte al rango espera al blur: hacerlo mientras se tipea impide
-    // llegar a "12" cuando el mínimo es 5, porque el "1" ya se corregiría.
+    // Clamping to the range waits for blur: doing it while typing makes it
+    // impossible to reach "12" when the minimum is 5, because the "1" would
+    // already be corrected.
     const handleBlur = () => {
       setFocused(false);
+      keyboard.blur();
       if (!isNumber) return;
       const clamped = Math.min(max ?? numeric, Math.max(min ?? numeric, numeric));
       if (clamped !== numeric) onChangeText(String(clamped));
+    };
+
+    const handleAccessibilityAction = (e: AccessibilityActionEvent) => {
+      if (e.nativeEvent.actionName === 'increment' && !atMax) onIncrement();
+      if (e.nativeEvent.actionName === 'decrement' && !atMin) onDecrement();
     };
 
     const stepButton = (
@@ -139,6 +184,7 @@ export const Stepper = memo(
       <TouchableOpacity
         onPress={onPress}
         disabled={disabled}
+        hitSlop={hitSlop}
         style={[styles.btn, { width: height }]}
         accessibilityRole="button"
         accessibilityLabel={label}
@@ -155,6 +201,7 @@ export const Stepper = memo(
 
     return (
       <View
+        ref={controlRef}
         testID={testID}
         style={[
           styles.control,
@@ -164,7 +211,7 @@ export const Stepper = memo(
           style,
         ]}
       >
-        {stepButton('decrement', onDecrement, atMin, decrementAccessibilityLabel)}
+        {stepButton('decrement', onDecrement, atMin, decrementAccessibilityLabel ?? labels.decrement)}
         <TextInput
           allowFontScaling={allowFontScaling}
           style={[
@@ -176,14 +223,21 @@ export const Stepper = memo(
           ]}
           value={value}
           onChangeText={handleChangeText}
-          onFocus={() => setFocused(true)}
+          onFocus={() => {
+            setFocused(true);
+            keyboard.focus();
+          }}
           onBlur={handleBlur}
           editable={editable}
           keyboardType={allowDecimals ? 'decimal-pad' : 'number-pad'}
           selectTextOnFocus
-          accessibilityLabel="Quantity"
+          accessibilityLabel={accessibilityLabel ?? labels.quantity}
+          accessibilityRole="adjustable"
+          accessibilityValue={{ text: value }}
+          accessibilityActions={ADJUST_ACTIONS}
+          onAccessibilityAction={handleAccessibilityAction}
         />
-        {stepButton('increment', onIncrement, atMax, incrementAccessibilityLabel)}
+        {stepButton('increment', onIncrement, atMax, incrementAccessibilityLabel ?? labels.increment)}
       </View>
     );
   }

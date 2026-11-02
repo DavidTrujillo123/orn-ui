@@ -181,7 +181,7 @@ hex in component styles, use `useColors()`.
 
 | Component | Subpath | Key props |
 | --- | --- | --- |
-| `Stepper` | `orn-ui/stepper` | `value: string`, `onChangeText`, `onIncrement`, `onDecrement`, `size?: 'sm'\|'md'\|'lg'`, `block?`, `editable?`, `min?`, `max?`, `allowDecimals?`, `incrementAccessibilityLabel?`, `decrementAccessibilityLabel?` |
+| `Stepper` | `orn-ui/stepper` | `value: string`, `onChangeText`, `onIncrement`, `onDecrement`, `size?: 'sm'\|'md'\|'lg'`, `block?`, `editable?`, `min?`, `max?`, `allowDecimals?`, `accessibilityLabel?` (labels.quantity), `incrementAccessibilityLabel?`, `decrementAccessibilityLabel?` (labels) |
 | `sanitizeNumeric` | `orn-ui/sanitize-numeric` | helper for numeric text input |
 | `OptionCard` | `orn-ui/option-card` | `label`, `isSelected`, `onPress`, `description?`, `iconName?`, `disabled?`, `layout?: 'vertical'\|'horizontal'` |
 | `InfoRow` | `orn-ui/info-row` | `icon: IconName`, `label`, `value: string\|null\|undefined`, `placeholder` |

@@ -193,6 +193,9 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
      esté definido a la vista: nada de auxiliares del catálogo (`VariantRow`,
      un `Frame` propio). `extract` falla si aparece un tag sin origen. Los
      comentarios del demo que se ven en la docs, en inglés.
+     Nada de funciones auxiliares sueltas en el código de una variante
+     (`{...bind(qty, setQty)}`): si hace falta estado, un componente
+     auxiliar (`<Quantity size="sm" />`), que la docs muestra con su definición.
   Sin los cinco pasos, no se commitea la docs.
 - **Nunca simular toques con eventos de mouse/teclado del Mac** (CGEvent,
   osascript, cliclick): si el Simulator no está al frente, el clic cae en otra

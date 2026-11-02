@@ -31,7 +31,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 | componente | slug | estado | fecha | notas |
 |---|---|---|---|---|
-| Stepper | stepper | pendiente | | |
+| Stepper | stepper | arreglado | 2026-11-02 | Se registra con el teclado (hook común `useKeyboardField`, también en Input); campo `adjustable` (deslizar arriba/abajo con lector, respeta el rango); nombres desde labels (`quantity`/`increment`/`decrement`) + prop `accessibilityLabel`; hitSlop a 44pt en `sm`; JSDoc de value/onChangeText/onIncrement/onDecrement; Gestalt. Demo: componente `Quantity` en vez de `bind()` invisible; caption de editable={false} corregido. Docs stills + mp4 conservado. |
 | OptionCard | option-card | pendiente | | |
 | InfoRow | info-row | pendiente | | |
 | FormActions | form-actions | pendiente | | |

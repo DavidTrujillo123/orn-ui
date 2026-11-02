@@ -15,7 +15,7 @@ import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors, useLabels, useTheme } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
-import { useKeyboardHost, type KeyboardField } from '../theme/KeyboardAvoidance';
+import { useKeyboardField } from '../theme/useKeyboardField';
 import { validateInputValue, type InputRules } from './inputValidation';
 
 export type { InputRules, InputRuleValue } from './inputValidation';
@@ -78,42 +78,42 @@ const useStyles = createStyles((theme) => ({
     color: theme.colors.text,
   },
   leftIcon: { marginLeft: theme.tokens.spacing.lg, marginRight: -theme.tokens.spacing.xs },
-  // Ícono 20 + padding md (12) por lado = 44pt de área táctil (Fitts).
+  // 20 icon + md padding (12) per side = 44pt touch area (Fitts).
   rightIcon: { padding: theme.tokens.spacing.md, marginRight: theme.tokens.spacing.xxs },
-  // Solo lectura: sin relleno, así no parece un campo que se puede tocar
-  // (affordance), pero el texto conserva su contraste para leerse.
+  // Read-only: no fill, so it doesn't look like a field you can tap
+  // (affordance), but the text keeps its contrast to stay readable.
   readOnly: { backgroundColor: 'transparent' },
   errorText: { marginTop: theme.tokens.spacing.xs, fontSize: theme.tokens.fontSize.sm, color: theme.colors.errorText },
 }));
 
 /**
  * Input
- * El borde anima color entre border/primary/error con Animated (no
- * useNativeDriver: los navegadores de color en RN sin Fabric solo son
- * confiables en el hilo de JS; el costo es despreciable, se anima un borde).
+ * The border animates its color between border/primary/error with Animated
+ * (no useNativeDriver: color drivers in RN without Fabric are only reliable
+ * on the JS thread; the cost is negligible, it animates one border).
  *
  * Gestalt:
- * - Proximidad: label (`spacing.sm` arriba) y error (`spacing.xs` abajo) van
- *   pegados al campo y el siguiente campo queda a `spacing.lg`: cada label y
- *   su error se leen con su campo, no con el vecino.
- * - Región común: ícono izquierdo, texto y acción derecha comparten el mismo
- *   borde y fondo, así se leen como un solo control.
- * - Punto focal: el borde pasa a `primary` al enfocar y a `error` con error;
- *   el error además va escrito (no solo color).
+ * - Proximity: label (`spacing.sm` above) and error (`spacing.xs` below) sit
+ *   right next to the field and the next field is `spacing.lg` away: each
+ *   label and its error read with their field, not with the neighbor.
+ * - Common region: left icon, text and right action share the same border
+ *   and background, so they read as a single control.
+ * - Focal point: the border turns `primary` on focus and `error` on error;
+ *   the error is also written out (not just color).
  *
- * Accesibilidad: el nombre accesible incluye "required" si corresponde, el
- * error se anuncia como hint y los botones del ojo y de la acción derecha
- * tienen 44pt de área táctil y textos de `labels` (traducibles).
+ * Accessibility: the accessible name includes "required" when applicable, the
+ * error is announced as a hint, and the eye and right-action buttons have a
+ * 44pt touch area and texts from `labels` (translatable).
  *
- * Teclado: al enfocarse se registra en el host del UIProvider raíz, que sube
- * la app lo justo para que el campo entero (label, campo y error) quede por
- * encima del teclado — sin depender de Screen ni de un ScrollView. Lo que se
- * escribe siempre se ve.
+ * Keyboard: on focus it registers with the root UIProvider's host, which
+ * lifts the app just enough for the whole field (label, field and error) to
+ * sit above the keyboard — without depending on Screen or a ScrollView. What
+ * you type is always visible.
  *
- * Validación: `required` y `rules` corren al salir del campo (`validateOn`),
- * el error aparece escrito, se anuncia al lector y, una vez visible, se
- * revalida en cada cambio para que desaparezca apenas se corrige. Un `error`
- * pasado a mano manda sobre la validación interna.
+ * Validation: `required` and `rules` run when leaving the field (`validateOn`),
+ * the error appears in writing, is announced to the screen reader and, once
+ * visible, is revalidated on every change so it disappears as soon as it is
+ * fixed. An `error` passed by hand overrides the internal validation.
  */
 export const Input = memo(
   forwardRef<InputHandle, InputProps>(({
@@ -149,7 +149,7 @@ export const Input = memo(
     const inputRef = useRef<TextInput>(null);
     const containerRef = useRef<View>(null);
     const [internalError, setInternalError] = useState<string | undefined>(undefined);
-    // Último valor conocido: el controlado (`value`) o lo escrito (no controlado).
+    // Last known value: the controlled one (`value`) or what was typed (uncontrolled).
     const valueRef = useRef(props.value ?? props.defaultValue ?? '');
     if (props.value !== undefined) valueRef.current = props.value;
     const error = errorProp ?? internalError;
@@ -163,37 +163,29 @@ export const Input = memo(
 
     useImperativeHandle(ref, () => Object.assign(inputRef.current as TextInput, { validate: runValidation }));
 
-    // El error nuevo se anuncia en el momento, no solo como hint al volver al campo.
+    // The new error is announced right away, not only as a hint when returning to the field.
     useEffect(() => {
       if (internalError && errorProp === undefined) AccessibilityInfo.announceForAccessibility(internalError);
     }, [internalError, errorProp]);
 
-    const host = useKeyboardHost();
-    const field = useRef<KeyboardField>({
-      measure: () =>
-        new Promise((resolve) => {
-          const node = containerRef.current;
-          if (!node) return resolve(null);
-          node.measureInWindow((_x, y, _w, height) => resolve({ y, height }));
-        }),
-    }).current;
+    const keyboard = useKeyboardField(containerRef);
 
-    // Si aparece o cambia el error con el campo enfocado, el bloque crece:
-    // se pide reajustar para que la línea del error tampoco quede tapada.
+    // If the error appears or changes while the field is focused, the block grows:
+    // a readjustment is requested so the error line isn't covered either.
     useEffect(() => {
-      if (isFocused) host?.focus(field);
-    }, [error, isFocused, host, field]);
+      if (isFocused) keyboard.focus();
+    }, [error, isFocused, keyboard]);
 
     const handleFocus: TextInputProps['onFocus'] = (e) => {
       setIsFocused(true);
-      host?.focus(field);
+      keyboard.focus();
       Animated.timing(focusProgress, { toValue: 1, duration: theme.tokens.duration.base, useNativeDriver: false }).start();
       onFocus?.(e);
     };
 
     const handleBlur: TextInputProps['onBlur'] = (e) => {
       setIsFocused(false);
-      host?.blur(field);
+      keyboard.blur();
       if (validateOn === 'blur') runValidation();
       Animated.timing(focusProgress, { toValue: 0, duration: theme.tokens.duration.base, useNativeDriver: false }).start();
       onBlur?.(e);

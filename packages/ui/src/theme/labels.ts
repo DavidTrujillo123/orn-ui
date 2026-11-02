@@ -27,6 +27,12 @@ export interface Labels {
   maxLengthError: string;
   /** Input validation, `rules.pattern`. */
   patternError: string;
+  /** Stepper: accessible name of the numeric field. */
+  quantity: string;
+  /** Stepper: "+" button. */
+  increment: string;
+  /** Stepper: "-" button. */
+  decrement: string;
 }
 
 export const defaultLabels: Labels = {
@@ -53,4 +59,7 @@ export const defaultLabels: Labels = {
   minLengthError: 'Enter at least {n} characters',
   maxLengthError: 'Enter at most {n} characters',
   patternError: 'Invalid format',
+  quantity: 'Quantity',
+  increment: 'Increment',
+  decrement: 'Decrement',
 };

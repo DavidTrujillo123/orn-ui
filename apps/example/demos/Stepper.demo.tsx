@@ -1,42 +1,46 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Caption, Stepper } from 'orn-ui';
+import { Caption, Stepper, type StepperProps } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
+// A controlled Stepper: the component cleans what is typed and disables the
+// button that would leave the range; the arithmetic lives in the caller.
+function Quantity({ initial = '1', step = 1, ...props }: Partial<StepperProps> & { initial?: string; step?: number }) {
+  const [value, setValue] = useState(initial);
+  return (
+    <Stepper
+      value={value}
+      onChangeText={setValue}
+      onIncrement={() => setValue(String(Number(value || 0) + step))}
+      onDecrement={() => setValue(String(Number(value || 0) - step))}
+      {...props}
+    />
+  );
+}
+
 export function StepperDemo() {
-  const [qty, setQty] = useState('1');
-  const [bounded, setBounded] = useState('5');
-  const [price, setPrice] = useState('12.50');
-
-  const bind = (value: string, setValue: (next: string) => void, step = 1) => ({
-    value,
-    onChangeText: setValue,
-    onIncrement: () => setValue(String(Number(value || 0) + step)),
-    onDecrement: () => setValue(String(Number(value || 0) - step)),
-  });
-
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'size="md" (default)', content: <Stepper {...bind(qty, setQty)} /> },
-    { label: 'size="sm"', content: <Stepper size="sm" {...bind(qty, setQty)} /> },
-    { label: 'size="lg"', content: <Stepper size="lg" {...bind(qty, setQty)} /> },
+    { label: 'size="md" (default)', content: <Quantity /> },
+    { label: 'size="sm"', content: <Quantity size="sm" /> },
+    { label: 'size="lg"', content: <Quantity size="lg" /> },
     {
       label: 'the three sizes together',
       content: (
         <View style={{ gap: 12 }}>
-          <Stepper size="sm" {...bind(qty, setQty)} />
-          <Stepper size="md" {...bind(qty, setQty)} />
-          <Stepper size="lg" {...bind(qty, setQty)} />
+          <Quantity size="sm" />
+          <Quantity size="md" />
+          <Quantity size="lg" />
         </View>
       ),
     },
-    { label: 'block — fills the row, the input takes the rest', content: <Stepper block {...bind(qty, setQty)} /> },
+    { label: 'block — fills the row, the input takes the rest', content: <Quantity block /> },
     {
       label: 'editable={false} — buttons only, no keyboard',
       content: (
         <View style={{ gap: 12 }}>
-          <Stepper editable={false} {...bind(qty, setQty)} />
-          <Caption>The tinted field is the only hint that a value can be typed.</Caption>
+          <Quantity editable={false} />
+          <Caption>No tint: the value changes only with the buttons, and the keyboard never opens.</Caption>
         </View>
       ),
     },
@@ -44,7 +48,7 @@ export function StepperDemo() {
       label: 'min / max — the button that would leave the range is disabled',
       content: (
         <View style={{ gap: 12 }}>
-          <Stepper min={1} max={10} {...bind(bounded, setBounded)} />
+          <Quantity initial="5" min={1} max={10} />
           <Caption>Range 1–10. Typing 99 and leaving the field clamps it back to 10.</Caption>
         </View>
       ),
@@ -53,7 +57,7 @@ export function StepperDemo() {
       label: 'allowDecimals — comma becomes dot',
       content: (
         <View style={{ gap: 12 }}>
-          <Stepper allowDecimals min={0} {...bind(price, setPrice, 0.5)} />
+          <Quantity initial="12.50" step={0.5} allowDecimals min={0} />
           <Caption>Without it, digits only: letters, separators and the minus sign never reach the value.</Caption>
         </View>
       ),

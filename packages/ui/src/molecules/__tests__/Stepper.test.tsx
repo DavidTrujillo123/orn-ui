@@ -208,6 +208,38 @@ describe('Stepper', () => {
   });
 });
 
+describe('Stepper accessibility and touch', () => {
+  it('the field is an adjustable element: swipe up/down steps the value within the range', () => {
+    const onIncrement = jest.fn();
+    const onDecrement = jest.fn();
+    renderStepper({ value: '10', max: 10, onIncrement, onDecrement });
+    const field = screen.getByRole('adjustable', { name: 'Quantity' });
+    fireEvent(field, 'accessibilityAction', { nativeEvent: { actionName: 'increment' } });
+    fireEvent(field, 'accessibilityAction', { nativeEvent: { actionName: 'decrement' } });
+    // At the maximum, "increment" is ignored like the disabled "+" button.
+    expect(onIncrement).not.toHaveBeenCalled();
+    expect(onDecrement).toHaveBeenCalledTimes(1);
+    expect(field).toHaveAccessibilityValue({ text: '10' });
+  });
+
+  it('names come from labels, so they translate', () => {
+    render(
+      <UIProvider mode="light" labels={{ quantity: 'Cantidad', increment: 'Sumar', decrement: 'Restar' }}>
+        <Stepper value="1" onChangeText={() => {}} onIncrement={() => {}} onDecrement={() => {}} />
+      </UIProvider>
+    );
+    expect(screen.getByRole('adjustable', { name: 'Cantidad' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Sumar' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Restar' })).toBeOnTheScreen();
+  });
+
+  it('size="sm" buttons reach a 44pt touch target through hitSlop', () => {
+    renderStepper({ size: 'sm' });
+    // 36pt button + 4pt on each side = 44pt
+    expect(screen.getByTestId('stepper-increment')).toHaveProp('hitSlop', { top: 4, bottom: 4, left: 4, right: 4 });
+  });
+});
+
 describe('sanitizeNumeric', () => {
   it('keeps digits only by default', () => {
     expect(sanitizeNumeric('-1a2,3')).toBe('123');
