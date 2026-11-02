@@ -65,7 +65,7 @@ jobs:
       # The repo checklist (AGENTS.md): a component without test/demo/flow, a
       # stale count in a README, an import that breaks zero dependencies, an
       # atom importing an organism. Neither tsc nor jest sees any of that.
-      - name: Harness (checklist de componentes, cero deps, capas, tokens, SDK)
+      - name: Harness (component checklist, zero deps, layers, tokens, SDK)
         run: pnpm harness
 
       - name: Check subpath exports are up to date with src/
