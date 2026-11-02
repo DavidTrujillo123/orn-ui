@@ -194,8 +194,8 @@ describe('Select', () => {
         handlers[event] = handler as (e?: unknown) => void;
         return { remove: jest.fn() } as never;
       });
-      // measureInWindow no responde en tests: se ancla a mano bajo la mitad de
-      // la pantalla, que es donde el teclado decide la dirección.
+      // measureInWindow doesn't respond in tests: it is anchored by hand below
+      // the middle of the screen, which is where the keyboard decides the direction.
       jest
         .spyOn(View.prototype, 'measureInWindow')
         .mockImplementation((cb) => cb(16, 900, 300, 50));

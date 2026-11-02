@@ -70,7 +70,7 @@ describe('Modal', () => {
         </Modal>
       )
     );
-    // todavía montado: la animación de salida no terminó
+    // still mounted: the exit animation hasn't finished
     expect(screen.getByText('content', { includeHiddenElements: true })).toBeOnTheScreen();
 
     act(() => {
@@ -91,8 +91,8 @@ describe('Modal', () => {
   });
 
   it('never combines a transparent modal with an unsupported presentationStyle', () => {
-    // RN avisa: "Modal with '<style>' presentation style and 'transparent'
-    // value is not supported" para todo lo que no sea overFullScreen.
+    // RN warns: "Modal with '<style>' presentation style and 'transparent'
+    // value is not supported" for everything other than overFullScreen.
     const warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
     for (const variant of ['full', 'overlay', 'fullScreen'] as const) {
       render(

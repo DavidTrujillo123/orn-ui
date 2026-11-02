@@ -21,8 +21,8 @@ function withProvider(children: React.ReactNode) {
 }
 
 /**
- * jsdom no hace layout: sin este evento el plot mide 0 y no dibuja nada, que
- * es exactamente lo que hace el componente en un ancho desconocido.
+ * jsdom doesn't do layout: without this event the plot measures 0 and draws
+ * nothing, which is exactly what the component does at an unknown width.
  */
 function layout(testID = 'c-plot', width = 320, height = 220) {
   fireEvent(screen.getByTestId(testID), 'layout', { nativeEvent: { layout: { width, height, x: 0, y: 0 } } });
@@ -33,8 +33,8 @@ function pressBand(index: number, locationY = 10) {
 }
 
 describe('Chart', () => {
-  // Las barras llegan a su alto con Animated.timing: sin fake timers siguen
-  // agendando frames contra un árbol ya desmontado.
+  // The bars reach their height with Animated.timing: without fake timers they
+  // keep scheduling frames against an already unmounted tree.
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => {
     act(() => jest.runOnlyPendingTimers());
@@ -53,7 +53,7 @@ describe('Chart', () => {
       render(withProvider(<Chart type="bar" data={ROWS} series={SERIES} accessibilityLabel="Sales" testID="c" />));
       act(() => layout());
       expect(screen.getAllByTestId(/^c-bar-\d-(sales|costs)$/)).toHaveLength(6);
-      // Agrupadas: la de costs empieza a la derecha de la de sales.
+      // Grouped: the costs bar starts to the right of the sales one.
       const sales = screen.getByTestId('c-bar-0-sales');
       const costs = screen.getByTestId('c-bar-0-costs');
       expect(costs.props.style.left).toBeGreaterThan(sales.props.style.left);
@@ -71,7 +71,7 @@ describe('Chart', () => {
       );
       act(() => layout());
       const bar = screen.getByTestId('c-bar-1-sales');
-      // Crece desde la izquierda: la posición fija es `left`, no `bottom`.
+      // Grows from the left: the fixed position is `left`, not `bottom`.
       expect(bar.props.style.left).toBeDefined();
       expect(screen.getByTestId('c-band-1').props.style.width).toBe(320 - 64);
     });
@@ -113,8 +113,8 @@ describe('Chart', () => {
         );
       });
       act(() => layout());
-      // Positiva crece hacia la derecha, negativa hacia la izquierda: el
-      // extremo redondeado cambia de lado con el signo.
+      // Positive grows to the right, negative to the left: the rounded end
+      // switches sides with the sign.
       expect(screen.getByTestId('c-bar-0-v').props.style.borderTopRightRadius).toBe(6);
       expect(screen.getByTestId('c-bar-1-v').props.style.borderTopLeftRadius).toBe(6);
       expect(screen.getByTestId('c-bar-1-v').props.style.right).toBeDefined();
@@ -210,7 +210,7 @@ describe('Chart', () => {
         withProvider(<Chart type="pie" data={[{ x: 'Most', v: 3 }, { x: 'Rest', v: 1 }]} series={[{ key: 'v' }]} accessibilityLabel="Share" testID="c" />)
       );
       act(() => layout());
-      // 270°: una mitad llena más otra de 90°, dentro de la misma porción.
+      // 270°: a full half plus another of 90°, within the same slice.
       expect(screen.getByTestId('c-slice-0').props.children.filter(Boolean)).toHaveLength(2);
       expect(screen.getByTestId('c-slice-1').props.children.filter(Boolean)).toHaveLength(1);
     });
@@ -229,7 +229,7 @@ describe('Chart', () => {
         withProvider(<Chart type="donut" data={ROWS} series={[SERIES[0]!]} onSelect={onSelect} accessibilityLabel="Share" testID="c" />)
       );
       act(() => layout());
-      // Arriba y un poco a la derecha del centro: la primera porción.
+      // Above and a bit to the right of the center: the first slice.
       fireEvent.press(screen.getByTestId('c-hit'), { nativeEvent: { locationX: 200, locationY: 50 } });
       expect(onSelect).toHaveBeenCalledWith(expect.objectContaining({ index: 0, label: 'Jan' }));
 
@@ -298,7 +298,7 @@ describe('Chart', () => {
 
       fireEvent.press(screen.getByTestId('c-legend-costs'));
       expect(onChange).toHaveBeenCalledWith([]);
-      // Controlado: sigue oculto hasta que el padre cambie la prop.
+      // Controlled: it stays hidden until the parent changes the prop.
       expect(screen.queryAllByTestId(/^c-bar-\d-costs$/)).toHaveLength(0);
     });
 
@@ -359,7 +359,7 @@ describe('Chart', () => {
       const onSelect = jest.fn();
       render(withProvider(<Chart type="bar" data={ROWS} series={SERIES} onSelect={onSelect} accessibilityLabel="Sales" testID="c" />));
       act(() => layout());
-      // Arriba del todo: la serie alta (sales). Abajo: la baja (costs).
+      // At the very top: the high series (sales). At the bottom: the low one (costs).
       pressBand(0, 0);
       expect(onSelect).toHaveBeenLastCalledWith(expect.objectContaining({ seriesKey: 'sales' }));
       pressBand(1, 220);
@@ -416,7 +416,7 @@ describe('Chart', () => {
       expect(screen.queryByTestId('c-grid')).toBeNull();
       expect(screen.queryByTestId('c-x-axis')).toBeNull();
       expect(screen.queryByTestId('c-y-axis')).toBeNull();
-      // Sin canal a la izquierda la banda ocupa el ancho entero.
+      // Without a left gutter the band takes the whole width.
       expect(screen.getByTestId('c-band-0').props.style.width).toBeCloseTo(320 / 3);
     });
 
@@ -425,7 +425,7 @@ describe('Chart', () => {
         withProvider(<Chart type="bar" data={ROWS} series={[SERIES[0]!]} accessibilityLabel="Sales" testID="c" />)
       );
       act(() => layout());
-      // Con el formato compacto ("200") alcanza el piso de 38px.
+      // With the compact format ("200") the 38px floor is enough.
       const compact = screen.getByTestId('c-band-0').props.style.width;
 
       act(() => {
@@ -442,7 +442,7 @@ describe('Chart', () => {
           )
         );
       });
-      // "$20000" no entra en 38px: el canal crece y el plot se angosta.
+      // "$20000" doesn't fit in 38px: the gutter grows and the plot narrows.
       expect(screen.getByTestId('c-band-0').props.style.width).toBeLessThan(compact);
     });
 
@@ -555,8 +555,8 @@ describe('Chart', () => {
     it('domain fixes the axis instead of letting the data set it', () => {
       render(withProvider(<Chart type="bar" domain={[0, 400]} data={ROWS} series={[SERIES[0]!]} accessibilityLabel="Sales" testID="c" />));
       act(() => layout());
-      // Sin domain el eje sería 0–200 en pasos de 50 (máximo del dato: 180).
-      // Con él es 0–400 en pasos de 100, exacto y sin redondear.
+      // Without domain the axis would be 0–200 in steps of 50 (data max: 180).
+      // With it, it's 0–400 in steps of 100, exact and unrounded.
       expect(screen.getByText('400')).toBeOnTheScreen();
       expect(screen.getByText('300')).toBeOnTheScreen();
       expect(screen.queryByText('150')).toBeNull();
@@ -611,7 +611,7 @@ describe('Chart', () => {
     });
 
     it('with no decimate given, the measured width sets the cap', () => {
-      // 20px de ancho ⇒ un punto cada dos píxeles ⇒ 10 puntos como mucho.
+      // 20px wide ⇒ one point every two pixels ⇒ 10 points at most.
       render(
         withProvider(
           <Chart type="line" data={Array.from({ length: 80 }, (_, i) => ({ x: `t${i}`, v: i }))} series={V} accessibilityLabel="V" testID="c" />
@@ -641,7 +641,7 @@ describe('Chart', () => {
       pressBand(1);
       expect(within(screen.getByTestId('c-tooltip')).getByText('b')).toBeOnTheScreen();
 
-      // Corre la ventana: 'b' pasa del índice 1 al 0 y el resaltado lo sigue.
+      // Shift the window: 'b' moves from index 1 to 0 and the highlight follows it.
       act(() => {
         rerender(withProvider(<Chart type="bar" selectBy={selectBy} data={rows.slice(1)} series={V} accessibilityLabel="V" testID="c" />));
       });
@@ -649,7 +649,7 @@ describe('Chart', () => {
       expect(screen.getByTestId('c-bar-0-v').props.style.opacity).toBe(1);
       expect(screen.getByTestId('c-bar-1-v').props.style.opacity).toBeLessThan(1);
 
-      // Y cuando 'b' sale de la ventana, el resaltado se va con él.
+      // And when 'b' leaves the window, the highlight goes with it.
       act(() => {
         rerender(withProvider(<Chart type="bar" selectBy={selectBy} data={rows.slice(2)} series={V} accessibilityLabel="V" testID="c" />));
       });
@@ -739,10 +739,10 @@ describe('Chart', () => {
 });
 
 /**
- * Las primitivas se prueban aparte de los charts: sus casos de borde (una
- * porción de 0°, una línea de un punto) no se alcanzan desde datos reales
- * porque Chart los filtra antes, pero un consumidor con `npx orn-ui add` sí
- * puede llegar a ellos.
+ * The primitives are tested separately from the charts: their edge cases (a
+ * 0° slice, a one-point line) can't be reached from real data because Chart
+ * filters them out first, but a consumer using `npx orn-ui add` can reach
+ * them.
  */
 describe('chart/marks', () => {
   it('a polyline needs two points to have something to draw', () => {
@@ -778,12 +778,12 @@ describe('chart/marks', () => {
   });
 
   it('a wedge narrower than half the circle is half a disc, not a whole one', () => {
-    // La regresión que esto ataja: con un disco entero adentro del recorte, la
-    // rotación no cambia nada —un círculo sólido girado es el mismo círculo— y
-    // toda porción sale de 180°, sea de 5° o de 179°.
+    // The regression this catches: with a whole disc inside the clip, the
+    // rotation changes nothing —a rotated solid circle is the same circle— and
+    // every slice comes out at 180°, whether 5° or 179°.
     const root = render(withProvider(<Wedge size={100} start={0} sweep={30} color="#000000" testID="w" />)).toJSON();
-    // Desde el nodo del wedge, no desde la raíz del árbol (que es la del
-    // UIProvider): recorte a la mitad derecha -> cuadrado que gira -> medio disco
+    // From the wedge's node, not from the tree root (which is the UIProvider's):
+    // clip to the right half -> rotating square -> half disc
     const findById = (node: ReactTestRendererJSON): ReactTestRendererJSON | null =>
       node.props?.testID === 'w'
         ? node

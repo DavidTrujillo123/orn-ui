@@ -17,7 +17,7 @@ function withProvider(children: React.ReactNode) {
   return <UIProvider mode="light">{children}</UIProvider>;
 }
 
-/** Deja la rueda quieta en `y`, como al final de la inercia. */
+/** Leaves the wheel still at `y`, as at the end of momentum. */
 function settleAt(y: number, event: 'momentumScrollEnd' | 'scrollEndDrag' = 'momentumScrollEnd') {
   fireEvent(screen.getByTestId('wheel-scroll'), event, {
     nativeEvent: { contentOffset: { y } },
@@ -25,7 +25,7 @@ function settleAt(y: number, event: 'momentumScrollEnd' | 'scrollEndDrag' = 'mom
 }
 
 describe('OptionWheel', () => {
-  // El efecto que centra la selección usa scrollTo, que agenda trabajo.
+  // The effect that centers the selection uses scrollTo, which schedules work.
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => {
     act(() => jest.runOnlyPendingTimers());
@@ -38,9 +38,9 @@ describe('OptionWheel', () => {
   });
 
   it('pushes the offset into the animated value when it jumps without animating', () => {
-    // El salto sin animar no siempre emite `onScroll`, y de ahí sale el
-    // progreso que apaga y achica las filas: sin empujarlo a mano la rueda
-    // aparece con la fila centrada tan tenue como las de los bordes.
+    // The unanimated jump doesn't always emit `onScroll`, and that is where the
+    // progress that dims and shrinks the rows comes from: without pushing it by
+    // hand the wheel shows up with the centered row as faint as the edge ones.
     const setValue = jest.spyOn(Animated.Value.prototype, 'setValue');
     render(withProvider(<OptionWheel options={SIZES} selectedValue="xl" onSelect={jest.fn()} testID="wheel" />));
 
@@ -52,8 +52,8 @@ describe('OptionWheel', () => {
     const onSelect = jest.fn();
     render(withProvider(<OptionWheel options={SIZES} selectedValue="l" onSelect={onSelect} testID="wheel" />));
 
-    // El primer render no sabe el alto todavía; el layout es el momento en el
-    // que la rueda puede ponerse en su valor sin animar hasta él.
+    // The first render doesn't know the height yet; layout is the moment the
+    // wheel can set itself to its value without animating to it.
     fireEvent(screen.getByTestId('wheel-scroll'), 'layout', {
       nativeEvent: { layout: { x: 0, y: 0, width: 200, height: 5 * ITEM_HEIGHT } },
     });
@@ -88,7 +88,7 @@ describe('OptionWheel', () => {
     const onSelect = jest.fn();
     render(withProvider(<OptionWheel options={SIZES} selectedValue="s" onSelect={onSelect} testID="wheel" />));
 
-    // 60px: más cerca de la fila 1 (44) que de la 2 (88).
+    // 60px: closer to row 1 (44) than to row 2 (88).
     settleAt(60);
     expect(onSelect).toHaveBeenCalledWith('m');
   });
@@ -140,8 +140,8 @@ describe('OptionWheel', () => {
         <OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} visibleCount={4} testID="wheel" />
       )
     );
-    // 4 pedidas -> 5 filas: con un número par no hay fila central que alinear
-    // con la ventana.
+    // 4 requested -> 5 rows: with an even number there is no center row to
+    // line up with the window.
     expect(screen.getByTestId('wheel-viewport')).toHaveStyle({ height: 5 * ITEM_HEIGHT });
 
     rerender(
@@ -234,8 +234,8 @@ describe('OptionWheel', () => {
       )
     );
 
-    // Dos copias corridas por fila, más el texto real: sin desenfoque nativo,
-    // la superposición es lo que emborrona la fila que no está elegida.
+    // Two offset copies per row, plus the real text: without native blur,
+    // the overlap is what smears the row that isn't selected.
     expect(screen.getAllByText('Medium')).toHaveLength(3);
   });
 
@@ -259,14 +259,14 @@ describe('OptionWheel', () => {
       )
     );
 
-    // La curva es puro transform: el snap y lo que se reporta no cambian.
+    // The curve is pure transform: the snap and what gets reported don't change.
     settleAt(2 * ITEM_HEIGHT);
     expect(onSelect).toHaveBeenCalledWith('l');
   });
 
   it('a curveRadius smaller than the rows it has to bend does not blow up', () => {
-    // dy > radio: el arco ya dio la vuelta y hay que cortarlo, o la raíz sale
-    // de un negativo y el transform se llena de NaN.
+    // dy > radius: the arc has already turned over and must be cut, or the root
+    // comes from a negative and the transform fills up with NaN.
     render(
       withProvider(
         <OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} curveRadius={10} testID="wheel" />

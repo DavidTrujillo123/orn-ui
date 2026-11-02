@@ -40,8 +40,8 @@ describe('Fab', () => {
         <Fab onPress={() => {}} accessibilityLabel="Search" iconName="search" color="#7ce3f0" testID="fab" />
       </UIProvider>
     );
-    // El glifo de 'search' se dibuja con bordes: con el fix son negros; antes
-    // eran `onPrimary` (blanco) sobre el cian, ilegible.
+    // The 'search' glyph is drawn with borders: with the fix they are black;
+    // before they were `onPrimary` (white) over the cyan, unreadable.
     const tree = JSON.stringify(screen.toJSON());
     expect(tree).toMatch(/"borderColor":"#000"/);
     expect(tree).not.toMatch(/"borderColor":"#ffffff"/i);

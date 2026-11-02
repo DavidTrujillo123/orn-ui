@@ -5,8 +5,8 @@ import { UIProvider, useTheme, useThemeMode, useColors } from '../UIProvider';
 
 describe('UIProvider', () => {
   it('throws a clear error when hooks are used outside the provider', () => {
-    // renderHook no captura el error de render en `result.error`: lo repropaga
-    // de forma síncrona, así que se verifica con un try/catch directo.
+    // renderHook doesn't capture the render error in `result.error`: it rethrows
+    // it synchronously, so it is checked with a direct try/catch.
     expect(() => renderHook(() => useTheme())).toThrow(/UIProvider/);
   });
 
@@ -60,7 +60,7 @@ describe('UIProvider', () => {
       </UIProvider>
     );
     fireEvent.press(screen.getByTestId('label'));
-    // controlado: el texto no cambia solo porque el consumidor no re-provee mode="dark"
+    // controlled: the text doesn't change just because the consumer doesn't re-provide mode="dark"
     expect(screen.getByTestId('label')).toHaveTextContent('light');
     expect(onModeChange).toHaveBeenCalledWith('dark');
   });

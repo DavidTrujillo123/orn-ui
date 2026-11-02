@@ -41,7 +41,7 @@ describe('Steps', () => {
 
   it('completedIndicator="check" replaces the number on completed steps', () => {
     render(withProvider(<Steps steps={STEPS} current={2} completedIndicator="check" />));
-    // el paso actual (3) sigue mostrando su número; los completados, no
+    // the current step (3) still shows its number; the completed ones don't
     expect(screen.getByText('3')).toBeOnTheScreen();
     expect(screen.queryByText('1')).not.toBeOnTheScreen();
   });

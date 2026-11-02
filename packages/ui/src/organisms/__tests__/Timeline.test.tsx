@@ -15,8 +15,8 @@ function withProvider(children: React.ReactNode) {
 }
 
 describe('Timeline', () => {
-  // El avance de la línea es un Animated.timing: sin fake timers sigue
-  // agendando frames después del test, contra un árbol ya desmontado.
+  // The line's progress is an Animated.timing: without fake timers it keeps
+  // scheduling frames after the test, against an already unmounted tree.
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => {
     act(() => jest.runOnlyPendingTimers());
@@ -42,7 +42,7 @@ describe('Timeline', () => {
 
   it('bows the rows off the axis, and curve={0} leaves them on it', () => {
     const { rerender } = render(withProvider(<Timeline items={ITEMS} curve={30} testID="tl" />));
-    // El primero y el último caen sobre el eje; los del medio se van a un lado.
+    // The first and last fall on the axis; the ones in the middle swing to one side.
     expect(screen.getByTestId('tl-item-0')).toHaveStyle({ transform: [{ translateX: 0 }] });
     expect(screen.getByTestId('tl-item-1')).not.toHaveStyle({ transform: [{ translateX: 0 }] });
 
@@ -77,8 +77,8 @@ describe('Timeline', () => {
   });
 
   it('the line stops at the first pending milestone, not at the last done one', () => {
-    // Un hito cumplido detrás de uno pendiente no adelanta el recorrido: el
-    // camino es un camino.
+    // A completed milestone behind a pending one doesn't advance the path: a
+    // path is a path.
     const jumped: TimelineItem[] = [
       { label: 'One' },
       { label: 'Two', status: 'pending' },
@@ -86,8 +86,8 @@ describe('Timeline', () => {
     ];
     render(withProvider(<Timeline items={jumped} testID="tl" />));
     expect(screen.getByTestId('tl-item-2')).toHaveProp('accessibilityState', { checked: true });
-    // Lo que no avanza es la línea, y eso se mira en el dispositivo: acá sólo
-    // se comprueba que el render no se rompe con un orden así.
+    // What doesn't advance is the line, and that is checked on the device: here
+    // we only verify the render doesn't break with an order like this.
     expect(screen.getByText('Three')).toBeOnTheScreen();
   });
 
@@ -106,7 +106,7 @@ describe('Timeline', () => {
 
   it("advance='sequential' only answers the milestone right after the line", () => {
     const onItemPress = jest.fn();
-    // Alcanzado: 'Ordered' (0) y 'Packed' (1). El siguiente es el 2.
+    // Reached: 'Ordered' (0) and 'Packed' (1). The next one is 2.
     render(
       withProvider(<Timeline items={ITEMS} onItemPress={onItemPress} advance="sequential" testID="tl" />)
     );
@@ -129,7 +129,7 @@ describe('Timeline', () => {
     fireEvent.press(screen.getByTestId('tl-press-2'));
     expect(onItemPress).toHaveBeenCalledWith(2);
 
-    // El 3 está más allá del frente: todavía no.
+    // 3 is beyond the front: not yet.
     onItemPress.mockClear();
     fireEvent.press(screen.getByTestId('tl-press-3'));
     expect(onItemPress).not.toHaveBeenCalled();
@@ -148,8 +148,8 @@ describe('Timeline', () => {
     const { rerender } = render(withProvider(<Timeline items={ITEMS} advance="revisit" testID="tl" />));
     act(() => jest.advanceTimersByTime(600));
 
-    // Todo pendiente salvo el primero: en 'revisit' el recorrido no se
-    // desanda, así que el siguiente alcanzable sigue siendo el 2.
+    // Everything pending except the first: in 'revisit' the path isn't
+    // undone, so the next reachable one is still 2.
     const walkedBack = ITEMS.map((item, i) => (i === 0 ? item : { ...item, status: 'pending' as const }));
     rerender(withProvider(<Timeline items={walkedBack} advance="revisit" onItemPress={jest.fn()} testID="tl" />));
     act(() => jest.advanceTimersByTime(600));
@@ -169,7 +169,7 @@ describe('Timeline', () => {
     rerender(withProvider(<Timeline items={walkedBack} onItemPress={jest.fn()} testID="tl" />));
     act(() => jest.advanceTimersByTime(600));
 
-    // Sin restricción, todos siguen respondiendo.
+    // Without restriction, all of them keep responding.
     expect(screen.getByTestId('tl-press-3')).toHaveProp('accessibilityState', {
       checked: false,
       disabled: false,
@@ -201,7 +201,7 @@ describe('Timeline', () => {
     const glowing = withGlow.toJSON();
 
     withGlow.rerender(withProvider(<Timeline items={ITEMS} glow={false} testID="tl" />));
-    // El halo son Views sin texto: lo que cambia es el tamaño del árbol.
+    // The halo is text-less Views: what changes is the size of the tree.
     expect(JSON.stringify(glowing).length).toBeGreaterThan(JSON.stringify(withGlow.toJSON()).length);
   });
 

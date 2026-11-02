@@ -81,9 +81,9 @@ describe('Button', () => {
   });
 
   it('applies a consumer-provided layout style to the pressable root, not an inner wrapper', () => {
-    // Regresión: con el style en un Animated.View interno, `flex: 1` no
-    // llegaba al nodo que ocupa lugar en el layout del padre, el ancho
-    // colapsaba y el label desaparecía (botones en fila del Alert).
+    // Regression: with the style on an inner Animated.View, `flex: 1` didn't
+    // reach the node that takes up space in the parent's layout, the width
+    // collapsed and the label disappeared (the Alert's row of buttons).
     render(withProvider(<Button title="Save" onPress={() => {}} style={{ flex: 1 }} />));
     expect(screen.getByRole('button', { name: 'Save' })).toHaveStyle({ flex: 1 });
   });

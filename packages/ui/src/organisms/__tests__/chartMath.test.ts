@@ -143,7 +143,7 @@ describe('chart/math', () => {
     });
 
     it('keeps the peaks that a sample-every-N would eat', () => {
-      // Una aguja aislada en un valle: el muestreo parejo la saltea, LTTB no.
+      // An isolated spike in a valley: even sampling skips it, LTTB doesn't.
       const spiky = Array.from({ length: 60 }, (_, index) => (index === 37 ? 100 : 0));
       expect(lttbIndices(spiky, 10)).toContain(37);
     });
@@ -335,7 +335,7 @@ describe('chart/math', () => {
       const points = radarAngles(5).map((angle) => polar(center, 10, angle));
       const strips = fanStrips(center, points, 4);
       const covered = strips.reduce((sum, strip) => sum + strip.sweep, 0);
-      // Cada tira se solapa 0.4° a propósito; sin eso el total sería 360.
+      // Each strip overlaps 0.4° on purpose; without that the total would be 360.
       expect(covered).toBeGreaterThanOrEqual(360);
       expect(covered).toBeLessThan(360 + strips.length * 0.5);
     });

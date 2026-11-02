@@ -8,13 +8,13 @@ function withProvider(children: React.ReactNode) {
   return <UIProvider mode="light">{children}</UIProvider>;
 }
 
-// El Skeleton se esconde del árbol de accesibilidad, así que las queries tienen
-// que pedir explícitamente los elementos ocultos.
+// The Skeleton hides itself from the accessibility tree, so queries have to
+// explicitly ask for hidden elements.
 const getBlock = () => screen.getByTestId('sk', { includeHiddenElements: true });
 
 describe('Skeleton', () => {
-  // El pulso es un loop de Animated: sin fake timers sigue vivo después del
-  // test y actualiza un árbol ya desmontado.
+  // The pulse is an Animated loop: without fake timers it stays alive after the
+  // test and updates an already unmounted tree.
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => {
     act(() => jest.runOnlyPendingTimers());
@@ -49,7 +49,7 @@ describe('Skeleton', () => {
 
   it('each text line takes exactly Body\'s line height (bar + half leading above and below)', () => {
     render(withProvider(<Skeleton variant="text" lines={2} testID="sk" />));
-    // fontSize.md 14 + 2 × 3 = lineHeight.md 20, igual que un renglón de Body.
+    // fontSize.md 14 + 2 × 3 = lineHeight.md 20, same as a line of Body.
     expect(screen.getByTestId('sk-0', { includeHiddenElements: true })).toHaveStyle({
       height: 14,
       marginVertical: 3,
@@ -57,12 +57,12 @@ describe('Skeleton', () => {
   });
 
   it('stops pulsing when the system asks to reduce motion', async () => {
-    // Once, sin mockRestore: el preset ya trae isReduceMotionEnabled como jest.fn
-    // y restaurarlo le borra la implementación al resto del archivo.
+    // Once, without mockRestore: the preset already ships isReduceMotionEnabled
+    // as a jest.fn and restoring it wipes its implementation for the rest of the file.
     jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValueOnce(true);
     render(withProvider(<Skeleton testID="sk" />));
     await act(async () => {});
-    // A mitad de ciclo un bloque que late ya está en 0.4; uno quieto sigue en 1.
+    // Mid-cycle a pulsing block is already at 0.4; a still one stays at 1.
     act(() => jest.advanceTimersByTime(700));
     expect(getBlock()).toHaveStyle({ opacity: 1 });
   });

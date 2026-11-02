@@ -5,9 +5,9 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { SafeAreaUIProvider } from '../SafeAreaUIProvider';
 import { useInsets, useThemeMode } from '../../theme/UIProvider';
 
-// react-native-safe-area-context no mide nada bajo el renderer de test: sin
-// este mock useSafeAreaInsets devuelve ceros y no se distinguiría "midió" de
-// "se quedó con el default de UIProvider", que es justo lo que hay que probar.
+// react-native-safe-area-context measures nothing under the test renderer:
+// without this mock useSafeAreaInsets returns zeros and "it measured" couldn't
+// be told apart from "it kept UIProvider's default", which is exactly what we need to test.
 jest.mock('react-native-safe-area-context', () => {
   const actual = jest.requireActual('react-native-safe-area-context');
   return {

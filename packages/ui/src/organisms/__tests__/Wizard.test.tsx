@@ -87,7 +87,7 @@ describe('Wizard', () => {
     render(withProvider(<Wizard steps={STEPS} current={1} onStepChange={onStepChange} />));
     expect(screen.getByText('payment content')).toBeOnTheScreen();
     fireEvent.press(screen.getByRole('button', { name: 'Next' }));
-    // controlado: no avanza solo, sólo notifica
+    // controlled: it doesn't advance on its own, it only notifies
     expect(screen.getByText('payment content')).toBeOnTheScreen();
     expect(onStepChange).toHaveBeenCalledWith(2);
   });

@@ -5,10 +5,11 @@ import { SafeAreaUIProvider } from '../SafeAreaUIProvider';
 import { UIProvider } from '../../theme/UIProvider';
 import { BottomSheet } from '../../organisms/BottomSheet';
 
-// Simula insets distintos entre la ventana raíz y la que abre el modal (el
-// caso real: Android abre un Window propio para el Modal nativo; en iOS pasa
-// según `presentationStyle`). Devolver siempre el mismo valor no alcanzaría
-// para distinguir "usa el boundary re-medido" de "usa el heredado de arriba".
+// Simulates different insets between the root window and the one the modal
+// opens (the real case: Android opens its own Window for the native Modal; on
+// iOS it depends on `presentationStyle`). Always returning the same value
+// wouldn't be enough to tell "uses the re-measured boundary" from "uses the
+// one inherited from above".
 jest.mock('react-native-safe-area-context', () => {
   const actual = jest.requireActual('react-native-safe-area-context');
   return {
@@ -33,8 +34,8 @@ describe('Modal safe area boundary', () => {
         </BottomSheet>
       </SafeAreaUIProvider>
     );
-    // paddingBottom = max(insets.bottom, 20); con el override (2) daría 20.
-    // Con los insets remedidos (34) tiene que ganar el 34.
+    // paddingBottom = max(insets.bottom, 20); with the override (2) it would be 20.
+    // With the re-measured insets (34) the 34 has to win.
     expect(screen.getByTestId('sheet')).toHaveStyle({ paddingBottom: 34 });
   });
 

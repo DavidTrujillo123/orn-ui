@@ -64,7 +64,7 @@ describe('Gradient', () => {
   it('creates one segment per color pair, each starting where the previous ends', () => {
     render(<Gradient colors={['#000000', '#888888', '#ffffff']} steps={3} testID="g" />);
     const styles = stylesOf();
-    // Tramo 2 (fondo #888888) + 2 capas #888888 del tramo 1.
+    // Segment 2 (#888888 background) + 2 #888888 layers from segment 1.
     expect(styles.filter((s) => s.backgroundColor === '#888888')).toHaveLength(1 + 2);
     expect(styles.filter((s) => s.backgroundColor === '#ffffff')).toHaveLength(2);
     expect(styles.find((s) => s.backgroundColor === '#888888' && s.opacity === undefined)?.top).toBe('50%');

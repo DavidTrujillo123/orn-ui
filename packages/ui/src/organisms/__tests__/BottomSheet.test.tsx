@@ -138,9 +138,9 @@ describe('BottomSheet', () => {
         </BottomSheet>
       )
     );
-    // La hoja vive pegada abajo: el teclado la tapa entera si no se la empuja.
+    // The sheet lives stuck to the bottom: the keyboard covers it entirely unless it is pushed up.
     expect(UNSAFE_getByType(KeyboardAvoidingView).props.behavior).toBe('padding');
-    // Ajustar además los insets del scroll compensaría dos veces.
+    // Also adjusting the scroll's insets would compensate twice.
     expect(UNSAFE_getByType(ScrollView).props.automaticallyAdjustKeyboardInsets).toBeFalsy();
   });
 
@@ -179,8 +179,8 @@ describe('BottomSheet', () => {
   });
 
   it('footerPlacement="hide-with-keyboard" gives the row back while typing', () => {
-    // Varios escuchan el mismo evento (el sheet y el host de teclado de la
-    // raíz): se guardan todos y se disparan todos, como hace RN.
+    // Several listen to the same event (the sheet and the root's keyboard
+    // host): all are stored and all are fired, as RN does.
     const listeners: Record<string, Array<() => void>> = {};
     const handlers = new Proxy({} as Record<string, () => void>, {
       get: (_, event: string) => () => (listeners[event] ?? []).forEach((h) => h()),

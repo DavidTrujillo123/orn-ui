@@ -11,8 +11,8 @@ function withProvider(children: React.ReactNode) {
 const items = [{ id: '1' }, { id: '2' }];
 
 describe('List', () => {
-  // Los placeholders de carga laten con Animated: sin fake timers el loop
-  // sigue vivo después del test.
+  // The loading placeholders pulse with Animated: without fake timers the loop
+  // stays alive after the test.
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => {
     act(() => jest.runOnlyPendingTimers());

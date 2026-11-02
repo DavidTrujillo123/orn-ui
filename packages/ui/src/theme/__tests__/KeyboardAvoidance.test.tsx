@@ -17,7 +17,7 @@ describe('computeKeyboardOffset', () => {
   const base = { current: 0, margin: 12, topLimit: 47 };
 
   it('moves up exactly enough for the field plus the margin', () => {
-    // campo 700..780, teclado desde 600: 780 + 12 - 600 = 192
+    // field 700..780, keyboard from 600: 780 + 12 - 600 = 192
     expect(computeKeyboardOffset({ ...base, fieldY: 700, fieldHeight: 80, keyboardTop: 600 })).toBe(-192);
   });
 
@@ -26,14 +26,14 @@ describe('computeKeyboardOffset', () => {
   });
 
   it('measures against the position without the current offset', () => {
-    // Ya desplazado -192: medido en 508, su lugar original es 700.
+    // Already shifted -192: measured at 508, its original spot is 700.
     expect(computeKeyboardOffset({ ...base, current: -192, fieldY: 508, fieldHeight: 80, keyboardTop: 600 })).toBe(-192);
-    // Con otro campo más arriba, vuelve hacia 0.
+    // With another field further up, it moves back toward 0.
     expect(computeKeyboardOffset({ ...base, current: -192, fieldY: 108, fieldHeight: 80, keyboardTop: 600 })).toBe(0);
   });
 
   it('keeps the top of a very tall field below the safe area', () => {
-    // 700 de alto, más que el hueco sobre el teclado: prima ver el borde de arriba (topLimit 47).
+    // 700 tall, more than the gap above the keyboard: seeing the top edge wins (topLimit 47).
     expect(computeKeyboardOffset({ ...base, fieldY: 500, fieldHeight: 700, keyboardTop: 600 })).toBe(47 - 500);
   });
 });
@@ -78,7 +78,7 @@ describe('keyboard host', () => {
     emit('keyboardWillShow', { endCoordinates: { screenY: 600 }, duration: 250 });
     await act(async () => {});
     act(() => jest.advanceTimersByTime(400));
-    // spacing.md (12) de aire: 780 + 12 - 600
+    // spacing.md (12) of room: 780 + 12 - 600
     expect(rootTranslate()).toBe(-192);
 
     emit('keyboardWillHide', { endCoordinates: { screenY: 900 }, duration: 250 });
@@ -115,12 +115,12 @@ describe('keyboard host', () => {
         </Screen>
       </UIProvider>
     );
-    // El host que ve el campo es el del Screen, no el de la raíz.
+    // The host that sees the field is the Screen's, not the root's.
     const screenHost = captured;
     act(() => screenHost!.focus(field));
     emit('keyboardWillShow', { endCoordinates: { screenY: 600 }, duration: 250 });
     await act(async () => {});
-    // measureInWindow del área no responde bajo jest: vence su espera (100 ms).
+    // The area's measureInWindow doesn't respond under jest: its wait expires (100 ms).
     await act(async () => {
       jest.advanceTimersByTime(150);
     });
@@ -136,7 +136,7 @@ describe('keyboard host', () => {
       (node.children ?? []).forEach(walk);
     };
     walk(root);
-    // raíz en 0, área del Screen desplazada
+    // root at 0, Screen's area shifted
     expect(translates.filter((t) => t < 0)).toHaveLength(1);
     expect(screen.getByText('Back')).toBeOnTheScreen();
   });

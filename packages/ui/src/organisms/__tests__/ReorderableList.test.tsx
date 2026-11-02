@@ -11,11 +11,11 @@ function withProvider(children: React.ReactNode) {
 const ITEMS = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
 const ITEM_HEIGHT = 50;
 
-// El gesto real de PanResponder depende del ResponderTouchHistoryStore que
-// llena React Native al despachar eventos táctiles nativos: no hay forma
-// confiable de simularlo invocando los handlers a mano en jest. Por eso el
-// cálculo de reordenamiento vive en `move()`, exportada aparte y testeada
-// como función pura; acá sólo se cubre lo que sí es observable sin gestos.
+// The real PanResponder gesture depends on the ResponderTouchHistoryStore that
+// React Native fills when dispatching native touch events: there is no
+// reliable way to simulate it by invoking the handlers by hand in jest. That's
+// why the reorder calculation lives in `move()`, exported separately and tested
+// as a pure function; here we only cover what is observable without gestures.
 describe('move', () => {
   it('moves an item forward, shifting the ones in between back', () => {
     expect(move(['a', 'b', 'c', 'd'], 0, 2)).toEqual(['b', 'c', 'a', 'd']);
@@ -83,9 +83,9 @@ describe('ReorderableList', () => {
     expect(row.props.onStartShouldSetResponder({})).toBe(false);
   });
 
-  // El scroll padre pide el responder apenas su gesto vertical arranca (en iOS
-  // el UIScrollView además cancela los toques del contenido). Ceder ahí mata
-  // el arrastre a los pocos píxeles: la fila tiene que negarse.
+  // The parent scroll requests the responder as soon as its vertical gesture
+  // starts (on iOS the UIScrollView also cancels the content's touches).
+  // Yielding there kills the drag after a few pixels: the row has to refuse.
   it('refuses to hand the responder back to a parent scroll mid-drag', () => {
     render(
       withProvider(
@@ -102,8 +102,8 @@ describe('ReorderableList', () => {
     expect(row.props.onResponderTerminationRequest({})).toBe(false);
   });
 
-  // Sin este par de callbacks el consumidor no puede apagar el scroll que
-  // envuelve a la lista, que es lo único que hace viable el arrastre en iOS.
+  // Without this pair of callbacks the consumer can't turn off the scroll
+  // wrapping the list, which is the only thing that makes dragging viable on iOS.
   it('reports drag start and end so the parent scroll can be locked', () => {
     const onDragStart = jest.fn();
     const onDragEnd = jest.fn();
@@ -121,8 +121,8 @@ describe('ReorderableList', () => {
       )
     );
     const row = screen.getByTestId('row-b').parent!.parent!;
-    // PanResponder lee el centroide del touchHistory que llena el sistema de
-    // eventos nativo; acá se pasa uno mínimo pero con la forma real.
+    // PanResponder reads the centroid from the touchHistory filled by the
+    // native event system; here we pass a minimal one with the real shape.
     const event = {
       nativeEvent: { changedTouches: [], identifier: 1, target: 1, timestamp: 0, touches: [] },
       touchHistory: {

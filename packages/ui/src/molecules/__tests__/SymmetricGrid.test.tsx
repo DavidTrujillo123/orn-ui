@@ -38,8 +38,8 @@ describe('SymmetricGrid', () => {
       )
     );
     const lastCell = screen.getByTestId('cell-3');
-    // subir del host View de la celda al de la fila: cada wrapper de función
-    // (forwardRef) cuenta como un nivel extra de `.parent` en el árbol de test.
+    // go up from the cell's host View to the row's: each function wrapper
+    // (forwardRef) counts as an extra `.parent` level in the test tree.
     const row = lastCell.parent!.parent!.parent!.parent!;
     const flatten = require('react-native').StyleSheet.flatten(row.props.style);
     expect(flatten.justifyContent).toBe('center');

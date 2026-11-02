@@ -18,7 +18,7 @@ describe('Image', () => {
 
   it('hides the loading indicator when loading={false}', () => {
     render(withProvider(<Image source={{ uri: 'https://example.com/a.png' }} loading={false} />));
-    // No debe crashear ni renderizar un spinner: solo el <Image> nativo.
+    // It must not crash or render a spinner: only the native <Image>.
     expect(screen.UNSAFE_getByType(RNImage)).toBeTruthy();
   });
 
@@ -36,7 +36,7 @@ describe('Image', () => {
     render(withProvider(<Image source={{ uri: 'https://example.com/broken.png' }} onError={onError} />));
     fireEvent(screen.UNSAFE_getByType(RNImage), 'error', { nativeEvent: { error: 'boom' } });
     expect(onError).toHaveBeenCalledTimes(1);
-    // El <Image> nativo se desmonta al pasar a error.
+    // The native <Image> unmounts when switching to error.
     expect(screen.UNSAFE_queryAllByType(RNImage)).toHaveLength(0);
   });
 

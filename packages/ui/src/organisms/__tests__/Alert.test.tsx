@@ -10,7 +10,7 @@ function withProvider(children: React.ReactNode) {
 describe('Alert', () => {
   it('renders nothing when visible is false', () => {
     const { toJSON } = render(withProvider(<Alert visible={false} title="X" />));
-    // Lo único montado es la raíz del UIProvider (la que desplaza con el teclado).
+    // The only thing mounted is the UIProvider's root (the one that shifts with the keyboard).
     expect((toJSON() as { children: unknown } | null)?.children ?? null).toBeNull();
   });
 

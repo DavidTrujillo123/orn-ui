@@ -38,7 +38,7 @@ describe('EmptyState', () => {
         <EmptyState title="T" description="D" testID="empty" style={[{ marginTop: 8 }, { padding: 0 }]} />
       </UIProvider>
     );
-    // Ícono → título: spacing.md (12). Título → descripción: spacing.xs (4).
+    // Icon → title: spacing.md (12). Title → description: spacing.xs (4).
     expect(screen.getByText('T')).toHaveStyle({ marginTop: 12, lineHeight: 24 });
     expect(screen.getByText('D')).toHaveStyle({ marginTop: 4, lineHeight: 20 });
     expect(screen.getByTestId('empty')).toHaveStyle({ marginTop: 8, padding: 0 });

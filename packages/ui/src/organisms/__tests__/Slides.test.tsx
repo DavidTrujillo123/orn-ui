@@ -12,7 +12,7 @@ const ITEMS = [{ id: 'a' }, { id: 'b' }, { id: 'c' }];
 const WIDTH = 300;
 const HEIGHT = 240;
 
-/** Las slides sólo se montan con el tamaño ya medido: sin layout no hay página que dimensionar. */
+/** Slides only mount once the size is measured: without layout there is no page to size. */
 function layout(testID = 'slides') {
   fireEvent(screen.getByTestId(testID), 'layout', {
     nativeEvent: { layout: { width: WIDTH, height: HEIGHT, x: 0, y: 0 } },
@@ -30,7 +30,7 @@ function momentumTo(page: number, orientation: 'horizontal' | 'vertical' = 'hori
   });
 }
 
-/** El punto activo se distingue por el estado de accesibilidad, no por su ancho: ese ancho lo anima Animated. */
+/** The active dot is told apart by its accessibility state, not its width: that width is animated by Animated. */
 function expectActive(index: number) {
   expect(screen.getByTestId(`slides-indicator-${index}`).props.accessibilityState.selected).toBe(true);
 }
@@ -139,7 +139,7 @@ describe('Slides', () => {
   describe('loop', () => {
     it('clones the edges so the swipe always lands on a real neighbour', () => {
       renderSlides({ loop: true });
-      // 3 slides + clon de la última al principio + clon de la primera al final.
+      // 3 slides + clone of the last one at the start + clone of the first one at the end.
       expect(screen.getAllByText('a-0')).toHaveLength(2);
       expect(screen.getAllByText('c-2')).toHaveLength(2);
     });
@@ -203,7 +203,7 @@ describe('Slides', () => {
       const onIndexChange = jest.fn();
       renderSlides({ autoPlay: true, loop: true, interval: 1000, defaultIndex: 2, onIndexChange });
       act(() => jest.advanceTimersByTime(1000));
-      // El índice recién cambia cuando el scroll a la clon termina.
+      // The index only changes once the scroll to the clone finishes.
       expect(onIndexChange).not.toHaveBeenCalled();
       momentumTo(ITEMS.length + 1);
       expect(onIndexChange).toHaveBeenCalledWith(0);

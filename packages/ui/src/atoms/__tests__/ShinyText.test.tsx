@@ -8,8 +8,8 @@ function withProvider(children: React.ReactNode) {
   return <UIProvider mode="light">{children}</UIProvider>;
 }
 
-// El barrido es un Animated.loop: sin fake timers sigue agendando frames
-// después del test, contra un árbol ya desmontado.
+// The sweep is an Animated.loop: without fake timers it keeps scheduling
+// frames after the test, against an already unmounted tree.
 const flush = () => act(() => jest.runOnlyPendingTimers());
 
 describe('ShinyText', () => {
@@ -22,7 +22,7 @@ describe('ShinyText', () => {
   it('splits the text into characters and keeps the whole string as the label', () => {
     render(withProvider(<ShinyText text="ab" testID="shiny" />));
 
-    // Dos nodos por letra: el color de reposo y el brillo superpuesto.
+    // Two nodes per letter: the resting color and the overlaid shine.
     expect(screen.getAllByText('a')).toHaveLength(2);
     expect(screen.getAllByText('b')).toHaveLength(2);
     expect(screen.getByTestId('shiny')).toHaveProp('accessibilityLabel', 'ab');
@@ -37,7 +37,7 @@ describe('ShinyText', () => {
     render(withProvider(<ShinyText text="hi there" testID="shiny" />));
 
     const root = screen.getByTestId('shiny');
-    // Dos grupos: 'hi ' (con su espacio) y 'there'.
+    // Two groups: 'hi ' (with its space) and 'there'.
     expect(root.children).toHaveLength(2);
     expect(screen.getAllByText(' ')).toHaveLength(2);
   });
@@ -65,16 +65,16 @@ describe('ShinyText', () => {
     const spy = jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
 
     render(withProvider(<ShinyText text="ab" testID="shiny" />));
-    // El hook consulta el ajuste con una promesa: hay que dejarla resolver
-    // antes de mirar el árbol.
+    // The hook checks the setting with a promise: it has to resolve
+    // before looking at the tree.
     await act(async () => {});
 
     expect(screen.getByTestId('shiny')).toHaveTextContent('ab');
     expect(screen.queryAllByText('a')).toHaveLength(0);
 
-    // Se vuelve a false en vez de mockRestore(): el preset de RN ya trae
-    // AccessibilityInfo mockeado, así que restaurar deja una jest.fn() que
-    // devuelve undefined y el próximo montaje revienta al hacer .then().
+    // Set back to false instead of mockRestore(): the RN preset already ships
+    // AccessibilityInfo mocked, so restoring leaves a jest.fn() that returns
+    // undefined and the next mount blows up on .then().
     spy.mockResolvedValue(false);
   });
 

@@ -8,11 +8,11 @@ function withProvider(children: React.ReactNode) {
   return <UIProvider mode="light">{children}</UIProvider>;
 }
 
-// Cada transición es un Animated que termina por timers; sin fake timers el
-// callback de salida corre después del test, contra un árbol ya desmontado.
+// Each transition is an Animated that finishes through timers; without fake
+// timers the exit callback runs after the test, against an unmounted tree.
 const flush = () => act(() => jest.runOnlyPendingTimers());
-// Animated encadena frames: cada uno agenda el siguiente, así que hay que
-// correr el reloj hasta pasada la duración en vez de vaciar los timers pendientes.
+// Animated chains frames: each one schedules the next, so the clock has to
+// run past the duration instead of flushing the pending timers.
 const settle = () => act(() => jest.advanceTimersByTime(400));
 
 describe('Transition', () => {
@@ -55,7 +55,7 @@ describe('Transition', () => {
         </Transition>
       )
     );
-    // Saliendo: sigue montado, pero ya fuera del árbol de accesibilidad.
+    // Exiting: still mounted, but already out of the accessibility tree.
     expect(screen.getByText('content', { includeHiddenElements: true })).toBeOnTheScreen();
     expect(screen.queryByText('content')).toBeNull();
 
@@ -82,7 +82,7 @@ describe('Transition', () => {
     );
     settle();
 
-    // Oculto pero montado: no recibe toques y el lector de pantalla no lo lee.
+    // Hidden but mounted: it receives no touches and the screen reader doesn't read it.
     expect(screen.queryByText('content')).toBeNull();
     const node = screen.getByTestId('t', { includeHiddenElements: true });
     expect(node).toHaveStyle({ pointerEvents: 'none' });

@@ -75,9 +75,9 @@ describe('NavigationBar', () => {
       nativeEvent: { layout: { width, height: 90, x: 0, y: 0 } },
     });
 
-    // La barra tiene padding horizontal `xs` (4) y el indicador se posiciona
-    // contra el borde, así que su centro sólo cae sobre el de la pestaña si el
-    // `left` incluye ese padding.
+    // The bar has `xs` (4) horizontal padding and the indicator is positioned
+    // against the edge, so its center only lands on the tab's if `left`
+    // includes that padding.
     const barPaddingHorizontal = 4;
     const itemWidth = (width - barPaddingHorizontal * 2) / ITEMS.length;
     const style = StyleSheet.flatten(screen.getByTestId('navigation-bar-indicator').props.style);

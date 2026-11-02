@@ -1,9 +1,9 @@
 import { lightPalette, darkPalette, type ThemeColors } from '../palettes';
 
 /**
- * El contraste de la paleta es una garantía de la librería, no una opinión de
- * diseño: si alguien vuelve a poner un acento pleno donde va texto, esto falla
- * antes de llegar a la app. Fórmula de luminancia relativa de WCAG 2.1.
+ * The palette's contrast is a guarantee of the library, not a design
+ * opinion: if someone puts a full accent back where text goes, this fails
+ * before it reaches the app. WCAG 2.1 relative luminance formula.
  */
 function channel(value: number): number {
   const c = value / 255;
@@ -58,16 +58,16 @@ describe.each([
   });
 
   it.each(ACCENTS)('%sSoft stays a tint, not a fill', (accent) => {
-    // Un "soft" que se despega demasiado de la superficie deja de leerse como
-    // fondo teñido y compite con el contenido que envuelve.
+    // A "soft" that strays too far from the surface stops reading as a
+    // tinted background and competes with the content it wraps.
     const soft = palette[`${accent}Soft` as keyof ThemeColors];
     expect(contrast(soft, palette.surface)).toBeLessThan(2);
   });
 });
 
 describe('filled accents read as expected', () => {
-  // El rojo con texto casi negro pasaba AA pero se leía como un error de
-  // diseño: un botón destructivo lleva texto blanco.
+  // Red with near-black text passed AA but read as a design mistake:
+  // a destructive button carries white text.
   it('light uses white on the destructive fill', () => {
     expect(lightPalette.onError).toBe('#ffffff');
     expect(contrast(lightPalette.onError, lightPalette.error)).toBeGreaterThanOrEqual(AA_TEXT);

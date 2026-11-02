@@ -9,8 +9,8 @@ function withProvider(children: React.ReactNode) {
 }
 
 describe('Spinner', () => {
-  // Las variantes propias corren loops de Animated; sin fake timers siguen
-  // vivos tras el test y disparan contra un entorno ya desmontado.
+  // The custom variants run Animated loops; without fake timers they stay
+  // alive after the test and fire against an already unmounted environment.
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => {
     act(() => jest.runOnlyPendingTimers());

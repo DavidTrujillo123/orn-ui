@@ -8,7 +8,7 @@ function withProvider(children: React.ReactNode) {
   return <UIProvider mode="light">{children}</UIProvider>;
 }
 
-// Marzo 2024: el 1 cae viernes, 31 días.
+// March 2024: the 1st falls on a Friday, 31 days.
 const MARCH_2024 = new Date(2024, 2, 15);
 
 describe('buildMonthGrid', () => {
@@ -19,7 +19,7 @@ describe('buildMonthGrid', () => {
   });
 
   it('pads leading cells according to the first weekday', () => {
-    // 1 de marzo 2024 es viernes (getDay() === 5) ⇒ 5 celdas vacías antes
+    // March 1st 2024 is a Friday (getDay() === 5) ⇒ 5 empty cells before
     const grid = buildMonthGrid(2024, 2, 0);
     expect(grid[0]!.slice(0, 5).every((c) => c === null)).toBe(true);
     expect(grid[0]![5]?.getDate()).toBe(1);
@@ -31,7 +31,7 @@ describe('buildMonthGrid', () => {
   });
 
   it('includes every day of the month', () => {
-    const days = buildMonthGrid(2024, 1, 0) // febrero 2024, bisiesto
+    const days = buildMonthGrid(2024, 1, 0) // February 2024, leap year
       .flat()
       .filter(Boolean);
     expect(days).toHaveLength(29);
@@ -236,7 +236,7 @@ describe('DatePicker — range mode', () => {
     );
     expect(screen.getByLabelText('March 10, 2024').props.accessibilityState.selected).toBe(true);
     expect(screen.getByLabelText('March 15, 2024').props.accessibilityState.selected).toBe(true);
-    // un día intermedio se resalta pero no cuenta como "selected"
+    // an in-between day is highlighted but doesn't count as "selected"
     expect(screen.getByLabelText('March 12, 2024').props.accessibilityState.selected).toBe(false);
   });
 
@@ -253,9 +253,9 @@ describe('DatePicker — range mode', () => {
 });
 
 describe('DateField', () => {
-  // DateField monta un Modal, que anima su entrada/salida con Animated. Sin
-  // fake timers esos timers sobreviven al test y disparan contra un entorno
-  // de Jest ya desmontado ("environment has been torn down").
+  // DateField mounts a Modal, which animates its enter/exit with Animated.
+  // Without fake timers those timers outlive the test and fire against an
+  // already torn down Jest environment ("environment has been torn down").
   beforeEach(() => jest.useFakeTimers());
   afterEach(() => {
     act(() => jest.runOnlyPendingTimers());
