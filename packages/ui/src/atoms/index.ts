@@ -5,7 +5,7 @@ export type { ButtonProps, ButtonVariant, ButtonSize } from './Button';
 export { IconButton } from './IconButton';
 export type { IconButtonProps } from './IconButton';
 export { Input } from './Input';
-export type { InputProps } from './Input';
+export type { InputProps, InputHandle, InputRules, InputRuleValue } from './Input';
 export { Checkbox } from './Checkbox';
 export type { CheckboxProps } from './Checkbox';
 export { Badge } from './Badge';

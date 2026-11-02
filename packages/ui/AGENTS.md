@@ -141,7 +141,9 @@ Every hook (`useTheme`, `useColors`, `useThemeMode`, `useIcons`, `useInsets`,
 'dark'` (uncontrolled), `mode` + `onModeChange` (controlled), `icons?:
 IconRenderer`, `insets?: EdgeInsets`, `labels?: Partial<Labels>`,
 `allowFontScaling?: boolean` (default `false`), `mountSafeAreaProvider?:
-boolean` (default `true`).
+boolean` (default `true`), `keyboardAvoidance?: boolean` (default `true`: the
+root provider moves the app up just enough to keep the focused `Input`,
+label and error included, above the keyboard — no Screen or ScrollView needed).
 
 ## Component catalog and props
 
@@ -156,7 +158,7 @@ hex in component styles, use `useColors()`.
 | `Title` `Subtitle` `Body` `Caption` | `orn-ui/title` `/subtitle` `/body` `/caption` | extends RN `TextProps`; `color?`, `align?: 'left'\|'center'\|'right'` |
 | `Button` | `orn-ui/button` | `title`, `onPress`, `variant?: 'primary'\|'secondary'\|'outline'\|'ghost'\|'link'\|'destructive'`, `size?: 'sm'\|'md'\|'lg'`, `loading?`, `disabled?`, `leftIconName?`, `rightIconName?`, `leftIcon?`, `rightIcon?`, `iconColor?`, `textStyle?`, `accessibilityLabel?`, `testID?` |
 | `IconButton` | `orn-ui/icon-button` | `accessibilityLabel` (required), `iconName?`, `icon?`, `onPress?`, `size?`, `color?`, `disabled?`, `testID?` |
-| `Input` | `orn-ui/input` | extends RN `TextInputProps`; `label?`, `required?`, `error?`, `leftIconName?`, `rightIconName?`, `onRightIconPress?`, `rightIconAccessibilityLabel?` (labels.clear), `isPassword?`, `isLoading?`, `containerStyle?`; `editable={false}` renders read-only (no fill) |
+| `Input` | `orn-ui/input` | extends RN `TextInputProps`; `ref` → `InputHandle` (TextInput + `validate()`); `label?`, `required?` (also validates), `error?` (wins over validation), `rules?: {minLength?, maxLength?, pattern?, validate?}`, `validateOn?: 'blur'\|'change'\|'submit'` (blur), `onValidate?`, `leftIconName?`, `rightIconName?`, `onRightIconPress?`, `rightIconAccessibilityLabel?` (labels.clear), `isPassword?`, `isLoading?`, `containerStyle?`; `editable={false}` renders read-only (no fill) |
 | `Checkbox` | `orn-ui/checkbox` | `value`, `onValueChange`, `label?`, `color?`, `disabled?`, `testID?` |
 | `Badge` | `orn-ui/badge` | `label`, `variant?: 'success'\|'error'\|'warning'\|'info'\|'neutral'`, `backgroundColor?`, `textColor?` |
 | `Card` | `orn-ui/card` | extends `ViewProps`; `children` |
@@ -267,9 +269,11 @@ All built-in strings live in one `labels` object on `UIProvider`
 1. **Never stack safe-area insets.** A screen above a `NavigationBar` uses
    `<Screen edges={['top']}>`; a full screen uses `<Screen>`. Padding a list for
    `insets.bottom` on top of a tab bar double-counts the gesture bar.
-2. **Turn off double keyboard handling.** `Screen` already avoids the keyboard;
-   pass `keyboardAvoiding={false}` when its child brings its own scroller
-   (`Wizard`, `List`, `SearchList`).
+2. **The keyboard is handled once, by the root `UIProvider`.** A focused
+   `Input` always stays visible above the keyboard, inside a Screen or not.
+   Don't add your own `KeyboardAvoidingView` around orn-ui inputs; if the app
+   already manages the keyboard, set `keyboardAvoidance={false}` on the
+   provider (Screen then falls back to its own `KeyboardAvoidingView`).
 3. **Don't nest a virtualized list in a ScrollView.** Inside `Wizard`, set
    `scrollableContent={false}` on that step.
 4. **Hooks require the provider.** `useTheme()` and friends throw outside

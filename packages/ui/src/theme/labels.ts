@@ -19,6 +19,14 @@ export interface Labels {
   hidePassword: string;
   /** Appended to the accessible name of a `required` field (the asterisk is visual only). */
   required: string;
+  /** Input validation: shown when a `required` field is empty. */
+  requiredError: string;
+  /** Input validation, `rules.minLength`. `{n}` is replaced by the limit. */
+  minLengthError: string;
+  /** Input validation, `rules.maxLength`. `{n}` is replaced by the limit. */
+  maxLengthError: string;
+  /** Input validation, `rules.pattern`. */
+  patternError: string;
 }
 
 export const defaultLabels: Labels = {
@@ -41,4 +49,8 @@ export const defaultLabels: Labels = {
   showPassword: 'Show password',
   hidePassword: 'Hide password',
   required: 'required',
+  requiredError: 'This field is required',
+  minLengthError: 'Enter at least {n} characters',
+  maxLengthError: 'Enter at most {n} characters',
+  patternError: 'Invalid format',
 };
