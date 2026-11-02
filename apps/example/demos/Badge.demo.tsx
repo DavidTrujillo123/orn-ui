@@ -1,6 +1,7 @@
 import React from 'react';
+import { View } from 'react-native';
 import { Badge, useColors } from 'orn-ui';
-import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
+import { VariantList, type VariantDef } from '@/components/VariantList';
 
 export function BadgeDemo() {
   // #region demo
@@ -14,13 +15,13 @@ export function BadgeDemo() {
     {
       label: 'all together',
       content: (
-        <VariantRow>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
           <Badge label="PAID" variant="success" />
           <Badge label="OVERDUE" variant="error" />
           <Badge label="PENDING" variant="warning" />
           <Badge label="DRAFT" variant="info" />
           <Badge label="ARCHIVED" variant="neutral" />
-        </VariantRow>
+        </View>
       ),
     },
     { label: 'custom colors', content: <Badge label="VIP" backgroundColor={colors.primarySoft} textColor={colors.primaryText} /> },

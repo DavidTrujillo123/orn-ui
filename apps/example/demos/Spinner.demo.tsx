@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Spinner, Avatar, Image, useColors } from 'orn-ui';
-import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
+import { VariantList, type VariantDef } from '@/components/VariantList';
 
 export function SpinnerDemo() {
   // #region demo
@@ -33,11 +33,11 @@ export function SpinnerDemo() {
     {
       label: 'custom color',
       content: (
-        <VariantRow>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
           <Spinner variant="dots" color={colors.secondary} fullscreen={false} />
           <Spinner variant="ring" color={colors.error} fullscreen={false} />
           <Spinner color={colors.success} fullscreen={false} />
-        </VariantRow>
+        </View>
       ),
     },
     {

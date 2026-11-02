@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Gradient, Button, Body, useColors } from 'orn-ui';
-import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
+import { VariantList, type VariantDef } from '@/components/VariantList';
 
 const BOX = { height: 120, borderRadius: 12, width: '100%' } as const;
 const TILE = { height: 96, width: 96, borderRadius: 12 } as const;
@@ -23,10 +23,10 @@ export function GradientDemo() {
     {
       label: 'direction: diagonal / diagonal-reverse',
       content: (
-        <VariantRow>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
           <Gradient colors={['#7b2ff7', '#f107a3']} direction="diagonal" style={TILE} />
           <Gradient colors={['#7b2ff7', '#f107a3']} direction="diagonal-reverse" style={TILE} />
-        </VariantRow>
+        </View>
       ),
     },
     {

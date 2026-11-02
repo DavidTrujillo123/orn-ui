@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Avatar, Badge, Body, Card, Skeleton, Subtitle } from 'orn-ui';
-import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
+import { VariantList, type VariantDef } from '@/components/VariantList';
 
 function LoadingCard() {
   const [loaded, setLoaded] = useState(false);
@@ -61,11 +61,11 @@ export function SkeletonDemo() {
     {
       label: 'variant="circle" — avatars',
       content: (
-        <VariantRow>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
           <Skeleton variant="circle" width={32} />
           <Skeleton variant="circle" width={48} />
           <Skeleton variant="circle" width={64} />
-        </VariantRow>
+        </View>
       ),
     },
     {

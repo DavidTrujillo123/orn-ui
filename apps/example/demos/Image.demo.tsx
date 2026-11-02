@@ -1,6 +1,7 @@
 import React from 'react';
+import { View } from 'react-native';
 import { Image, Body } from 'orn-ui';
-import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
+import { VariantList, type VariantDef } from '@/components/VariantList';
 
 export function ImageDemo() {
   // #region demo
@@ -20,11 +21,11 @@ export function ImageDemo() {
     {
       label: 'Sizes & radius',
       content: (
-        <VariantRow>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
           <Image source={{ uri: 'https://picsum.photos/200' }} width={48} height={48} radius={24} />
           <Image source={{ uri: 'https://picsum.photos/200' }} width={72} height={72} radius={12} />
           <Image source={{ uri: 'https://picsum.photos/200' }} width={96} height={96} radius={0} />
-        </VariantRow>
+        </View>
       ),
     },
     {

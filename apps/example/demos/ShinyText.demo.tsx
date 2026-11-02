@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 import { Body, Caption, Card, ShinyText, useColors } from 'orn-ui';
-import { VariantList, VariantRow, type VariantDef } from '@/components/VariantList';
+import { VariantList, type VariantDef } from '@/components/VariantList';
 
 function ColorPairs() {
   const colors = useColors();
@@ -66,9 +66,9 @@ export function ShinyTextDemo() {
     {
       label: 'animated={false} — plain text in shineColor, same box',
       content: (
-        <VariantRow>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
           <ShinyText text="No sweep at all" animated={false} />
-        </VariantRow>
+        </View>
       ),
     },
     {
