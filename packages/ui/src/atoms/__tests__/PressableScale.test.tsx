@@ -45,4 +45,29 @@ describe('PressableScale', () => {
     fireEvent(screen.getByTestId('p'), 'pressIn');
     expect(onPressIn).not.toHaveBeenCalled();
   });
+
+  it('is announced as a button, with its disabled state', () => {
+    const { rerender } = render(
+      <PressableScale onPress={() => {}} accessibilityLabel="Open">
+        <Text>Open</Text>
+      </PressableScale>
+    );
+    expect(screen.getByRole('button', { name: 'Open' })).toBeEnabled();
+
+    rerender(
+      <PressableScale onPress={() => {}} accessibilityLabel="Open" disabled>
+        <Text>Open</Text>
+      </PressableScale>
+    );
+    expect(screen.getByRole('button', { name: 'Open' })).toBeDisabled();
+  });
+
+  it('lets the caller change the role', () => {
+    render(
+      <PressableScale onPress={() => {}} accessibilityRole="link" accessibilityLabel="Docs">
+        <Text>Docs</Text>
+      </PressableScale>
+    );
+    expect(screen.getByRole('link', { name: 'Docs' })).toBeOnTheScreen();
+  });
 });

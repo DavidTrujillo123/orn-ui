@@ -25,6 +25,16 @@ export function PressableScaleDemo() {
         </PressableScale>
       ),
     },
+    {
+      label: 'disabled — no scale, announced as disabled',
+      content: (
+        <PressableScale onPress={() => {}} disabled>
+          <Card>
+            <Body>Disabled: pressing does nothing.</Body>
+          </Card>
+        </PressableScale>
+      ),
+    },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo
