@@ -48,9 +48,9 @@ export interface SelectProps<T> {
   testID?: string;
 }
 
-/** Aire entre el campo y el desplegable. */
+/** Room between the field and the dropdown. */
 const GAP = 8;
-/** Por debajo de esto el desplegable no muestra ni dos filas. */
+/** Below this the dropdown can't even show two rows. */
 const MIN_HEIGHT = 120;
 
 const useStyles = createStyles((theme) => ({
@@ -125,10 +125,10 @@ interface Anchor {
 
 /**
  * Select
- * Dropdown de una sola opción. La lista se mide contra la ventana y se dibuja
- * dentro de un Modal, no en el árbol del campo: así ningún `overflow: hidden`
- * la recorta, no depende del zIndex (poco confiable en Android) y el fondo del
- * Modal resuelve cerrar tocando afuera y con el botón atrás.
+ * Single-option dropdown. The list is measured against the window and drawn
+ * inside a Modal, not in the field's tree: that way no `overflow: hidden`
+ * clips it, it doesn't depend on zIndex (unreliable on Android) and the
+ * Modal's backdrop handles closing by tapping outside and with the back button.
  */
 export function Select<T extends string | number>({
   label,
@@ -168,16 +168,16 @@ export function Select<T extends string | number>({
     onOpenChange?.(false);
   }, [onOpenChange]);
 
-  // Abrir no espera a la medición: si `measureInWindow` no responde, la lista
-  // igual aparece (centrada) en vez de que el campo deje de funcionar.
+  // Opening doesn't wait for the measurement: if `measureInWindow` doesn't
+  // respond, the list still appears (centered) instead of the field ceasing to work.
   const openList = () => {
     fieldRef.current?.measureInWindow((x, y, width, height) => setAnchor({ x, y, width, height }));
     setOpen(true);
     onOpenChange?.(true);
   };
 
-  // El buscador abre el teclado encima del desplegable: sin descontarlo, la
-  // lista se dibuja donde ya no se ve.
+  // The search box opens the keyboard over the dropdown: without subtracting
+  // it, the list is drawn where it can no longer be seen.
   useEffect(() => {
     if (!open) return;
     setKeyboardHeight(Keyboard.metrics()?.height ?? 0);
@@ -196,8 +196,8 @@ export function Select<T extends string | number>({
     return options.filter((option) => option.label.toLowerCase().includes(needle));
   }, [options, query, searchable]);
 
-  // Se abre hacia donde haya más aire: contra el borde inferior de la pantalla,
-  // hacia arriba es la única forma de que entre.
+  // It opens toward wherever there is more room: against the bottom edge of
+  // the screen, upward is the only way for it to fit.
   const placement = useMemo((): ViewStyle => {
     if (!anchor) return { left: GAP * 2, right: GAP * 2, top: windowHeight * 0.25, maxHeight };
     const usableHeight = windowHeight - keyboardHeight;

@@ -61,9 +61,9 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Toast
- * Notificación efímera. Normalmente no se usa directo: `ToastProvider` +
- * `useToast()` la montan y la descartan por vos. Se expone igual por si
- * querés colocarla vos mismo dentro de una pantalla concreta.
+ * Ephemeral notification. Normally not used directly: `ToastProvider` +
+ * `useToast()` mount and dismiss it for you. It is exposed anyway in case
+ * you want to place it yourself inside a specific screen.
  */
 export const Toast = memo(
   ({ title, message, variant = 'info', onPress, onDismiss, hideCloseButton, style, testID }: ToastProps) => {
@@ -71,8 +71,8 @@ export const Toast = memo(
     const styles = useStyles();
     const allowFontScaling = useAllowFontScaling();
 
-    // La barra lateral es relleno (acento pleno); el ícono es contenido
-    // sobre la superficie del toast y necesita el rol `*Text`.
+    // The side bar is a fill (full accent); the icon is content over the
+    // toast's surface and needs the `*Text` role.
     const barColor: Record<ToastVariant, string> = {
       success: colors.success,
       error: colors.error,
@@ -119,7 +119,7 @@ export const Toast = memo(
 );
 Toast.displayName = 'Toast';
 
-/** Envuelve un Toast con su animación de entrada/salida. Uso interno del provider. */
+/** Wraps a Toast with its enter/exit animation. Internal use by the provider. */
 export const AnimatedToast = memo(
   ({ children, onHeight }: { children: React.ReactNode; onHeight?: (h: number) => void }) => (
     <Transition preset={['fade', 'slide-down']} distance={16} spring>

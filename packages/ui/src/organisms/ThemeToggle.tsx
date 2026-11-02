@@ -14,8 +14,8 @@ const DEFAULT_LABELS: Record<ThemeMode, string> = { system: 'Auto', light: 'Ligh
 
 /**
  * ThemeToggle
- * Conecta un SegmentedControl con UIProvider.setMode. Sin persistencia — el
- * consumidor la resuelve vía onModeChange en <UIProvider>.
+ * Connects a SegmentedControl to UIProvider.setMode. No persistence — the
+ * consumer handles it via onModeChange on <UIProvider>.
  */
 export const ThemeToggle = memo(({ style, labels: labelOverrides, testID }: ThemeToggleProps) => {
   const { mode, setMode } = useThemeMode();

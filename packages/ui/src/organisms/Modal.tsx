@@ -74,9 +74,9 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Modal
- * Un solo componente para todos los modales de la app: maneja scroll,
- * teclado, insets y layout según `variant`. Para una hoja desde abajo está
- * BottomSheet, que además trae arrastre para cerrar.
+ * A single component for all of the app's modals: handles scroll, keyboard,
+ * insets and layout according to `variant`. For a sheet from the bottom there
+ * is BottomSheet, which also comes with drag to close.
  */
 export const Modal = memo(
   ({
@@ -109,8 +109,8 @@ export const Modal = memo(
       else if (visible) setMounted(true);
     }, [visible, isAnimatedVariant]);
 
-    // La tarjeta nunca anima opacity: hacerlo dispara un bug de Android donde
-    // los hijos con elevation parpadean. El fondo semitransparente sí.
+    // The card never animates opacity: doing so triggers an Android bug where
+    // children with elevation flicker. The semi-transparent backdrop does.
     const cardPreset: TransitionPreset[] = isFull ? ['slide-up'] : ['slide-down', 'scale'];
     const cardDistance = isFull ? SCREEN_HEIGHT : 40;
 
@@ -164,12 +164,12 @@ export const Modal = memo(
         visible
         onRequestClose={onRequestClose ?? onClose}
         animationType={isAnimatedVariant ? 'none' : 'slide'}
-        // `full` anima su propia entrada (translateY) con animationType="none"
-        // y necesita `transparent` para que no se vea un fondo negro detrás
-        // mientras desliza. RN sólo admite `transparent` junto a
-        // 'overFullScreen' — con 'pageSheet' avisa que la combinación no está
-        // soportada. Por eso `full` usa overFullScreen: la presentación nativa
-        // de pageSheet sería redundante con nuestra animación de todos modos.
+        // `full` animates its own entrance (translateY) with animationType="none"
+        // and needs `transparent` so no black background shows behind it
+        // while sliding. RN only allows `transparent` together with
+        // 'overFullScreen' — with 'pageSheet' it warns that the combination
+        // isn't supported. That's why `full` uses overFullScreen: pageSheet's
+        // native presentation would be redundant with our animation anyway.
         presentationStyle={
           Platform.OS === 'ios' ? (isFullScreen ? 'fullScreen' : 'overFullScreen') : undefined
         }
@@ -177,20 +177,20 @@ export const Modal = memo(
         statusBarTranslucent={statusBarTranslucent}
         hardwareAccelerated={hardwareAccelerated}
       >
-        {/* Ventana nativa propia: la compensa su KeyboardAvoidingView, no el host de la raíz. */}
+        {/* Its own native window: its KeyboardAvoidingView compensates for it, not the root host. */}
         <KeyboardHandled>
         <KeyboardAvoidingView behavior={behavior} keyboardVerticalOffset={keyboardOffset} style={styles.flex1}>
-          {/* Insets medidos dentro de esta ventana nativa del Modal, no los de
-              la raíz de la app — pueden diferir (Android siempre abre una
-              ventana propia; iOS según `presentationStyle`). */}
+          {/* Insets measured inside this native Modal window, not the app
+              root's — they may differ (Android always opens its own window;
+              iOS depending on `presentationStyle`). */}
           <ModalSafeAreaBoundary>
             {(insets: EdgeInsets) =>
               isOverlay ? (
                 <View style={styles.overlayContainer}>
-                  {/* Sin accessibilityLabel propio: el header ya expone un botón "Close"
-                      accesible; duplicar el label aquí generaría dos elementos con el
-                      mismo nombre para lectores de pantalla. Tocar afuera es un atajo
-                      puramente táctil. */}
+                  {/* No accessibilityLabel of its own: the header already exposes an
+                      accessible "Close" button; duplicating the label here would create
+                      two elements with the same name for screen readers. Tapping
+                      outside is a purely tactile shortcut. */}
                   <Transition
                     visible={visible}
                     preset="fade"

@@ -33,9 +33,9 @@ export interface FabProps {
   testID?: string;
 }
 
-/** Diámetro por defecto: holgado sobre el mínimo táctil de 44pt (Fitts). */
+/** Default diameter: comfortably above the 44pt touch minimum (Fitts). */
 const DEFAULT_SIZE = 60;
-/** El glifo ocupa la mitad del círculo. */
+/** The glyph takes up half the circle. */
 const ICON_RATIO = 0.5;
 
 const useStyles = createStyles((theme) => ({
@@ -49,14 +49,14 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Fab
- * Botón flotante circular para la acción principal de la pantalla.
- * `bottom`/`right` en vez del `tabBarHeight` obligatorio de la versión
- * original — el consumidor decide su propio offset (con o sin tab bar).
+ * Circular floating button for the screen's main action.
+ * `bottom`/`right` instead of the required `tabBarHeight` of the original
+ * version — the consumer decides its own offset (with or without a tab bar).
  *
- * Gestalt, figura/fondo: es lo único que flota (sombra `lg`) y lleva el
- * acento, así se separa del contenido que pasa por debajo (Von Restorff: una
- * sola por pantalla). Fitts: grande y en la esquina del pulgar, por encima
- * del safe area para no competir con el gesto de inicio.
+ * Gestalt, figure/ground: it is the only thing that floats (`lg` shadow) and
+ * carries the accent, so it stands apart from the content passing beneath it
+ * (Von Restorff: one per screen). Fitts: large and in the thumb's corner,
+ * above the safe area so it doesn't compete with the home gesture.
  */
 export const Fab = memo(
   ({
@@ -77,8 +77,8 @@ export const Fab = memo(
     const theme = useTheme();
     const insets = useInsets();
     const fill = color ?? colors.primary;
-    // Con el color del theme, su `onPrimary`; con uno propio, negro o blanco
-    // según el contraste (un cian con ícono blanco no se leía).
+    // With the theme color, its `onPrimary`; with a custom one, black or white
+    // depending on contrast (a cyan with a white icon was unreadable).
     const glyph = color ? onColor(color) : colors.onPrimary;
     const edge = theme.tokens.spacing.xl;
 

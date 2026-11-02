@@ -12,10 +12,10 @@ export interface IconProps {
 
 /**
  * Icon
- * Resuelve el glifo vía el renderer activo (UIProvider.icons, default zero-dep
- * si no se configuró ninguno). Uso interno de la librería — los componentes
- * públicos exponen `icon?: ReactNode` además de esto, para que el consumidor
- * pueda inyectar cualquier ícono sin pasar por el sistema de nombres.
+ * Resolves the glyph through the active renderer (UIProvider.icons, the
+ * zero-dep default if none was configured). Internal use by the library —
+ * public components expose `icon?: ReactNode` in addition to this, so the
+ * consumer can inject any icon without going through the name system.
  */
 export const Icon = memo(({ name, size = 20, color, style }: IconProps) => {
   const colors = useColors();

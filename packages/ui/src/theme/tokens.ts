@@ -1,13 +1,13 @@
 import { Platform, type ViewStyle } from 'react-native';
 
-// Las escalas numéricas se tipan explícitamente como `number` (no `as const`):
-// createTheme() debe poder sobreescribir cualquier valor con otro número
-// arbitrario: con literal typing, un override de `radius.md` a `999` fallaría
-// porque el tipo inferido sería el literal `8`, no `number`.
+// Numeric scales are typed explicitly as `number` (not `as const`):
+// createTheme() must be able to override any value with any other number:
+// with literal typing, overriding `radius.md` to `999` would fail because
+// the inferred type would be the literal `8`, not `number`.
 
 /**
- * Escala de espaciado. Usar siempre estos valores en vez de números mágicos
- * para que el ritmo vertical/horizontal sea consistente entre componentes.
+ * Spacing scale. Always use these values instead of magic numbers so the
+ * vertical/horizontal rhythm is consistent across components.
  */
 export const spacing: Record<'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl', number> = {
   xxs: 2,
@@ -40,8 +40,8 @@ export const fontSize: Record<'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl', number> 
   xxl: 24,
 };
 
-// fontWeight sí necesita literales: TextStyle.fontWeight de RN exige un union
-// de strings específicos ('400' | '500' | ...), no `string` arbitrario.
+// fontWeight does need literals: RN's TextStyle.fontWeight requires a union
+// of specific strings ('400' | '500' | ...), not an arbitrary `string`.
 export const fontWeight = {
   regular: '400',
   medium: '500',
@@ -57,18 +57,18 @@ export const lineHeight: Record<'sm' | 'md' | 'lg' | 'xl', number> = {
 };
 
 /**
- * Tracking (letterSpacing) en puntos. `tight` compensa el aire extra que
- * los tamaños grandes traen por defecto (títulos); `normal` es el del sistema;
- * `wide` separa mayúsculas chicas.
+ * Tracking (letterSpacing) in points. `tight` offsets the extra room that
+ * large sizes bring by default (titles); `normal` is the system's;
+ * `wide` spaces out small caps.
  */
 export const letterSpacing: Record<'tight' | 'normal' | 'wide', number> = {
   tight: -0.5,
   normal: 0,
-  /** Etiquetas cortas en mayúsculas y tamaño chico (Badge): un poco de aire las hace legibles. */
+  /** Short, small, uppercase labels (Badge): a little room makes them legible. */
   wide: 0.3,
 };
 
-/** Duraciones en ms para Animated.timing/spring. */
+/** Durations in ms for Animated.timing/spring. */
 export const duration: Record<'fast' | 'base' | 'slow', number> = {
   fast: 150,
   base: 200,
@@ -81,9 +81,9 @@ type ShadowStyle = Pick<
 >;
 
 /**
- * Sombras cross-platform: shadow* para iOS, elevation para Android.
- * `shadowColor` se deja en negro fijo — el color de sombra por tema es un
- * detalle demasiado fino para justificar la complejidad de resolverlo aquí.
+ * Cross-platform shadows: shadow* for iOS, elevation for Android.
+ * `shadowColor` is left fixed at black — a per-theme shadow color is too
+ * fine a detail to justify the complexity of resolving it here.
  */
 export const shadow: Record<'none' | 'sm' | 'md' | 'lg', ShadowStyle> = {
   none: Platform.select({

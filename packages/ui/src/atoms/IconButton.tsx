@@ -26,22 +26,22 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-/** Área táctil mínima recomendada por Apple (44pt) y Material (48dp ≈ 44pt). */
+/** Minimum touch area recommended by Apple (44pt) and Material (48dp ≈ 44pt). */
 const MIN_TOUCH = 44;
 
 /**
  * IconButton
- * Botón de solo ícono. `accessibilityLabel` es obligatorio: sin texto
- * visible, es la única forma de que un lector de pantalla anuncie qué hace.
+ * Icon-only button. `accessibilityLabel` is required: with no visible text,
+ * it is the only way for a screen reader to announce what it does.
  *
- * Fitts: el área visible es ícono + `spacing.sm` por lado (24 + 16 = 40pt con
- * el tamaño por defecto, 32pt con `size={16}`). `hitSlop` completa lo que
- * falta hasta 44pt sin agrandar el layout, así una fila de íconos conserva su
- * ritmo y cada uno sigue siendo fácil de tocar.
+ * Fitts: the visible area is icon + `spacing.sm` per side (24 + 16 = 40pt
+ * with the default size, 32pt with `size={16}`). `hitSlop` makes up the
+ * rest up to 44pt without enlarging the layout, so a row of icons keeps its
+ * rhythm and each one is still easy to tap.
  *
- * Gestalt, figura y fondo: no tiene fondo propio, el ícono es la figura sobre
- * lo que haya detrás; por eso el color por defecto es `colors.text` (contraste
- * AA garantizado) y `disabled` lo atenúa a la mitad.
+ * Gestalt, figure and ground: it has no background of its own, the icon is
+ * the figure over whatever is behind it; that is why the default color is
+ * `colors.text` (guaranteed AA contrast) and `disabled` dims it by half.
  */
 export const IconButton = memo(
   ({ iconName, icon, onPress, size = 24, color, disabled, style, accessibilityLabel, testID }: IconButtonProps) => {

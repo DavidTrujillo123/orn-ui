@@ -38,19 +38,19 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Screen
- * Contenedor raíz de pantalla: fondo del theme, safe area (via insets del
- * UIProvider), teclado y scroll opcional resueltos de forma consistente.
+ * Root screen container: theme background, safe area (via the UIProvider's
+ * insets), keyboard and optional scroll handled consistently.
  *
- * Teclado: con el UIProvider manejándolo (default), Screen desplaza solo su
- * contenido — recortado bajo el `header` — para dejar el Input enfocado sobre
- * el teclado. El header queda fijo y una barra de pestañas fuera del Screen
- * queda detrás del teclado, como en una app nativa. En iOS con scroll, el
- * ScrollView ya lleva el campo a la vista (automaticallyAdjustKeyboardInsets)
- * y no se suma nada. Sin host (`keyboardAvoidance={false}` en el provider)
- * queda el KeyboardAvoidingView de siempre.
+ * Keyboard: with the UIProvider handling it (default), Screen shifts only its
+ * content — clipped below the `header` — to keep the focused Input above the
+ * keyboard. The header stays fixed and a tab bar outside the Screen stays
+ * behind the keyboard, as in a native app. On iOS with scroll, the ScrollView
+ * already brings the field into view (automaticallyAdjustKeyboardInsets) and
+ * nothing is added. Without a host (`keyboardAvoidance={false}` on the
+ * provider) the usual KeyboardAvoidingView remains.
  *
- * Gestalt, región común: el header comparte el fondo de la pantalla y queda
- * fijo; lo que se mueve es solo el contenido, así la navegación no se pierde.
+ * Gestalt, common region: the header shares the screen's background and stays
+ * fixed; only the content moves, so navigation isn't lost.
  */
 export const Screen = memo(({
   children,
@@ -73,8 +73,8 @@ export const Screen = memo(({
   const panArea = keyboardAvoiding && !scrollHandles && !!host;
   const avoidWithView = keyboardAvoiding && !scrollHandles && !host;
 
-  // Con header, el inset superior va arriba del header; el contenido arranca
-  // pegado debajo.
+  // With a header, the top inset goes above the header; the content starts
+  // right below it.
   const contentTop = header ? 0 : topInset;
 
   let content = scrollable ? (

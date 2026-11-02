@@ -28,7 +28,7 @@ export interface StepsProps {
 }
 
 const CIRCLE = 32;
-/** Ancho mínimo de una columna horizontal: por debajo, las etiquetas se parten. */
+/** Minimum width of a horizontal column: below it, labels break mid-word. */
 const STEP_MIN_WIDTH = 76;
 
 const useStyles = createStyles((theme) => ({
@@ -36,17 +36,17 @@ const useStyles = createStyles((theme) => ({
   columnContainer: { flexDirection: 'column' },
 
   // horizontal
-  // ScrollView trae flexGrow: 1 de fábrica y se comía todo el alto disponible
-  // del contenedor, dejando los pasos pegados arriba de una caja enorme.
+  // ScrollView ships with flexGrow: 1 and was eating all the available height
+  // of the container, leaving the steps stuck to the top of a huge box.
   hScrollView: { flexGrow: 0, flexShrink: 0 },
   hScroll: { flexGrow: 1, flexDirection: 'row', alignItems: 'flex-start' },
-  // `minWidth` es lo que evita que RN parta palabras a la mitad
-  // ("Almacé / n"): antes que apretar la columna por debajo de una palabra
-  // corriente, la fila se vuelve scrollable.
+  // `minWidth` is what keeps RN from breaking words in half
+  // ("Almacé / n"): rather than squeezing the column below a regular
+  // word, the row becomes scrollable.
   hStep: { flex: 1, minWidth: STEP_MIN_WIDTH, alignItems: 'center', gap: theme.tokens.spacing.sm },
   hLabels: { alignItems: 'center', gap: 2, paddingHorizontal: 4 },
-  // El conector toma una fracción chica del ancho: compitiendo de igual a
-  // igual con los pasos (flex: 1) cada etiqueta se quedaba con 1/(2n-1) del
+  // The connector takes a small fraction of the width: competing on equal
+  // terms with the steps (flex: 1), each label ended up with 1/(2n-1) of the
   // total.
   hConnector: { height: 2, flex: 0.3, minWidth: 12, marginTop: CIRCLE / 2 - 1 },
   hLabel: { fontSize: theme.tokens.fontSize.sm },
@@ -81,8 +81,8 @@ function statusOf(index: number, current: number): StepStatus {
 
 /**
  * Steps
- * Indicador de progreso multi-paso. Base visual de `Wizard`, pero utilizable
- * suelto para mostrar el avance de un flujo que se navega de otra forma.
+ * Multi-step progress indicator. The visual base of `Wizard`, but usable on
+ * its own to show progress through a flow that is navigated some other way.
  */
 export const Steps = memo(
   ({ steps, current, orientation = 'horizontal', completedIndicator = 'check', onStepPress, style }: StepsProps) => {
@@ -150,8 +150,8 @@ export const Steps = memo(
             const status = statusOf(index, current);
             const isLast = index === steps.length - 1;
             const Wrapper = onStepPress ? TouchableOpacity : View;
-            // Sólo tocable si hay onStepPress: pasarle onPress/activeOpacity
-            // a un View plano no crashea, pero los deja como ruido silencioso.
+            // Only touchable when there is onStepPress: passing onPress/activeOpacity
+            // to a plain View doesn't crash, but leaves them as silent noise.
             const interactiveProps = onStepPress
               ? { onPress: () => onStepPress(index), activeOpacity: 0.7 }
               : undefined;
@@ -186,8 +186,8 @@ export const Steps = memo(
         testID="steps-row"
         horizontal
         showsHorizontalScrollIndicator={false}
-        // Con espacio de sobra los pasos se reparten la fila igual que antes
-        // (flexGrow); cuando no entran, se desplaza en vez de apretar el texto.
+        // With room to spare the steps share the row just like before
+        // (flexGrow); when they don't fit, it scrolls instead of squeezing the text.
         style={[styles.hScrollView, style]}
         contentContainerStyle={styles.hScroll}
       >

@@ -10,15 +10,15 @@ import type { IconName } from '../icons/types';
 export type TimelineStatus = 'done' | 'pending';
 
 /**
- * Qué puede hacer un toque.
- * - 'free': cualquier hito responde y la línea sigue a `items` para donde
- *   vaya, adelante o atrás. Es el que sirve cuando el recorrido no es un
- *   progreso, o cuando lo maneja otra cosa.
- * - 'sequential': sólo responde el que sigue al alcanzado, y la línea no
- *   retrocede nunca. Avance estricto.
- * - 'revisit': responden el que sigue y todos los ya alcanzados, y la línea
- *   tampoco retrocede. Es el caso de "puedo volver a mirar lo anterior sin
- *   perder lo que llevo".
+ * What a tap can do.
+ * - 'free': any milestone responds and the line follows `items` wherever it
+ *   goes, forward or back. It is the one to use when the path isn't
+ *   progress, or when something else drives it.
+ * - 'sequential': only the one after the reached milestone responds, and the
+ *   line never goes back. Strict progression.
+ * - 'revisit': the next one and all those already reached respond, and the
+ *   line doesn't go back either. It is the "I can look at what came before
+ *   without losing my progress" case.
  */
 export type TimelineAdvance = 'free' | 'sequential' | 'revisit';
 
@@ -71,24 +71,24 @@ const DEFAULT_CURVE = 28;
 const DEFAULT_SPACING = 84;
 const NODE = 14;
 const LINE = 2;
-/** Tramos rectos por cada vano: con menos, la curva se ve poligonal. */
+/** Straight segments per span: with fewer, the curve looks polygonal. */
 const SEGMENTS = 14;
 const DOT = 3;
-/** Un punto cada cuántos tramos: el camino entero va punteado por debajo. */
+/** One dot every how many segments: the whole path is dotted underneath. */
 const DOT_EVERY = 2;
 const DEFAULT_DURATION = 420;
 /**
- * Cuánto tarda un tramo en encenderse, medido en hitos. Chico para que el
- * frente de la línea se lea como un borde y no como un degradado largo.
+ * How long a segment takes to light up, measured in milestones. Small so the
+ * front of the line reads as an edge and not as a long gradient.
  */
 const FADE = 0.06;
 /**
- * Capas del halo, de afuera hacia adentro. Son muchas y muy tenues a
- * propósito: con tres capas se ven los anillos, que es justo lo contrario de
- * un difuminado. Cuantos más escalones y más chico el salto de opacidad, más
- * cerca queda de un degradado.
+ * Halo layers, from the outside in. There are many and very faint on
+ * purpose: with three layers you see the rings, which is exactly the opposite
+ * of a blur. The more steps and the smaller the opacity jump, the closer it
+ * gets to a gradient.
  */
-/** Lo que el halo sobresale de la píldora: es lo que hay que dejarle de aire. */
+/** How far the halo sticks out of the pill: that is the room it needs. */
 const GLOW_BLEED = 20;
 const GLOW_LAYERS = [
   { inset: -GLOW_BLEED, opacity: 0.03 },
@@ -113,7 +113,7 @@ const useStyles = createStyles((theme) => ({
     borderWidth: LINE,
   },
   nodePending: { backgroundColor: 'transparent', borderColor: theme.colors.border },
-  // Ocupa el círculo entero menos el borde, así el relleno no lo tapa.
+  // Takes the whole circle minus the border, so the fill doesn't cover it.
   nodeFill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, borderRadius: NODE / 2 },
   pill: {
     flexDirection: 'row',
@@ -126,8 +126,8 @@ const useStyles = createStyles((theme) => ({
     borderColor: theme.colors.border,
     backgroundColor: theme.colors.surface,
   },
-  // El foco se marca con el borde, no con el relleno: el relleno ya está
-  // diciendo otra cosa (si el hito está alcanzado o no).
+  // Focus is marked with the border, not the fill: the fill is already
+  // saying something else (whether the milestone has been reached or not).
   pillSelected: { borderColor: theme.colors.primary, borderWidth: 2 },
   label: { fontSize: theme.tokens.fontSize.md, color: theme.colors.text },
   labelPending: { color: theme.colors.textLight },
@@ -137,23 +137,23 @@ const useStyles = createStyles((theme) => ({
     borderRadius: theme.tokens.radius.full,
     backgroundColor: theme.colors.text,
   },
-  // La línea y los nodos viven en la misma capa y se posicionan con las mismas
-  // coordenadas. Es lo único que garantiza que el círculo caiga sobre la
-  // curva: en el flujo de la fila el nodo lo corre el flex —y los paddings que
-  // cada lado necesita para no cortar su píldora—, así que terminaba a un
-  // costado de la línea en vez de encima.
+  // The line and the nodes live in the same layer and are positioned with the
+  // same coordinates. It is the only thing that guarantees the circle lands on
+  // the curve: in the row's flow the node gets shifted by flex —and by the
+  // paddings each side needs so its pill isn't clipped—, so it ended up to one
+  // side of the line instead of on top of it.
   lineLayer: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center' },
-  // Hueco del ancho del nodo en la fila: la píldora se separa del centro lo
-  // mismo que antes, pero el círculo ya no se dibuja acá.
+  // Gap the width of the node in the row: the pill is set apart from the
+  // center the same as before, but the circle is no longer drawn here.
   nodeSlot: { width: NODE },
   segment: { position: 'absolute', width: LINE },
   dot: { position: 'absolute', width: DOT, height: DOT, borderRadius: DOT / 2 },
 }));
 
 /**
- * Desvío horizontal del nodo `index` respecto del eje. Una onda entera a lo
- * largo de la lista: el primero y el último caen sobre el eje, y los del medio
- * se van a un lado y al otro. Es lo que convierte una columna en un camino.
+ * Horizontal offset of node `index` from the axis. One full wave along the
+ * list: the first and the last fall on the axis, and the ones in the middle
+ * swing to one side and the other. It is what turns a column into a path.
  */
 function offsetAt(index: number, count: number, curve: number): number {
   if (count < 2) return 0;
@@ -182,9 +182,9 @@ export const Timeline = memo(
     const count = items.length;
 
     /**
-     * Hasta dónde llegó el recorrido, en unidades de hito. Se cuenta desde el
-     * principio y se corta en el primer pendiente: un hito cumplido después de
-     * uno que no lo está no adelanta la línea, porque el camino es un camino.
+     * How far the path has gotten, in milestone units. It is counted from the
+     * start and cut at the first pending one: a milestone completed after one
+     * that isn't doesn't move the line forward, because a path is a path.
      */
     const reached = useMemo(() => {
       let last = -1;
@@ -196,9 +196,9 @@ export const Timeline = memo(
     }, [items]);
 
     /**
-     * Marca de agua: salvo en 'free', la línea se queda en lo más lejos que
-     * llegó. El progreso es del usuario, no del render — que el padre mande
-     * una lista más corta no puede desandar lo que ya recorrió.
+     * High-water mark: except in 'free', the line stays at the furthest point
+     * it reached. Progress belongs to the user, not the render — the parent
+     * sending a shorter list can't undo the distance already covered.
      */
     const furthest = useRef(reached);
     if (advance === 'free') furthest.current = reached;
@@ -210,8 +210,8 @@ export const Timeline = memo(
     useEffect(() => {
       const animation = Animated.timing(progress, {
         toValue: lineTo,
-        // Un hito por `duration`: avanzar tres de una vez tarda tres veces
-        // más, así se ve el recorrido y no un salto.
+        // One milestone per `duration`: advancing three at once takes three
+        // times longer, so you see the path and not a jump.
         duration: reduceMotion ? 0 : duration,
         easing: Easing.inOut(Easing.cubic),
         useNativeDriver: true,
@@ -221,10 +221,10 @@ export const Timeline = memo(
     }, [lineTo, duration, reduceMotion, progress]);
 
     /**
-     * Cada vano partido en tramos rectos cortos, cada uno con su largo y su
-     * ángulo. Es la misma idea que `Gradient`: la plataforma no tiene curvas
-     * sin dependencia nativa, así que la curva se compone con pedazos rectos
-     * lo bastante chicos como para que el ojo no vea el quiebre.
+     * Each span split into short straight segments, each with its own length
+     * and angle. It is the same idea as `Gradient`: the platform has no curves
+     * without a native dependency, so the curve is composed from straight
+     * pieces small enough for the eye not to see the break.
      */
     const pieces = useMemo(() => {
       const out: {
@@ -254,11 +254,11 @@ export const Timeline = memo(
             x: (x1 + x2) / 2,
             y: (y1 + y2) / 2,
             length,
-            // El tramo se dibuja vertical y se gira hasta la pendiente: el
-            // ángulo se mide desde el eje Y, no desde el X.
+            // The segment is drawn vertically and rotated to the slope: the
+            // angle is measured from the Y axis, not the X.
             angle: `${Math.atan2(dx, dy) * (180 / Math.PI) * -1}deg`,
-            // Posición del tramo medida en hitos: es la misma escala que
-            // `progress`, así que comparar una cosa con la otra es directo.
+            // Segment position measured in milestones: it is the same scale as
+            // `progress`, so comparing one with the other is direct.
             at: to,
             dotted: step % DOT_EVERY === 0,
           });
@@ -280,7 +280,7 @@ export const Timeline = memo(
         testID={testID}
       >
         <View style={styles.lineLayer} pointerEvents="none">
-          {/* El camino entero, punteado: es lo que falta recorrer. */}
+          {/* The whole path, dotted: it is what is left to travel. */}
           {pieces.map(
             (piece) =>
               piece.dotted && (
@@ -298,9 +298,9 @@ export const Timeline = memo(
               )
           )}
 
-          {/* Y encima la línea llena, que se revela tramo a tramo a medida que
-              `progress` avanza. Lo único que cambia por frame es `opacity`, o
-              sea que el recorrido se dibuja en el hilo nativo. */}
+          {/* And on top the solid line, revealed segment by segment as
+              `progress` advances. The only thing that changes per frame is
+              `opacity`, which means the path is drawn on the native thread. */}
           {pieces.map((piece) => (
             <Animated.View
               key={`line-${piece.key}`}
@@ -333,8 +333,8 @@ export const Timeline = memo(
                 },
               ]}
             >
-              {/* El relleno es un nodo aparte encima del hueco: el color no se
-                  puede animar en el hilo nativo, la opacidad sí. */}
+              {/* The fill is a separate node on top of the hollow: color can't
+                  be animated on the native thread, opacity can. */}
               <Animated.View
                 style={[
                   styles.nodeFill,
@@ -365,10 +365,10 @@ export const Timeline = memo(
           const pending = item.status === 'pending';
           const onRight = (index % 2 === 0) === (startSide === 'right');
           const offset = offsetAt(index, count, curve);
-          // La fila entera se corre con la curva, píldora incluida, así que el
-          // lado hacia el que se fue pierde ese espacio contra el borde. Se lo
-          // devolvemos como padding, más lo que sobresale el halo: sin esto la
-          // píldora de más afuera queda cortada al ras.
+          // The whole row shifts with the curve, pill included, so the side it
+          // moved toward loses that space against the edge. We give it back as
+          // padding, plus what the halo sticks out: without this the outermost
+          // pill gets clipped flush.
           const bleed = glow ? GLOW_BLEED : 0;
           const roomLeft = Math.max(0, -offset) + bleed;
           const roomRight = Math.max(0, offset) + bleed;
@@ -409,10 +409,10 @@ export const Timeline = memo(
             </View>
           );
 
-          // 'sequential' deja tocar sólo el que sigue; 'revisit' también los
-          // ya recorridos. El que no responde se marca como deshabilitado en
-          // vez de quedarse mudo: un botón que no hace nada y no lo dice es
-          // peor que un botón apagado.
+          // 'sequential' only allows tapping the next one; 'revisit' also the
+          // ones already covered. The one that doesn't respond is marked as
+          // disabled instead of staying silent: a button that does nothing
+          // and doesn't say so is worse than a disabled button.
           const reachable =
             advance === 'sequential'
               ? index === lineTo + 1

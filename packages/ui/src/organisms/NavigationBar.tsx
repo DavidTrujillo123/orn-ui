@@ -58,9 +58,9 @@ const useStyles = createStyles((theme) => ({
     position: 'absolute',
     top: theme.tokens.spacing.xs,
     bottom: theme.tokens.spacing.xs,
-    // El indicador se posiciona contra el borde de la barra, no contra su caja
-    // interna: al `left` hay que sumarle el padding horizontal para que quede
-    // centrado sobre la pestaña y no corrido hacia la izquierda.
+    // The indicator is positioned against the bar's edge, not its inner box:
+    // the horizontal padding has to be added to `left` so it sits centered
+    // over the tab and not shifted to the left.
     left: theme.tokens.spacing.xs + theme.tokens.spacing.sm,
     borderRadius: theme.tokens.radius.lg,
     backgroundColor: theme.colors.primarySoft,
@@ -93,10 +93,10 @@ const ICON_SIZE = 22;
 
 /**
  * NavigationBar
- * Barra de navegación por pestañas con la misma apariencia y las mismas
- * transiciones en iOS y Android: el indicador se desliza hasta la pestaña
- * activa y su contenido crece y toma el color de acento con un cross-fade.
- * No navega por su cuenta — reporta la pestaña tocada y el consumidor decide.
+ * Tab navigation bar with the same look and the same transitions on iOS and
+ * Android: the indicator slides to the active tab and its content grows and
+ * takes the accent color with a cross-fade.
+ * It doesn't navigate on its own — it reports the tapped tab and the consumer decides.
  */
 export const NavigationBar = memo(
   ({
@@ -119,10 +119,10 @@ export const NavigationBar = memo(
     const [barWidth, setBarWidth] = useState(0);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
 
-    // En Android la ventana se achica con el teclado y la barra quedaría
-    // flotando encima de él, entre el campo y las teclas. En iOS el teclado
-    // la tapa: no hace falta (y ocultarla movería el layout a mitad de la
-    // animación del teclado).
+    // On Android the window shrinks with the keyboard and the bar would end up
+    // floating above it, between the field and the keys. On iOS the keyboard
+    // covers it: no need (and hiding it would move the layout midway through
+    // the keyboard animation).
     useEffect(() => {
       if (!hideOnKeyboard || position !== 'bottom' || Platform.OS !== 'android') return;
       const subs = [
@@ -143,8 +143,8 @@ export const NavigationBar = memo(
     useEffect(() => {
       if (itemWidth <= 0) return;
       const to = activeIndex * itemWidth;
-      // En el primer layout el indicador aparece en su lugar; animarlo desde 0
-      // sería un deslizamiento que el usuario no pidió.
+      // On the first layout the indicator appears in place; animating it from 0
+      // would be a slide the user didn't ask for.
       if (!placed.current) {
         placed.current = true;
         slide.setValue(to);
@@ -224,7 +224,7 @@ export const NavigationBar = memo(
             >
               <Animated.View style={[styles.itemContent, { transform: [{ scale }] }]}>
                 {renderContent(item, colors.textLight)}
-                {/* Copia decorativa: sin ocultarla, el lector lee el label dos veces. */}
+                {/* Decorative copy: if it weren't hidden, the reader would read the label twice. */}
                 <Animated.View
                   pointerEvents="none"
                   accessibilityElementsHidden

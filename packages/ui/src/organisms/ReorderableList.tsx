@@ -23,7 +23,7 @@ export interface ReorderableListProps<T> {
   style?: StyleProp<ViewStyle>;
 }
 
-/** Reordena moviendo el ítem de `from` a `to`, sin mutar `data`. Exportada aparte por ser testeable sin simular gestos. */
+/** Reorders by moving the item from `from` to `to`, without mutating `data`. Exported separately so it can be tested without simulating gestures. */
 export function move<T>(data: T[], from: number, to: number): T[] {
   const next = data.slice();
   const [item] = next.splice(from, 1) as [T];
@@ -37,18 +37,18 @@ const useStyles = createStyles(() => ({
 
 /**
  * ReorderableList
- * Ley de destino común (common fate): al arrastrar una fila, las filas que
- * tiene que atravesar se desplazan juntas en el mismo sentido — eso es lo
- * que comunica "van a intercambiar lugar" antes de soltar el dedo, no un
- * simple resaltado del ítem activo.
+ * Law of common fate: when dragging a row, the rows it has to cross shift
+ * together in the same direction — that is what communicates "they are
+ * going to swap places" before the finger lifts, not a simple highlight of
+ * the active item.
  *
- * Sin dependencias de gestos/animación externas (reanimated, gesture-handler):
- * PanResponder + Animated alcanzan porque el cálculo de índice destino
- * necesita el valor de arrastre en JS en cada movimiento (no algo que
- * useNativeDriver pueda resolver solo).
+ * No external gesture/animation dependencies (reanimated, gesture-handler):
+ * PanResponder + Animated are enough because computing the target index
+ * needs the drag value in JS on every move (not something useNativeDriver
+ * can resolve on its own).
  *
- * Dentro de un scroll vertical hay que cablear `onDragStart`/`onDragEnd` a
- * `scrollEnabled`, o en iOS el arrastre no llega a empezar:
+ * Inside a vertical scroll you have to wire `onDragStart`/`onDragEnd` to
+ * `scrollEnabled`, or on iOS the drag never gets to start:
  *
  * ```tsx
  * const [dragging, setDragging] = useState(false);
@@ -73,20 +73,20 @@ export function ReorderableList<T>({
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
   const dy = useRef(new Animated.Value(0)).current;
   const activeIndexRef = useRef<number | null>(null);
-  // El PanResponder de cada fila se crea una sola vez (se cachea en el Map de
-  // abajo) y su closure queda fijo al render de esa primera vez: leer
-  // `targetIndex` (state) directamente ahí siempre daría el valor del
-  // montaje. Un ref sí refleja la última escritura sin importar cuándo se
-  // creó la closure que lo lee.
+  // Each row's PanResponder is created only once (cached in the Map below)
+  // and its closure stays fixed to that first render: reading `targetIndex`
+  // (state) directly there would always give the value from mount. A ref
+  // does reflect the latest write no matter when the closure reading it was
+  // created.
   const targetIndexRef = useRef<number | null>(null);
   const dataRef = useRef(data);
   dataRef.current = data;
-  // Igual razón que targetIndexRef: el responder de cada fila se crea una
-  // sola vez, así que leer `disabled` directo del closure congelaría el
-  // valor del momento en que esa fila se creó.
+  // Same reason as targetIndexRef: each row's responder is created only
+  // once, so reading `disabled` straight from the closure would freeze the
+  // value from when that row was created.
   const disabledRef = useRef(disabled);
   disabledRef.current = disabled;
-  // Misma razón: los callbacks se leen desde closures creadas una sola vez.
+  // Same reason: the callbacks are read from closures created only once.
   const onReorderRef = useRef(onReorder);
   onReorderRef.current = onReorder;
   const onDragStartRef = useRef(onDragStart);
@@ -95,8 +95,8 @@ export function ReorderableList<T>({
   onDragEndRef.current = onDragEnd;
 
   const panResponders = useRef(new Map<number, ReturnType<typeof PanResponder.create>>()).current;
-  // Si `data` se achica, los responders de índices que ya no existen quedan
-  // colgados en el Map para siempre: se podan en cada render.
+  // If `data` shrinks, the responders for indexes that no longer exist stay
+  // stuck in the Map forever: they are pruned on every render.
   for (const index of panResponders.keys()) {
     if (index >= data.length) panResponders.delete(index);
   }
@@ -117,9 +117,9 @@ export function ReorderableList<T>({
     responder = PanResponder.create({
       onStartShouldSetPanResponder: () => !disabledRef.current,
       onMoveShouldSetPanResponder: (_, gesture) => !disabledRef.current && Math.abs(gesture.dy) > 2,
-      // Un scroll padre pide el responder apenas su gesto vertical arranca —
-      // el mismo eje que el arrastre. Cederlo cancelaría el drag a mitad de
-      // camino, así que la fila se lo queda hasta soltar.
+      // A parent scroll requests the responder as soon as its vertical gesture
+      // starts — the same axis as the drag. Yielding it would cancel the drag
+      // midway, so the row keeps it until release.
       onPanResponderTerminationRequest: () => false,
       onPanResponderGrant: () => {
         activeIndexRef.current = index;
@@ -155,8 +155,8 @@ export function ReorderableList<T>({
     <View style={style}>
       {data.map((item, index) => {
         const isActive = activeIndex === index;
-        // Filas entre el origen y el destino se corren un lugar entero en el
-        // sentido del arrastre: es el efecto de "grupo que se mueve junto".
+        // Rows between the origin and the target shift one full place in the
+        // drag direction: it is the "group moving together" effect.
         let shift = 0;
         if (activeIndex !== null && targetIndex !== null && !isActive) {
           if (activeIndex < targetIndex && index > activeIndex && index <= targetIndex) shift = -itemHeight;

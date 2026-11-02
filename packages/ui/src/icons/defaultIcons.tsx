@@ -3,19 +3,19 @@ import { Text, View } from 'react-native';
 import type { BuiltInIconName, IconName, IconRenderProps } from './types';
 
 /**
- * Glifos default dibujados con primitivas de RN (View + border + transform).
- * Cero dependencias, cero fuentes, cero carga asíncrona. Cubren lo que la
- * librería necesita internamente (checkbox, chevrons de Select, toggle de
- * password en Input, etc) más un set básico para apps (menu, home, user…).
- * Para un set completo, el consumidor inyecta el suyo vía
- * <UIProvider icons={...}> o la prop `icon`.
+ * Default glyphs drawn with RN primitives (View + border + transform).
+ * Zero dependencies, zero fonts, zero async loading. They cover what the
+ * library needs internally (checkbox, Select chevrons, password toggle in
+ * Input, etc) plus a basic set for apps (menu, home, user…).
+ * For a complete set, the consumer injects their own via
+ * <UIProvider icons={...}> or the `icon` prop.
  */
 
 /**
- * Color del glifo interior de un ícono relleno (alert, warning): negro o
- * blanco según la luminancia del relleno. Un blanco fijo desaparecía sobre
- * los rellenos claros del modo oscuro (figura y fondo). Colores no-hex
- * (rgb(), nombres) caen en blanco, el caso común sobre acentos saturados.
+ * Color of the inner glyph of a filled icon (alert, warning): black or
+ * white depending on the fill's luminance. A fixed white disappeared over
+ * dark mode's light fills (figure and ground). Non-hex colors (rgb(),
+ * names) fall back to white, the common case over saturated accents.
  */
 export function onColor(fill: string): string {
   const hex = fill.trim().replace('#', '');
@@ -29,7 +29,7 @@ export function onColor(fill: string): string {
   const g = channel(2);
   const b = channel(4);
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
-  // Umbral donde el contraste con negro supera al contraste con blanco.
+  // Threshold where contrast with black exceeds contrast with white.
   return luminance > 0.179 ? '#000' : '#fff';
 }
 
@@ -139,13 +139,13 @@ const PlusMinus = memo(({ size, color, minusOnly }: IconRenderProps & { minusOnl
 PlusMinus.displayName = 'PlusMinus';
 
 /**
- * Círculo con un glifo tipográfico adentro (!, i, ?).
+ * Circle with a typographic glyph inside (!, i, ?).
  *
- * Usa <Text> con la fuente del sistema en vez de componer el glifo con
- * Views: sigue siendo cero-dependencias (no carga ninguna fuente), y "i" vs
- * "!" vs "?" quedan inequívocos. Dibujarlos con barras y puntos daba un
- * "info" idéntico a un "!" invertido, que es exactamente lo que un ícono de
- * información no debe comunicar.
+ * Uses <Text> with the system font instead of composing the glyph from
+ * Views: it is still zero-dependency (it loads no font), and "i" vs "!" vs
+ * "?" stay unambiguous. Drawing them with bars and dots gave an "info"
+ * identical to an inverted "!", which is exactly what an information icon
+ * must not convey.
  */
 const Circle = memo(
   ({ size, color, filled, label }: IconRenderProps & { filled?: boolean; label?: string }) => {
@@ -230,17 +230,17 @@ Eye.displayName = 'Eye';
 
 const Search = memo(({ size, color }: IconRenderProps) => {
   const strokeWidth = Math.max(1.5, size / 9);
-  // Lente grande (72% del alto) arriba-izquierda y mango corto saliendo de su
-  // borde inferior-derecho sobre la diagonal de 45°. Las proporciones importan
-  // a tamaños chicos (16-20px): con un lente chico y mango largo el glifo se
-  // lee como una coma, no como una lupa.
+  // Large lens (72% of the height) at the top-left and a short handle coming
+  // out of its bottom-right edge along the 45° diagonal. The proportions matter
+  // at small sizes (16-20px): with a small lens and a long handle the glyph
+  // reads as a comma, not a magnifying glass.
   const lensD = size * 0.72;
   const lensR = lensD / 2;
   const handleLen = size * 0.34;
   const diag = Math.SQRT1_2; // cos(45°) === sin(45°)
-  // El mango se centra sobre la diagonal, arrancando justo en el borde del
-  // lente: distancia = radio + mitad del mango, menos un solapamiento de
-  // medio trazo para que no quede un hueco entre borde y mango.
+  // The handle is centered on the diagonal, starting right at the lens's
+  // edge: distance = radius + half the handle, minus a half-stroke overlap
+  // so no gap is left between edge and handle.
   const dist = lensR + handleLen / 2 - strokeWidth / 2;
   const cx = lensR + dist * diag;
   const cy = lensR + dist * diag;
@@ -276,10 +276,10 @@ const Search = memo(({ size, color }: IconRenderProps) => {
 });
 Search.displayName = 'Search';
 
-// ── Set básico para apps ────────────────────────────────────────────────
-// Mismas reglas que el resto: solo View/Text, trazo proporcional al tamaño
-// (`size / 10`, mínimo 1.5) y caja cuadrada de `size`, para que todos se
-// alineen igual en una fila (Gestalt, similitud).
+// ── Basic set for apps ─────────────────────────────────────────────────────
+// Same rules as the rest: only View/Text, stroke proportional to the size
+// (`size / 10`, minimum 1.5) and a square `size` box, so they all line up
+// the same way in a row (Gestalt, similarity).
 
 const stroke = (size: number) => Math.max(1.5, size / 10);
 const box = (size: number) => ({ width: size, height: size, alignItems: 'center' as const, justifyContent: 'center' as const });
@@ -315,7 +315,7 @@ const Home = memo(({ size, color }: IconRenderProps) => {
   const roof = size * 0.5;
   return (
     <View style={box(size)}>
-      {/* Techo: un cuadrado con dos bordes, girado 45°. */}
+      {/* Roof: a square with two borders, rotated 45°. */}
       <View
         style={{
           position: 'absolute',
@@ -328,7 +328,7 @@ const Home = memo(({ size, color }: IconRenderProps) => {
           transform: [{ rotate: '45deg' }],
         }}
       />
-      {/* Cuerpo: paredes y piso. */}
+      {/* Body: walls and floor. */}
       <View
         style={{
           position: 'absolute',
@@ -379,7 +379,7 @@ const User = memo(({ size, color }: IconRenderProps) => {
           borderColor: color,
         }}
       />
-      {/* Hombros: media elipse abierta abajo. */}
+      {/* Shoulders: half an ellipse open at the bottom. */}
       <View
         style={{
           position: 'absolute',
@@ -405,7 +405,7 @@ const Trash = memo(({ size, color }: IconRenderProps) => {
   const bodyH = size * 0.56;
   return (
     <View style={box(size)}>
-      {/* Asa y tapa. */}
+      {/* Handle and lid. */}
       <View
         style={{
           position: 'absolute',
@@ -428,7 +428,7 @@ const Trash = memo(({ size, color }: IconRenderProps) => {
           backgroundColor: color,
         }}
       />
-      {/* Cuerpo con dos ranuras. */}
+      {/* Body with two slots. */}
       <View
         style={{
           position: 'absolute',
@@ -459,7 +459,7 @@ const Edit = memo(({ size, color }: IconRenderProps) => {
   const sw = stroke(size);
   return (
     <View style={box(size)}>
-      {/* Lápiz: cuerpo con contorno, girado 45°, con la punta hacia abajo-izquierda. */}
+      {/* Pencil: outlined body, rotated 45°, with the tip pointing down-left. */}
       <View style={{ alignItems: 'center', transform: [{ rotate: '45deg' }, { translateY: -size * 0.02 }] }}>
         <View
           style={{
@@ -494,7 +494,7 @@ const Share = memo(({ size, color }: IconRenderProps) => {
   const arm = size * 0.26;
   return (
     <View style={box(size)}>
-      {/* Caja abierta arriba. */}
+      {/* Box open at the top. */}
       <View
         style={{
           position: 'absolute',
@@ -509,7 +509,7 @@ const Share = memo(({ size, color }: IconRenderProps) => {
           borderColor: color,
         }}
       />
-      {/* Flecha hacia arriba saliendo de la caja. */}
+      {/* Arrow pointing up, coming out of the box. */}
       <View
         style={{
           position: 'absolute',
@@ -538,7 +538,7 @@ const Share = memo(({ size, color }: IconRenderProps) => {
 Share.displayName = 'Share';
 
 const Heart = memo(({ size, color }: IconRenderProps) => {
-  // Dos círculos sobre un cuadrado girado 45°: la forma clásica, rellena.
+  // Two circles over a square rotated 45°: the classic shape, filled.
   const s = size * 0.46;
   const lobe = { position: 'absolute' as const, width: s, height: s, borderRadius: s / 2, backgroundColor: color };
   return (
@@ -554,10 +554,10 @@ const Heart = memo(({ size, color }: IconRenderProps) => {
 Heart.displayName = 'Heart';
 
 /**
- * Estrella: glifo tipográfico (★, U+2605) como los de Circle. Una estrella de
- * cinco puntas no se puede componer bien con rectángulos; el selector de
- * variación U+FE0E fuerza la versión de texto (monocroma, del color pedido)
- * en vez del emoji.
+ * Star: typographic glyph (★, U+2605) like Circle's. A five-pointed star
+ * can't be composed well from rectangles; the variation selector U+FE0E
+ * forces the text version (monochrome, in the requested color) instead of
+ * the emoji.
  */
 const Star = memo(({ size, color }: IconRenderProps) => (
   <View style={box(size)}>
@@ -572,8 +572,8 @@ const Star = memo(({ size, color }: IconRenderProps) => (
 Star.displayName = 'Star';
 
 /**
- * Advertencia: triángulo relleno con "!" (no un círculo como `alert`), para
- * que advertencia y error no se confundan solo por color.
+ * Warning: filled triangle with a "!" (not a circle like `alert`), so that
+ * warning and error aren't told apart by color alone.
  */
 const WarningTriangle = memo(({ size, color }: IconRenderProps) => {
   const half = size * 0.5;
@@ -614,14 +614,14 @@ WarningTriangle.displayName = 'WarningTriangle';
 
 const warned = new Set<string>();
 
-/** Todos los glifos incluidos, en orden de catálogo. */
+/** All included glyphs, in catalog order. */
 export const BUILT_IN_ICON_NAMES: readonly BuiltInIconName[] = [
   'check', 'close', 'plus', 'minus', 'search', 'menu', 'more', 'home', 'settings', 'user',
   'trash', 'edit', 'share', 'heart', 'star', 'eye', 'eye-off',
   'chevron-left', 'chevron-right', 'chevron-up', 'chevron-down', 'alert', 'warning', 'info', 'question',
 ];
 
-/** Renderer default. Se usa cuando <UIProvider icons={...}> no pasa uno propio. */
+/** Default renderer. Used when <UIProvider icons={...}> doesn't pass its own. */
 export function renderDefaultIcon(name: IconName, props: IconRenderProps): React.ReactNode {
   switch (name) {
     case 'check':
@@ -675,8 +675,8 @@ export function renderDefaultIcon(name: IconName, props: IconRenderProps): React
     case 'star':
       return <Star {...props} />;
     default:
-      // Un nombre fuera del set incluido solo tiene sentido con un renderer
-      // propio (<UIProvider icons>). Sin él no hay glifo: avisar una vez.
+      // A name outside the included set only makes sense with a custom
+      // renderer (<UIProvider icons>). Without one there is no glyph: warn once.
       if (typeof __DEV__ !== 'undefined' && __DEV__ && !warned.has(name)) {
         warned.add(name);
         console.warn(`orn-ui: no built-in icon named "${name}". Pass <UIProvider icons={...}> to render custom names.`);

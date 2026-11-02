@@ -9,7 +9,7 @@ export const DEFAULT_MONTH_NAMES = [
   'July', 'August', 'September', 'October', 'November', 'December',
 ];
 
-/** Índice 0 = domingo, para alinear con Date.getDay(). */
+/** Index 0 = Sunday, to line up with Date.getDay(). */
 export const DEFAULT_WEEKDAY_NAMES = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 export interface DateRange {
@@ -52,7 +52,7 @@ function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate());
 }
 
-/** Timestamp del día, para comparar sin volver a crear Date en cada celda. */
+/** The day's timestamp, to compare without creating a Date again in each cell. */
 function dayTime(d: Date): number {
   return startOfDay(d).getTime();
 }
@@ -61,21 +61,21 @@ function dayTimeOf(d: Date | undefined): number | undefined {
   return d ? dayTime(d) : undefined;
 }
 
-/** Milisegundos que faltan para la próxima medianoche local. */
+/** Milliseconds left until the next local midnight. */
 function msUntilNextMidnight(from: Date): number {
   const next = new Date(from.getFullYear(), from.getMonth(), from.getDate() + 1);
   return next.getTime() - from.getTime();
 }
 
-/** Número de mes absoluto (año * 12 + mes), para comparar meses con un `<`. */
+/** Absolute month number (year * 12 + month), to compare months with a `<`. */
 function monthIndex(d: Date): number {
   return d.getFullYear() * 12 + d.getMonth();
 }
 
 /**
- * Devuelve la grilla del mes: 6 filas de 7 celdas. Las celdas fuera del mes
- * son null, así el layout no salta de alto entre meses (un mes puede
- * necesitar 4, 5 o 6 filas según en qué día caiga el 1).
+ * Returns the month grid: 6 rows of 7 cells. Cells outside the month are
+ * null, so the layout doesn't jump in height between months (a month can
+ * need 4, 5 or 6 rows depending on which day the 1st falls on).
  */
 export function buildMonthGrid(year: number, month: number, firstDayOfWeek: 0 | 1): (Date | null)[][] {
   const first = new Date(year, month, 1);
@@ -117,8 +117,8 @@ const useStyles = createStyles((theme) => ({
   dayText: { fontSize: theme.tokens.fontSize.md, color: theme.colors.text },
   daySelected: { backgroundColor: theme.colors.primary },
   dayTextSelected: { color: theme.colors.onPrimary, fontWeight: theme.tokens.fontWeight.bold },
-  // El resaltado del tramo intermedio va en la celda (cuadrada, sin gaps) y
-  // no en el botón redondo, así la barra del rango se ve continua.
+  // The highlight of the in-between stretch goes on the cell (square, no gaps)
+  // and not on the round button, so the range bar looks continuous.
   cellInRange: { backgroundColor: theme.colors.primarySoft },
   cellRangeStart: { borderTopLeftRadius: 18, borderBottomLeftRadius: 18 },
   cellRangeEnd: { borderTopRightRadius: 18, borderBottomRightRadius: 18 },
@@ -144,8 +144,8 @@ interface DayCellProps {
 }
 
 /**
- * Una celda del calendario. Va memoizada aparte porque el mes entero son 42
- * celdas: sin esto, cualquier render del padre reconcilia las 42.
+ * A calendar cell. It is memoized separately because the whole month is 42
+ * cells: without this, any parent render reconciles all 42.
  */
 const DayCell = memo(
   ({
@@ -197,9 +197,9 @@ DayCell.displayName = 'DayCell';
 
 /**
  * DatePicker
- * Calendario mensual dibujado con View/Text puros — sin
- * @react-native-community/datetimepicker ni ningún picker nativo, para
- * mantener la librería en cero dependencias y verse igual en iOS y Android.
+ * Monthly calendar drawn with plain View/Text — without
+ * @react-native-community/datetimepicker or any native picker, to keep the
+ * library at zero dependencies and look the same on iOS and Android.
  */
 export const DatePicker = memo(
   ({
@@ -232,8 +232,8 @@ export const DatePicker = memo(
           onChange?.(day);
           return;
         }
-        // Primer toque (o rango ya cerrado, o toque antes del inicio): arranca
-        // un rango nuevo. Segundo toque en adelante: lo cierra.
+        // First tap (or range already closed, or a tap before the start): starts
+        // a new range. Second tap onward: closes it.
         if (!range?.start || range.end || dayTime(day) < dayTime(range.start)) {
           onRangeChange?.({ start: day });
         } else {
@@ -248,8 +248,8 @@ export const DatePicker = memo(
       () => new Date((anchor ?? new Date()).getFullYear(), (anchor ?? new Date()).getMonth(), 1)
     );
 
-    // La fecha elegida puede cambiar desde afuera (uso controlado): sin esto,
-    // el calendario se quedaba clavado en el mes con el que montó.
+    // The selected date can change from outside (controlled use): without this,
+    // the calendar stayed stuck on the month it mounted with.
     const anchorMonth = anchor ? monthIndex(anchor) : undefined;
     const lastAnchorMonth = useRef(anchorMonth);
     useEffect(() => {
@@ -258,8 +258,8 @@ export const DatePicker = memo(
       setVisibleMonth(new Date(Math.floor(anchorMonth / 12), anchorMonth % 12, 1));
     }, [anchorMonth]);
 
-    // "Hoy" se recalcula en la próxima medianoche: una app que queda abierta
-    // toda la noche marcaba el día anterior.
+    // "Today" is recalculated at the next midnight: an app left open all
+    // night marked the previous day.
     const [todayTs, setTodayTs] = useState(() => dayTime(new Date()));
     useEffect(() => {
       const timer = setTimeout(() => setTodayTs(dayTime(new Date())), msUntilNextMidnight(new Date()));
@@ -276,8 +276,8 @@ export const DatePicker = memo(
       [weekdays, firstDayOfWeek]
     );
 
-    // Los límites se resuelven una vez y no 42 veces por render: comparar
-    // timestamps sale gratis, crear un Date por celda no.
+    // The limits are resolved once and not 42 times per render: comparing
+    // timestamps is free, creating a Date per cell isn't.
     const bounds = useMemo(
       () => ({
         min: dayTimeOf(minDate),
@@ -296,8 +296,8 @@ export const DatePicker = memo(
         return next;
       });
 
-    // Un mes entero fuera de los límites no tiene nada que elegir: la flecha
-    // que lleva ahí se apaga en vez de dejar navegar al vacío.
+    // A month entirely outside the limits has nothing to pick: the arrow
+    // leading there turns off instead of letting you navigate into the void.
     const visibleIndex = monthIndex(visibleMonth);
     const canGoBack = !minDate || visibleIndex > monthIndex(minDate);
     const canGoForward = !maxDate || visibleIndex < monthIndex(maxDate);
@@ -351,8 +351,8 @@ export const DatePicker = memo(
                   day={day}
                   label={`${months[day.getMonth()]} ${day.getDate()}, ${day.getFullYear()}`}
                   selected={selected}
-                  // Un día fuera de los límites no se pinta como parte del
-                  // rango: se ve deshabilitado, y eso es lo que es.
+                  // A day outside the limits isn't painted as part of the
+                  // range: it looks disabled, and that is what it is.
                   inRange={between && !disabled}
                   isRangeStart={!!closed && isStart && !disabled}
                   isRangeEnd={isEnd && !disabled}

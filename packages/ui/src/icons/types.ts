@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 
 /**
- * Glifos incluidos (dibujados con primitivas de RN, cero dependencias): los
- * que la librería usa por dentro más un set básico para apps.
+ * Included glyphs (drawn with RN primitives, zero dependencies): the ones
+ * the library uses internally plus a basic set for apps.
  */
 export type BuiltInIconName =
   | 'check'
@@ -32,10 +32,10 @@ export type BuiltInIconName =
   | 'star';
 
 /**
- * Nombre de ícono aceptado por `iconName`, `leftIconName`, etc. Autocompleta
- * los incluidos y además acepta cualquier string, para quien conecta su propio
- * set con `<UIProvider icons={...}>` (p. ej. `iconName="calendar"`). Un nombre
- * que el renderer activo no conoce no dibuja nada (y avisa en desarrollo).
+ * Icon name accepted by `iconName`, `leftIconName`, etc. Autocompletes the
+ * included ones and also accepts any string, for those who plug in their own
+ * set with `<UIProvider icons={...}>` (e.g. `iconName="calendar"`). A name
+ * the active renderer doesn't know draws nothing (and warns in development).
  */
 export type IconName = BuiltInIconName | (string & {});
 
@@ -44,5 +44,5 @@ export interface IconRenderProps {
   color: string;
 }
 
-/** Renderer inyectable: reemplaza los glifos default por los de cualquier set de iconos. */
+/** Injectable renderer: replaces the default glyphs with those of any icon set. */
 export type IconRenderer = (name: IconName, props: IconRenderProps) => ReactNode;

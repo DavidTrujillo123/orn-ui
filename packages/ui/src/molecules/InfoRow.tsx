@@ -25,8 +25,8 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * InfoRow
- * Ícono circular a la izquierda + label/valor apilado a la derecha. Muestra
- * `placeholder` en itálica si no hay valor. Pensado para modales de detalle.
+ * Circular icon on the left + stacked label/value on the right. Shows
+ * `placeholder` in italics when there is no value. Meant for detail modals.
  */
 export const InfoRow = memo(({ icon, label, value, placeholder, style }: InfoRowProps) => {
   const colors = useColors();

@@ -1,13 +1,13 @@
 /**
- * El marco de Chart: todo lo que rodea a las marcas — grilla, ejes, leyenda y
- * tooltip. Nada de acá conoce el tipo de chart; recibe números y textos ya
- * resueltos.
+ * Chart's frame: everything around the marks — grid, axes, legend and
+ * tooltip. Nothing here knows the chart type; it receives numbers and texts
+ * already resolved.
  *
- * Gestalt: la grilla usa `border`, dos escalones por debajo del color de las
- * series, para que el dato quede como figura y la referencia como fondo. La
- * leyenda repite el color exacto de cada serie (similitud) y por eso puede
- * hacer de control de filtro sin explicar qué apaga: se apaga lo que tiene ese
- * color.
+ * Gestalt: the grid uses `border`, two steps below the series' color, so the
+ * data stays as figure and the reference as ground. The legend repeats each
+ * series' exact color (similarity), which is why it can act as a filter
+ * control without explaining what it turns off: whatever has that color
+ * turns off.
  */
 import React, { memo } from 'react';
 import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
@@ -68,16 +68,16 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-// ── grilla y ejes cartesianos ──────────────────────────────────────────────
+// ── grid and cartesian axes ────────────────────────────────────────────────
 
 export interface CartesianGridProps {
   width: number;
   height: number;
-  /** Posición en píxeles de cada línea, sobre el eje perpendicular a ella. */
+  /** Pixel position of each line, along the axis perpendicular to it. */
   lines: number[];
-  /** 'horizontal' dibuja líneas que cruzan a lo ancho (eje y con ticks). */
+  /** 'horizontal' draws lines running across the width (y axis with ticks). */
   orientation: 'horizontal' | 'vertical';
-  /** Índice de la línea del cero, más marcada que el resto. */
+  /** Index of the zero line, more marked than the rest. */
   zeroIndex?: number;
   testID?: string;
 }
@@ -98,8 +98,8 @@ export const CartesianGrid = memo(({ width, height, lines, orientation, zeroInde
               orientation === 'horizontal'
                 ? { left: 0, width, top: position, height: 1 }
                 : { top: 0, height, left: position, width: 1 },
-              // La línea del cero es una referencia distinta de las demás: no
-              // divide el espacio, separa lo que suma de lo que resta.
+              // The zero line is a different reference from the others: it
+              // doesn't divide the space, it separates what adds from what subtracts.
               isZero && { backgroundColor: colors.textLight },
             ]}
           />
@@ -112,11 +112,11 @@ CartesianGrid.displayName = 'CartesianGrid';
 
 export interface AxisLabelsProps {
   labels: { text: string; position: number }[];
-  /** 'x' las reparte a lo ancho debajo del plot; 'y' las apila a la izquierda. */
+  /** 'x' spreads them across the width below the plot; 'y' stacks them on the left. */
   axis: 'x' | 'y';
-  /** Ancho del canal reservado para las etiquetas. */
+  /** Width of the gutter reserved for the labels. */
   gutter: number;
-  /** Tamaño del plot sobre el eje de las etiquetas. */
+  /** Size of the plot along the labels' axis. */
   span: number;
   testID?: string;
 }
@@ -126,8 +126,8 @@ const LABEL_HEIGHT = 14;
 export const AxisLabels = memo(({ labels, axis, gutter, span, testID }: AxisLabelsProps) => {
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
-  // Una etiqueta de x se centra bajo su categoría y puede pisar a la vecina;
-  // se le da como ancho el reparto parejo del plot y se trunca a una línea.
+  // An x label is centered under its category and can overlap its neighbor;
+  // it gets the plot's even share as its width and is truncated to one line.
   const slot = axis === 'x' ? Math.max(24, span / Math.max(1, labels.length)) : gutter;
 
   return (
@@ -152,21 +152,21 @@ export const AxisLabels = memo(({ labels, axis, gutter, span, testID }: AxisLabe
 });
 AxisLabels.displayName = 'AxisLabels';
 
-// ── grilla del radar ───────────────────────────────────────────────────────
+// ── radar grid ─────────────────────────────────────────────────────────────
 
 export interface RadarGridProps {
   center: Point;
   radius: number;
   angles: number[];
-  /** Anillos concéntricos, incluido el borde. */
+  /** Concentric rings, including the edge. */
   levels: number;
   testID?: string;
 }
 
 /**
- * Anillos y radios del radar. Los anillos son polígonos, no círculos: un
- * círculo sugiere que entre eje y eje hay valores, y no los hay — sólo hay
- * los ejes que se pasaron.
+ * The radar's rings and spokes. The rings are polygons, not circles: a circle
+ * suggests there are values between one axis and the next, and there aren't —
+ * there are only the axes that were passed in.
  */
 export const RadarGrid = memo(({ center, radius, angles, levels, testID }: RadarGridProps) => {
   const colors = useColors();
@@ -223,7 +223,7 @@ export const RadarGrid = memo(({ center, radius, angles, levels, testID }: Radar
 });
 RadarGrid.displayName = 'RadarGrid';
 
-// ── leyenda ────────────────────────────────────────────────────────────────
+// ── legend ─────────────────────────────────────────────────────────────────
 
 export interface LegendItem {
   key: string;
@@ -234,7 +234,7 @@ export interface LegendItem {
 export interface LegendProps {
   items: LegendItem[];
   hidden: string[];
-  /** Sin esto la leyenda es sólo referencia; con esto es el filtro. */
+  /** Without this the legend is only a reference; with it, it is the filter. */
   onToggle?: (key: string) => void;
   testID?: string;
 }
@@ -295,9 +295,9 @@ export interface TooltipRow {
 export interface TooltipProps {
   title: string;
   rows: TooltipRow[];
-  /** Punto que describe, en coordenadas del contenedor. */
+  /** The point it describes, in container coordinates. */
   anchor: Point;
-  /** Ancho disponible: el globo se corre para no salirse. */
+  /** Available width: the bubble shifts so it doesn't spill out. */
   containerWidth: number;
   style?: StyleProp<ViewStyle>;
   testID?: string;
@@ -305,19 +305,19 @@ export interface TooltipProps {
 
 const TOOLTIP_WIDTH = 148;
 const TOOLTIP_GAP = 10;
-/** Alto estimado del globo: el real no se sabe hasta después de medirlo, y
- *  medirlo para decidir dónde ponerlo lo haría aparecer corrido un frame. */
+/** Estimated bubble height: the real one isn't known until it's measured, and
+ *  measuring it to decide where to put it would make it show up shifted for a frame. */
 const TOOLTIP_TITLE = 22;
 const TOOLTIP_ROW = 17;
 
 export const Tooltip = memo(({ title, rows, anchor, containerWidth, style, testID }: TooltipProps) => {
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
-  // Clamp en vez de flip: moverlo al otro lado del dedo hace que salte de lado
-  // mientras se arrastra, y el salto se lee como un error.
+  // Clamp instead of flip: moving it to the other side of the finger makes it
+  // jump sides while dragging, and the jump reads as a bug.
   const left = Math.max(0, Math.min(containerWidth - TOOLTIP_WIDTH, anchor.x - TOOLTIP_WIDTH / 2));
-  // Va arriba del punto, salvo que no haya lugar: ahí baja, porque taparse
-  // contra el borde superior lo deja ilegible.
+  // It goes above the point, unless there is no room: then it goes below,
+  // because getting cut off against the top edge makes it unreadable.
   const estimated = TOOLTIP_TITLE + rows.length * TOOLTIP_ROW;
   const above = anchor.y - TOOLTIP_GAP - estimated;
   const top = above >= 0 ? above : anchor.y + TOOLTIP_GAP;

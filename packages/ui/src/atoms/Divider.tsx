@@ -14,16 +14,15 @@ export interface DividerProps {
 
 /**
  * Divider
- * Línea de 1pt en `colors.border`.
+ * 1pt line in `colors.border`.
  *
- * Gestalt: separa grupos cuando la proximidad sola no alcanza (listas
- * densas, filas que cruzan toda la pantalla). Si el espacio ya separa los
- * grupos, preferir el espacio: una línea de más fragmenta lo que debería
- * leerse junto. `spacing` toma el aire de la escala de tokens para que la
- * separación sea la misma en toda la app, en vez de un margen distinto en
- * cada pantalla.
+ * Gestalt: separates groups when proximity alone isn't enough (dense lists,
+ * rows spanning the whole screen). If spacing already separates the groups,
+ * prefer spacing: one line too many fragments what should read together.
+ * `spacing` takes its room from the token scale so the separation is the
+ * same across the whole app, instead of a different margin on each screen.
  *
- * Es decorativo: no entra en el árbol de accesibilidad.
+ * It is decorative: it doesn't enter the accessibility tree.
  */
 export const Divider = memo(({ orientation = 'horizontal', spacing, style, testID }: DividerProps) => {
   const theme = useTheme();

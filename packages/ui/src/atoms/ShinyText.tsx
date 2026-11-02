@@ -49,11 +49,11 @@ const useStyles = createStyles((theme) => ({
     color: theme.colors.text,
   },
   row: { flexDirection: 'row', flexWrap: 'wrap' },
-  // Sólo top/left: un absoluteFill estiraría la letra al ancho del grupo y la
-  // volvería a alinear. Anclada a la esquina cae exactamente sobre la de abajo.
+  // Only top/left: an absoluteFill would stretch the letter to the group's width
+  // and realign it. Anchored to the corner it lands exactly on the one below.
   overlay: { position: 'absolute', top: 0, left: 0 },
-  // Una palabra y los espacios que la siguen: el salto de línea ocurre entre
-  // grupos, nunca entre las letras de una palabra.
+  // A word and the spaces that follow it: line breaks happen between
+  // groups, never between the letters of a word.
   group: { flexDirection: 'row' },
 }));
 
@@ -63,7 +63,7 @@ const ALIGN: Record<'left' | 'center' | 'right', ViewStyle['justifyContent']> = 
   right: 'flex-end',
 };
 
-/** Una palabra con los espacios que la siguen, y el índice de su primera letra. */
+/** A word with the spaces that follow it, and the index of its first letter. */
 interface Group {
   start: number;
   chars: string[];
@@ -79,8 +79,8 @@ function toGroups(text: string): Group[] {
     if (current.length === 0) start = index;
     current.push(char);
     const next = chars[index + 1];
-    // Cierra el grupo cuando termina la racha de espacios que sigue a la
-    // palabra: así el espacio viaja con ella y no abre línea por sí solo.
+    // Closes the group when the run of spaces following the word ends:
+    // that way the space travels with it and never starts a line on its own.
     const isSpace = /\s/.test(char);
     if (isSpace && next !== undefined && !/\s/.test(next)) {
       groups.push({ start, chars: current });
@@ -94,23 +94,23 @@ function toGroups(text: string): Group[] {
 
 /**
  * ShinyText
- * Una banda de luz recorre el texto de izquierda a derecha. Sin
- * `background-clip: text` ni máscaras —que React Native no tiene en el rango
- * soportado— el brillo se compone letra por letra: cada una lleva su color de
- * reposo y encima, superpuesta, la misma letra en el color del brillo con la
- * opacidad animada. La banda es una ventana de interpolación que se desplaza:
- * lo que cambia por frame es sólo `opacity`, o sea que la animación entera
- * corre en el hilo nativo y JS no participa de ningún frame.
+ * A band of light sweeps across the text from left to right. Without
+ * `background-clip: text` or masks —which React Native lacks in the supported
+ * range— the shine is composed letter by letter: each one carries its resting
+ * color and, overlaid on top, the same letter in the shine color with animated
+ * opacity. The band is a moving interpolation window: the only thing that
+ * changes per frame is `opacity`, which means the whole animation runs on the
+ * native thread and JS takes part in no frame.
  *
- * Gestalt, destino común: las letras se encienden en secuencia y con el mismo
- * ritmo, así que se leen como una sola cosa que se mueve —una palabra
- * iluminándose— y no como N letras parpadeando por su cuenta. Por eso el ancho
- * de banda es relativo al texto y no una cantidad fija de píxeles: un título
- * largo y uno corto tardan lo mismo y se perciben igual.
+ * Gestalt, common fate: the letters light up in sequence and at the same
+ * rhythm, so they read as one moving thing —a word lighting up— and not as N
+ * letters blinking on their own. That is why the band width is relative to
+ * the text and not a fixed number of pixels: a long title and a short one take
+ * the same time and are perceived the same.
  *
- * Con "reducir movimiento" activo, o con `animated={false}`, el texto se
- * renderiza plano en `shineColor` —legible, un solo nodo y seleccionable—
- * porque el efecto es decorativo y nada de lo que comunica está en el brillo.
+ * With "reduce motion" on, or with `animated={false}`, the text renders flat
+ * in `shineColor` —legible, a single node and selectable— because the effect
+ * is decorative and nothing it communicates lives in the shine.
  */
 export const ShinyText = memo(
   ({
@@ -132,9 +132,9 @@ export const ShinyText = memo(
     const progress = useRef(new Animated.Value(0)).current;
 
     const base = color ?? theme.colors.textLight;
-    // El acento, no `text`: contra `textLight` la diferencia es sólo de
-    // luminancia y el barrido casi no se ve. El brillo cambia tono además de
-    // claridad, que es lo que hace legible el movimiento.
+    // The accent, not `text`: against `textLight` the difference is only in
+    // luminance and the sweep is barely visible. The shine changes hue as well
+    // as lightness, which is what makes the motion readable.
     const shine = shineColor ?? theme.colors.primary;
     const running = animated && !reduceMotion && text.length > 0;
 
@@ -170,9 +170,9 @@ export const ShinyText = memo(
     }
 
     const total = Array.from(text).length;
-    // La banda entra por la izquierda y sale por la derecha, así que el
-    // recorrido normalizado mide 1 + 2·spread. `half` es media banda en esa
-    // escala: el tramo de progreso que una letra tarda en encenderse.
+    // The band enters on the left and exits on the right, so the normalized
+    // path measures 1 + 2·spread. `half` is half a band on that scale: the
+    // stretch of progress a letter takes to light up.
     const half = spread / (1 + 2 * spread);
 
     return (
@@ -188,7 +188,7 @@ export const ShinyText = memo(
             {group.chars.map((char, offset) => {
               const index = group.start + offset;
               const position = total === 1 ? 0.5 : index / (total - 1);
-              // Progreso en el que el centro de la banda cae sobre esta letra.
+              // Progress at which the center of the band falls on this letter.
               const peak = (position + spread) / (1 + 2 * spread);
               const charStyle: StyleProp<TextStyle> = [styles.text, style];
 

@@ -24,9 +24,9 @@ function unpack<T>(rule: InputRuleValue<T>): { value: T; message?: string } {
 }
 
 /**
- * Error del valor, o undefined si es válido. Orden: obligatorio, largo mínimo,
- * máximo, patrón, validación propia — se muestra un solo error, el primero.
- * Un campo opcional vacío es válido: las demás reglas no corren sobre nada.
+ * Error for the value, or undefined if it is valid. Order: required, min
+ * length, max length, pattern, custom validation — a single error is shown,
+ * the first one. An empty optional field is valid: the other rules don't run on nothing.
  */
 export function validateInputValue(
   value: string,
@@ -46,7 +46,7 @@ export function validateInputValue(
   }
   if (rules.pattern !== undefined) {
     const { value: re, message } = unpack(rules.pattern);
-    // Un RegExp con flag `g` guarda lastIndex entre llamadas: se reinicia.
+    // A RegExp with the `g` flag keeps lastIndex between calls: reset it.
     re.lastIndex = 0;
     if (!re.test(value)) return message ?? labels.patternError;
   }

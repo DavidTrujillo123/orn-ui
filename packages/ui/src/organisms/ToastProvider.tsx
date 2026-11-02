@@ -30,9 +30,9 @@ const ToastContext = createContext<ToastContextValue | undefined>(undefined);
 const bridge = createImperativeBridge<ToastContextValue>('ToastProvider');
 
 /**
- * Muestra un toast desde fuera del árbol de React —un servicio, un
- * interceptor— sin pasar por el hook. Devuelve el id, o '' si no hay
- * <ToastProvider> montado.
+ * Shows a toast from outside the React tree —a service, an interceptor—
+ * without going through the hook. Returns the id, or '' if there is no
+ * mounted <ToastProvider>.
  */
 export function showToast(options: ToastOptions): string {
   return bridge.get()?.show(options) ?? '';
@@ -62,9 +62,9 @@ export interface ToastProviderProps {
 
 /**
  * ToastProvider
- * Monta la capa de toasts sobre el resto de la app. Colocar una vez cerca de
- * la raíz, dentro de UIProvider. Los timers de auto-dismiss se limpian al
- * desmontar y al cerrar cada toast, así que no quedan callbacks colgados.
+ * Mounts the toast layer above the rest of the app. Place it once near the
+ * root, inside UIProvider. The auto-dismiss timers are cleared on unmount and
+ * when each toast closes, so no callbacks are left hanging.
  */
 export function ToastProvider({
   children,
@@ -108,8 +108,8 @@ export function ToastProvider({
 
       setToasts((prev) => {
         const next = [...prev, { ...options, id }];
-        // Se descartan los más viejos, no los recién llegados: un toast nuevo
-        // siempre se ve.
+        // The oldest are dropped, not the newcomers: a new toast is always
+        // visible.
         const overflow = next.length - maxVisible;
         if (overflow > 0) {
           next.slice(0, overflow).forEach((t) => clearTimer(t.id));
@@ -129,8 +129,8 @@ export function ToastProvider({
     [defaultDuration, maxVisible, hide, clearTimer]
   );
 
-  // Al desmontar el provider no debe quedar ningún setTimeout apuntando a un
-  // setState de un árbol ya desmontado.
+  // When the provider unmounts no setTimeout must be left pointing at a
+  // setState of an already unmounted tree.
   useEffect(() => {
     const pending = timers.current;
     return () => {

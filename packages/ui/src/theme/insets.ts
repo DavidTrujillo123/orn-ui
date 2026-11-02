@@ -1,4 +1,4 @@
-/** Estructuralmente igual a EdgeInsets de react-native-safe-area-context, sin depender del paquete. */
+/** Structurally identical to react-native-safe-area-context's EdgeInsets, without depending on the package. */
 export interface EdgeInsets {
   top: number;
   right: number;

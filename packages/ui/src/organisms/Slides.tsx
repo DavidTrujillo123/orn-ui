@@ -20,7 +20,7 @@ export type { SlidesOrientation } from './useSlides';
 export type SlidesIndicators = 'dots' | 'numbers' | 'none';
 export type SlidesIndicatorPlacement = 'overlay' | 'outside';
 
-/** Un color sólido, o dos o más para un degradado (ver `Gradient`). */
+/** A solid color, or two or more for a gradient (see `Gradient`). */
 export type SlideBackground = string | string[];
 
 export interface SlidesProps<T> {
@@ -80,15 +80,15 @@ const DEFAULT_HEIGHT = 240;
 const DEFAULT_INTERVAL = 4000;
 
 const useStyles = createStyles((theme) => ({
-  // Deja redondear el bloque por `style` sin que el degradado se salga.
+  // Lets the block be rounded via `style` without the gradient spilling out.
   root: { overflow: 'hidden' },
   viewport: { flex: 1 },
-  // La slide visible es la caja de adentro: con `spacing` la página es más
-  // ancha que ella, y el fondo tiene que recortarse acá y no en la página, o
-  // el degradado pinta también el hueco.
+  // The visible slide is the inner box: with `spacing` the page is wider
+  // than it, and the background has to be clipped here and not on the page, or
+  // the gradient paints the gap too.
   slide: { flex: 1, overflow: 'hidden' },
-  // Con indicadores fuera y orientación vertical el contenedor es una fila:
-  // sin flex la ventana no tiene ancho propio y colapsa a 0.
+  // With indicators outside and vertical orientation the container is a row:
+  // without flex the window has no width of its own and collapses to 0.
   viewportInRow: { flex: 1 },
   slideContent: { flex: 1 },
 
@@ -115,7 +115,7 @@ const useStyles = createStyles((theme) => ({
     gap: 3,
   },
   pauseBar: { width: 3, height: 12, borderRadius: 1 },
-  // Triángulo con bordes: un "play" sin SVG ni set de íconos.
+  // Triangle made of borders: a "play" without SVG or an icon set.
   playTriangle: {
     width: 0,
     height: 0,
@@ -145,7 +145,7 @@ const useStyles = createStyles((theme) => ({
 interface DotProps {
   selected: boolean;
   isHorizontal: boolean;
-  /** En overlay el contraste lo da la opacidad; afuera, el color. */
+  /** In overlay the contrast comes from opacity; outside, from color. */
   overlay: boolean;
   activeColor: string;
   inactiveColor: string;
@@ -153,9 +153,9 @@ interface DotProps {
 }
 
 /**
- * El punto activo se estira en vez de saltar: el cambio de golpe se lee como
- * "apareció otro punto", no como "el mismo se movió". Ancho y color son props
- * de layout/pintura, así que van por el driver de JS.
+ * The active dot stretches instead of jumping: an abrupt change reads as
+ * "another dot appeared", not as "the same one moved". Width and color are
+ * layout/paint props, so they go through the JS driver.
  */
 const Dot = memo(({ selected, isHorizontal, overlay, activeColor, inactiveColor, testID }: DotProps) => {
   const styles = useStyles();
@@ -191,13 +191,14 @@ Dot.displayName = 'SlidesDot';
 
 /**
  * Slides
- * Carrusel con fondo propio (color plano o degradado) y contenido libre:
- * `renderItem` decide si adentro va una imagen, texto o botones. El estado
- * vive en `useSlides`; acá sólo está el árbol.
+ * Carousel with its own background (flat color or gradient) and free-form
+ * content: `renderItem` decides whether an image, text or buttons go inside.
+ * The state lives in `useSlides`; only the tree is here.
  *
- * El deslizamiento es un `ScrollView` con `pagingEnabled` en vez de gestos a
- * mano: es lo único que da snap nativo en iOS y Android sin
- * `react-native-gesture-handler`, en todo el rango soportado (Expo SDK 54–57).
+ * Sliding is a `ScrollView` with `pagingEnabled` instead of hand-made
+ * gestures: it is the only thing that gives native snapping on iOS and
+ * Android without `react-native-gesture-handler`, across the whole supported
+ * range (Expo SDK 54–57).
  */
 export function Slides<T>({
   data,
@@ -296,7 +297,7 @@ export function Slides<T>({
     );
   };
 
-  // Con reduce-motion el autoPlay ya está apagado: no hay nada que pausar.
+  // With reduce-motion autoPlay is already off: there is nothing to pause.
   const renderAutoPlayToggle = () => {
     if (!autoPlay || !showAutoPlayToggle || motionReduced || total < 2) return null;
     return (
@@ -379,9 +380,9 @@ export function Slides<T>({
           pages.map(({ real, clone }) => {
             const item = data[real] as T;
             return (
-              // El hueco se reparte a los dos lados de cada página: así la
-              // separación entre dos slides es `spacing` entero y la página
-              // sigue midiendo exactamente lo que pagina el ScrollView.
+              // The gap is split on both sides of each page: that way the
+              // separation between two slides is a full `spacing` and the page
+              // still measures exactly what the ScrollView pages by.
               <View
                 key={clone ? `slides-clone-${clone}` : keyExtractor(item, real)}
                 style={[

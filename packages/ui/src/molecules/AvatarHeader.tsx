@@ -34,8 +34,8 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * AvatarHeader
- * Círculo 80x80 con ícono o iniciales + título/subtítulo centrado. Header
- * típico de modales de detalle (cliente, producto, etc).
+ * 80x80 circle with an icon or initials + centered title/subtitle. Typical
+ * header of detail modals (client, product, etc).
  */
 export const AvatarHeader = memo(({ iconName, iconColor, initials, title, subtitle, style }: AvatarHeaderProps) => {
   const colors = useColors();

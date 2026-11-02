@@ -1,9 +1,9 @@
 /**
- * Utilidades de color sin dependencias, usadas para derivar una familia de
- * roles (relleno / encima / tenue / legible) a partir de un solo hex de marca.
+ * Dependency-free color utilities, used to derive a family of roles
+ * (fill / on-top / soft / readable) from a single brand hex.
  */
 
-/** Contraste mínimo AA para texto normal. */
+/** Minimum AA contrast for normal text. */
 export const AA_CONTRAST = 4.5;
 
 export interface Rgb {
@@ -18,7 +18,7 @@ export interface Hsl {
   l: number;
 }
 
-/** Roles que necesita un acento del theme, en un esquema concreto. */
+/** Roles a theme accent needs, in a given scheme. */
 export interface AccentRoles {
   /** Solid fill: button background, current step's circle. */
   base: string;
@@ -100,13 +100,13 @@ function channelLuminance(value: number) {
   return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
 }
 
-/** Luminancia relativa WCAG de un hex. */
+/** WCAG relative luminance of a hex. */
 export function luminance(hex: string): number {
   const { r, g, b } = hexToRgb(hex);
   return 0.2126 * channelLuminance(r) + 0.7152 * channelLuminance(g) + 0.0722 * channelLuminance(b);
 }
 
-/** Ratio de contraste WCAG entre dos hex: 1 (igual) a 21 (blanco sobre negro). */
+/** WCAG contrast ratio between two hexes: 1 (equal) to 21 (white on black). */
 export function contrast(a: string, b: string): number {
   const la = luminance(a);
   const lb = luminance(b);
@@ -114,8 +114,8 @@ export function contrast(a: string, b: string): number {
 }
 
 /**
- * Blanco si alcanza el contraste AA —es lo que se espera encima de un relleno
- * de color— y si no, el extremo que más contraste dé.
+ * White if it reaches AA contrast —which is what you expect on top of a color
+ * fill— and otherwise whichever extreme gives the most contrast.
  */
 function bestOnColor(background: string, light: string, dark: string): string {
   if (contrast(background, light) >= AA_CONTRAST) return light;
@@ -123,9 +123,9 @@ function bestOnColor(background: string, light: string, dark: string): string {
 }
 
 /**
- * Mueve la luminosidad del tono hasta alcanzar el contraste pedido contra
- * `against`. Si ni el extremo llega —un amarillo puro sobre blanco, por
- * ejemplo— devuelve el más contrastado que encontró en el camino.
+ * Shifts the hue's lightness until it reaches the requested contrast against
+ * `against`. If not even the extreme gets there —pure yellow on white, for
+ * example— it returns the most contrasting one found along the way.
  */
 function reachContrast(hsl: Hsl, against: string, target: number, direction: 'darker' | 'lighter'): string {
   const step = direction === 'darker' ? -0.02 : 0.02;
@@ -146,9 +146,9 @@ function reachContrast(hsl: Hsl, against: string, target: number, direction: 'da
 }
 
 /**
- * Deriva los cuatro roles de un acento a partir de un hex, para un esquema.
- * `surface` es el fondo sobre el que tiene que leerse el rol `text`, así que
- * cada esquema pasa el suyo.
+ * Derives an accent's four roles from a hex, for one scheme.
+ * `surface` is the background the `text` role has to be read on, so each
+ * scheme passes its own.
  */
 export function deriveAccent(hex: string, scheme: 'light' | 'dark', surface: string): AccentRoles {
   const hsl = toHsl(hex);
@@ -163,8 +163,8 @@ export function deriveAccent(hex: string, scheme: 'light' | 'dark', surface: str
     };
   }
 
-  // En oscuro el acento sube de luminosidad y lo que va encima baja: un
-  // #004cef sobre #1e1e1e no se distingue del fondo.
+  // In dark the accent goes up in lightness and what sits on top goes down: a
+  // #004cef over #1e1e1e can't be told apart from the background.
   const base = toHex({ ...hsl, l: 0.72 });
   return {
     base,

@@ -68,9 +68,9 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * DateField
- * Campo de fecha: se ve como un Input, abre un `DatePicker` en un Modal al
- * tocarlo. Sin picker nativo del sistema, así que se ve y se comporta igual
- * en iOS y Android.
+ * Date field: looks like an Input, opens a `DatePicker` in a Modal when
+ * tapped. No native system picker, so it looks and behaves the same on iOS
+ * and Android.
  */
 export const DateField = memo(
   ({
@@ -104,8 +104,8 @@ export const DateField = memo(
 
     const formatDate = (date: Date) => (format ? format(date) : defaultFormat(date, months));
 
-    // El calendario se cierra solo cuando ya no falta nada por elegir: en
-    // rango, recién cuando el segundo toque cierra el intervalo.
+    // The calendar closes on its own only once there is nothing left to pick:
+    // in range mode, only when the second tap closes the interval.
     const handleChange = useCallback(
       (date: Date) => {
         onChange?.(date);

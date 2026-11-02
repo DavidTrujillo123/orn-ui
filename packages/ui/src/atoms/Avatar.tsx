@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
   circle: { justifyContent: 'center', alignItems: 'center', overflow: 'hidden' },
 });
 
-/** "Ada Lovelace" → "AL", "ada" → "A", "  " → "". Respeta caracteres fuera del BMP. */
+/** "Ada Lovelace" → "AL", "ada" → "A", "  " → "". Handles characters outside the BMP. */
 export function initialsOf(name: string): string {
   const words = name.trim().split(/\s+/).filter(Boolean);
   if (words.length === 0) return '';
@@ -47,22 +47,21 @@ export function initialsOf(name: string): string {
 
 /**
  * Avatar
- * Círculo con foto, iniciales o ícono. Usado a la izquierda de filas de
- * lista o como header de detalle (junto a AvatarHeader).
+ * Circle with a photo, initials or an icon. Used on the left of list rows
+ * or as a detail header (alongside AvatarHeader).
  *
- * Prioridad: `children` → `source` (si carga) → iniciales de `name` →
- * `iconName` → ícono `user`. Una foto rota no deja un círculo vacío: cae a
- * las iniciales.
+ * Priority: `children` → `source` (if it loads) → initials of `name` →
+ * `iconName` → `user` icon. A broken photo doesn't leave an empty circle: it
+ * falls back to the initials.
  *
  * Gestalt:
- * - Similitud: todos los avatares de una lista comparten forma y tamaño, así
- *   una columna de personas se escanea como una serie aunque mezcle fotos,
- *   iniciales e íconos.
- * - Cierre: el círculo recorta la foto (overflow hidden); las iniciales y el
- *   ícono se escalan con `size` para que el contenido siempre quede dentro.
+ * - Similarity: all avatars in a list share shape and size, so a column of
+ *   people scans as a series even when it mixes photos, initials and icons.
+ * - Closure: the circle clips the photo (overflow hidden); initials and the
+ *   icon scale with `size` so the content always stays inside.
  *
- * Accesibilidad: con `name` (o `accessibilityLabel`) se anuncia como imagen
- * con ese nombre; sin ninguno es decorativo.
+ * Accessibility: with `name` (or `accessibilityLabel`) it announces itself as
+ * an image with that name; with neither it is decorative.
  */
 export const Avatar = memo(
   ({

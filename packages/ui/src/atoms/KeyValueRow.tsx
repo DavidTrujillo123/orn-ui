@@ -23,11 +23,11 @@ const useStyles = createStyles((theme) => ({
     alignItems: 'center',
     gap: theme.tokens.spacing.md,
   },
-  // Dos textos: alineados por la primera línea, así un valor que se parte en
-  // varias líneas sigue leyéndose junto a su label.
+  // Two texts: aligned on the first line, so a value that wraps onto
+  // several lines still reads next to its label.
   rowText: { alignItems: 'baseline' },
-  // El label conserva su ancho natural hasta la mitad de la fila; el valor
-  // encoge y se parte en líneas en vez de empujar la fila fuera de la pantalla.
+  // The label keeps its natural width up to half the row; the value
+  // shrinks and wraps instead of pushing the row off the screen.
   label: {
     flexShrink: 0,
     maxWidth: '50%',
@@ -42,8 +42,8 @@ const useStyles = createStyles((theme) => ({
     lineHeight: theme.tokens.lineHeight.sm,
     textAlign: 'right',
     color: theme.colors.text,
-    // Dígitos de ancho fijo: en una columna de montos las cifras quedan
-    // alineadas entre filas.
+    // Fixed-width digits: in a column of amounts the figures line up
+    // across rows.
     fontVariant: ['tabular-nums'],
   },
 }));
@@ -53,16 +53,16 @@ const isPrimitive = (node: React.ReactNode): node is string | number =>
 
 /**
  * KeyValueRow
- * Fila label (izquierda) / value (derecha). Si label/value son string o
- * number, se renderizan con el estilo default; si ya vienen envueltos en un
- * componente propio, se respetan tal cual.
+ * Label (left) / value (right) row. If label/value are a string or number,
+ * they render with the default style; if they already come wrapped in a
+ * custom component, they are kept as is.
  *
- * Gestalt, alineación y similitud: los labels comparten color y peso y los
- * valores se alinean al borde derecho con dígitos tabulares, así una pila de
- * filas se lee como dos columnas — qué a la izquierda, cuánto a la derecha.
- * Con label y valor de texto, la fila es un solo nodo de accesibilidad
- * ("Subtotal, $300.00"); si alguno es un nodo propio (un Badge, un botón) no
- * se fusiona, para no tapar lo que ese nodo anuncie o permita tocar.
+ * Gestalt, alignment and similarity: labels share color and weight and values
+ * align to the right edge with tabular digits, so a stack of rows reads as
+ * two columns — what on the left, how much on the right.
+ * With a text label and value, the row is a single accessibility node
+ * ("Subtotal, $300.00"); if either is a custom node (a Badge, a button) it
+ * isn't merged, so as not to hide what that node announces or lets you tap.
  */
 export const KeyValueRow = memo(
   ({ label, value, style, labelStyle, valueStyle, testID }: KeyValueRowProps) => {

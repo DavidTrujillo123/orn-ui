@@ -28,9 +28,9 @@ export interface EmptyStateProps {
   testID?: string;
 }
 
-/** Tamaño del ícono: punto focal del bloque sin competir con el título. */
+/** Icon size: the block's focal point without competing with the title. */
 const ICON_SIZE = 48;
-/** Alto mínimo: el bloque no se aplasta dentro de una lista vacía corta. */
+/** Minimum height: the block doesn't get squashed inside a short empty list. */
 const MIN_HEIGHT = 200;
 
 const useStyles = createStyles((theme) => ({
@@ -62,15 +62,16 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * EmptyState
- * Ícono + título + descripción centrados para una lista o pantalla sin datos.
+ * Centered icon + title + description for a list or screen with no data.
  *
- * Gestalt, proximidad: título y descripción van pegados (`spacing.xs`) y el
- * ícono un paso más lejos (`spacing.md`), así se leen como un mensaje con su
- * imagen y no como tres piezas sueltas. Similitud: el título en `text` y la
- * descripción en `textLight` marcan la jerarquía. La acción, si hay, queda
- * más separada (`spacing.lg`): es el siguiente paso, no parte del mensaje.
- * El mensaje es un solo nodo de accesibilidad (título y descripción juntos;
- * el ícono es decorativo) y el botón, uno aparte que se puede enfocar.
+ * Gestalt, proximity: title and description sit close together (`spacing.xs`)
+ * and the icon one step further (`spacing.md`), so they read as a message
+ * with its image and not as three loose pieces. Similarity: the title in
+ * `text` and the description in `textLight` mark the hierarchy. The action,
+ * if any, is set further apart (`spacing.lg`): it is the next step, not part
+ * of the message.
+ * The message is a single accessibility node (title and description together;
+ * the icon is decorative) and the button a separate, focusable one.
  */
 export const EmptyState = memo(
   ({ title, description, iconName = 'search', icon, action, style, testID }: EmptyStateProps) => {

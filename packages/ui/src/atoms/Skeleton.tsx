@@ -11,7 +11,7 @@ import { createStyles } from '../theme/createStyles';
 import { useTheme } from '../theme/UIProvider';
 import { useReduceMotion } from './Transition';
 
-/** Medio ciclo del latido (opaco → tenue). Un loop de carga, no una transición: no sale de `duration`. */
+/** Half a pulse cycle (opaque → faint). A loading loop, not a transition: it doesn't come from `duration`. */
 const PULSE_HALF_MS = 700;
 
 export type SkeletonVariant = 'rect' | 'text' | 'circle';
@@ -37,9 +37,9 @@ export interface SkeletonProps {
 
 const useStyles = createStyles((theme) => ({
   block: { backgroundColor: theme.colors.skeleton },
-  // Cada renglón ocupa exactamente `lineHeight.md` (el de Body): barra de
-  // `fontSize.md` más la mitad del interlineado arriba y abajo. Así el párrafo
-  // falso mide lo mismo que el real y no hay salto al llegar el contenido.
+  // Each line takes exactly `lineHeight.md` (Body's): a `fontSize.md` bar
+  // plus half the leading above and below. That way the fake paragraph
+  // measures the same as the real one and nothing jumps when the content arrives.
   textLine: {
     marginVertical: (theme.tokens.lineHeight.md - theme.tokens.fontSize.md) / 2,
   },
@@ -47,14 +47,14 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Skeleton
- * Placeholder que late mientras llega el contenido real. Reserva el espacio
- * exacto de lo que reemplaza, así la pantalla no salta cuando aparecen los
- * datos — que es justamente lo que un Spinner centrado no puede hacer.
+ * Placeholder that pulses while the real content arrives. It reserves the
+ * exact space of what it replaces, so the screen doesn't jump when the data
+ * shows up — which is precisely what a centered Spinner can't do.
  *
- * Gestalt, similitud: la silueta repite forma y tamaño del contenido (círculo
- * para avatares, renglones del alto de Body para texto), así el ojo ya agrupa
- * la pantalla antes de que lleguen los datos. Respeta Reduce Motion: sin
- * latido, bloque fijo.
+ * Gestalt, similarity: the silhouette repeats the shape and size of the
+ * content (a circle for avatars, Body-height lines for text), so the eye
+ * already groups the screen before the data arrives. Respects Reduce Motion:
+ * no pulse, a static block.
  */
 export const Skeleton = memo(
   ({

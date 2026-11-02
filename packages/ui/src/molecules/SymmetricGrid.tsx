@@ -34,10 +34,10 @@ function chunk<T>(data: T[], size: number): T[][] {
 
 /**
  * SymmetricGrid
- * Ley de Prägnanz (buena forma): agrupa en filas parejas de N columnas.
- * La última fila, cuando queda incompleta, se centra por defecto en vez de
- * quedar pegada a un borde — eso es lo que la lee como "fila corta" y no
- * como un layout roto con un hueco a un lado.
+ * Law of Prägnanz (good form): groups items into even rows of N columns.
+ * The last row, when incomplete, is centered by default instead of sticking
+ * to one edge — that is what makes it read as a "short row" and not as a
+ * broken layout with a gap on one side.
  */
 export function SymmetricGrid<T>({
   data,
@@ -61,8 +61,8 @@ export function SymmetricGrid<T>({
 
         return (
           <View
-            // `columns` en la key: si cambia, las filas no reusan nodos DOM
-            // de una fila armada con otra cantidad de columnas.
+            // `columns` in the key: if it changes, rows don't reuse DOM nodes
+            // from a row built with a different number of columns.
             key={`row-${columns}-${rowIndex}`}
             style={[styles.row, centered ? styles.rowBalanced : styles.rowFull, gap !== undefined && { gap }]}
           >

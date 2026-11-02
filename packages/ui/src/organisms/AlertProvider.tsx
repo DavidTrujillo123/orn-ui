@@ -27,15 +27,15 @@ const AlertContext = createContext<AlertContextValue | undefined>(undefined);
 const bridge = createImperativeBridge<AlertContextValue>('AlertProvider');
 
 /**
- * Abre un alert desde fuera del árbol de React —un servicio, un interceptor—
- * sin pasar por el hook. Sin <AlertProvider> montado resuelve de inmediato, así
- * que un `await` nunca queda colgado.
+ * Opens an alert from outside the React tree —a service, an interceptor—
+ * without going through the hook. Without a mounted <AlertProvider> it
+ * resolves immediately, so an `await` never hangs.
  */
 export function showAlert(options: AlertOptions): Promise<void> {
   return bridge.get()?.alert(options) ?? Promise.resolve();
 }
 
-/** Igual que showAlert, pero resuelve true/false. Sin provider, false. */
+/** Same as showAlert, but resolves true/false. Without a provider, false. */
 export function showConfirm(options: ConfirmOptions): Promise<boolean> {
   return bridge.get()?.confirm(options) ?? Promise.resolve(false);
 }
@@ -56,16 +56,16 @@ const HIDDEN: InternalState = { visible: false, title: '', type: 'info', buttons
 
 /**
  * AlertProvider
- * Monta un único <Alert> controlado imperativamente. Colocar una vez cerca
- * de la raíz (dentro de UIProvider). Los handlers async pueden hacer
- * `const ok = await confirm({ title: 'Eliminar', destructive: true })`.
+ * Mounts a single imperatively controlled <Alert>. Place it once near the
+ * root (inside UIProvider). Async handlers can do
+ * `const ok = await confirm({ title: 'Delete', destructive: true })`.
  */
 export function AlertProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<InternalState>(HIDDEN);
   const resolverRef = useRef<((value: any) => void) | null>(null);
-  // Si alert()/confirm() se llaman de nuevo mientras ya hay uno abierto, el
-  // pedido anterior se resuelve (no se descarta) antes de mostrar el nuevo:
-  // evita que su promise quede colgada para siempre.
+  // If alert()/confirm() are called again while one is already open, the
+  // previous request is resolved (not discarded) before showing the new one:
+  // this keeps its promise from hanging forever.
   const settlePending = useCallback(() => {
     resolverRef.current?.(undefined);
     resolverRef.current = null;

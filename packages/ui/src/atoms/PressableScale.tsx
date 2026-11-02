@@ -16,21 +16,22 @@ export interface PressableScaleProps extends Omit<PressableProps, 'style' | 'chi
   children: React.ReactNode;
 }
 
-/** Resorte corto y casi sin rebote: el feedback llega en ~100 ms (Doherty). */
+/** Short spring with almost no bounce: feedback arrives in ~100 ms (Doherty). */
 const PRESS_SPRING = { speed: 50, bounciness: 6 } as const;
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 /**
  * PressableScale
- * Feedback táctil de "achicarse" al presionar, con Animated.spring de RN
- * (useNativeDriver: true — corre en el hilo nativo, sin coste de JS por frame).
- * No depende de reanimated: la librería entera es cero-dependencias.
+ * Tactile "shrink" feedback on press, with RN's Animated.spring
+ * (useNativeDriver: true — runs on the native thread, no JS cost per frame).
+ * Doesn't depend on reanimated: the whole library is zero-dependency.
  *
- * Gestalt, figura/fondo: al hundirse, lo presionado se separa un instante del
- * resto y confirma qué se tocó (Doherty: respuesta inmediata). Se anuncia como
- * botón por defecto (`accessibilityRole` se puede cambiar) y deshabilitado
- * expone `disabled` al lector. Con Reduce Motion no escala.
+ * Gestalt, figure/ground: as it sinks, the pressed element separates for an
+ * instant from the rest and confirms what was touched (Doherty: immediate
+ * response). Announces itself as a button by default (`accessibilityRole` can
+ * be changed) and, when disabled, exposes `disabled` to the screen reader.
+ * With Reduce Motion it doesn't scale.
  */
 export const PressableScale = memo(
   ({

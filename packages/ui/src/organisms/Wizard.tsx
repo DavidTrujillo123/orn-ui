@@ -52,10 +52,10 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Wizard
- * Flujo multi-paso: indicador (Steps) + contenido del paso actual + barra de
- * navegación. Funciona controlado (`current` + `onStepChange`) o por su
- * cuenta. `canGoNext: false` en un paso deshabilita el avance, que es donde
- * se engancha la validación del formulario de ese paso.
+ * Multi-step flow: indicator (Steps) + content of the current step +
+ * navigation bar. Works controlled (`current` + `onStepChange`) or on its
+ * own. `canGoNext: false` on a step disables moving forward, which is where
+ * that step's form validation hooks in.
  */
 export function Wizard({
   steps,
@@ -91,7 +91,7 @@ export function Wizard({
     [steps]
   );
 
-  // El ref todavía guarda el paso anterior durante el render que trae el nuevo.
+  // The ref still holds the previous step during the render that brings the new one.
   const previous = useRef(current);
   const forward = current >= previous.current;
   const entered = useRef(false);
@@ -110,8 +110,8 @@ export function Wizard({
     else goTo(current + 1);
   };
 
-  // El paso saliente no se anima: mantener los dos montados a la vez duplicaría
-  // los formularios y su estado.
+  // The outgoing step isn't animated: keeping both mounted at once would
+  // duplicate the forms and their state.
   const renderContent = () =>
     animated ? (
       <Transition
@@ -133,14 +133,14 @@ export function Wizard({
         current={current}
         orientation={orientation}
         completedIndicator={completedIndicator}
-        // Sólo se puede volver atrás tocando el indicador; saltar hacia
-        // adelante se saltearía la validación de los pasos intermedios.
+        // You can only go back by tapping the indicator; jumping forward
+        // would skip the validation of the steps in between.
         onStepPress={allowStepNavigation ? (index) => index < current && goTo(index) : undefined}
       />
 
-      {/* El contenido scrollea en vez de desbordar: con el teclado abierto un
-          form largo se comía el footer y los botones quedaban pintados encima
-          de los campos. */}
+      {/* The content scrolls instead of overflowing: with the keyboard open a
+          long form ate the footer and the buttons ended up painted over the
+          fields. */}
       {scrollableContent ? (
         <ScrollView
           testID="wizard-content"
@@ -150,8 +150,8 @@ export function Wizard({
           automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
         >
-          {/* iOS: el ScrollView ya sube el campo (automaticallyAdjustKeyboardInsets).
-              Android no tiene ese prop: ahí lo resuelve el host de la raíz. */}
+          {/* iOS: the ScrollView already lifts the field (automaticallyAdjustKeyboardInsets).
+              Android doesn't have that prop: there the root host handles it. */}
           {Platform.OS === 'ios' ? <KeyboardHandled>{renderContent()}</KeyboardHandled> : renderContent()}
         </ScrollView>
       ) : (

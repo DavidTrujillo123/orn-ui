@@ -12,11 +12,11 @@ import { KeyboardHandled, KeyboardPanArea } from './KeyboardAvoidance';
 export type ThemeMode = 'system' | 'light' | 'dark';
 
 /**
- * Un `<Modal>`/`<BottomSheet>` nativo abre su propia ventana (en Android
- * siempre; en iOS según `presentationStyle`), así que los insets medidos en
- * la raíz de la app pueden no valer ahí adentro. El boundary monta un
- * `<SafeAreaProvider>` nuevo dentro de esa ventana y remide; mientras no llega
- * la primera medición repite los insets ambientes.
+ * A native `<Modal>`/`<BottomSheet>` opens its own window (always on Android;
+ * on iOS depending on `presentationStyle`), so the insets measured at the app
+ * root may not hold in there. The boundary mounts a new `<SafeAreaProvider>`
+ * inside that window and re-measures; until the first measurement arrives it
+ * repeats the ambient insets.
  */
 export interface ModalSafeAreaBoundaryProps {
   children: (insets: EdgeInsets) => React.ReactNode;
@@ -115,11 +115,12 @@ interface UIProviderBaseProps extends Omit<UIProviderProps, 'insets' | 'mountSaf
 
 /**
  * UIProvider
- * Único punto de entrada de la librería: resuelve el theme activo (sistema u
- * override manual), mide los insets de safe area (react-native-safe-area-context,
- * peer obligatorio) e inyecta íconos, insets y textos por defecto a todo el
- * árbol. No persiste el modo — si el consumidor quiere recordar la preferencia
- * entre sesiones, controla `mode`/`onModeChange` y persiste donde prefiera.
+ * The library's single entry point: resolves the active theme (system or
+ * manual override), measures the safe area insets (react-native-safe-area-context,
+ * a required peer) and injects icons, insets and default texts into the whole
+ * tree. It doesn't persist the mode — if the consumer wants to remember the
+ * preference across sessions, it controls `mode`/`onModeChange` and persists
+ * wherever it prefers.
  */
 export function UIProvider({ mountSafeAreaProvider = true, ...props }: UIProviderProps) {
   if (!mountSafeAreaProvider) return <MeasuredUIProvider {...props} />;
@@ -147,8 +148,8 @@ function UIProviderBase({
   allowFontScaling = false,
   keyboardAvoidance = true,
 }: UIProviderBaseProps) {
-  // Solo el provider raíz desplaza la app: uno anidado (un modal con su propio
-  // provider, un test) no envuelve nada ni cambia el layout.
+  // Only the root provider shifts the app: a nested one (a modal with its own
+  // provider, a test) wraps nothing and doesn't change the layout.
   const isRoot = useContext(UIContext) === undefined;
   const ModalSafeAreaBoundary = RemeasuringModalSafeAreaBoundary;
   const systemScheme = useColorScheme();
@@ -239,10 +240,10 @@ export function useAllowFontScaling(): boolean {
   return useUIContext().allowFontScaling;
 }
 
-/** Interno: lo consumen `Modal`/`BottomSheet` para remedir insets dentro de su propia ventana nativa. */
+/** Internal: consumed by `Modal`/`BottomSheet` to re-measure insets inside their own native window. */
 export function useModalSafeAreaBoundary(): ModalSafeAreaBoundaryComponent {
   return useUIContext().ModalSafeAreaBoundary;
 }
 
-/** Re-exportado para que tests/consumidores puedan simular cambios de sistema sin RN real. */
+/** Re-exported so tests/consumers can simulate system changes without real RN. */
 export const __testUtils = { Appearance };

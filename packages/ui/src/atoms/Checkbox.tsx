@@ -18,8 +18,8 @@ export interface CheckboxProps {
 }
 
 const useStyles = createStyles((theme) => ({
-  // 44pt de alto: la fila entera es el área táctil (Fitts). Reemplaza al
-  // marginBottom que separaba checkboxes apilados; ahora el aire lo da la fila.
+  // 44pt tall: the whole row is the touch area (Fitts). Replaces the
+  // marginBottom that separated stacked checkboxes; now the row provides the room.
   container: { flexDirection: 'row', alignItems: 'center', minHeight: 44 },
   box: {
     width: 24,
@@ -36,26 +36,26 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Checkbox
- * Casilla + label opcional; toda la fila es tocable.
+ * Box + optional label; the whole row is touchable.
  *
  * Gestalt:
- * - Proximidad: la casilla y su label van a `spacing.md`, menos que la
- *   separación entre filas, así cada label se lee con su casilla.
- * - Región común: la fila entera es el área táctil, no solo la casilla, y
- *   mide al menos 44pt de alto (Fitts).
- * - Figura y fondo: marcada, la casilla se rellena con el acento y el check
- *   toma negro o blanco según ese relleno (también con `color` propio).
+ * - Proximity: the box and its label sit `spacing.md` apart, less than the
+ *   spacing between rows, so each label reads with its box.
+ * - Common region: the whole row is the touch area, not just the box, and it
+ *   is at least 44pt tall (Fitts).
+ * - Figure and ground: when checked, the box fills with the accent and the
+ *   check turns black or white depending on that fill (also with a custom `color`).
  *
- * `disabled` atenúa la casilla y el label (no solo la casilla). La animación
- * del check se omite con Reduce Motion.
+ * `disabled` dims the box and the label (not just the box). The check
+ * animation is skipped with Reduce Motion.
  */
 export const Checkbox = memo(({ value, onValueChange, label, color, disabled, accessibilityLabel, testID }: CheckboxProps) => {
   const colors = useColors();
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
   const activeColor = color || colors.primary;
-  // El check va encima del relleno: con `color` propio se elige negro o blanco
-  // por luminancia (un blanco fijo desaparecía sobre colores claros).
+  // The check sits on top of the fill: with a custom `color`, black or white is
+  // picked by luminance (a fixed white disappeared over light colors).
   const checkColor = color ? onColor(color) : colors.onPrimary;
   const theme = useTheme();
   const reduceMotion = useReduceMotion();

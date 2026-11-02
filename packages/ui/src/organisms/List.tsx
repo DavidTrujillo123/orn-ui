@@ -61,9 +61,9 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * List
- * Lista con estados de carga/paginación/vacío resueltos, sin atarse a
- * expo-router ni a FlashList: `ListComponent` permite inyectar cualquiera
- * (por defecto FlatList del propio React Native).
+ * List with loading/pagination/empty states handled, without being tied to
+ * expo-router or FlashList: `ListComponent` lets you inject any of them
+ * (React Native's own FlatList by default).
  */
 export function List<T>({
   data,
@@ -98,8 +98,8 @@ export function List<T>({
 
   const isInitialLoading = isLoading && data.length === 0;
 
-  // El footer propio y el loader de paginación conviven: antes el primero
-  // tapaba al segundo y la lista dejaba de avisar que estaba trayendo más.
+  // The custom footer and the pagination loader coexist: previously the first
+  // covered the second and the list stopped signaling it was fetching more.
   const renderFooter = useCallback(() => {
     const custom =
       typeof ListFooterComponent === 'function' ? (
@@ -120,8 +120,8 @@ export function List<T>({
     );
   }, [isLoadingMore, resolvedLoadingMoreText, ListFooterComponent, styles.footerLoader]);
 
-  // Vacío sólo cuando ya se sabe que no hay nada: durante la carga inicial se
-  // muestran placeholders, no "sin resultados".
+  // Empty only once it is known there is nothing: during the initial load
+  // placeholders are shown, not "no results".
   const renderEmpty = useCallback(() => {
     if (isLoading || isRefreshing) return null;
     return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={{ marginTop: 50 }} />;

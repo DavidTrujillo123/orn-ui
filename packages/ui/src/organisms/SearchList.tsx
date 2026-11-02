@@ -104,9 +104,9 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * SearchList
- * Buscador + lista + estados de carga/paginación/vacío. El contenido de
- * cada ítem (renderItem) queda a cargo de quien la usa, ya que difiere por
- * completo entre casos de uso.
+ * Search box + list + loading/pagination/empty states. The content of each
+ * item (renderItem) is up to whoever uses it, since it differs completely
+ * between use cases.
  */
 export function SearchList<T>({
   header,
@@ -154,8 +154,8 @@ export function SearchList<T>({
 
   const handleEndReached = onLoadMore ?? onEndReached;
 
-  // El footer propio y el loader de paginación conviven: antes el primero
-  // tapaba al segundo y la lista dejaba de avisar que estaba trayendo más.
+  // The custom footer and the pagination loader coexist: previously the first
+  // covered the second and the list stopped signaling it was fetching more.
   const renderFooter = useCallback(() => {
     const custom =
       typeof ListFooterComponent === 'function' ? (
@@ -181,8 +181,8 @@ export function SearchList<T>({
     );
   }, [ListFooterComponent, isLoadingMore, resolvedLoadingMoreText, noMoreText, hasMore, data.length, styles.footer, styles.footerText]);
 
-  // Vacío sólo cuando ya se sabe que no hay nada: durante la carga inicial se
-  // muestran placeholders, no "sin resultados".
+  // Empty only once it is known there is nothing: during the initial load
+  // placeholders are shown, not "no results".
   const renderEmpty = useCallback(() => {
     if (isLoading || isRefreshing) return null;
     return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={{ marginTop: 50 }} />;

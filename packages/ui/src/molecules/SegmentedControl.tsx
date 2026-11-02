@@ -39,8 +39,8 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * SegmentedControl
- * Elige una opción entre pocas, todas visibles. No conoce ningún estado
- * global: recibe `value` y avisa por `onChange`.
+ * Picks one option among a few, all visible. It knows no global state:
+ * it receives `value` and reports through `onChange`.
  */
 function SegmentedControlInner<T extends string>({
   options,
@@ -79,6 +79,6 @@ function SegmentedControlInner<T extends string>({
   );
 }
 
-// memo() pierde los genéricos al envolver: el cast los devuelve para que
-// `value` y `onChange` sigan atados al union de `options`.
+// memo() loses generics when wrapping: the cast restores them so that
+// `value` and `onChange` stay tied to the union of `options`.
 export const SegmentedControl = memo(SegmentedControlInner) as typeof SegmentedControlInner;

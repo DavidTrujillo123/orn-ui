@@ -61,16 +61,16 @@ const useStyles = createStyles((theme) => ({
   underline: { textDecorationLine: 'underline' },
   iconLeft: { marginRight: theme.tokens.spacing.sm },
   iconRight: { marginLeft: theme.tokens.spacing.sm },
-  // El label sigue ocupando su lugar (invisible) mientras carga: el botón no
-  // cambia de ancho y el spinner se centra encima.
+  // The label keeps taking its space (invisible) while loading: the button
+  // doesn't change width and the spinner is centered on top.
   hidden: { opacity: 0 },
   spinner: { position: 'absolute', top: 0, bottom: 0, left: 0, right: 0, alignItems: 'center', justifyContent: 'center' },
 }));
 
 /**
- * Área táctil extra para los tamaños que quedan por debajo de 44pt de alto
- * (Fitts): `sm` mide ~30pt y `link` ~27pt. hitSlop agranda la zona que recibe
- * el toque sin cambiar cómo se ve.
+ * Extra touch area for the sizes that fall below 44pt in height
+ * (Fitts): `sm` measures ~30pt and `link` ~27pt. hitSlop enlarges the area
+ * that receives the touch without changing how it looks.
  */
 function useHitSlop(size: ButtonSize, variant: ButtonVariant): Insets | undefined {
   const theme = useTheme();
@@ -90,8 +90,8 @@ function resolveColors(variant: ButtonVariant, disabled: boolean, colors: Return
     return { background: colors.inputBackground, text: colors.textLight, border: 'transparent' };
   }
   switch (variant) {
-    // Las variantes sin relleno pintan texto sobre el fondo de la pantalla:
-    // van con el rol `*Text`. Las rellenas van con `on*` sobre el acento.
+    // The unfilled variants paint text over the screen background: they
+    // use the `*Text` role. The filled ones use `on*` over the accent.
     case 'outline':
       return { background: 'transparent', text: colors.primaryText, border: colors.primary };
     case 'ghost':
@@ -110,24 +110,24 @@ function resolveColors(variant: ButtonVariant, disabled: boolean, colors: Return
 
 /**
  * Button
- * Único componente de botón de la librería. `variant` decide el estilo
- * semántico, `size` la densidad. El feedback de "presionado" anima solo
- * `transform` (Animated.spring, useNativeDriver) — nunca opacity ni layout —
- * y se omite con Reduce Motion activo.
+ * The library's only button component. `variant` sets the semantic style,
+ * `size` the density. The "pressed" feedback animates only `transform`
+ * (Animated.spring, useNativeDriver) — never opacity or layout — and is
+ * skipped when Reduce Motion is on.
  *
  * Gestalt:
- * - Punto focal (Von Restorff): `primary` es el único relleno con el acento y
- *   sombra; debe haber uno por pantalla o grupo. El resto de variantes baja
- *   el peso visual en escalones (secondary → outline → ghost → link).
- * - Similitud: todas las variantes comparten forma, radio y tipografía, así
- *   que una fila de botones se lee como un solo grupo de acciones; solo cambia
- *   lo que comunica la jerarquía (relleno, borde, color).
- * - Proximidad: ícono y label van a `spacing.sm`, mucho menos que el padding,
- *   así que se leen como una sola etiqueta.
+ * - Focal point (Von Restorff): `primary` is the only one filled with the
+ *   accent and a shadow; there should be one per screen or group. The other
+ *   variants step the visual weight down (secondary → outline → ghost → link).
+ * - Similarity: all variants share shape, radius and typography, so a row of
+ *   buttons reads as a single group of actions; only what conveys the
+ *   hierarchy changes (fill, border, color).
+ * - Proximity: icon and label sit `spacing.sm` apart, much less than the
+ *   padding, so they read as a single label.
  *
- * Fitts: `sm` y `link` miden menos de 44pt de alto y compensan con `hitSlop`.
- * Mientras `loading`, el label queda invisible pero ocupa su lugar: el botón no
- * cambia de ancho (sin saltos de layout).
+ * Fitts: `sm` and `link` are less than 44pt tall and make up for it with `hitSlop`.
+ * While `loading`, the label is invisible but keeps its space: the button
+ * doesn't change width (no layout jumps).
  */
 export const Button = memo(
   ({
@@ -172,9 +172,9 @@ export const Button = memo(
       variant === 'outline' && [styles.outline, { borderColor: resolved.border }],
       { backgroundColor: resolved.background },
       isFilled && !disabled && styles.filledShadow,
-      // Disabled ya se marca con sus colores (resolveColors); bajar además la
-      // opacidad lo dejaba casi invisible (figura y fondo). Solo `loading`
-      // atenúa, para indicar que el botón está ocupado.
+      // Disabled is already marked by its colors (resolveColors); lowering the
+      // opacity on top of that left it almost invisible (figure and ground).
+      // Only `loading` dims it, to signal that the button is busy.
       { opacity: loading && !disabled ? 0.7 : 1 },
       style,
     ];
@@ -190,11 +190,11 @@ export const Button = memo(
     const iconSize = size === 'sm' ? 16 : size === 'lg' ? 22 : 20;
 
     return (
-      // El Pressable ES el contenedor animado, no un wrapper alrededor de uno.
-      // Con un Animated.View interno, un `style` de layout (flex, width,
-      // margin) caía en el hijo mientras el Pressable — que es quien ocupa
-      // lugar en el layout del padre — quedaba sin él: el ancho colapsaba y
-      // el label desaparecía (visible en los botones en fila del Alert).
+      // The Pressable IS the animated container, not a wrapper around one.
+      // With an inner Animated.View, a layout `style` (flex, width, margin)
+      // landed on the child while the Pressable — which is what takes up
+      // space in the parent's layout — was left without it: the width
+      // collapsed and the label disappeared (visible in the Alert's row of buttons).
       <AnimatedPressable
         onPress={onPress}
         onPressIn={() => {

@@ -67,51 +67,52 @@ function makeVariant(
 }
 
 /**
- * Título de pantalla o sección: el escalón más alto de la jerarquía tipográfica.
+ * Screen or section title: the highest step of the typographic hierarchy.
  *
- * Gestalt, punto focal (Von Restorff): es el único texto de su bloque con
- * tamaño `xxl` y peso `bold`, así que rompe la serie de Body/Caption y es lo
- * primero que se lee. Por eso debe haber uno solo por bloque: dos Title juntos
- * se anulan entre sí. El tracking `tight` compensa el aire que el tamaño grande
- * abre entre letras para que la palabra se lea como una sola forma (Prägnanz),
- * y `lineHeight.xl` mantiene ese bloque compacto cuando el título salta de línea.
+ * Gestalt, focal point (Von Restorff): it is the only text in its block with
+ * size `xxl` and weight `bold`, so it breaks the series of Body/Caption and is
+ * the first thing read. That is why there should be only one per block: two
+ * Titles together cancel each other out. The `tight` tracking offsets the room
+ * the large size opens between letters so the word reads as a single shape
+ * (Prägnanz), and `lineHeight.xl` keeps the block compact when the title wraps.
  *
- * Accesibilidad: se anuncia con `accessibilityRole="header"`, de modo que
- * VoiceOver/TalkBack permiten saltar de título en título. Se puede
- * sobreescribir pasando otro `accessibilityRole`.
+ * Accessibility: it is announced with `accessibilityRole="header"`, so
+ * VoiceOver/TalkBack can jump from title to title. It can be overridden by
+ * passing a different `accessibilityRole`.
  */
 export const Title = makeVariant('title', 'text', 'header');
 /**
- * Segundo escalón de la jerarquía: encabeza un grupo dentro de la pantalla o
- * acompaña a un Title con un dato breve.
+ * Second step of the hierarchy: heads a group within the screen or
+ * accompanies a Title with a short piece of data.
  *
- * Gestalt, similitud: comparte color con Body pero sube tamaño (`lg`) y peso
- * (`semibold`), así que se percibe como de la misma familia y a la vez como el
- * rótulo del bloque que sigue. Proximidad: debe ir más cerca del contenido que
- * encabeza que del bloque anterior. No es un encabezado de accesibilidad: si
- * marca una sección navegable, usar Title (o pasar `accessibilityRole="header"`).
- * `lineHeight.lg` (1.5×) mantiene legible el texto cuando ocupa varias líneas.
+ * Gestalt, similarity: it shares its color with Body but steps up size (`lg`)
+ * and weight (`semibold`), so it is perceived as part of the same family and,
+ * at the same time, as the label of the block that follows. Proximity: it
+ * should sit closer to the content it heads than to the previous block. It is
+ * not an accessibility heading: if it marks a navigable section, use Title (or
+ * pass `accessibilityRole="header"`).
+ * `lineHeight.lg` (1.5×) keeps the text legible when it spans several lines.
  */
 export const Subtitle = makeVariant('subtitle', 'text');
 /**
- * Texto corrido: el estilo por defecto de párrafos, descripciones y valores.
+ * Running text: the default style for paragraphs, descriptions and values.
  *
- * Gestalt, similitud: todo el contenido de lectura comparte tamaño (`md`),
- * peso regular y color `text`, así que se percibe como un solo nivel y los
- * escalones de arriba (Title, Subtitle) y de abajo (Caption) destacan por
- * contraste. `lineHeight.md` (≈1.43×) da el aire entre líneas para leer
- * párrafos largos. Si se pasa `color`, el par color/fondo debe cumplir WCAG AA
- * (4.5:1); los colores del theme ya lo garantizan.
+ * Gestalt, similarity: all reading content shares size (`md`), regular weight
+ * and the `text` color, so it is perceived as a single level and the steps
+ * above (Title, Subtitle) and below (Caption) stand out by contrast.
+ * `lineHeight.md` (≈1.43×) gives the room between lines to read long
+ * paragraphs. If `color` is passed, the color/background pair must meet WCAG
+ * AA (4.5:1); the theme colors already guarantee it.
  */
 export const Body = makeVariant('body', 'text');
 /**
- * Texto secundario: pistas, metadatos, fechas, ayudas bajo un campo.
+ * Secondary text: hints, metadata, dates, help below a field.
  *
- * Gestalt, figura y fondo: tamaño `sm` y color `textLight` lo bajan un escalón
- * respecto a Body, así que se lee como contexto y no compite con el contenido.
- * Proximidad: va pegado al elemento que explica. `textLight` cumple WCAG AA
- * sobre `surface` y `background` en light y dark (tests de palettes); no
- * aclararlo más. `lineHeight.sm` (≈1.33×) mantiene juntas las líneas cuando
- * la pista ocupa varias.
+ * Gestalt, figure and ground: size `sm` and color `textLight` bring it one
+ * step below Body, so it reads as context and doesn't compete with the
+ * content. Proximity: it sits right next to the element it explains.
+ * `textLight` meets WCAG AA over `surface` and `background` in light and dark
+ * (palettes tests); don't lighten it further. `lineHeight.sm` (≈1.33×) keeps
+ * the lines together when the hint spans several.
  */
 export const Caption = makeVariant('caption', 'textLight');

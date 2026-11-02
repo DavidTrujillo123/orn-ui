@@ -10,13 +10,13 @@ export interface UseSlidesOptions {
   loop: boolean;
   autoPlay: boolean;
   interval: number;
-  /** Índice controlado; sin él manda el estado interno. */
+  /** Controlled index; without it the internal state rules. */
   index?: number;
   defaultIndex: number;
   onIndexChange?: (index: number) => void;
 }
 
-/** Una página del scroll. Los clones del modo infinito repiten el `real` de un vecino. */
+/** A page of the scroll. The infinite mode's clones repeat a neighbor's `real`. */
 export interface SlidesPage {
   real: number;
   clone: 'head' | 'tail' | null;
@@ -28,11 +28,11 @@ export interface UseSlidesResult {
   isHorizontal: boolean;
   isLoop: boolean;
   size: { width: number; height: number };
-  /** Largo de una página sobre el eje del scroll. En 0 todavía no se midió. */
+  /** Length of a page along the scroll axis. At 0 it hasn't been measured yet. */
   pageSize: number;
   scrollRef: React.RefObject<ScrollView | null>;
   autoPlayPaused: boolean;
-  /** El sistema pidió reducir movimiento: no hay autoPlay ni transiciones. */
+  /** The system asked to reduce motion: no autoPlay or transitions. */
   motionReduced: boolean;
   goTo: (index: number) => void;
   toggleAutoPlay: () => void;
@@ -51,12 +51,12 @@ export function clampIndex(value: number, total: number): number {
 
 /**
  * useSlides
- * Todo lo que en `Slides` no se ve: qué página está encuadrada, cuándo mover el
- * scroll, cómo se mapean los clones del modo infinito a índices reales, y el
- * reloj del avance automático.
+ * Everything in `Slides` that isn't visible: which page is framed, when to
+ * move the scroll, how the infinite mode's clones map to real indexes, and the
+ * autoplay clock.
  *
- * Trabaja sólo con índices, nunca con los ítems: así no necesita el genérico
- * `T` del componente, y el UI resuelve `pages[i].real` contra su propio `data`.
+ * It works only with indexes, never with the items: that way it doesn't need
+ * the component's generic `T`, and the UI resolves `pages[i].real` against its own `data`.
  */
 export function useSlides({
   total,
@@ -70,8 +70,8 @@ export function useSlides({
 }: UseSlidesOptions): UseSlidesResult {
   const motionReduced = useReduceMotion();
   const isHorizontal = orientation === 'horizontal';
-  // Un solo elemento no tiene a dónde ciclar: quedaría deslizable entre tres
-  // copias de lo mismo.
+  // A single element has nowhere to cycle to: it would be swipeable between
+  // three copies of the same thing.
   const isLoop = loop && total > 1;
 
   const [uncontrolled, setUncontrolled] = useState(() => clampIndex(defaultIndex, total));
@@ -84,7 +84,7 @@ export function useSlides({
   const pageSize = isHorizontal ? size.width : size.height;
 
   const scrollRef = useRef<ScrollView>(null);
-  /** Página realmente visible (índice dentro de `pages`, clones incluidos). */
+  /** The page actually visible (index within `pages`, clones included). */
   const offsetPageRef = useRef(isLoop ? 1 : 0);
   const didInitRef = useRef(false);
   const lastPageSizeRef = useRef(0);
@@ -118,15 +118,15 @@ export function useSlides({
     [index, onIndexChange]
   );
 
-  // Sólo actúa cuando el índice y la página visible discrepan: un cambio que
-  // vino del propio gesto no dispara un segundo scroll encima del que frenó.
+  // Only acts when the index and the visible page disagree: a change that
+  // came from the gesture itself doesn't fire a second scroll on top of the one that stopped.
   useEffect(() => {
     if (pageSize === 0 || total === 0) return;
     const target = isLoop ? active + 1 : active;
     const resized = lastPageSizeRef.current !== pageSize;
     if (offsetPageRef.current === target && didInitRef.current && !resized) return;
-    // Ni el primer posicionamiento ni el reacomodo por rotación son un cambio
-    // de slide: animarlos sería un deslizamiento que nadie pidió.
+    // Neither the first positioning nor the rearrangement on rotation is a
+    // slide change: animating them would be a slide nobody asked for.
     const animated = didInitRef.current && !resized;
     didInitRef.current = true;
     lastPageSizeRef.current = pageSize;
@@ -175,8 +175,8 @@ export function useSlides({
   }, []);
 
   const onScrollEndDrag = useCallback(() => {
-    // Un arrastre corto puede soltarse sin inercia y no emitir
-    // momentumScrollEnd: sin esto el autoPlay quedaría pausado para siempre.
+    // A short drag can be released without momentum and not emit
+    // momentumScrollEnd: without this autoPlay would stay paused forever.
     draggingRef.current = false;
   }, []);
 
@@ -192,8 +192,8 @@ export function useSlides({
         return;
       }
       if (!isLoop) return;
-      // Última en modo infinito: avanza al clon de la primera en vez de
-      // rebobinar; el salto al original lo cierra momentumScrollEnd.
+      // Last one in infinite mode: advances to the clone of the first instead
+      // of rewinding; momentumScrollEnd completes the jump to the original.
       offsetPageRef.current = total + 1;
       scrollToPage(total + 1, true);
     }, interval);

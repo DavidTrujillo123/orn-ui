@@ -59,7 +59,7 @@ const useStyles = createStyles((theme) => ({
   buttonVertical: { width: '100%' },
 }));
 
-/** Deriva la lista de botones a partir de props, sin mutar `buttons` recibido por props. */
+/** Derives the list of buttons from props, without mutating the `buttons` received through props. */
 function resolveButtons(props: AlertProps, labels: { confirm: string; cancel: string; close: string }): AlertButton[] {
   const { buttons, confirmText, cancelText, onConfirm, onCancel, onClose } = props;
   if (buttons && buttons.length > 0) return buttons;
@@ -78,8 +78,8 @@ function resolveButtons(props: AlertProps, labels: { confirm: string; cancel: st
 
 /**
  * Alert
- * Componente declarativo de diálogo. Para uso imperativo (mostrar desde
- * un handler sin levantar estado propio), usar AlertProvider + useAlert().
+ * Declarative dialog component. For imperative use (showing it from a
+ * handler without lifting your own state), use AlertProvider + useAlert().
  */
 export const Alert = memo((props: AlertProps) => {
   const { visible, title, message, type = 'info', onClose, inline = false } = props;
@@ -91,7 +91,7 @@ export const Alert = memo((props: AlertProps) => {
   if (!visible) return null;
 
   const iconColor: Record<AlertType, string> = {
-    // Íconos sobre la superficie del diálogo: rol `*Text`, no el acento pleno.
+    // Icons over the dialog's surface: `*Text` role, not the full accent.
     success: colors.successText,
     error: colors.errorText,
     warning: colors.warningText,

@@ -43,29 +43,29 @@ export interface TransitionProps {
 
 const SCALE_FROM: Record<'scale' | 'pop', number> = { scale: 0.92, pop: 0.8 };
 const hiddenStyle: ViewStyle = { pointerEvents: 'none' };
-/** Resorte de 'pop': rebota una vez y asienta (~350 ms), sin oscilar. */
+/** 'pop' spring: bounces once and settles (~350 ms), without oscillating. */
 const POP_SPRING = { friction: 9, tension: 90 } as const;
 
-// Vive en theme/ (lo usa también el UIProvider); se re-exporta acá para no
-// romper los imports existentes.
+// Lives in theme/ (UIProvider uses it too); re-exported here so existing
+// imports don't break.
 export { useReduceMotion };
 
 /**
  * Transition
- * Envuelve cualquier árbol y lo anima al entrar y al salir. Todos los presets
- * se reducen a `opacity` y `transform` sobre un único Animated.Value, que es
- * lo que `useNativeDriver` sabe mandar al hilo nativo: la animación corre ahí
- * y el hilo de JS no participa de ningún frame — por eso no hay presets de
- * alto, ancho o color, que obligarían a volver a JS en cada frame.
+ * Wraps any tree and animates it on enter and exit. Every preset boils down
+ * to `opacity` and `transform` over a single Animated.Value, which is what
+ * `useNativeDriver` knows how to send to the native thread: the animation runs
+ * there and the JS thread takes part in no frame — that is why there are no
+ * height, width or color presets, which would force a return to JS every frame.
  *
- * El nodo se mantiene montado hasta que termina la animación de salida, y el
- * comportamiento es idéntico en iOS y Android: no hay ninguna rama por
- * plataforma. Mientras sale (o queda oculto con `keepMounted`) deja de
- * recibir toques y sale del árbol de accesibilidad: lo invisible no se lee.
+ * The node stays mounted until the exit animation finishes, and the behavior
+ * is identical on iOS and Android: there is no per-platform branch. While
+ * exiting (or hidden with `keepMounted`) it stops receiving touches and leaves
+ * the accessibility tree: what is invisible isn't read.
  *
- * Gestalt, destino común: lo que entra o sale junto se percibe como un grupo;
- * con `delay` por índice la lista entra en orden de lectura (continuidad).
- * Respeta Reduce Motion: salta al estado final, los callbacks se mantienen.
+ * Gestalt, common fate: what enters or exits together is perceived as a group;
+ * with a per-index `delay` the list enters in reading order (continuity).
+ * Respects Reduce Motion: jumps to the final state, callbacks still fire.
  */
 export const Transition = memo(
   ({
@@ -86,8 +86,8 @@ export const Transition = memo(
   }: TransitionProps) => {
     const theme = useTheme();
     const travel = distance ?? theme.tokens.spacing.xxl;
-    // Resuelto acá, no adentro del efecto: depender de `theme` reiniciaba la
-    // animación (y volvía a disparar onEntered) cada vez que cambiaba el tema.
+    // Resolved here, not inside the effect: depending on `theme` restarted the
+    // animation (and fired onEntered again) every time the theme changed.
     const resolvedDuration = duration ?? theme.tokens.duration.base;
     const reduceMotion = useReduceMotion();
     const internal = useRef(new Animated.Value(visible && !appear ? 1 : 0)).current;
@@ -96,8 +96,8 @@ export const Transition = memo(
 
     const [mounted, setMounted] = useState(visible || keepMounted);
 
-    // Los callbacks viven en un ref: pasados inline cambian de identidad en
-    // cada render y, como dependencias del efecto, reiniciarían la animación.
+    // The callbacks live in a ref: passed inline they change identity on
+    // every render and, as effect dependencies, would restart the animation.
     const callbacks = useRef({ onEntered, onExited });
     useEffect(() => {
       callbacks.current = { onEntered, onExited };

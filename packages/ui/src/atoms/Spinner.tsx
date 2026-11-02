@@ -29,8 +29,8 @@ export interface SpinnerProps {
   testID?: string;
 }
 
-// Ritmo de los indicadores en loop. No son transiciones de UI (esas usan
-// theme.tokens.duration): son el pulso de una animación continua.
+// Rhythm of the looping indicators. They are not UI transitions (those use
+// theme.tokens.duration): they are the pulse of a continuous animation.
 const DOT_PULSE_MS = 320;
 const DOT_STAGGER_MS = 140;
 const RING_TURN_MS = 900;
@@ -42,7 +42,7 @@ const useStyles = createStyles((theme) => ({
   dots: { flexDirection: 'row', gap: theme.tokens.spacing.sm },
 }));
 
-/** Tres puntos que laten en secuencia. Animated + useNativeDriver: corre en el hilo nativo. */
+/** Three dots that pulse in sequence. Animated + useNativeDriver: runs on the native thread. */
 const DotsIndicator = memo(({ color, dotSize }: { color: string; dotSize: number }) => {
   const dots = [useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current, useRef(new Animated.Value(0)).current];
 
@@ -58,8 +58,8 @@ const DotsIndicator = memo(({ color, dotSize }: { color: string; dotSize: number
       )
     );
     animations.forEach((a) => a.start());
-    // Sin stop() los loops siguen corriendo tras desmontar y mantienen vivo
-    // el árbol de Animated.
+    // Without stop() the loops keep running after unmount and keep the
+    // Animated tree alive.
     return () => animations.forEach((a) => a.stop());
   }, []);
 
@@ -84,10 +84,10 @@ const DotsIndicator = memo(({ color, dotSize }: { color: string; dotSize: number
 DotsIndicator.displayName = 'DotsIndicator';
 
 /**
- * Anillo que gira: un riel tenue fijo y encima un arco (un solo lado del
- * borde) que gira. El riel usa `opacity` en vez de concatenar alpha al color
- * (`color + '33'`), que solo funcionaba con hex de 6 dígitos y rompía con
- * `rgb()` o nombres de color.
+ * Spinning ring: a faint fixed track and, on top, an arc (a single side of
+ * the border) that spins. The track uses `opacity` instead of appending alpha
+ * to the color (`color + '33'`), which only worked with 6-digit hex and broke
+ * with `rgb()` or color names.
  */
 const RingIndicator = memo(({ color, diameter }: { color: string; diameter: number }) => {
   const spin = useRef(new Animated.Value(0)).current;
@@ -121,21 +121,21 @@ RingIndicator.displayName = 'RingIndicator';
 
 /**
  * Spinner
- * Indicador de carga indeterminada, con texto opcional debajo.
+ * Indeterminate loading indicator, with optional text below.
  *
  * Gestalt:
- * - Destino común: los tres puntos de `dots` laten en secuencia, con el
- *   mismo ritmo, y se leen como un solo indicador que avanza.
- * - Proximidad: el texto va a `spacing.md` del indicador, así se lee como su
- *   explicación y no como texto suelto de la pantalla. El `logo` va más lejos
- *   (`spacing.xl`): es la marca de la pantalla, no parte del indicador.
- * - Punto focal: con `logo`, el logo es lo primero que se ve y el indicador
- *   queda como señal secundaria de que la app está cargando.
+ * - Common fate: the three `dots` pulse in sequence, at the same rhythm, and
+ *   read as a single indicator moving forward.
+ * - Proximity: the text sits `spacing.md` from the indicator, so it reads as
+ *   its explanation and not as loose text on the screen. The `logo` sits
+ *   further away (`spacing.xl`): it is the screen's brand, not part of the indicator.
+ * - Focal point: with `logo`, the logo is the first thing seen and the
+ *   indicator stays as a secondary signal that the app is loading.
  *
- * Accesibilidad: se anuncia como `progressbar` ocupado, con `text` (o
- * `labels.loading`) como nombre. La animación no se detiene con Reduce
- * Motion: es la señal de que algo está pasando, como el ActivityIndicator del
- * sistema.
+ * Accessibility: it is announced as a busy `progressbar`, with `text` (or
+ * `labels.loading`) as its name. The animation doesn't stop with Reduce
+ * Motion: it is the signal that something is happening, like the system's
+ * ActivityIndicator.
  */
 export const Spinner = memo(
   ({

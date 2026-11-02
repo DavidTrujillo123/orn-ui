@@ -26,17 +26,17 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * Badge
- * Pill de estado. `variant` cubre los casos comunes (éxito/error/advertencia/
- * info/neutral); `backgroundColor`/`textColor` quedan para casos que no
- * encajan en el set semántico.
+ * Status pill. `variant` covers the common cases (success/error/warning/
+ * info/neutral); `backgroundColor`/`textColor` are for cases that don't
+ * fit the semantic set.
  *
- * Gestalt, similitud: todos los badges comparten forma, tamaño y tipografía;
- * solo el color cambia, y cambia por significado (verde = ok, rojo = error…),
- * así una columna de estados se escanea de un vistazo. El significado también
- * va en el texto: nunca depender solo del color (daltonismo).
- * Cada par `*Soft`/`*Text` del theme cumple WCAG AA en light y dark; con
- * colores propios el contraste queda a cargo de quien los pasa.
- * Una sola línea: un label largo se corta con "…" en vez de deformar la pill.
+ * Gestalt, similarity: all badges share shape, size and typography; only
+ * the color changes, and it changes by meaning (green = ok, red = error…),
+ * so a column of statuses scans at a glance. The meaning also goes in the
+ * text: never rely on color alone (color blindness).
+ * Every `*Soft`/`*Text` pair in the theme meets WCAG AA in light and dark;
+ * with custom colors, contrast is up to whoever passes them.
+ * A single line: a long label is truncated with "…" instead of deforming the pill.
  */
 export const Badge = memo(({ label, variant = 'neutral', backgroundColor, textColor, style }: BadgeProps) => {
   const theme = useTheme();
@@ -45,8 +45,8 @@ export const Badge = memo(({ label, variant = 'neutral', backgroundColor, textCo
   const { colors } = theme;
 
   const palette: Record<BadgeVariant, { bg: string; fg: string }> = {
-    // fg es el rol `*Text`, no el acento pleno: el acento sobre su propio
-    // tinte da ~2.2:1 en light — el label quedaba ilegible.
+    // fg is the `*Text` role, not the full accent: the accent over its own
+    // tint gives ~2.2:1 in light — the label was unreadable.
     success: { bg: colors.successSoft, fg: colors.successText },
     error: { bg: colors.errorSoft, fg: colors.errorText },
     warning: { bg: colors.warningSoft, fg: colors.warningText },

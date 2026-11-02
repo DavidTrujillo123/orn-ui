@@ -57,9 +57,9 @@ export interface ChartFilterOption {
 }
 
 /**
- * Un filtro de la barra superior. Chart no filtra nada por su cuenta: muestra
- * el control y avisa. Quien tiene los datos decide qué significa "últimos 7
- * días", y eso no se puede adivinar desde acá.
+ * A filter in the top bar. Chart doesn't filter anything on its own: it shows
+ * the control and reports. Whoever has the data decides what "last 7 days"
+ * means, and that can't be guessed from here.
  */
 export interface ChartFilter {
   key: string;
@@ -212,9 +212,10 @@ interface PieBaseProps {
   sliceLabels?: 'none' | 'percent' | 'value';
 }
 
-// 'pie' y 'donut' van separados aunque compartan todo: con un solo miembro
-// cuyo `type` fuera `'pie' | 'donut'`, TypeScript no saca ese miembro de la
-// unión al descartarlo, y el resto del componente deja de estrecharse.
+// 'pie' and 'donut' are kept separate even though they share everything: with
+// a single member whose `type` were `'pie' | 'donut'`, TypeScript doesn't drop
+// that member from the union when ruling it out, and the rest of the component
+// stops narrowing.
 interface PieChartProps extends PieBaseProps {
   type: 'pie';
 }
@@ -244,24 +245,24 @@ export type ChartProps = ChartBaseProps &
 
 const DEFAULT_HEIGHT = 220;
 const DEFAULT_TICKS = 4;
-/** Piso del canal de las etiquetas de valor, a la izquierda. */
+/** Floor of the value-label gutter, on the left. */
 const VALUE_GUTTER = 38;
 /**
- * Ancho estimado de un caracter de etiqueta. React Native no mide texto sin
- * renderizarlo, y medir para decidir el layout haría aparecer el chart
- * corrido un frame; a `fontSize.xs` un dígito ronda 0.6em, y de más es mejor
- * que de menos — sobra aire, no se corta el número.
+ * Estimated width of a label character. React Native doesn't measure text
+ * without rendering it, and measuring to decide the layout would make the
+ * chart show up shifted for a frame; at `fontSize.xs` a digit is around
+ * 0.6em, and too much is better than too little — extra room, no clipped number.
  */
 const VALUE_CHAR = 6.5;
-/** Tope del canal: un eje ancho no puede comerse el plot. */
+/** Gutter cap: a wide axis can't eat the plot. */
 const VALUE_GUTTER_MAX = 0.3;
-/** Canal de las categorías cuando van a la izquierda (barras horizontales). */
+/** Category gutter when they go on the left (horizontal bars). */
 const CATEGORY_GUTTER = 64;
-/** Canal de las etiquetas de abajo. */
+/** Gutter for the bottom labels. */
 const BOTTOM_GUTTER = 16;
-/** Fracción del ancho de banda que ocupan las barras; el resto es aire. */
+/** Fraction of the band width taken by the bars; the rest is room. */
 const BAND_FILL = 0.7;
-/** Aire alrededor del radar para que entren las etiquetas de los ejes. */
+/** Room around the radar so the axis labels fit. */
 const RADAR_INSET = 26;
 const DIM_OPACITY = 0.3;
 
@@ -293,7 +294,7 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-/** Estado controlado o propio, con el mismo contrato en los dos casos. */
+/** Controlled or own state, with the same contract in both cases. */
 function useControlled<T>(controlled: T | undefined, fallback: T): [T, (next: T) => void, boolean] {
   const [own, setOwn] = useState(fallback);
   const isControlled = controlled !== undefined;
@@ -301,10 +302,10 @@ function useControlled<T>(controlled: T | undefined, fallback: T): [T, (next: T)
 }
 
 /**
- * Resuelve el dominio del eje de valores a partir de lo que pidió el
- * consumidor. En 'sticky' la referencia vive en un ref: lo que importa no es
- * el dominio de este render sino el más ancho que se haya visto, y guardarlo
- * en estado dispararía un render de más por cada tick que ensancha el eje.
+ * Resolves the value axis domain from what the consumer asked for. In
+ * 'sticky' the reference lives in a ref: what matters isn't this render's
+ * domain but the widest one seen so far, and keeping it in state would fire
+ * an extra render for every tick that widens the axis.
  */
 function useDomain(measured: [number, number], domain: [number, number] | 'sticky' | undefined): [number, number] {
   const widest = useRef<[number, number] | null>(null);
@@ -318,19 +319,20 @@ function useDomain(measured: [number, number], domain: [number, number] | 'stick
 
 /**
  * Chart
- * Barras (verticales, horizontales, agrupadas, apiladas), línea, área, torta,
- * dona y radar en un solo componente, porque lo que cambia entre ellos es la
- * marca que se dibuja y no el resto: datos, escala, ejes, leyenda, tooltip,
- * selección y filtros son los mismos seis mecanismos en todos.
+ * Bars (vertical, horizontal, grouped, stacked), line, area, pie, donut and
+ * radar in a single component, because what changes between them is the mark
+ * being drawn and not the rest: data, scale, axes, legend, tooltip, selection
+ * and filters are the same six mechanisms in all of them.
  *
- * Se dibuja con `View`: React Native no trae lienzo vectorial y la librería no
- * puede agregar uno. Las tres primitivas están en `chart/marks.tsx` y la
- * geometría entera, sin React, en `chart/math.ts`.
+ * It is drawn with `View`: React Native ships no vector canvas and the library
+ * can't add one. The three primitives are in `chart/marks.tsx` and the whole
+ * geometry, without React, in `chart/math.ts`.
  *
- * Gestalt: destino común — al tocar una categoría, todo lo que no es ella baja
- * a {@link DIM_OPACITY} a la vez, así que lo resaltado se lee como un grupo y
- * no como una marca suelta. La leyenda usa similitud: el mismo color que la
- * serie, y por eso puede apagarla sin que haga falta explicar qué apaga.
+ * Gestalt: common fate — when you tap a category, everything that isn't it
+ * drops to {@link DIM_OPACITY} at once, so what is highlighted reads as a group
+ * and not as a loose mark. The legend uses similarity: the same color as the
+ * series, which is why it can turn it off without having to explain what it
+ * turns off.
  */
 export function Chart(props: ChartProps) {
   const {
@@ -371,15 +373,15 @@ export function Chart(props: ChartProps) {
   const decimate = polyline ? props.decimate : false;
 
   /**
-   * Lo que se dibuja: la ventana de `data`, y de ahí los puntos que caben.
-   * El diezmado corre sobre la fila entera, elegida con la primera serie
-   * visible: las series comparten eje x, así que quedarse con índices
-   * distintos por serie rompería la alineación, la capa de toque y el tooltip.
+   * What gets drawn: the window of `data`, and from that the points that fit.
+   * Decimation runs over the whole row, chosen with the first visible series:
+   * the series share the x axis, so keeping different indexes per series would
+   * break the alignment, the touch layer and the tooltip.
    */
   const rows = useMemo(() => {
     const windowed = windowSize && windowSize > 0 ? data.slice(-windowSize) : data;
     if (!polyline || decimate === false || width === 0) return windowed;
-    // Un punto cada dos píxeles: más no se ve y sí se paga.
+    // One point every two pixels: more can't be seen but still has to be paid for.
     const target = typeof decimate === 'number' ? decimate : Math.floor(width / 2);
     if (windowed.length <= target) return windowed;
     const lead = series.find((item) => !hidden.includes(item.key))?.key ?? series[0]?.key;
@@ -394,10 +396,10 @@ export function Chart(props: ChartProps) {
   );
 
   /**
-   * La selección se guarda por `id` y se resuelve contra las filas de ahora:
-   * si el dato se corrió, el resaltado lo sigue; si salió de la ventana,
-   * desaparece. Reusar el índice a ciegas señalaría el dato que quedó en ese
-   * lugar, que no es el que nadie eligió.
+   * The selection is stored by `id` and resolved against the current rows:
+   * if the datum shifted, the highlight follows it; if it left the window, it
+   * disappears. Blindly reusing the index would point at the datum that ended
+   * up in that spot, which isn't the one anyone picked.
    */
   const selection = useMemo(() => {
     if (!pick) return null;
@@ -413,8 +415,8 @@ export function Chart(props: ChartProps) {
     };
   }, [pick, ids, rows, labels]);
 
-  // En torta las categorías son las filas; en el resto, las columnas. De eso
-  // dependen el color, la leyenda y qué apaga un toque en ella.
+  // In a pie the categories are the rows; in the rest, the columns. The
+  // color, the legend and what a tap on it turns off depend on that.
   const palette = seriesPalette(theme, Math.max(1, isPie ? rows.length : series.length));
   const entries: LegendItem[] = useMemo(
     () =>
@@ -441,9 +443,9 @@ export function Chart(props: ChartProps) {
   );
 
   /**
-   * Los plots avisan qué se tocó —fila y serie— y la selección entera se
-   * arma acá: es el único lugar que conoce `selectBy`, las etiquetas y las
-   * filas de verdad, y así los tres no repiten el armado.
+   * The plots report what was tapped —row and series— and the whole selection
+   * is built here: it is the only place that knows `selectBy`, the labels and
+   * the actual rows, so the three don't repeat the building.
    */
   const applySelection = useCallback(
     (hit: { index: number; seriesKey: string } | null) => {
@@ -459,9 +461,9 @@ export function Chart(props: ChartProps) {
               value: toNumber(row[hit.seriesKey]) ?? 0,
             }
           : null;
-      // Tocar lo ya elegido lo suelta: sin eso no habría forma de volver al
-      // chart entero sin tocar afuera, y "afuera" en una pantalla con scroll
-      // no siempre existe.
+      // Tapping what is already selected releases it: without that there would
+      // be no way back to the whole chart without tapping outside, and
+      // "outside" doesn't always exist on a scrolling screen.
       const same = next && selection && next.id === selection.id && next.seriesKey === selection.seriesKey;
       const value = same ? null : next;
       if (!selectionIsControlled) setPick(value);
@@ -570,14 +572,14 @@ export function Chart(props: ChartProps) {
 
 Chart.displayName = 'Chart';
 
-// ── lo que comparten los tres plots ────────────────────────────────────────
+// ── what the three plots share ─────────────────────────────────────────────
 
 interface PlotProps {
   rows: ChartRow[];
   labels: string[];
-  /** Todas las categorías, con su color: el color no cambia al apagar una. */
+  /** All categories, with their color: the color doesn't change when one is turned off. */
   entries: LegendItem[];
-  /** Las que quedaron prendidas. */
+  /** The ones still turned on. */
   visible: LegendItem[];
   width: number;
   height: number;
@@ -585,13 +587,13 @@ interface PlotProps {
   animate: boolean;
   duration: number;
   selection: ChartSelection | null;
-  /** Avisa qué se tocó; Chart arma la selección. `null` la suelta. */
+  /** Reports what was tapped; Chart builds the selection. `null` releases it. */
   onPick: (hit: { index: number; seriesKey: string } | null) => void;
   tooltip: boolean;
   testID?: string;
 }
 
-/** Filas del tooltip para una categoría del eje x. */
+/** Tooltip rows for a category on the x axis. */
 function tooltipRowsAt(rows: ChartRow[], index: number, visible: LegendItem[], format: (value: number) => string): TooltipRow[] {
   const row = rows[index];
   if (!row) return [];
@@ -603,7 +605,7 @@ function tooltipRowsAt(rows: ChartRow[], index: number, visible: LegendItem[], f
     .filter((item): item is TooltipRow => item !== null);
 }
 
-// ── barras, línea y área ───────────────────────────────────────────────────
+// ── bars, line and area ────────────────────────────────────────────────────
 
 interface CartesianPlotProps extends PlotProps {
   type: 'bar' | 'line' | 'area';
@@ -621,10 +623,10 @@ interface CartesianPlotProps extends PlotProps {
   yAxis: boolean;
 }
 
-/** Ancho de una tira del relleno de área, en píxeles. Más fino = más vistas. */
+/** Width of one strip of the area fill, in pixels. Thinner = more views. */
 const STRIP_WIDTH = 4;
 const MAX_STRIPS = 140;
-/** Aire entre dos barras del mismo grupo. */
+/** Room between two bars of the same group. */
 const GROUP_GAP = 2;
 
 const CartesianPlot = memo((props: CartesianPlotProps) => {
@@ -662,26 +664,26 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
 
   const bottomGutter = xAxis ? BOTTOM_GUTTER : 0;
 
-  // La línea puede no tocar el cero (una temperatura, un ranking); una barra
-  // sí tiene que hacerlo, porque su largo es el que dice el valor.
+  // The line may not touch zero (a temperature, a ranking); a bar does have
+  // to, because its length is what states the value.
   const measured = useMemo(
     () => extent(rows, keys, { stacked, includeZero: type !== 'line' }),
     [rows, keys, stacked, type]
   );
   const [low, high] = useDomain(measured, domain);
 
-  // Un dominio a mano se respeta tal cual; uno medido (o 'sticky') se
-  // redondea, que es lo que hace legible el eje.
+  // A hand-set domain is respected as is; a measured one (or 'sticky') is
+  // rounded, which is what makes the axis legible.
   const nice = useMemo(
     () => (Array.isArray(domain) ? exactTicks(low, high, tickCount) : niceScale(low, high, tickCount)),
     [domain, low, high, tickCount]
   );
 
   /**
-   * El canal sale de la etiqueta más larga, no de una constante: con un
-   * `formatValue` propio ("$3000", "1.250 ms") un ancho fijo corta el número
-   * y el eje pasa a decir "$30…". Los ticks no dependen del ancho del plot,
-   * así que se pueden medir antes de repartirlo.
+   * The gutter comes from the longest label, not from a constant: with a
+   * custom `formatValue` ("$3000", "1.250 ms") a fixed width clips the number
+   * and the axis ends up saying "$30…". The ticks don't depend on the plot's
+   * width, so they can be measured before splitting it up.
    */
   const leftGutter = useMemo(() => {
     if (!yAxis) return 0;
@@ -709,7 +711,7 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
 
   const stacks = useMemo(() => (stacked ? rows.map((row) => stackRow(row, keys)) : null), [stacked, rows, keys]);
 
-  /** Puntos de una serie: `to` es el valor, `from` el piso desde donde se rellena. */
+  /** A series' points: `to` is the value, `from` the floor it is filled from. */
   const pointsFor = useCallback(
     (key: string, edge: 'to' | 'from'): Point[] => {
       const out: Point[] = [];
@@ -731,8 +733,8 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
 
   const pickAt = useCallback(
     (index: number, event: GestureResponderEvent) => {
-      // Sobre qué serie cayó el dedo: la que tiene su marca más cerca del
-      // toque en el eje de valores. Con una sola serie es siempre esa.
+      // Which series the finger landed on: the one whose mark is closest to
+      // the touch on the value axis. With a single series it is always that one.
       const touch = (horizontal ? event?.nativeEvent?.locationX : event?.nativeEvent?.locationY) ?? 0;
       let bestKey = keys[0] ?? '';
       let bestDistance = Infinity;
@@ -768,7 +770,7 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
 
   return (
     <>
-      {/* Marco: grilla y etiquetas, por debajo de las marcas. */}
+      {/* Frame: grid and labels, beneath the marks. */}
       <View style={{ position: 'absolute', left: leftGutter, top: 0, width: plotW, height: plotH }}>
         {grid ? (
           <CartesianGrid
@@ -847,14 +849,14 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
 
               return (
                 <View key={entry.key} style={{ position: 'absolute', left: 0, top: 0, width: plotW, height: plotH }}>
-                  {/* Área: sin `path` no hay relleno bajo una curva, así que se
-                      corta en tiras verticales y cada una pregunta su alto a la
-                      polilínea. A 4px por tira el borde ya se lee como continuo. */}
+                  {/* Area: without `path` there is no fill under a curve, so it
+                      is cut into vertical strips and each one asks the polyline
+                      for its height. At 4px per strip the edge already reads as continuous. */}
                   {type === 'area' ? (
-                    // La opacidad va en el grupo, no en cada tira: el medio
-                    // píxel de solape que tapa la costura del antialias se
-                    // compone dos veces y deja una raya vertical cada cuatro
-                    // píxeles. Atenuado el grupo entero, se pinta una sola vez.
+                    // Opacity goes on the group, not on each strip: the half
+                    // pixel of overlap that hides the antialias seam is
+                    // composited twice and leaves a vertical stripe every four
+                    // pixels. Dimming the whole group, it is painted only once.
                     <View
                       pointerEvents="none"
                       style={{ position: 'absolute', left: 0, top: 0, width: plotW, height: plotH, opacity: fillOpacity }}
@@ -899,8 +901,8 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
               );
             })}
 
-        {/* Capa de toque: una banda entera por categoría. Tocar una línea de
-            2px es imposible; tocar su columna, no. */}
+        {/* Touch layer: a whole band per category. Tapping a 2px line is
+            impossible; tapping its column isn't. */}
         {rows.map((row, index) => (
           <Pressable
             key={index}
@@ -964,7 +966,7 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
 });
 CartesianPlot.displayName = 'CartesianPlot';
 
-// ── torta y dona ───────────────────────────────────────────────────────────
+// ── pie and donut ──────────────────────────────────────────────────────────
 
 interface PiePlotProps extends PlotProps {
   donut: boolean;
@@ -974,12 +976,12 @@ interface PiePlotProps extends PlotProps {
 }
 
 const DONUT_RADIUS = 0.6;
-/** Cuánto sale la porción elegida, en píxeles. */
+/** How far the selected slice pops out, in pixels. */
 const EXPLODE = 8;
-/** Dónde cae la etiqueta, como fracción entre el agujero y el borde. */
+/** Where the label falls, as a fraction between the hole and the edge. */
 const LABEL_AT = 0.62;
 
-/** Blanco o negro, el que se lea encima del color. Un color raro no rompe: cae en `text`. */
+/** White or black, whichever reads over the color. An odd color doesn't break: it falls back to `text`. */
 function inkOn(background: string, theme: { colors: { white: string; black: string; text: string } }): string {
   try {
     return contrast(background, theme.colors.white) >= contrast(background, theme.colors.black)
@@ -1001,8 +1003,8 @@ const PiePlot = memo((props: PiePlotProps) => {
   const hole = clamp(innerRadius ?? (donut ? DONUT_RADIUS : 0), 0, 0.9) * radius;
 
   const arcs = useMemo(() => {
-    // Una categoría apagada vale 0: sale de la torta y el resto se reparte el
-    // 100%, que es lo que espera quien la apagó desde la leyenda.
+    // A turned-off category is worth 0: it leaves the pie and the rest share
+    // the 100%, which is what whoever turned it off from the legend expects.
     const values = rows.map((row, index) =>
       visible.some((entry) => entry.key === labels[index]) ? (toNumber(row[valueKey]) ?? 0) : 0
     );
@@ -1013,8 +1015,8 @@ const PiePlot = memo((props: PiePlotProps) => {
     (event: GestureResponderEvent) => {
       const point = { x: event?.nativeEvent?.locationX ?? 0, y: event?.nativeEvent?.locationY ?? 0 };
       const distance = Math.hypot(point.x - center.x, point.y - center.y);
-      // El agujero de una dona no es parte de ninguna porción, y afuera del
-      // círculo tampoco: los dos sueltan la selección.
+      // A donut's hole isn't part of any slice, and neither is the area
+      // outside the circle: both release the selection.
       if (distance > radius || distance < hole) return onPick(null);
       const index = arcAt(arcs, angleOf(center, point));
       if (index === -1) return onPick(null);
@@ -1062,8 +1064,8 @@ const PiePlot = memo((props: PiePlotProps) => {
       {sliceLabels === 'none'
         ? null
         : arcs.map((arc) => {
-            // Una porción muy fina no tiene dónde escribir: la etiqueta se
-            // saldría encima de las vecinas y no se leería ninguna.
+            // A very thin slice has nowhere to write: the label would spill
+            // over its neighbors and none would be readable.
             if (arc.sweep < 18) return null;
             const at = polar(center, hole + (radius - hole) * LABEL_AT, arc.start + arc.sweep / 2);
             const color = entries[arc.index]?.color ?? theme.colors.primary;
@@ -1118,7 +1120,7 @@ interface RadarPlotProps extends PlotProps {
   dots: boolean;
 }
 
-/** Tiras por lado del polígono cuando se rellena. Más = borde más limpio, más vistas. */
+/** Strips per side of the polygon when it is filled. More = cleaner edge, more views. */
 const RADAR_STEPS = 5;
 const RADAR_FILL_OPACITY = 0.18;
 const RADAR_LABEL_WIDTH = 56;
@@ -1134,8 +1136,8 @@ const RadarPlot = memo((props: RadarPlotProps) => {
   const angles = useMemo(() => radarAngles(rows.length), [rows.length]);
   const keys = useMemo(() => visible.map((entry) => entry.key), [visible]);
 
-  // El radar mide desde el centro, y el centro es 0: un mínimo distinto de
-  // cero haría que dos valores parecidos se vean lejísimos.
+  // The radar measures from the center, and the center is 0: a minimum other
+  // than zero would make two similar values look miles apart.
   const measured = useMemo(() => [0, extent(rows, keys, { includeZero: true })[1]] as [number, number], [rows, keys]);
   const [, top] = useDomain(measured, domain);
 
@@ -1169,14 +1171,14 @@ const RadarPlot = memo((props: RadarPlotProps) => {
         const points = pointsOf(entry.key);
         return (
           <View key={entry.key} style={{ position: 'absolute', left: 0, top: 0, width, height }}>
-            {/* Relleno: el mismo sector que dibuja una torta, uno por tira del
-                polígono, con el radio que le toca a esa tira. */}
+            {/* Fill: the same sector a pie draws, one per strip of the
+                polygon, with the radius that strip gets. */}
             {fill ? (
-              // La opacidad va en el grupo, no en cada tira. Por tira, el
-              // solape de 0.4° que tapa la costura del antialias se compone
-              // dos veces y deja un radio más oscuro por corte: el relleno
-              // termina pareciendo una telaraña. Aplicada al grupo, las tiras
-              // se pintan opacas entre sí y el conjunto se atenúa una vez.
+              // Opacity goes on the group, not on each strip. Per strip, the
+              // 0.4° overlap that hides the antialias seam is composited
+              // twice and leaves a darker radius at each cut: the fill ends
+              // up looking like a spider web. Applied to the group, the strips
+              // paint opaque against each other and the whole is dimmed once.
               <View
                 pointerEvents="none"
                 style={{ position: 'absolute', left: 0, top: 0, width, height, opacity: RADAR_FILL_OPACITY }}

@@ -1,12 +1,12 @@
 /**
- * Geometría y escalas de Chart: todo lo que se puede probar sin montar un
- * árbol vive acá, sin React y sin dependencias. marks.tsx sólo traduce estos
- * números a estilos, y Chart.tsx sólo decide qué marca dibujar.
+ * Chart geometry and scales: everything that can be tested without mounting a
+ * tree lives here, without React and without dependencies. marks.tsx only
+ * translates these numbers into styles, and Chart.tsx only decides which mark to draw.
  *
- * Convenciones:
- * - Coordenadas de React Native: origen arriba-izquierda, `y` crece hacia abajo.
- * - Ángulos en grados, 0° a las 12 en punto, creciendo en sentido horario —
- *   que es como se lee una torta y como gira `transform: rotate` en RN.
+ * Conventions:
+ * - React Native coordinates: origin at the top-left, `y` grows downward.
+ * - Angles in degrees, 0° at 12 o'clock, increasing clockwise —
+ *   which is how a pie is read and how `transform: rotate` turns in RN.
  */
 
 export interface Point {
@@ -14,10 +14,10 @@ export interface Point {
   y: number;
 }
 
-/** Fila de datos: una categoría del eje x y un número por serie. */
+/** Data row: an x-axis category and one number per series. */
 export type ChartRow = Record<string, string | number | null | undefined>;
 
-/** Lee una celda como número, o null si no lo es (hueco en la serie). */
+/** Reads a cell as a number, or null if it isn't one (a gap in the series). */
 export function toNumber(value: unknown): number | null {
   return typeof value === 'number' && Number.isFinite(value) ? value : null;
 }
@@ -26,17 +26,17 @@ export function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
 
-/** Mata el ruido de punto flotante que deja sumar `step` en un bucle. */
+/** Kills the floating point noise left by adding `step` in a loop. */
 function tidy(value: number): number {
   return Number(value.toFixed(10));
 }
 
-// ── escalas ────────────────────────────────────────────────────────────────
+// ── scales ─────────────────────────────────────────────────────────────────
 
 /**
- * El 1, 2, 5 o 10 (por su potencia de diez) más cercano por encima de `rough`.
- * Es lo que hace que los ticks caigan en números que alguien diría en voz
- * alta — 0, 250, 500 — y no en 0, 237, 474.
+ * The 1, 2, 5 or 10 (times its power of ten) closest above `rough`.
+ * It is what makes ticks land on numbers someone would say out loud —
+ * 0, 250, 500 — and not on 0, 237, 474.
  */
 export function niceStep(rough: number): number {
   if (!(rough > 0)) return 1;
@@ -47,18 +47,18 @@ export function niceStep(rough: number): number {
 }
 
 export interface Ticks {
-  /** Extremo inferior redondeado hacia afuera. */
+  /** Lower end, rounded outward. */
   min: number;
-  /** Extremo superior redondeado hacia afuera. */
+  /** Upper end, rounded outward. */
   max: number;
   step: number;
   values: number[];
 }
 
 /**
- * Dominio redondeado a valores legibles más la lista de ticks. `count` es una
- * intención, no una promesa: redondear hacia afuera puede dar uno más o uno
- * menos, y eso es preferible a un eje con números arbitrarios.
+ * Domain rounded to legible values plus the list of ticks. `count` is an
+ * intent, not a promise: rounding outward may give one more or one fewer,
+ * and that is preferable to an axis with arbitrary numbers.
  */
 export function niceScale(min: number, max: number, count = 5): Ticks {
   let lo = Math.min(min, max);
@@ -68,8 +68,8 @@ export function niceScale(min: number, max: number, count = 5): Ticks {
     hi = 1;
   }
   if (lo === hi) {
-    // Un solo valor no define un rango. Se le inventa uno simétrico para que
-    // la marca no quede ni pegada al borde ni ocupando el alto entero.
+    // A single value doesn't define a range. A symmetric one is made up so
+    // the mark neither sticks to the edge nor fills the whole height.
     const pad = Math.abs(lo) || 1;
     lo -= pad;
     hi += pad;
@@ -78,17 +78,17 @@ export function niceScale(min: number, max: number, count = 5): Ticks {
   const start = Math.floor(lo / step) * step;
   const end = Math.ceil(hi / step) * step;
   const values: number[] = [];
-  // `end + step / 2` en vez de `end`: sumar step acumula error y el último
-  // tick se perdería justo en los dominios que más se usan (0–100, 0–1).
+  // `end + step / 2` instead of `end`: adding step accumulates error and the
+  // last tick would be lost precisely in the most used domains (0–100, 0–1).
   for (let value = start; value <= end + step / 2; value += step) values.push(tidy(value));
   return { min: start, max: end, step, values };
 }
 
 /**
- * Ticks de un dominio que el consumidor fijó a mano. No redondea nada: si
- * alguien pide 0–100, el eje dice 0–100. Es lo contrario de `niceScale`, y es
- * lo que necesita un chart en vivo — un eje que se reacomoda en cada tick hace
- * saltar la línea aunque el dato no se haya movido.
+ * Ticks for a domain the consumer set by hand. It rounds nothing: if someone
+ * asks for 0–100, the axis says 0–100. It is the opposite of `niceScale`, and
+ * it is what a live chart needs — an axis that rearranges itself on every tick
+ * makes the line jump even though the data hasn't moved.
  */
 export function exactTicks(min: number, max: number, count = 5): Ticks {
   const lo = Math.min(min, max);
@@ -105,16 +105,16 @@ export function exactTicks(min: number, max: number, count = 5): Ticks {
 }
 
 /**
- * Une dos dominios quedándose con el más ancho. Es el modo 'sticky': el eje
- * crece cuando llega un valor que no entraba y no se vuelve a achicar, así
- * que lo que se ve moverse es el dato y no la escala.
+ * Merges two domains keeping the widest. It is the 'sticky' mode: the axis
+ * grows when a value arrives that didn't fit and never shrinks back, so what
+ * you see moving is the data and not the scale.
  */
 export function growExtent(previous: [number, number] | null, next: [number, number]): [number, number] {
   if (!previous) return next;
   return [Math.min(previous[0], next[0]), Math.max(previous[1], next[1])];
 }
 
-/** Interpolador lineal dominio → rango. Dominio degenerado cae al medio del rango. */
+/** Linear domain → range interpolator. A degenerate domain falls to the middle of the range. */
 export function linearScale(domain: [number, number], range: [number, number]): (value: number) => number {
   const [d0, d1] = domain;
   const [r0, r1] = range;
@@ -124,13 +124,13 @@ export function linearScale(domain: [number, number], range: [number, number]): 
 }
 
 export interface ExtentOptions {
-  /** Las series se suman en vez de compararse (barras/áreas apiladas). */
+  /** The series are summed instead of compared (stacked bars/areas). */
   stacked?: boolean;
-  /** Fuerza el 0 adentro del dominio: sin él, una barra corta miente. */
+  /** Forces 0 into the domain: without it, a short bar lies. */
   includeZero?: boolean;
 }
 
-/** Mínimo y máximo de las series pedidas. Sin datos devuelve [0, 1]. */
+/** Minimum and maximum of the requested series. With no data it returns [0, 1]. */
 export function extent(rows: ChartRow[], keys: string[], options: ExtentOptions = {}): [number, number] {
   const { stacked = false, includeZero = false } = options;
   let min = Infinity;
@@ -138,8 +138,8 @@ export function extent(rows: ChartRow[], keys: string[], options: ExtentOptions 
 
   for (const row of rows) {
     if (stacked) {
-      // Positivos y negativos se apilan hacia lados opuestos del cero, así que
-      // cada lado tiene su propio total y ninguno cancela al otro.
+      // Positives and negatives stack toward opposite sides of zero, so each
+      // side has its own total and neither cancels the other.
       let up = 0;
       let down = 0;
       for (const key of keys) {
@@ -168,21 +168,21 @@ export function extent(rows: ChartRow[], keys: string[], options: ExtentOptions 
   return [min, max];
 }
 
-// ── apilado ────────────────────────────────────────────────────────────────
+// ── stacking ───────────────────────────────────────────────────────────────
 
 export interface StackBand {
   key: string;
-  /** Borde de la banda más cerca del cero. */
+  /** Edge of the band closest to zero. */
   from: number;
-  /** Borde más lejos del cero. */
+  /** Edge furthest from zero. */
   to: number;
   value: number;
 }
 
 /**
- * Bandas apiladas de una fila. Los positivos crecen desde 0 hacia arriba y
- * los negativos desde 0 hacia abajo: una serie negativa no le come el alto a
- * las positivas, que es lo que pasa si se apila todo en un solo acumulador.
+ * Stacked bands of a row. Positives grow from 0 upward and negatives from 0
+ * downward: a negative series doesn't eat the positives' height, which is
+ * what happens if everything is stacked in a single accumulator.
  */
 export function stackRow(row: ChartRow, keys: string[]): StackBand[] {
   const bands: StackBand[] = [];
@@ -206,7 +206,7 @@ export function stackRow(row: ChartRow, keys: string[]): StackBand[] {
 
 const RAD = Math.PI / 180;
 
-/** Punto a `radius` del centro en el ángulo dado (0° arriba, horario). */
+/** Point at `radius` from the center at the given angle (0° up, clockwise). */
 export function polar(center: Point, radius: number, angle: number): Point {
   return {
     x: center.x + radius * Math.sin(angle * RAD),
@@ -214,25 +214,25 @@ export function polar(center: Point, radius: number, angle: number): Point {
   };
 }
 
-/** Ángulo de un punto respecto del centro, normalizado a [0, 360). */
+/** Angle of a point relative to the center, normalized to [0, 360). */
 export function angleOf(center: Point, point: Point): number {
   const degrees = Math.atan2(point.x - center.x, center.y - point.y) / RAD;
   return (degrees + 360) % 360;
 }
 
 export interface Arc {
-  /** Índice de la fila que representa. */
+  /** Index of the row it represents. */
   index: number;
   start: number;
   sweep: number;
   value: number;
-  /** Proporción sobre el total, 0–1. */
+  /** Share of the total, 0–1. */
   ratio: number;
 }
 
 /**
- * Arcos de una torta. Los negativos no existen en una torta (no hay "menos
- * porción"): se descartan en vez de invertirse. Total 0 ⇒ nada que dibujar.
+ * Arcs of a pie. Negatives don't exist in a pie (there is no "less slice"):
+ * they are dropped instead of inverted. Total 0 ⇒ nothing to draw.
  */
 export function arcsFor(values: number[]): Arc[] {
   const safe = values.map((value) => (Number.isFinite(value) && value > 0 ? value : 0));
@@ -250,7 +250,7 @@ export function arcsFor(values: number[]): Arc[] {
   return arcs;
 }
 
-/** El arco que contiene ese ángulo, o -1. */
+/** The arc containing that angle, or -1. */
 export function arcAt(arcs: Arc[], angle: number): number {
   const normalized = (angle + 360) % 360;
   for (const arc of arcs) {
@@ -259,26 +259,26 @@ export function arcAt(arcs: Arc[], angle: number): number {
   return -1;
 }
 
-/** Ángulos de los ejes de un radar: el primero arriba, el resto en reparto parejo. */
+/** Angles of a radar's axes: the first at the top, the rest evenly spread. */
 export function radarAngles(count: number): number[] {
   if (count <= 0) return [];
   return Array.from({ length: count }, (_, index) => (index * 360) / count);
 }
 
-// ── segmentos y curvas ─────────────────────────────────────────────────────
+// ── segments and curves ────────────────────────────────────────────────────
 
 export interface SegmentBox {
   left: number;
   top: number;
   width: number;
   height: number;
-  /** Grados para `transform: [{ rotate }]`. */
+  /** Degrees for `transform: [{ rotate }]`. */
   rotate: number;
 }
 
 /**
- * Caja de un segmento a→b: sin SVG, una línea es un rectángulo fino rotado
- * sobre su centro. Ancho = distancia, alto = grosor, rotación = la pendiente.
+ * Box of a segment a→b: without SVG, a line is a thin rectangle rotated
+ * around its center. Width = distance, height = thickness, rotation = the slope.
  */
 export function segmentBox(a: Point, b: Point, thickness: number): SegmentBox {
   const dx = b.x - a.x;
@@ -294,17 +294,17 @@ export function segmentBox(a: Point, b: Point, thickness: number): SegmentBox {
 }
 
 /**
- * Suaviza una polilínea con Catmull-Rom muestreada en `steps` tramos por vano.
- * La curva pasa por todos los puntos originales (a diferencia de un Bézier de
- * control libre), así que el dato sigue siendo el dato; sólo se agrega camino
- * entre medio, y el resultado se dibuja con los mismos segmentos rectos.
+ * Smooths a polyline with Catmull-Rom sampled in `steps` segments per span.
+ * The curve passes through all the original points (unlike a free-control
+ * Bézier), so the data is still the data; only path is added in between, and
+ * the result is drawn with the same straight segments.
  */
 export function smoothPoints(points: Point[], steps = 8): Point[] {
   if (points.length < 3 || steps < 2) return points;
   const out: Point[] = [points[0]!];
   for (let i = 0; i < points.length - 1; i += 1) {
-    // Los extremos se duplican para que el primer y el último vano tengan
-    // las cuatro referencias que pide la spline.
+    // The endpoints are duplicated so the first and last spans have the
+    // four references the spline asks for.
     const p0 = points[i - 1] ?? points[i]!;
     const p1 = points[i]!;
     const p2 = points[i + 1]!;
@@ -323,8 +323,8 @@ export function smoothPoints(points: Point[], steps = 8): Point[] {
 }
 
 /**
- * `y` de la polilínea en esa `x`, o null si cae fuera. Es lo que convierte una
- * línea en área: cada tira vertical pregunta su alto acá.
+ * The polyline's `y` at that `x`, or null if it falls outside. It is what
+ * turns a line into an area: each vertical strip asks for its height here.
  */
 export function sampleY(points: Point[], x: number): number | null {
   if (points.length === 0) return null;
@@ -340,14 +340,14 @@ export function sampleY(points: Point[], x: number): number | null {
   return null;
 }
 
-// ── formato ────────────────────────────────────────────────────────────────
+// ── formatting ─────────────────────────────────────────────────────────────
 
 const UNITS = ['', 'k', 'M', 'B'];
 
 /**
- * Formato por defecto de ejes y tooltip: compacto, porque un eje de un chart
- * de 320px no tiene lugar para "1250000". El consumidor lo reemplaza entero
- * con `formatValue`.
+ * Default format for axes and tooltip: compact, because the axis of a 320px
+ * chart has no room for "1250000". The consumer replaces it entirely with
+ * `formatValue`.
  */
 export function formatNumber(value: number): string {
   if (!Number.isFinite(value)) return '';
@@ -369,12 +369,12 @@ export interface FanStrip {
 }
 
 /**
- * Descompone un polígono alrededor de un centro en porciones angulares: es lo
- * que permite rellenar un radar con la misma primitiva que dibuja una torta.
+ * Breaks a polygon around a center into angular slices: it is what lets a
+ * radar be filled with the same primitive that draws a pie.
  *
- * El corte va por el lado del polígono (parámetro `t`), no por el ángulo: el
- * radio de una cuerda no es lineal en el ángulo, y cortando por ángulo los
- * vértices quedarían redondeados justo donde el dato manda que haya una punta.
+ * The cut goes along the polygon's side (parameter `t`), not by angle: the
+ * radius of a chord isn't linear in the angle, and cutting by angle would
+ * round off the vertices exactly where the data says there should be a point.
  */
 export function fanStrips(center: Point, points: Point[], steps = 6): FanStrip[] {
   if (points.length < 3 || steps < 1) return [];
@@ -390,14 +390,14 @@ export function fanStrips(center: Point, points: Point[], steps = 6): FanStrip[]
       const t = s / steps;
       const point = { x: a.x + (b.x - a.x) * t, y: a.y + (b.y - a.y) * t };
       const angle = angleOf(center, point);
-      // El salto de 360 a 0 cae en algún lado del recorrido: sin esto, esa
-      // porción se dibujaría girando al revés y taparía todo el resto.
+      // The jump from 360 to 0 falls somewhere along the path: without this,
+      // that slice would be drawn turning backwards and cover everything else.
       let sweep = angle - previousAngle;
       if (sweep < 0) sweep += 360;
       if (sweep > 0) {
         const radius = (Math.hypot(previous.x - center.x, previous.y - center.y) + Math.hypot(point.x - center.x, point.y - center.y)) / 2;
-        // Las porciones se solapan un pelo a propósito: sin el solape, el
-        // antialias deja una costura clara entre tira y tira.
+        // The slices overlap a hair on purpose: without the overlap, the
+        // antialias leaves a light seam between strips.
         strips.push({ start: previousAngle, sweep: sweep + 0.4, radius });
       }
       previous = point;
@@ -407,23 +407,22 @@ export function fanStrips(center: Point, points: Point[], steps = 6): FanStrip[]
   return strips;
 }
 
-// ── diezmado ───────────────────────────────────────────────────────────────
+// ── decimation ─────────────────────────────────────────────────────────────
 
 /**
- * LTTB (Largest-Triangle-Three-Buckets): elige `threshold` puntos de `values`
- * quedándose con la forma de la curva. Devuelve índices, no puntos, para que
- * quien llama pueda conservar la fila entera —todas sus series— y no sólo la
- * que se usó para decidir.
+ * LTTB (Largest-Triangle-Three-Buckets): picks `threshold` points from
+ * `values` while keeping the shape of the curve. Returns indexes, not points,
+ * so the caller can keep the whole row —all its series— and not only the one
+ * used to decide.
  *
- * Por qué no un muestreo cada N: cada N se come los picos, que son justo lo
- * que alguien mira en una serie temporal. LTTB parte el recorrido en baldes y
- * de cada uno se queda con el punto que forma el triángulo más grande con el
- * ya elegido y con el promedio del balde siguiente — o sea, con el que más
- * cambia la silueta. Primero y último se conservan siempre.
+ * Why not sample every N: every N eats the peaks, which are exactly what
+ * someone looks at in a time series. LTTB splits the path into buckets and
+ * from each one keeps the point that forms the largest triangle with the one
+ * already picked and with the average of the next bucket — that is, the one
+ * that changes the silhouette the most. First and last are always kept.
  *
- * `x` es el índice: las categorías de un chart están repartidas parejo sobre
- * el eje, así que la distancia horizontal entre dos puntos es su distancia de
- * índice.
+ * `x` is the index: a chart's categories are spread evenly along the axis, so
+ * the horizontal distance between two points is their index distance.
  */
 export function lttbIndices(values: (number | null)[], threshold: number): number[] {
   const total = values.length;
@@ -431,16 +430,16 @@ export function lttbIndices(values: (number | null)[], threshold: number): numbe
 
   const at = (index: number) => values[index] ?? 0;
   const selected = [0];
-  // Un balde por punto intermedio: el primero y el último no se sortean. Con
-  // `threshold < total` el balde mide más de un punto, así que ninguno queda
-  // vacío y salen exactamente `threshold` índices, sin repetidos.
+  // One bucket per intermediate point: the first and the last aren't drawn.
+  // With `threshold < total` a bucket spans more than one point, so none is
+  // empty and exactly `threshold` indexes come out, with no repeats.
   const every = (total - 2) / (threshold - 2);
   let previous = 0;
 
   for (let bucket = 0; bucket < threshold - 2; bucket += 1) {
-    // Promedio del balde *siguiente*: el tercer vértice del triángulo. Va
-    // corrido un balde respecto de los candidatos, y ese corrimiento es el
-    // algoritmo — comparar contra el propio balde no mira hacia adelante.
+    // Average of the *next* bucket: the triangle's third vertex. It is
+    // offset one bucket from the candidates, and that offset is the
+    // algorithm — comparing against the bucket itself doesn't look ahead.
     const avgStart = Math.floor((bucket + 1) * every) + 1;
     const avgEnd = Math.min(Math.floor((bucket + 2) * every) + 1, total);
     let avgX = 0;

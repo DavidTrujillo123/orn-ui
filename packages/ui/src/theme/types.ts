@@ -1,14 +1,14 @@
 import type { Tokens } from './tokens';
 import type { ThemeColors } from './palettes';
 
-/** Theme resuelto: paleta de un scheme concreto + tokens compartidos. */
+/** Resolved theme: the palette of a given scheme + shared tokens. */
 export interface Theme {
   colors: ThemeColors;
   tokens: Tokens;
   scheme: 'light' | 'dark';
 }
 
-/** Par de themes light/dark que produce createTheme() y consume UIProvider. */
+/** Light/dark theme pair produced by createTheme() and consumed by UIProvider. */
 export interface ThemePair {
   light: Theme;
   dark: Theme;
@@ -18,7 +18,7 @@ export type DeepPartial<T> = {
   [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K];
 };
 
-/** Acentos que se pueden definir con un solo hex vía `brand`. */
+/** Accents that can be defined with a single hex via `brand`. */
 export type BrandAccent = 'primary' | 'secondary' | 'success' | 'error' | 'warning';
 
 export interface ThemeOverrides {

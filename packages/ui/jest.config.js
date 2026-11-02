@@ -1,11 +1,11 @@
 /** @type {import('jest').Config} */
 module.exports = {
-  // 'react-native' resuelve react-native/jest-preset.js, no el paquete
-  // @react-native/jest-preset directo: ese paquete existe recién desde
-  // react-native 0.85 (Expo SDK 56), y en 0.81–0.84 (SDK 54/55) el preset vive
-  // adentro de react-native. jest-preset.js está en todo el rango soportado —
-  // desde 0.85 es un shim al paquete nuevo —, así que este mismo config corre
-  // contra los cuatro SDK (ver scripts/compat-matrix.mjs).
+  // 'react-native' resolves react-native/jest-preset.js, not the
+  // @react-native/jest-preset package directly: that package only exists since
+  // react-native 0.85 (Expo SDK 56), and in 0.81–0.84 (SDK 54/55) the preset
+  // lives inside react-native. jest-preset.js is there across the whole
+  // supported range — since 0.85 it's a shim to the new package —, so this
+  // same config runs against all four SDKs (see scripts/compat-matrix.mjs).
   preset: 'react-native',
   setupFiles: ['<rootDir>/jest.setup.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],

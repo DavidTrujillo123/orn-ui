@@ -1,28 +1,28 @@
 /**
- * Las marcas de Chart: lo único que sabe dibujar el componente.
+ * Chart's marks: the only thing the component knows how to draw.
  *
- * React Native no trae un lienzo vectorial y la librería no puede agregar uno
- * (cero dependencias), así que las tres primitivas de acá se componen con
- * `View` y bastan para los seis tipos de chart:
+ * React Native ships no vector canvas and the library can't add one (zero
+ * dependencies), so the three primitives here are composed from `View` and
+ * are enough for the six chart types:
  *
- * | primitiva  | la usan                                             |
+ * | primitive  | used by                                             |
  * |------------|-----------------------------------------------------|
- * | `Bar`      | barras verticales y horizontales, agrupadas o apiladas |
- * | `Polyline` | línea, contorno del radar, grilla del radar, ejes    |
- * | `Wedge`    | torta, dona y el relleno del radar                   |
+ * | `Bar`      | vertical and horizontal bars, grouped or stacked     |
+ * | `Polyline` | line, radar outline, radar grid, axes                |
+ * | `Wedge`    | pie, donut and the radar fill                        |
  *
- * Son puras: no escuchan toques ni conocen la escala. Quien toca es la capa de
- * hit-test de Chart.tsx, que cubre columnas enteras en vez de la marca —
- * una línea de 2px no es un blanco táctil.
+ * They are pure: they don't listen to touches or know the scale. What handles
+ * touches is Chart.tsx's hit-test layer, which covers whole columns instead of
+ * the mark — a 2px line is not a touch target.
  */
 import React, { memo, useEffect, useRef } from 'react';
 import { Animated, Easing, View, type ViewStyle } from 'react-native';
 import { segmentBox, type Point } from './math';
 
 /**
- * Valor que persigue a `target` en vez de saltar. Un filtro que cambia los
- * datos mueve la barra desde donde estaba, y ese movimiento es lo que dice
- * "es la misma barra con otro número" en lugar de "es otro chart".
+ * A value that chases `target` instead of jumping. A filter that changes the
+ * data moves the bar from where it was, and that movement is what says "it's
+ * the same bar with another number" instead of "it's another chart".
  */
 export function useAnimatedNumber(target: number, animate: boolean, duration: number): Animated.Value {
   const value = useRef(new Animated.Value(animate ? 0 : target)).current;
@@ -36,9 +36,9 @@ export function useAnimatedNumber(target: number, animate: boolean, duration: nu
       toValue: target,
       duration,
       easing: Easing.out(Easing.cubic),
-      // Geometría, no transform: `height`/`top` son props de layout y el
-      // driver nativo no las toca. Es el precio de que la barra pueda crecer
-      // desde su base con valores negativos sin recalcular el origen.
+      // Geometry, not transform: `height`/`top` are layout props and the
+      // native driver doesn't touch them. It is the price of letting the bar
+      // grow from its base with negative values without recomputing the origin.
       useNativeDriver: false,
     });
     animation.start();
@@ -48,20 +48,20 @@ export function useAnimatedNumber(target: number, animate: boolean, duration: nu
   return value;
 }
 
-// ── barra ──────────────────────────────────────────────────────────────────
+// ── bar ────────────────────────────────────────────────────────────────────
 
 export interface BarProps {
-  /** Caja final de la barra dentro del plot, ya en píxeles. */
+  /** The bar's final box inside the plot, already in pixels. */
   x: number;
   y: number;
   width: number;
   height: number;
   color: string;
-  /** Lado por donde nace: la barra crece desde su base, no desde el centro. */
+  /** Side it grows from: the bar grows from its base, not from the center. */
   from: 'bottom' | 'top' | 'left' | 'right';
-  /** Radio de las dos esquinas del extremo libre. */
+  /** Radius of the two corners at the free end. */
   radius?: number;
-  /** Atenúa las barras que no son la seleccionada. */
+  /** Dims the bars that aren't the selected one. */
   dim?: boolean;
   animate?: boolean;
   duration?: number;
@@ -75,8 +75,8 @@ export const Bar = memo(
     const vertical = from === 'bottom' || from === 'top';
     const grown = useAnimatedNumber(vertical ? height : width, animate, duration);
 
-    // El extremo que se mueve es el opuesto a la base: una barra que nace
-    // abajo mantiene fijo su borde inferior y sube el superior.
+    // The end that moves is the one opposite the base: a bar growing from
+    // the bottom keeps its lower edge fixed and raises the upper one.
     const box = vertical
       ? { left: x, width, height: grown, ...(from === 'bottom' ? { bottom: y } : { top: y }) }
       : { top: y, height, width: grown, ...(from === 'left' ? { left: x } : { right: x }) };
@@ -103,24 +103,24 @@ export const Bar = memo(
 );
 Bar.displayName = 'Bar';
 
-// ── polilínea ──────────────────────────────────────────────────────────────
+// ── polyline ───────────────────────────────────────────────────────────────
 
 export interface PolylineProps {
   points: Point[];
   color: string;
   thickness?: number;
-  /** Une el último punto con el primero (radar, grilla poligonal). */
+  /** Joins the last point with the first (radar, polygonal grid). */
   closed?: boolean;
   opacity?: number;
   testID?: string;
 }
 
 /**
- * Una línea es un rectángulo fino rotado sobre su centro, uno por tramo. Con
- * `smoothPoints` los tramos son tantos que la poligonal se lee como curva.
+ * A line is a thin rectangle rotated around its center, one per segment. With
+ * `smoothPoints` there are so many segments that the polyline reads as a curve.
  *
- * Los extremos quedan a tope, no redondeados: un `borderRadius` por tramo
- * multiplicaría las vistas y a 2px de grosor nadie ve la diferencia.
+ * The ends are butt, not rounded: a `borderRadius` per segment would multiply
+ * the views and at 2px thick nobody sees the difference.
  */
 export const Polyline = memo(({ points, color, thickness = 2, closed = false, opacity = 1, testID }: PolylineProps) => {
   if (points.length < 2) return null;
@@ -154,7 +154,7 @@ export interface DotProps {
   point: Point;
   color: string;
   size?: number;
-  /** Aro del color del fondo: despega el punto de la línea que lo cruza. */
+  /** Ring in the background color: separates the dot from the line crossing it. */
   ringColor?: string;
   ringWidth?: number;
   testID?: string;
@@ -182,33 +182,33 @@ export const Dot = memo(({ point, color, size = 7, ringColor, ringWidth = 2, tes
 });
 Dot.displayName = 'Dot';
 
-// ── porción ────────────────────────────────────────────────────────────────
+// ── slice ──────────────────────────────────────────────────────────────────
 
 interface HalfProps {
   size: number;
-  /** Apertura de esta mitad, 0–180. */
+  /** Opening of this half, 0–180. */
   sweep: number;
   color: string;
 }
 
 /**
- * Sector de hasta 180°, sin curvas ni máscaras. Tres cajas:
+ * Sector of up to 180°, without curves or masks. Three boxes:
  *
- * 1. un recorte fijo a la mitad derecha (`overflow: 'hidden'`), que es el
- *    sector 0°–180°;
- * 2. adentro, un cuadrado `size` × `size` centrado en el centro del círculo,
- *    que es lo que gira — al rotar sobre su propio centro, rota sobre el
- *    centro del círculo sin necesidad de `transformOrigin`;
- * 3. adentro del cuadrado, **medio disco**, no un disco entero: un rectángulo
- *    de media caja con las dos esquinas de afuera redondeadas al radio.
+ * 1. a fixed clip to the right half (`overflow: 'hidden'`), which is the
+ *    0°–180° sector;
+ * 2. inside, a `size` × `size` square centered on the circle's center, which
+ *    is what rotates — rotating around its own center, it rotates around the
+ *    circle's center without needing `transformOrigin`;
+ * 3. inside the square, a **half disc**, not a whole disc: a half-box
+ *    rectangle with its two outer corners rounded to the radius.
  *
- * El medio disco es lo que hace que la rotación signifique algo. Con un disco
- * completo el recorte deja siempre la misma media luna —rotar un círculo
- * sólido no lo cambia—, y toda porción, sea de 5° o de 180°, sale igual de
- * ancha: 180°.
+ * The half disc is what makes the rotation mean something. With a full disc
+ * the clip always leaves the same half moon —rotating a solid circle doesn't
+ * change it—, and every slice, whether 5° or 180°, comes out equally wide:
+ * 180°.
  *
- * Girado `sweep - 180`, el medio disco cubre de `sweep - 180` a `sweep`, y lo
- * que sobrevive al recorte es exactamente 0°–`sweep`.
+ * Rotated `sweep - 180`, the half disc covers `sweep - 180` to `sweep`, and
+ * what survives the clip is exactly 0°–`sweep`.
  */
 const Half = ({ size, sweep, color }: HalfProps) => (
   <View style={{ position: 'absolute', left: size / 2, top: 0, width: size / 2, height: size, overflow: 'hidden' }}>
@@ -239,17 +239,17 @@ const Half = ({ size, sweep, color }: HalfProps) => (
 );
 
 export interface WedgeProps {
-  /** Diámetro: la porción se dibuja centrada en una caja `size` × `size`. */
+  /** Diameter: the slice is drawn centered in a `size` × `size` box. */
   size: number;
-  /** Ángulo donde empieza, 0° arriba y creciendo en horario. */
+  /** Angle where it starts, 0° at the top and increasing clockwise. */
   start: number;
   /** Apertura, 0–360. */
   sweep: number;
   color: string;
   opacity?: number;
-  /** Desplaza la porción hacia afuera por su bisectriz (la seleccionada). */
+  /** Pushes the slice outward along its bisector (the selected one). */
   explode?: number;
-  /** Centro dentro del contenedor. Sin él la porción se apoya en (0, 0). */
+  /** Center within the container. Without it the slice rests on (0, 0). */
   center?: Point;
   testID?: string;
 }
@@ -258,8 +258,8 @@ const FULL_CIRCLE = 359.9;
 
 export const Wedge = memo(({ size, start, sweep, color, opacity = 1, explode = 0, center, testID }: WedgeProps) => {
   if (sweep <= 0 || size <= 0) return null;
-  // 360° exactos dejan las dos mitades a 180°, y la de arriba tapa a la de
-  // abajo por una rendija de antialias. Un pelo menos no se ve y no pasa.
+  // Exactly 360° leaves both halves at 180°, and the top one covers the bottom
+  // one with an antialias slit. A hair less isn't visible and doesn't happen.
   const total = Math.min(sweep, FULL_CIRCLE);
   const first = Math.min(total, 180);
   const second = total - first;

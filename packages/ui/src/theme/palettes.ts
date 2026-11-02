@@ -1,21 +1,21 @@
 /**
- * Cada color es `string`, no un literal (`as const`): light y dark tienen
- * valores distintos para la misma clave, y createTheme() debe poder
- * aceptar cualquier hex/rgba en los overrides — literal typing lo impediría.
+ * Each color is a `string`, not a literal (`as const`): light and dark have
+ * different values for the same key, and createTheme() must be able to
+ * accept any hex/rgba in the overrides — literal typing would prevent it.
  *
- * Cada acento viene en cuatro roles, y no son intercambiables:
+ * Each accent comes in four roles, and they are not interchangeable:
  *
- *   `primary`      relleno sólido (fondo de botón, día seleccionado, FAB).
- *   `onPrimary`    texto/ícono *encima* de ese relleno.
- *   `primarySoft`  fondo teñido para estados seleccionados y pills.
- *   `primaryText`  texto/ícono del acento sobre `surface`, `background`
- *                  o sobre su propio `primarySoft`.
+ *   `primary`      solid fill (button background, selected day, FAB).
+ *   `onPrimary`    text/icon *on top of* that fill.
+ *   `primarySoft`  tinted background for selected states and pills.
+ *   `primaryText`  accent text/icon over `surface`, `background`
+ *                  or over its own `primarySoft`.
  *
- * El motivo es el contraste: un acento que se lee bien como relleno no se
- * lee como texto. Antes los componentes usaban `colors.primary` para las dos
- * cosas y lo teñían concatenando alpha al hex (`colors.primary + '15'`), lo
- * que en dark daba 2.6:1 sobre la superficie — muy por debajo del 4.5:1 de
- * WCAG AA. Todos los pares de esta paleta pasan AA en ambos esquemas.
+ * The reason is contrast: an accent that reads well as a fill doesn't read
+ * as text. Components used to use `colors.primary` for both things and tinted
+ * it by appending alpha to the hex (`colors.primary + '15'`), which in dark
+ * gave 2.6:1 over the surface — well below WCAG AA's 4.5:1. Every pair in
+ * this palette passes AA in both schemes.
  */
 export interface ThemeColors {
   primary: string;
@@ -81,9 +81,9 @@ export const lightPalette: ThemeColors = {
   successSoft: '#e3f6e9',
   successText: '#116a30',
 
-  // El rojo va con texto blanco, que es lo que la gente espera de un botón
-  // destructivo. #ff3b30 no llega a 4.5:1 con blanco y obligaba a texto casi
-  // negro sobre rojo; este tono sí, y sigue leyéndose como rojo de alerta.
+  // Red goes with white text, which is what people expect from a destructive
+  // button. #ff3b30 doesn't reach 4.5:1 with white and forced near-black text
+  // over red; this shade does, and still reads as an alert red.
   error: '#dc2626',
   onError: '#ffffff',
   errorSoft: '#fdeaea',
@@ -106,9 +106,9 @@ export const lightPalette: ThemeColors = {
 };
 
 /**
- * Los acentos de dark NO son los de light: sobre `#1e1e1e` hay que subir la
- * luminosidad del acento y bajar la del texto que va encima (por eso
- * `onPrimary` es azul oscuro acá y blanco en light).
+ * The dark accents are NOT the light ones: over `#1e1e1e` the accent's
+ * lightness has to go up and that of the text on top has to go down (which
+ * is why `onPrimary` is dark blue here and white in light).
  */
 export const darkPalette: ThemeColors = {
   ...neutral,

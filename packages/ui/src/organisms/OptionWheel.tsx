@@ -70,20 +70,20 @@ export interface OptionWheelProps<T> {
 }
 
 const DEFAULT_VISIBLE_COUNT = 5;
-/** 44pt: el mínimo táctil de iOS, y alcanza para una línea `lg` con aire. */
+/** 44pt: iOS's touch minimum, and enough for an `lg` line with room to spare. */
 const DEFAULT_ITEM_HEIGHT = 44;
 /**
- * Filas hacia cada lado que la interpolación distingue; más lejos, todas
- * iguales (`extrapolate: 'clamp'`). Los tres rangos son simétricos respecto
- * del centro: la fila de arriba y la de abajo se ven igual, sólo que la de
- * arriba se inclina hacia atrás y la de abajo hacia adelante.
+ * Rows toward each side that the interpolation distinguishes; further out,
+ * all the same (`extrapolate: 'clamp'`). The three ranges are symmetric
+ * around the center: the row above and the row below look the same, except
+ * the one above tilts backward and the one below forward.
  */
 const FALLOFF = 2;
 
 /**
- * Cada variante es un juego de rangos. 'spotlight' cae mucho más rápido y se
- * inclina más porque no tiene banda que señale el centro: todo el trabajo de
- * decir cuál está elegida lo hacen el contraste y la nitidez.
+ * Each variant is a set of ranges. 'spotlight' falls off much faster and
+ * tilts more because it has no band marking the center: all the work of
+ * saying which one is selected is done by contrast and sharpness.
  */
 const RANGES: Record<OptionWheelVariant, { opacity: number[]; scale: number[]; rotation: string[] }> = {
   window: {
@@ -99,28 +99,28 @@ const RANGES: Record<OptionWheelVariant, { opacity: number[]; scale: number[]; r
 };
 
 /**
- * React Native no tiene desenfoque sin dependencia nativa, así que en
- * 'spotlight' cada fila que no está en el centro se dibuja además dos veces
- * corrida y a media tinta. La superposición emborrona el trazo: no es un blur
- * gaussiano, pero a ese tamaño y con esa opacidad lee igual, y sigue siendo
- * `opacity` y `transform` sobre el mismo scroll, o sea el hilo nativo.
+ * React Native has no blur without a native dependency, so in 'spotlight'
+ * each row that isn't in the center is also drawn twice, offset and at half
+ * ink. The overlap smears the stroke: it isn't a gaussian blur, but at that
+ * size and opacity it reads the same, and it is still `opacity` and
+ * `transform` over the same scroll, i.e. the native thread.
  */
 /**
- * Dónde cae cada punto del `inputRange` sobre el arco. `Animated` no sabe
- * calcular raíces ni arcosenos, pero no hace falta: las cinco distancias al
- * centro son fijas por fila, así que la flecha del arco y el ángulo de la
- * tangente se resuelven una vez acá y entran como `outputRange`.
+ * Where each point of the `inputRange` falls on the arc. `Animated` can't
+ * compute roots or arcsines, but it doesn't need to: the five distances to
+ * the center are fixed per row, so the arc's sagitta and the tangent's angle
+ * are resolved once here and go in as `outputRange`.
  */
 function arcOffsets(radius: number, itemHeight: number, sign: number) {
   const shift: number[] = [];
   const angle: string[] = [];
   for (let step = -FALLOFF; step <= FALLOFF; step += 1) {
-    // Más allá del radio la fila ya dio la vuelta: se corta ahí en vez de
-    // sacarle la raíz a un negativo.
+    // Beyond the radius the row has already turned over: cut it off there
+    // instead of taking the root of a negative.
     const dy = Math.min(Math.abs(step * itemHeight), radius);
-    // Flecha del arco: cuánto se mete la fila hacia el centro de la rueda.
+    // Arc sagitta: how far the row moves in toward the center of the wheel.
     shift.push(sign * (radius - Math.sqrt(radius * radius - dy * dy)));
-    // La tangente del arco, para que la fila siga la curva en vez de cruzarla.
+    // The arc's tangent, so the row follows the curve instead of crossing it.
     const degrees = Math.asin(dy / radius) * (180 / Math.PI);
     angle.push(`${-sign * Math.sign(step) * degrees}deg`);
   }
@@ -140,7 +140,7 @@ const useStyles = createStyles((theme) => ({
   },
   viewport: { overflow: 'hidden' },
   disabled: { opacity: 0.5 },
-  // La ventana central: figura contra el fondo de opciones que pasan.
+  // The center window: figure against the ground of options passing by.
   window: {
     position: 'absolute',
     left: 0,
@@ -166,7 +166,7 @@ const useStyles = createStyles((theme) => ({
   unit: { fontSize: theme.tokens.fontSize.sm, color: theme.colors.textLight },
 }));
 
-/** El índice habilitado más cercano a `index`, o -1 si no hay ninguno. */
+/** The enabled index closest to `index`, or -1 if there is none. */
 function nearestEnabled<T>(options: OptionWheelOption<T>[], index: number): number {
   if (options.length === 0) return -1;
   for (let step = 0; step < options.length; step += 1) {
@@ -180,25 +180,25 @@ function nearestEnabled<T>(options: OptionWheelOption<T>[], index: number): numb
 
 /**
  * OptionWheel
- * Selector de rueda: las opciones pasan por una ventana fija y la que queda en
- * el centro es la elegida. El scroll hace snap a la altura de fila, así que
- * soltar el dedo en cualquier lado siempre deja una opción centrada y no media.
+ * Wheel picker: the options pass through a fixed window and the one left in
+ * the center is the selected one. The scroll snaps to the row height, so
+ * lifting the finger anywhere always leaves one option centered, never half.
  *
- * Gestalt, figura y fondo: lo que marca la selección no es un estilo sobre la
- * fila —que viajaría con ella— sino una ventana quieta encima de la lista. La
- * figura se queda, el fondo se mueve, y por eso la rueda se lee sin leer: el
- * lugar señala, no el color. Y destino común: todas las filas se achican y se
- * inclinan con la misma ley respecto del centro, de modo que se perciben como
- * una superficie rígida que gira y no como N filas animándose por su cuenta.
+ * Gestalt, figure and ground: what marks the selection isn't a style on the
+ * row —which would travel with it— but a still window on top of the list. The
+ * figure stays, the ground moves, and that is why the wheel reads without
+ * reading: the place signals, not the color. And common fate: all rows shrink
+ * and tilt by the same law relative to the center, so they are perceived as a
+ * rigid surface that turns and not as N rows animating on their own.
  *
- * La escala, la opacidad y la inclinación salen de interpolar el
- * `contentOffset` del scroll, no del estado de React: se calculan en el hilo
- * nativo (`useNativeDriver`) y el hilo de JS sólo participa cuando la rueda ya
- * frenó, para avisar qué quedó elegido. Con "reducir movimiento" activo se
- * apaga la inclinación y queda el tamaño, que es información, no decoración.
+ * Scale, opacity and tilt come from interpolating the scroll's
+ * `contentOffset`, not from React state: they are computed on the native
+ * thread (`useNativeDriver`) and the JS thread only takes part once the wheel
+ * has stopped, to report what was selected. With "reduce motion" on, the tilt
+ * is turned off and the size stays, since it is information, not decoration.
  *
- * `disabled` en una opción no puede impedir que el snap la centre, así que la
- * rueda la centra y se corre sola a la habilitada más cercana.
+ * `disabled` on an option can't keep the snap from centering it, so the
+ * wheel centers it and moves on its own to the nearest enabled one.
  */
 export function OptionWheel<T extends string | number>({
   options,
@@ -225,12 +225,12 @@ export function OptionWheel<T extends string | number>({
 
   const scrollRef = useRef<ScrollView>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
-  // El primer posicionamiento no se anima: la rueda tiene que aparecer ya
-  // puesta en su valor, no viajando hasta él.
+  // The first positioning isn't animated: the wheel has to appear already
+  // set at its value, not traveling to it.
   const settled = useRef(false);
 
-  // Impar siempre: con un número par no hay fila central que alinear con la
-  // ventana, y el snap dejaría la selección entre dos filas.
+  // Always odd: with an even number there is no center row to line up with
+  // the window, and the snap would leave the selection between two rows.
   const rows = visibleCount % 2 === 0 ? visibleCount + 1 : visibleCount;
   const padding = ((rows - 1) / 2) * itemHeight;
   const height = rows * itemHeight;
@@ -244,11 +244,11 @@ export function OptionWheel<T extends string | number>({
     (index: number, animated: boolean) => {
       const y = index * itemHeight;
       scrollRef.current?.scrollTo({ y, animated });
-      // `scrollY` sólo lo alimenta `onScroll`, y un salto sin animar no
-      // siempre lo emite: sin esto el valor se queda en 0, la interpolación
-      // cree que la fila centrada es la primera y apaga la que de verdad está
-      // en la ventana. El scroll animado sí emite en todo el recorrido, así
-      // que ahí forzarlo pelearía con la animación.
+      // `scrollY` is only fed by `onScroll`, and an unanimated jump doesn't
+      // always emit it: without this the value stays at 0, the interpolation
+      // thinks the centered row is the first one and dims the one that is
+      // really in the window. The animated scroll does emit along the whole
+      // path, so forcing it there would fight the animation.
       if (!animated) scrollY.setValue(y);
     },
     [itemHeight, scrollY]
@@ -261,10 +261,10 @@ export function OptionWheel<T extends string | number>({
   }, [selectedIndex, scrollToIndex, reduceMotion]);
 
   /**
-   * Corre tanto al final del arrastre como al final de la inercia: en Android
-   * un arrastre corto sin impulso no dispara `onMomentumScrollEnd`, y la rueda
-   * se quedaría con la selección vieja. Reentrar con el mismo índice es inocuo
-   * porque sólo avisa cuando cambia.
+   * Runs both at the end of the drag and at the end of momentum: on Android
+   * a short drag with no momentum doesn't fire `onMomentumScrollEnd`, and the
+   * wheel would keep the old selection. Re-entering with the same index is
+   * harmless because it only reports when it changes.
    */
   const commit = useCallback(
     (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -274,8 +274,8 @@ export function OptionWheel<T extends string | number>({
       if (!landed) return;
       const target = landed.disabled ? nearestEnabled(options, clamped) : clamped;
       const option = options[target];
-      // Sin opciones habilitadas no hay dónde parar: la rueda se queda donde
-      // la dejaron y no avisa nada.
+      // With no enabled options there is nowhere to stop: the wheel stays where
+      // it was left and reports nothing.
       if (!option) return;
       if (target !== clamped) scrollToIndex(target, true);
       if (option.value !== selectedValue) onSelect(option.value);
@@ -283,13 +283,13 @@ export function OptionWheel<T extends string | number>({
     [options, itemHeight, selectedValue, onSelect, scrollToIndex]
   );
 
-  /** VoiceOver/TalkBack recorren la rueda con increment/decrement, no con el dedo. */
+  /** VoiceOver/TalkBack go through the wheel with increment/decrement, not the finger. */
   const step = useCallback(
     (delta: number) => {
       if (disabled || selectedIndex < 0) return;
       const next = nearestEnabled(options, selectedIndex + delta);
       const option = options[next];
-      // En el borde, `nearestEnabled` devuelve la fila donde ya estamos.
+      // At the edge, `nearestEnabled` returns the row we are already on.
       if (!option || next === selectedIndex) return;
       onSelect(option.value);
     },
@@ -305,9 +305,9 @@ export function OptionWheel<T extends string | number>({
 
   const selected = selectedIndex >= 0 ? options[selectedIndex] : undefined;
   const ranges = RANGES[variant];
-  // El desenfoque simulado triplica los nodos de texto: sólo va donde aporta,
-  // y con "reducir movimiento" no va, porque ahí la nitidez es lo único que
-  // queda para distinguir la fila elegida.
+  // The simulated blur triples the text nodes: it only goes where it helps,
+  // and not with "reduce motion", because there sharpness is the only thing
+  // left to tell the selected row apart.
   const smeared = variant === 'spotlight' && !reduceMotion;
   const arc = useMemo(
     () =>
@@ -379,8 +379,8 @@ export function OptionWheel<T extends string | number>({
               { scale: scrollY.interpolate({ inputRange, outputRange: ranges.scale, extrapolate: 'clamp' }) },
             ];
             if (perspective && !reduceMotion) {
-              // El perspective va primero: aplicado después de la rotación no
-              // deforma nada y la fila se ve plana aunque esté rotada.
+              // perspective goes first: applied after the rotation it doesn't
+              // distort anything and the row looks flat even though it's rotated.
               transform.unshift({ perspective: height * 2 });
               transform.push({
                 rotateX: scrollY.interpolate({ inputRange, outputRange: ranges.rotation, extrapolate: 'clamp' }),
@@ -425,9 +425,9 @@ export function OptionWheel<T extends string | number>({
                     <Animated.View
                       key={direction}
                       pointerEvents="none"
-                      // `accessibilityElementsHidden` no alcanza: el lector
-                      // leería la fila tres veces igual, porque la rueda entera
-                      // ya es un solo elemento y esto vive adentro.
+                      // `accessibilityElementsHidden` isn't enough: the reader
+                      // would read the row three times over, because the whole
+                      // wheel is already a single element and this lives inside it.
                       style={[
                         styles.ghost,
                         {

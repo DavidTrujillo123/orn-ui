@@ -26,7 +26,7 @@ function mergeDeep<T extends Record<string, any>>(base: T, patch?: Partial<T>): 
 
 const capitalize = <T extends string>(name: T) => (name.charAt(0).toUpperCase() + name.slice(1)) as Capitalize<T>;
 
-/** Expande cada hex de `brand` a los cuatro roles del acento en un esquema. */
+/** Expands each `brand` hex into the accent's four roles in a scheme. */
 function brandColors(
   brand: ThemeOverrides['brand'],
   scheme: 'light' | 'dark',
@@ -49,12 +49,12 @@ function brandColors(
 }
 
 /**
- * Construye el par de themes light/dark que consume <UIProvider theme={...}>.
- * Nunca muta los defaults: cada llamada produce objetos nuevos, seguros de
- * compartir entre providers distintos (tests, multi-brand en el mismo árbol).
+ * Builds the light/dark theme pair consumed by <UIProvider theme={...}>.
+ * Never mutates the defaults: each call produces new objects, safe to share
+ * between different providers (tests, multi-brand in the same tree).
  *
- * `brand` se aplica antes que `colors`, así que un rol escrito a mano siempre
- * gana sobre el derivado.
+ * `brand` is applied before `colors`, so a hand-written role always wins
+ * over the derived one.
  */
 export function createTheme(overrides?: ThemeOverrides): ThemePair {
   const tokens = mergeDeep(defaultTokens, overrides?.tokens as any);

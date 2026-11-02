@@ -46,8 +46,8 @@ export interface ImageProps {
 
 const useStyles = createStyles((theme) => ({
   container: { overflow: 'hidden' },
-  // Solo mientras carga o si falla: con la imagen ya cargada, un PNG con
-  // transparencia (un logo) dejaba ver este gris detrás.
+  // Only while loading or on failure: once the image has loaded, a PNG with
+  // transparency (a logo) let this gray show through.
   placeholder: { backgroundColor: theme.colors.skeleton },
   overlay: { alignItems: 'center', justifyContent: 'center' },
   fallback: { flex: 1, backgroundColor: theme.colors.skeleton, alignItems: 'center', justifyContent: 'center' },
@@ -59,22 +59,22 @@ function sourceUri(source: ImageSourcePropType): string | undefined {
 
 /**
  * Image
- * Wrapper cero-dependencias sobre <Image> de RN: agrega estado de carga y
- * error (con los mismos placeholders que el resto de la librería), y expone
- * `priority="high"` para adelantar la descarga vía Image.prefetch(). El
- * cache real (disco/memoria) lo maneja el motor de imágenes nativo de RN —
- * esto no lo reimplementa, solo no lo deja apagado por accidente: en iOS
- * fuerza `cache="force-cache"` (usa el disco aunque el header HTTP no lo
- * pida); en Android el cache de disco de la imagen nativa ya está siempre
- * activo, no hay knob equivalente que tocar.
+ * Zero-dependency wrapper over RN's <Image>: adds loading and error state
+ * (with the same placeholders as the rest of the library), and exposes
+ * `priority="high"` to start the download early via Image.prefetch(). The
+ * actual cache (disk/memory) is handled by RN's native image engine — this
+ * doesn't reimplement it, it just keeps it from being accidentally turned off:
+ * on iOS it forces `cache="force-cache"` (uses the disk even when the HTTP
+ * header doesn't ask for it); on Android the native image's disk cache is
+ * always on, there is no equivalent knob to touch.
  *
- * Gestalt, cierre: el contenedor ocupa su tamaño final desde el primer frame
- * (fondo `skeleton`), así el layout no salta cuando la imagen llega y el ojo
- * completa la forma que va a ocupar. Si la carga falla, el mismo hueco muestra
- * un ícono de advertencia: el estado se ve, no queda un gris mudo.
+ * Gestalt, closure: the container takes its final size from the first frame
+ * (`skeleton` background), so the layout doesn't jump when the image arrives
+ * and the eye completes the shape it will fill. If loading fails, the same
+ * slot shows a warning icon: the state is visible, not a silent gray.
  *
- * El éxito se detecta con `onLoad`, no con `onLoadEnd`: RN llama a
- * `onLoadEnd` también cuando falla, y usarlo para "cargó" pisaba el error.
+ * Success is detected with `onLoad`, not `onLoadEnd`: RN also calls
+ * `onLoadEnd` on failure, and using it for "loaded" overwrote the error.
  */
 export const Image = memo(
   ({
@@ -99,8 +99,8 @@ export const Image = memo(
     const uri = sourceUri(source);
 
     useEffect(() => {
-      // Resetea el estado si cambia la imagen (misma instancia de Image,
-      // source distinto: p.ej. avatar de un usuario a otro en la misma fila).
+      // Resets the state if the image changes (same Image instance, different
+      // source: e.g. one user's avatar to another's in the same row).
       setStatus('loading');
     }, [uri ?? source]);
 
@@ -148,7 +148,7 @@ export const Image = memo(
           </View>
         )}
         {status === 'error' && (
-          // Fallback propio o el default: siempre centrado en el hueco.
+          // Custom fallback or the default: always centered in the slot.
           <View style={styles.fallback}>
             {fallback ?? (
               <Icon
@@ -166,8 +166,8 @@ export const Image = memo(
 Image.displayName = 'Image';
 
 /**
- * Precarga una URL antes de montar el componente (p.ej. al recibir la
- * respuesta de un listado, antes de navegar al detalle). Re-exporta
- * Image.prefetch de RN — no hay nada zero-dep que agregarle encima.
+ * Preloads a URL before mounting the component (e.g. on receiving a list
+ * response, before navigating to the detail). Re-exports RN's
+ * Image.prefetch — there is nothing zero-dep to add on top.
  */
 export const prefetchImage = RNImage.prefetch;

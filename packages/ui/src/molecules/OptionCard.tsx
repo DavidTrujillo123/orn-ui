@@ -22,7 +22,7 @@ export interface OptionCardProps {
 
 const useStyles = createStyles((theme) => ({
   card: {
-    // Las tarjetas se reparten la fila que las contenga, sean dos o cinco.
+    // The cards share whatever row contains them, whether two or five.
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
@@ -53,10 +53,10 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * OptionCard
- * Opción excluyente con ícono y label que resalta cuando `isSelected`. Es un
- * radio con cara de tarjeta, así que se anuncia como tal: envolver el grupo en
- * una View con `accessibilityRole="radiogroup"` para que el lector de pantalla
- * lea "1 de 3".
+ * Mutually exclusive option with an icon and label that highlights when
+ * `isSelected`. It is a radio with a card's face, so it announces itself as
+ * one: wrap the group in a View with `accessibilityRole="radiogroup"` so the
+ * screen reader reads "1 of 3".
  */
 export const OptionCard = memo(
   ({
@@ -75,8 +75,8 @@ export const OptionCard = memo(
     const allowFontScaling = useAllowFontScaling();
     const isVertical = layout === 'vertical';
 
-    // Feedback por transform y no por opacity: con elevation, animar la opacity
-    // dispara un bug de Android que redibuja la sombra como un borde oscuro.
+    // Feedback through transform, not opacity: with elevation, animating opacity
+    // triggers an Android bug that redraws the shadow as a dark border.
     return (
       <PressableScale
         style={[

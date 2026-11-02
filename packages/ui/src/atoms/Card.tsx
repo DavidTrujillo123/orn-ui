@@ -13,21 +13,21 @@ const useStyles = createStyles((theme) => ({
     borderRadius: theme.tokens.radius.xl,
     padding: theme.tokens.spacing.lg,
     ...theme.tokens.shadow.sm,
-    // En dark la sombra no se ve y surface apenas se distingue del fondo:
-    // un borde fino recupera el contorno (figura y fondo).
+    // In dark the shadow isn't visible and surface barely stands out from the
+    // background: a thin border restores the outline (figure and ground).
     ...(theme.scheme === 'dark' && { borderWidth: StyleSheet.hairlineWidth, borderColor: theme.colors.border }),
   },
 }));
 
 /**
  * Card
- * Contenedor de superficie: agrupa contenido relacionado.
+ * Surface container: groups related content.
  *
- * Gestalt, región común: todo lo que está dentro del mismo fondo y borde se
- * lee como un grupo, aunque haya otros elementos cerca. Figura y fondo: en
- * light la separa la sombra; en dark (donde la sombra no se ve) un borde fino.
- * El padding interno (`spacing.lg`) debe ser mayor que la separación entre
- * los elementos de adentro, así el contenido se lee como un bloque.
+ * Gestalt, common region: everything inside the same background and border
+ * reads as a group, even when other elements are nearby. Figure and ground:
+ * in light the shadow sets it apart; in dark (where the shadow isn't visible)
+ * a thin border does. The inner padding (`spacing.lg`) must be larger than the
+ * spacing between the elements inside, so the content reads as one block.
  */
 
 export const Card = memo(({ children, style, ...props }: CardProps) => {

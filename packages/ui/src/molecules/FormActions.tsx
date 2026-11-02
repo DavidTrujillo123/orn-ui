@@ -18,8 +18,8 @@ export interface FormActionsProps {
 
 /**
  * FormActions
- * Par de botones: uno primario (guardar/editar) y uno ghost (cerrar/cancelar).
- * Uso típico: al final de un form, o en el footer de un Modal.
+ * Pair of buttons: a primary one (save/edit) and a ghost one (close/cancel).
+ * Typical use: at the end of a form, or in a Modal's footer.
  */
 export const FormActions = memo(
   ({

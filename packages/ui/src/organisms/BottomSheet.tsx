@@ -85,10 +85,10 @@ const absoluteFill: ViewStyle = { position: 'absolute', top: 0, left: 0, right: 
 
 /**
  * BottomSheet
- * Hoja que entra desde abajo, con arrastre para cerrar (PanResponder, no un
- * gesture-handler externo: la librería es cero dependencias). Header, footer y
- * scroll son opcionales, así que cubre tanto la hoja desnuda como el formulario
- * completo.
+ * Sheet that slides in from the bottom, with drag to close (PanResponder, not
+ * an external gesture-handler: the library is zero-dependency). Header, footer
+ * and scroll are optional, so it covers both the bare sheet and the full
+ * form.
  */
 export const BottomSheet = memo(
   ({
@@ -112,9 +112,9 @@ export const BottomSheet = memo(
     const [mounted, setMounted] = useState(visible);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const progress = useRef(new Animated.Value(0)).current;
-    // El PanResponder de más abajo se crea una sola vez; leer `onClose`
-    // directo del closure daría siempre el de ese primer render. El ref
-    // refleja la última prop sin importar cuándo se creó la closure.
+    // The PanResponder further down is created only once; reading `onClose`
+    // straight from the closure would always give the one from that first
+    // render. The ref reflects the latest prop no matter when the closure was created.
     const onCloseRef = useRef(onClose);
     onCloseRef.current = onClose;
 
@@ -126,9 +126,9 @@ export const BottomSheet = memo(
       animation.start(({ finished }) => {
         if (!visible && finished) setMounted(false);
       });
-      // Si el efecto vuelve a correr (o el componente se desmonta) antes de
-      // que termine, se corta: si no, un `finished` tardío podría llamar
-      // `setMounted` sobre un componente ya desmontado.
+      // If the effect runs again (or the component unmounts) before it
+      // finishes, it is cut short: otherwise, a late `finished` could call
+      // `setMounted` on an already unmounted component.
       return () => animation.stop();
     }, [visible, progress]);
 
@@ -161,8 +161,8 @@ export const BottomSheet = memo(
 
     if (!mounted) return null;
 
-    // Porcentaje y no píxeles: se mide contra el contenedor, que con el teclado
-    // abierto es más bajo, así que la hoja entra siempre entera.
+    // Percentage, not pixels: it is measured against the container, which is
+    // shorter with the keyboard open, so the sheet always fits entirely.
     const resolvedMaxHeight: number | `${number}%` = maxHeight <= 1 ? `${maxHeight * 100}%` : maxHeight;
     const hasHeader = !!title;
 
@@ -193,17 +193,17 @@ export const BottomSheet = memo(
 
     return (
       <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
-        {/* La hoja está anclada abajo, así que el teclado la tapa entera: hay
-            que empujarla, no ajustar insets adentro del scroll. Una sola
-            compensación, la del contenedor. */}
+        {/* The sheet is anchored at the bottom, so the keyboard covers it
+            entirely: it has to be pushed up, not adjusted with insets inside
+            the scroll. A single compensation, the container's. */}
         <KeyboardHandled>
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
           <Transition value={progress} preset="fade" style={[absoluteFill, styles.backdrop]}>
-            {/* Con header, el botón de cerrar ya expone la acción: repetir el
-                label acá deja dos elementos con el mismo nombre. */}
+            {/* With a header, the close button already exposes the action:
+                repeating the label here leaves two elements with the same name. */}
             <Pressable
               style={absoluteFill}
               onPress={onClose}
@@ -213,8 +213,8 @@ export const BottomSheet = memo(
             />
           </Transition>
 
-          {/* Insets medidos dentro de esta ventana nativa (el Modal nativo que
-              usa BottomSheet por debajo), no los de la raíz de la app. */}
+          {/* Insets measured inside this native window (the native Modal
+              BottomSheet uses underneath), not the app root's. */}
           <ModalSafeAreaBoundary>
             {(insets) => (
               <Transition

@@ -2,17 +2,17 @@ import { useEffect, useState } from 'react';
 import { AccessibilityInfo } from 'react-native';
 
 /**
- * Sigue el ajuste de "reducir movimiento" del sistema: con él activo las
- * animaciones saltan al estado final en vez de desactivarse, así que los
- * callbacks y el desmontaje siguen ocurriendo igual.
+ * Follows the system "reduce motion" setting: when it is on, animations jump
+ * to their final state instead of being disabled, so callbacks and unmounting
+ * still happen the same way.
  */
 export function useReduceMotion(): boolean {
   const [reduceMotion, setReduceMotion] = useState(false);
 
   useEffect(() => {
     let alive = true;
-    // Sólo se actualiza el estado si el ajuste está activo: el valor inicial ya
-    // es `false` y un setState de false a false costaría un render por montaje.
+    // The state is only updated if the setting is on: the initial value is
+    // already `false` and a setState from false to false would cost a render per mount.
     AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
       if (alive && enabled) setReduceMotion(true);
     });
