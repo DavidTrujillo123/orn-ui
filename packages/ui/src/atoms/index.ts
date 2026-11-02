@@ -29,7 +29,7 @@ export type { TransitionProps, TransitionPreset } from './Transition';
 export { ShinyText } from './ShinyText';
 export type { ShinyTextProps } from './ShinyText';
 export { EmptyState } from './EmptyState';
-export type { EmptyStateProps } from './EmptyState';
+export type { EmptyStateProps, EmptyStateAction } from './EmptyState';
 export { KeyValueRow } from './KeyValueRow';
 export type { KeyValueRowProps } from './KeyValueRow';
 export { Fab } from './Fab';
