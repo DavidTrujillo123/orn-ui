@@ -1,6 +1,7 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { AccessibilityInfo, Animated, Easing, type StyleProp, type ViewStyle } from 'react-native';
+import { Animated, Easing, type StyleProp, type ViewStyle } from 'react-native';
 import { useTheme } from '../theme/UIProvider';
+import { useReduceMotion } from '../theme/useReduceMotion';
 
 export type TransitionPreset =
   | 'fade'
@@ -45,30 +46,9 @@ const hiddenStyle: ViewStyle = { pointerEvents: 'none' };
 /** Resorte de 'pop': rebota una vez y asienta (~350 ms), sin oscilar. */
 const POP_SPRING = { friction: 9, tension: 90 } as const;
 
-/**
- * Sigue el ajuste de "reducir movimiento" del sistema: con él activo las
- * animaciones saltan al estado final en vez de desactivarse, así que los
- * callbacks y el desmontaje siguen ocurriendo igual.
- */
-export function useReduceMotion(): boolean {
-  const [reduceMotion, setReduceMotion] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-    // Sólo se actualiza el estado si el ajuste está activo: el valor inicial ya
-    // es `false` y un setState de false a false costaría un render por montaje.
-    AccessibilityInfo.isReduceMotionEnabled().then((enabled) => {
-      if (alive && enabled) setReduceMotion(true);
-    });
-    const sub = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduceMotion);
-    return () => {
-      alive = false;
-      sub.remove();
-    };
-  }, []);
-
-  return reduceMotion;
-}
+// Vive en theme/ (lo usa también el UIProvider); se re-exporta acá para no
+// romper los imports existentes.
+export { useReduceMotion };
 
 /**
  * Transition
