@@ -195,7 +195,7 @@ hex in component styles, use `useColors()`.
 
 | Component | Subpath | Key props |
 | --- | --- | --- |
-| `Screen` | `orn-ui/screen` | `children`, `scrollable?`, `edges?: ('top'\|'bottom')[]`, `contentContainerStyle?`, `keyboardAvoiding?` (default `true`) |
+| `Screen` | `orn-ui/screen` | `children`, `header?` (fixed bar: stays put while the content scrolls or moves up for the keyboard), `scrollable?`, `edges?: ('top'\|'bottom')[]`, `contentContainerStyle?`, `keyboardAvoiding?` (default `true`: moves only the content) |
 | `Modal` | `orn-ui/modal` | `visible`, `children`, `onClose?`, `title?`, `footer?`, `variant?: 'full'\|'overlay'\|'fullScreen'`, `scrollable?`, `containerStyle?`, `contentStyle?`, `closeAccessibilityLabel?` |
 | `BottomSheet` | `orn-ui/bottom-sheet` | `visible`, `onClose`, `children`, `title?`, `footer?`, `footerPlacement?: 'fixed'\|'scroll'\|'hide-with-keyboard'`, `scrollable?`, `draggable?`, `maxHeight?` |
 | `Select` | `orn-ui/select` | `options: {label,value,iconName?,emoji?,disabled?}[]`, `selectedValue`, `onSelect`, `label?`, `required?`, `placeholder?`, `error?`, `isLoading?`, `disabled?`, `searchable?`, `searchPlaceholder?`, `maxHeight?` (280), `onOpenChange?` |
@@ -214,7 +214,7 @@ hex in component styles, use `useColors()`.
 | `DateField` | `orn-ui/date-field` | the `DatePicker` props behind an input: `label?`, `required?`, `placeholder?`, `error?`, `disabled?`, `format?`, `modalTitle?`, `onClear?` (renders the clear button), `clearLabel?` |
 | `Wizard` | `orn-ui/wizard` | `steps: {label,description?,content,canGoNext?}[]`, `current?`, `onStepChange?`, `onFinish?`, `orientation?`, `allowStepNavigation?`, `backLabel?`, `nextLabel?`, `finishLabel?`, `scrollableContent?`, `animated?` |
 | `ThemeToggle` | `orn-ui/theme-toggle` | `labels?: Partial<Record<'system'\|'light'\|'dark', string>>` |
-| `NavigationBar` | `orn-ui/navigation-bar` | `items: {key,label,iconName?,badge?}[]`, `activeKey`, `onChange`, `position?: 'bottom'\|'top'`, `showLabels?`, `safeArea?` |
+| `NavigationBar` | `orn-ui/navigation-bar` | `items: {key,label,iconName?,badge?}[]`, `activeKey`, `onChange`, `position?: 'bottom'\|'top'`, `showLabels?`, `safeArea?`, `hideOnKeyboard?` (default `true`, Android) |
 
 Built-in icons (`BuiltInIconName`, zero-dependency glyphs; the list is also
 exported as `BUILT_IN_ICON_NAMES`): `check`, `close`, `plus`, `minus`,
@@ -269,8 +269,10 @@ All built-in strings live in one `labels` object on `UIProvider`
 1. **Never stack safe-area insets.** A screen above a `NavigationBar` uses
    `<Screen edges={['top']}>`; a full screen uses `<Screen>`. Padding a list for
    `insets.bottom` on top of a tab bar double-counts the gesture bar.
-2. **The keyboard is handled once, by the root `UIProvider`.** A focused
-   `Input` always stays visible above the keyboard, inside a Screen or not.
+2. **The keyboard is handled once.** A focused `Input` always stays visible
+   above the keyboard. Inside a `Screen`, only the content moves (put the back
+   button / title in `header` so it stays fixed); outside one, the root
+   `UIProvider` moves the whole app as a fallback.
    Don't add your own `KeyboardAvoidingView` around orn-ui inputs; if the app
    already manages the keyboard, set `keyboardAvoidance={false}` on the
    provider (Screen then falls back to its own `KeyboardAvoidingView`).

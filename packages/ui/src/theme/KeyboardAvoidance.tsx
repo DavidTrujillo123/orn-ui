@@ -5,6 +5,7 @@ import {
   Keyboard,
   Platform,
   StyleSheet,
+  View,
   type KeyboardEvent,
 } from 'react-native';
 import { useReduceMotion } from './useReduceMotion';
@@ -71,28 +72,40 @@ export function computeKeyboardOffset({
 }
 
 /**
- * Montado una sola vez por el UIProvider raíz. Escucha el teclado y, si tapa
- * al Input enfocado, desplaza toda la app hacia arriba lo justo (transform en
- * el hilo nativo); al cerrarse el teclado vuelve a 0. Es el `adjustPan` de
- * Android, igual en las dos plataformas y sin depender de Screen ni de un
- * ScrollView: lo que se escribe siempre se ve.
+ * Un área que se desplaza para que el Input enfocado de adentro quede sobre
+ * el teclado (transform en el hilo nativo; al cerrarse vuelve a 0). Es el
+ * `adjustPan` de Android, igual en las dos plataformas.
+ *
+ * - El UIProvider raíz monta una alrededor de toda la app: el respaldo, para
+ *   que un Input se vea aunque no esté dentro de un Screen.
+ * - Screen monta otra alrededor de su contenido, con `clip`: se mueve solo el
+ *   contenido y el header (prop `header`) y la barra de pestañas quedan
+ *   quietos, como en una app nativa. El Input se registra con el área más
+ *   cercana, así que adentro de un Screen la raíz no se mueve.
+ *
+ * Con `clip`, lo que sube se recorta en el borde superior del área y el campo
+ * nunca pasa por encima de ese borde (queda bajo el header).
  */
-export function KeyboardAvoidingRoot({
+export function KeyboardPanArea({
   margin,
   topLimit,
+  clip = false,
   children,
 }: {
   margin: number;
+  /** Límite superior en coordenadas de ventana. Con `clip`, se toma el borde del área si es más bajo. */
   topLimit: number;
+  clip?: boolean;
   children: React.ReactNode;
 }) {
+  const areaRef = useRef<View>(null);
   const pan = useRef(new Animated.Value(0)).current;
   const offset = useRef(0);
   const field = useRef<KeyboardField | null>(null);
   const keyboardTop = useRef<number | null>(null);
   const reduceMotion = useReduceMotion();
-  const config = useRef({ margin, topLimit, reduceMotion });
-  config.current = { margin, topLimit, reduceMotion };
+  const config = useRef({ margin, topLimit, reduceMotion, clip });
+  config.current = { margin, topLimit, reduceMotion, clip };
 
   const host = useMemo<KeyboardHost>(() => {
     const animateTo = (to: number, duration: number) => {
@@ -113,6 +126,11 @@ export function KeyboardAvoidingRoot({
       const box = await current.measure();
       // Mientras se medía, el foco pudo pasar a otro campo o el teclado cerrarse.
       if (!box || field.current !== current || keyboardTop.current === null) return;
+      let limit = config.current.topLimit;
+      if (config.current.clip) {
+        const areaTop = await measureTop(areaRef.current);
+        if (areaTop !== null) limit = Math.max(limit, areaTop);
+      }
       animateTo(
         computeKeyboardOffset({
           fieldY: box.y,
@@ -120,7 +138,7 @@ export function KeyboardAvoidingRoot({
           keyboardTop: keyboardTop.current,
           current: offset.current,
           margin: config.current.margin,
-          topLimit: config.current.topLimit,
+          topLimit: limit,
         }),
         duration
       );
@@ -167,11 +185,32 @@ export function KeyboardAvoidingRoot({
     return () => subs.forEach((s) => s.remove());
   }, [host]);
 
+  const moving = <Animated.View style={[styles.fill, { transform: [{ translateY: pan }] }]}>{children}</Animated.View>;
   return (
     <KeyboardHostContext.Provider value={host}>
-      <Animated.View style={[styles.root, { transform: [{ translateY: pan }] }]}>{children}</Animated.View>
+      {clip ? (
+        <View ref={areaRef} style={[styles.fill, styles.clip]} collapsable={false}>
+          {moving}
+        </View>
+      ) : (
+        moving
+      )}
     </KeyboardHostContext.Provider>
   );
 }
 
-const styles = StyleSheet.create({ root: { flex: 1 } });
+/** Si la medición no vuelve (nodo desmontado), se sigue sin ese límite. */
+const MEASURE_TIMEOUT_MS = 100;
+
+function measureTop(node: View | null): Promise<number | null> {
+  return new Promise((resolve) => {
+    if (!node) return resolve(null);
+    const timer = setTimeout(() => resolve(null), MEASURE_TIMEOUT_MS);
+    node.measureInWindow((_x, y) => {
+      clearTimeout(timer);
+      resolve(y);
+    });
+  });
+}
+
+const styles = StyleSheet.create({ fill: { flex: 1 }, clip: { overflow: 'hidden' } });

@@ -7,7 +7,7 @@ import type { EdgeInsets } from './insets';
 import type { Theme, ThemePair } from './types';
 import { renderDefaultIcon } from '../icons/defaultIcons';
 import type { IconRenderer } from '../icons/types';
-import { KeyboardAvoidingRoot, KeyboardHandled } from './KeyboardAvoidance';
+import { KeyboardHandled, KeyboardPanArea } from './KeyboardAvoidance';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -191,9 +191,9 @@ function UIProviderBase({
   let content = children;
   if (isRoot) {
     content = keyboardAvoidance ? (
-      <KeyboardAvoidingRoot margin={resolvedTheme.tokens.spacing.md} topLimit={insets.top}>
+      <KeyboardPanArea margin={resolvedTheme.tokens.spacing.md} topLimit={insets.top}>
         {children}
-      </KeyboardAvoidingRoot>
+      </KeyboardPanArea>
     ) : (
       <KeyboardHandled>{children}</KeyboardHandled>
     );

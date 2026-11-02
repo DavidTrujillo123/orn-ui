@@ -46,21 +46,18 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
   return (
     <Screen
       scrollable={freeScroll}
-      // Sólo los flujos libres delegan el teclado al Screen. Los demos con
-      // pager y los que hostean su propia lista traen su scroller: sumarle la
-      // compensación del Screen empuja el campo enfocado fuera de la pantalla
-      // y, en el pager, altera el alto de página que sostiene el snap.
-      keyboardAvoiding={freeScroll}
-      // La barra de tabs ya aporta el safe area inferior: repetirlo acá deja
-      // una banda vacía entre el contenido y la barra.
+      // The tab bar already covers the bottom safe area: repeating it here
+      // leaves an empty band between the content and the bar.
       edges={['top']}
+      // The back bar stays fixed while the content scrolls or moves up for the
+      // keyboard (iOS large-title pattern: the name lives once, as the Title
+      // below, not duplicated in the bar).
+      header={
+        <View style={styles.navBar}>
+          <IconButton iconName="chevron-left" accessibilityLabel="Back" onPress={goBack} />
+        </View>
+      }
     >
-      {/* Patrón de título grande de iOS: la barra solo lleva el back, y el
-          nombre vive una sola vez como Title debajo (no duplicado arriba). */}
-      <View style={styles.navBar}>
-        <IconButton iconName="chevron-left" accessibilityLabel="Back" onPress={goBack} />
-      </View>
-
       <View style={styles.intro}>
         <Title>{entry.name}</Title>
         <Caption style={styles.description}>{entry.description}</Caption>

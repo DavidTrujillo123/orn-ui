@@ -22,6 +22,10 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.textLight,
         tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        // Like native tab bars: hidden while the keyboard is open, so it never
+        // sits between the focused field and the keys (Android resizes the
+        // window; on iOS the keyboard already covers it).
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tabs.Screen name="index" options={{ href: null }} />

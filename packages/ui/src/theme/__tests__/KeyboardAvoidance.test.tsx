@@ -2,6 +2,9 @@ import React, { useEffect } from 'react';
 import { Keyboard, Text } from 'react-native';
 import { act, render, screen } from '@testing-library/react-native';
 import { UIProvider } from '../UIProvider';
+import { Screen } from '../../organisms/Screen';
+import { NavigationBar } from '../../organisms/NavigationBar';
+import { Platform } from 'react-native';
 import {
   KeyboardHandled,
   computeKeyboardOffset,
@@ -102,5 +105,58 @@ describe('keyboard host', () => {
     );
     expect(captured).toBeNull();
     expect(screen.getByText('field')).toBeOnTheScreen();
+  });
+
+  it('inside a Screen only the content moves: the root and the header stay put', async () => {
+    const { toJSON } = render(
+      <UIProvider mode="light" insets={{ top: 47, bottom: 34, left: 0, right: 0 }}>
+        <Screen scrollable={false} header={<Text>Back</Text>}>
+          <Capture />
+        </Screen>
+      </UIProvider>
+    );
+    // El host que ve el campo es el del Screen, no el de la raíz.
+    const screenHost = captured;
+    act(() => screenHost!.focus(field));
+    emit('keyboardWillShow', { endCoordinates: { screenY: 600 }, duration: 250 });
+    await act(async () => {});
+    // measureInWindow del área no responde bajo jest: vence su espera (100 ms).
+    await act(async () => {
+      jest.advanceTimersByTime(150);
+    });
+    act(() => jest.advanceTimersByTime(400));
+
+    const root = toJSON() as any;
+    expect(root.props.style.transform[0].translateY).toBe(0);
+    const translates: number[] = [];
+    const walk = (node: any) => {
+      if (!node || typeof node === 'string') return;
+      const t = [node.props?.style].flat(3).find((x: any) => x?.transform)?.transform?.[0]?.translateY;
+      if (typeof t === 'number') translates.push(t);
+      (node.children ?? []).forEach(walk);
+    };
+    walk(root);
+    // raíz en 0, área del Screen desplazada
+    expect(translates.filter((t) => t < 0)).toHaveLength(1);
+    expect(screen.getByText('Back')).toBeOnTheScreen();
+  });
+
+  it('NavigationBar hides while the keyboard is open on Android', () => {
+    const os = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { get: () => 'android', configurable: true });
+    try {
+      render(
+        <UIProvider mode="light">
+          <NavigationBar items={[{ key: 'a', label: 'Atoms' }]} activeKey="a" onChange={() => {}} />
+        </UIProvider>
+      );
+      expect(screen.getByText('Atoms')).toBeOnTheScreen();
+      emit('keyboardDidShow', { endCoordinates: { screenY: 500 } });
+      expect(screen.queryByText('Atoms')).toBeNull();
+      emit('keyboardDidHide', undefined);
+      expect(screen.getByText('Atoms')).toBeOnTheScreen();
+    } finally {
+      Object.defineProperty(Platform, 'OS', { get: () => os, configurable: true });
+    }
   });
 });

@@ -1,6 +1,8 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import {
   Animated,
+  Keyboard,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -32,6 +34,12 @@ export interface NavigationBarProps {
   showLabels?: boolean;
   /** Adds the safe area inset for the edge where the bar lives. @default true */
   safeArea?: boolean;
+  /**
+   * Hides a bottom bar while the keyboard is open, like native tab bars, so
+   * it doesn't sit between the field and the keyboard. Only Android needs it:
+   * on iOS the keyboard already covers the bar. @default true
+   */
+  hideOnKeyboard?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -98,6 +106,7 @@ export const NavigationBar = memo(
     position = 'bottom',
     showLabels = true,
     safeArea = true,
+    hideOnKeyboard = true,
     style,
     testID,
   }: NavigationBarProps) => {
@@ -108,6 +117,20 @@ export const NavigationBar = memo(
     const allowFontScaling = useAllowFontScaling();
 
     const [barWidth, setBarWidth] = useState(0);
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+    // En Android la ventana se achica con el teclado y la barra quedaría
+    // flotando encima de él, entre el campo y las teclas. En iOS el teclado
+    // la tapa: no hace falta (y ocultarla movería el layout a mitad de la
+    // animación del teclado).
+    useEffect(() => {
+      if (!hideOnKeyboard || position !== 'bottom' || Platform.OS !== 'android') return;
+      const subs = [
+        Keyboard.addListener('keyboardDidShow', () => setKeyboardOpen(true)),
+        Keyboard.addListener('keyboardDidHide', () => setKeyboardOpen(false)),
+      ];
+      return () => subs.forEach((sub) => sub.remove());
+    }, [hideOnKeyboard, position]);
     const slide = useRef(new Animated.Value(0)).current;
     const placed = useRef(false);
 
@@ -145,6 +168,8 @@ export const NavigationBar = memo(
         )}
       </>
     );
+
+    if (keyboardOpen) return null;
 
     return (
       <View
