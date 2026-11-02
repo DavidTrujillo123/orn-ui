@@ -172,7 +172,7 @@ hex in component styles, use `useColors()`.
 | `useReduceMotion` | `orn-ui/use-reduce-motion` | `(): boolean` — respects the OS setting |
 | `EmptyState` | `orn-ui/empty-state` | `title?`, `description?`, `iconName?`, `icon?`, `action?: {label, onPress, variant?}` |
 | `KeyValueRow` | `orn-ui/key-value-row` | `label`, `value`, `labelStyle?`, `valueStyle?` |
-| `Fab` | `orn-ui/fab` | `onPress`, `accessibilityLabel` (required), `iconName?`, `icon?`, `size?`, `bottom?`, `right?`, `color?` |
+| `Fab` | `orn-ui/fab` | `onPress`, `accessibilityLabel` (required), `iconName?`, `icon?`, `size?`, `bottom?`, `right?`, `safeArea?` (true), `color?` |
 | `PressableScale` | `orn-ui/pressable-scale` | extends `PressableProps`; `children`, `scaleTo?` |
 
 ### Molecules

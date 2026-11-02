@@ -24,7 +24,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | ShinyText | shiny-text | arreglado | 2026-11-01 | Componente ok (reduce motion, a11y label, nativo, Gestalt). Demo usaba `border`/`primarySoft` como color de texto en reposo (contraste ~1.2:1, ilegible sin la banda): ahora pares legibles; JSDoc de `color` pide AA. Docs en video (VIDEO=1). |
 | EmptyState | empty-state | arreglado | 2026-11-02 | Título en `text` (antes mismo gris que la descripción: sin jerarquía); prop nueva `action` (botón aparte, enfocable; el mensaje sigue siendo un nodo a11y); espaciado/interlineado en tokens (md/xs, lineHeight lg/md; antes `xxl-4`, `md-2`, `xs+1`); `style` StyleProp, `testID`, JSDoc en inglés, Gestalt. Demo 5 variantes. Docs: stills, mp4 borrado, es.json y changelog. |
 | KeyValueRow | key-value-row | arreglado | 2026-11-02 | Valor largo empujaba la fila fuera de pantalla: label conserva ancho (max 50%), valor encoge y se parte, alineados por baseline; dígitos tabulares; fila de texto = 1 nodo a11y (con nodo propio no se fusiona); gap/lineHeight en tokens; testID; JSDoc inglés; Gestalt. Demo 4 variantes con tokens. Docs stills, mp4 borrado. |
-| Fab | fab | pendiente | | |
+| Fab | fab | arreglado | 2026-11-02 | Caía sobre la barra de inicio: nueva prop `safeArea` (default true, aprobado por el usuario) suma insets a bottom/right — cambio incompatible, con paso de migración (test-orm-ui suma insets a mano: quitarlos). Ícono con `onColor` si `color` propio (antes blanco sobre claro); bottom/right default spacing.xl; testID; JSDoc inglés; Gestalt/Fitts. Demo con colores del tema. Docs stills, mp4 borrado. |
 | PressableScale | pressable-scale | pendiente | | |
 
 ## molecules
