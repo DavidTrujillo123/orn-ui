@@ -12,6 +12,7 @@ import {
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useColors, useModalSafeAreaBoundary } from '../theme/UIProvider';
+import { KeyboardHandled } from '../theme/KeyboardAvoidance';
 import type { EdgeInsets } from '../theme/insets';
 import { Title } from '../atoms/Text';
 import { IconButton } from '../atoms/IconButton';
@@ -176,6 +177,8 @@ export const Modal = memo(
         statusBarTranslucent={statusBarTranslucent}
         hardwareAccelerated={hardwareAccelerated}
       >
+        {/* Ventana nativa propia: la compensa su KeyboardAvoidingView, no el host de la raíz. */}
+        <KeyboardHandled>
         <KeyboardAvoidingView behavior={behavior} keyboardVerticalOffset={keyboardOffset} style={styles.flex1}>
           {/* Insets medidos dentro de esta ventana nativa del Modal, no los de
               la raíz de la app — pueden diferir (Android siempre abre una
@@ -238,6 +241,7 @@ export const Modal = memo(
             }
           </ModalSafeAreaBoundary>
         </KeyboardAvoidingView>
+        </KeyboardHandled>
       </RNModal>
     );
   }

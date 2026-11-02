@@ -179,11 +179,16 @@ describe('BottomSheet', () => {
   });
 
   it('footerPlacement="hide-with-keyboard" gives the row back while typing', () => {
-    const handlers: Record<string, () => void> = {};
+    // Varios escuchan el mismo evento (el sheet y el host de teclado de la
+    // raíz): se guardan todos y se disparan todos, como hace RN.
+    const listeners: Record<string, Array<() => void>> = {};
+    const handlers = new Proxy({} as Record<string, () => void>, {
+      get: (_, event: string) => () => (listeners[event] ?? []).forEach((h) => h()),
+    });
     const addListener = jest
       .spyOn(Keyboard, 'addListener')
       .mockImplementation((event, handler) => {
-        handlers[event] = handler as () => void;
+        (listeners[event] ??= []).push(handler as () => void);
         return { remove: jest.fn() } as never;
       });
 

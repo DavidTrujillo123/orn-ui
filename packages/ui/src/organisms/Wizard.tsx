@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Platform, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
+import { KeyboardHandled } from '../theme/KeyboardAvoidance';
 import { Steps, type StepItem } from '../molecules/Steps';
 import { Button } from '../atoms/Button';
 import { Transition } from '../atoms/Transition';
@@ -149,7 +150,9 @@ export function Wizard({
           automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}
         >
-          {renderContent()}
+          {/* iOS: el ScrollView ya sube el campo (automaticallyAdjustKeyboardInsets).
+              Android no tiene ese prop: ahí lo resuelve el host de la raíz. */}
+          {Platform.OS === 'ios' ? <KeyboardHandled>{renderContent()}</KeyboardHandled> : renderContent()}
         </ScrollView>
       ) : (
         <View style={styles.content}>{renderContent()}</View>

@@ -53,13 +53,24 @@ describe('Screen', () => {
     expect(screen.getByText('content')).toBeOnTheScreen();
   });
 
-  it('wraps content in a KeyboardAvoidingView by default', () => {
+  it('leaves the keyboard to the root UIProvider by default (no second KeyboardAvoidingView)', () => {
     const { UNSAFE_queryByType } = render(
       withProvider(
         <Screen scrollable={false}>
           <Text>content</Text>
         </Screen>
       )
+    );
+    expect(UNSAFE_queryByType(KeyboardAvoidingView)).toBeNull();
+  });
+
+  it('falls back to its own KeyboardAvoidingView when the app turns keyboardAvoidance off', () => {
+    const { UNSAFE_queryByType } = render(
+      <UIProvider mode="light" keyboardAvoidance={false}>
+        <Screen scrollable={false}>
+          <Text>content</Text>
+        </Screen>
+      </UIProvider>
     );
     expect(UNSAFE_queryByType(KeyboardAvoidingView)).not.toBeNull();
   });

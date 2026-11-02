@@ -781,8 +781,17 @@ describe('chart/marks', () => {
     // La regresión que esto ataja: con un disco entero adentro del recorte, la
     // rotación no cambia nada —un círculo sólido girado es el mismo círculo— y
     // toda porción sale de 180°, sea de 5° o de 179°.
-    const tree = render(withProvider(<Wedge size={100} start={0} sweep={30} color="#000000" testID="w" />)).toJSON();
-    // recorte a la mitad derecha -> cuadrado que gira -> medio disco
+    const root = render(withProvider(<Wedge size={100} start={0} sweep={30} color="#000000" testID="w" />)).toJSON();
+    // Desde el nodo del wedge, no desde la raíz del árbol (que es la del
+    // UIProvider): recorte a la mitad derecha -> cuadrado que gira -> medio disco
+    const findById = (node: ReactTestRendererJSON): ReactTestRendererJSON | null =>
+      node.props?.testID === 'w'
+        ? node
+        : (node.children ?? []).reduce<ReactTestRendererJSON | null>(
+            (found, child) => found ?? (typeof child === 'string' ? null : findById(child)),
+            null
+          );
+    const tree = findById(root as ReactTestRendererJSON);
     const clip = (tree as ReactTestRendererJSON).children![0] as ReactTestRendererJSON;
     const spinner = clip.children![0] as ReactTestRendererJSON;
     const disc = spinner.children![0] as ReactTestRendererJSON;

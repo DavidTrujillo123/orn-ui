@@ -10,7 +10,8 @@ function withProvider(children: React.ReactNode) {
 describe('Alert', () => {
   it('renders nothing when visible is false', () => {
     const { toJSON } = render(withProvider(<Alert visible={false} title="X" />));
-    expect(toJSON()).toBeNull();
+    // Lo único montado es la raíz del UIProvider (la que desplaza con el teclado).
+    expect((toJSON() as { children: unknown } | null)?.children ?? null).toBeNull();
   });
 
   it('with no buttons/shorthands, shows a single close button', () => {

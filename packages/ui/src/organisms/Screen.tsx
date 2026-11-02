@@ -2,6 +2,7 @@ import React, { memo } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, View, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useInsets } from '../theme/UIProvider';
+import { KeyboardHandled, useKeyboardHost } from '../theme/KeyboardAvoidance';
 
 export type ScreenEdge = 'top' | 'bottom';
 
@@ -52,7 +53,12 @@ export const Screen = memo(({
   // KeyboardAvoidingView compensa el teclado dos veces y el input termina
   // empujado fuera del borde superior. Android no tiene ese prop, así que ahí
   // el KeyboardAvoidingView sigue siendo el único mecanismo.
-  const avoidWithView = keyboardAvoiding && !(scrollable && Platform.OS === 'ios');
+  // Con el UIProvider raíz desplazando la app (default), Screen no envuelve
+  // en otro KeyboardAvoidingView: serían dos compensaciones. Sin host (el
+  // usuario apagó `keyboardAvoidance`), queda el mecanismo de siempre.
+  const host = useKeyboardHost();
+  const scrollHandles = keyboardAvoiding && scrollable && Platform.OS === 'ios';
+  const avoidWithView = keyboardAvoiding && !scrollHandles && !host;
 
   const KeyboardWrapper: React.ComponentType<any> = avoidWithView ? KeyboardAvoidingView : View;
   const keyboardProps = avoidWithView
@@ -77,7 +83,7 @@ export const Screen = memo(({
             ]}
             keyboardShouldPersistTaps="handled"
           >
-            {children}
+            {scrollHandles ? <KeyboardHandled>{children}</KeyboardHandled> : children}
           </ScrollView>
         ) : (
           <View style={[styles.container, { paddingTop: applyTop ? insets.top : 0, paddingBottom: applyBottom ? insets.bottom : 0 }]}>

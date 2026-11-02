@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useColors, useModalSafeAreaBoundary } from '../theme/UIProvider';
+import { KeyboardHandled } from '../theme/KeyboardAvoidance';
 import { Title } from '../atoms/Text';
 import { IconButton } from '../atoms/IconButton';
 import { Transition } from '../atoms/Transition';
@@ -195,6 +196,7 @@ export const BottomSheet = memo(
         {/* La hoja está anclada abajo, así que el teclado la tapa entera: hay
             que empujarla, no ajustar insets adentro del scroll. Una sola
             compensación, la del contenedor. */}
+        <KeyboardHandled>
         <KeyboardAvoidingView
           style={styles.container}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -254,6 +256,7 @@ export const BottomSheet = memo(
             )}
           </ModalSafeAreaBoundary>
         </KeyboardAvoidingView>
+        </KeyboardHandled>
       </Modal>
     );
   }

@@ -7,6 +7,7 @@ import type { EdgeInsets } from './insets';
 import type { Theme, ThemePair } from './types';
 import { renderDefaultIcon } from '../icons/defaultIcons';
 import type { IconRenderer } from '../icons/types';
+import { KeyboardAvoidingRoot, KeyboardHandled } from './KeyboardAvoidance';
 
 export type ThemeMode = 'system' | 'light' | 'dark';
 
@@ -98,6 +99,14 @@ export interface UIProviderProps {
    * @default true
    */
   mountSafeAreaProvider?: boolean;
+  /**
+   * Keeps the focused Input visible above the keyboard by moving the whole app
+   * up just enough (like Android's adjustPan, on both platforms), with no
+   * Screen or ScrollView needed. Only the root provider does it. Turn it off if
+   * your app already handles the keyboard its own way.
+   * @default true
+   */
+  keyboardAvoidance?: boolean;
 }
 
 interface UIProviderBaseProps extends Omit<UIProviderProps, 'insets' | 'mountSafeAreaProvider'> {
@@ -136,7 +145,11 @@ function UIProviderBase({
   insets,
   labels: labelOverrides,
   allowFontScaling = false,
+  keyboardAvoidance = true,
 }: UIProviderBaseProps) {
+  // Solo el provider raíz desplaza la app: uno anidado (un modal con su propio
+  // provider, un test) no envuelve nada ni cambia el layout.
+  const isRoot = useContext(UIContext) === undefined;
   const ModalSafeAreaBoundary = RemeasuringModalSafeAreaBoundary;
   const systemScheme = useColorScheme();
   const [uncontrolledMode, setUncontrolledMode] = useState<ThemeMode>(defaultMode);
@@ -175,7 +188,18 @@ function UIProviderBase({
     [resolvedTheme, mode, setMode, icons, insets, labels, allowFontScaling, ModalSafeAreaBoundary]
   );
 
-  return <UIContext.Provider value={value}>{children}</UIContext.Provider>;
+  let content = children;
+  if (isRoot) {
+    content = keyboardAvoidance ? (
+      <KeyboardAvoidingRoot margin={resolvedTheme.tokens.spacing.md} topLimit={insets.top}>
+        {children}
+      </KeyboardAvoidingRoot>
+    ) : (
+      <KeyboardHandled>{children}</KeyboardHandled>
+    );
+  }
+
+  return <UIContext.Provider value={value}>{content}</UIContext.Provider>;
 }
 
 function useUIContext(): UIContextValue {
