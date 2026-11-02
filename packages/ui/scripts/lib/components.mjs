@@ -1,18 +1,18 @@
-// Fuente única de verdad: qué componente vive en qué archivo. Se deriva de
-// los barrels reales (src/{atoms,molecules,organisms}/index.ts) en vez de
-// mantener una lista aparte — así gen-exports.mjs, build-registry.mjs (y,
-// del lado de orn-ui-docs, extract-docs.mjs vía registry/manifest.json)
-// nunca se desincronizan del código fuente real.
+// Single source of truth: which component lives in which file. It's derived
+// from the real barrels (src/{atoms,molecules,organisms}/index.ts) instead of
+// keeping a separate list — that way gen-exports.mjs, build-registry.mjs (and,
+// on the orn-ui-docs side, extract-docs.mjs via registry/manifest.json)
+// never drift from the real source code.
 import fs from 'node:fs';
 import path from 'node:path';
 
 export const CATEGORIES = ['atoms', 'molecules', 'organisms'];
 
 /**
- * PascalCase/camelCase -> kebab-case (igual que el slugger de orn-ui-docs),
- * más SCREAMING_SNAKE_CASE -> kebab-case (p.ej. DEFAULT_MONTH_NAMES, un
- * const exportado junto a DatePicker) para que ningún subpath/slug quede
- * con guión bajo en vez de guión medio.
+ * PascalCase/camelCase -> kebab-case (same as orn-ui-docs' slugger),
+ * plus SCREAMING_SNAKE_CASE -> kebab-case (e.g. DEFAULT_MONTH_NAMES, a
+ * const exported alongside DatePicker) so no subpath/slug ends up with an
+ * underscore instead of a hyphen.
  */
 export function kebab(name) {
   return name
@@ -21,17 +21,17 @@ export function kebab(name) {
     .toLowerCase();
 }
 
-// Une exports desde el mismo archivo en varias líneas (p.ej. `export {
-// AlertProvider } ...` y luego un `export type { AlertOptions }` no cuentan,
-// solo los `export { ... } from` de VALORES, nunca `export type`.
+// Joins exports from the same file across several lines (e.g. `export {
+// AlertProvider } ...` and then an `export type { AlertOptions }` don't count,
+// only `export { ... } from` of VALUES, never `export type`.
 const EXPORT_RE = /^export\s*\{([^}]+)\}\s*from\s*'\.\/(\w+)';/gm;
 
 /**
- * Recorre los barrels de src/ y devuelve un componente por cada nombre
- * exportado, agrupado por el archivo que lo respalda. Varios nombres del
- * mismo archivo (Text.tsx -> Title/Subtitle/Body/Caption, AlertProvider.tsx
- * -> AlertProvider/useAlert, DatePicker.tsx -> DatePicker/buildMonthGrid/...)
- * comparten `file` y `siblingNames`; el registry los trata como una unidad.
+ * Walks src/'s barrels and returns one component per exported name, grouped
+ * by the file that backs it. Several names from the same file (Text.tsx ->
+ * Title/Subtitle/Body/Caption, AlertProvider.tsx -> AlertProvider/useAlert,
+ * DatePicker.tsx -> DatePicker/buildMonthGrid/...) share `file` and
+ * `siblingNames`; the registry treats them as a unit.
  */
 export function discoverComponents(srcDir) {
   const components = [];
@@ -47,8 +47,8 @@ export function discoverComponents(srcDir) {
         .filter(Boolean);
       const fileBase = match[2];
       const file = `${category}/${fileBase}.tsx`;
-      // El primer nombre exportado es el "principal" (el componente en sí);
-      // los demás (hooks, helpers) son parte del mismo paquete de archivo.
+      // The first exported name is the "main" one (the component itself);
+      // the others (hooks, helpers) are part of the same file package.
       const [primary, ...rest] = names;
       components.push({
         name: primary,
@@ -62,7 +62,7 @@ export function discoverComponents(srcDir) {
   return components;
 }
 
-/** file (relativo a src/, p.ej. "atoms/Button.tsx") -> componente que lo respalda. */
+/** file (relative to src/, e.g. "atoms/Button.tsx") -> the component it backs. */
 export function fileToComponent(components) {
   const map = new Map();
   for (const c of components) map.set(c.file, c);

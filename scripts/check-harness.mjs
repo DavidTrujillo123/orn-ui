@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Harness del repo: verifica de una sola pasada las reglas que un cambio
-// suelto rompe sin que nada falle — las que hay que releer en AGENTS.md
-// justamente porque ningún compilador las mira.
+// Repo harness: checks in a single pass the rules that a stray change breaks
+// without anything failing — the ones you have to reread in AGENTS.md
+// precisely because no compiler looks at them.
 //
-// Uso:
-//   node scripts/check-harness.mjs          # todo
+// Usage:
+//   node scripts/check-harness.mjs          # everything
 //   node scripts/check-harness.mjs --rules deps,layers
 import fs from 'node:fs';
 import path from 'node:path';
@@ -23,7 +23,7 @@ const exists = (...p) => fs.existsSync(path.join(...p));
 const failures = [];
 const fail = (rule, message) => failures.push({ rule, message });
 
-/** Archivos .ts/.tsx bajo `dir`, sin tests. */
+/** .ts/.tsx files under `dir`, excluding tests. */
 function sourceFiles(dir, out = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     if (entry.name === '__tests__') continue;
@@ -34,20 +34,20 @@ function sourceFiles(dir, out = []) {
   return out;
 }
 
-/** Quita comentarios de línea y de bloque: un `#fff` citado en un comentario no es un color hardcodeado. */
+/** Strips line and block comments: a `#fff` quoted in a comment isn't a hardcoded color. */
 function stripComments(source) {
   return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 }
 
-// ── componentes ────────────────────────────────────────────────────────────
+// ── components ─────────────────────────────────────────────────────────────
 const components = discoverComponents(SRC);
 
 /**
- * Componentes que no tienen demo/test/slug propios porque viven adentro de
- * otro (un provider y su componente, un field y su picker). No es un olvido:
- * el archivo que los cubre tiene que existir y nombrarlos, y eso es lo que se
- * verifica. Agregar acá una entrada es una decisión deliberada, no un modo de
- * saltear el checklist.
+ * Components that don't have their own demo/test/slug because they live
+ * inside another (a provider and its component, a field and its picker). It's
+ * not an oversight: the file that covers them has to exist and name them, and
+ * that's what's checked. Adding an entry here is a deliberate decision, not a
+ * way to skip the checklist.
  */
 const SHARED = {
   Title: { slug: 'typography' },
@@ -56,12 +56,12 @@ const SHARED = {
   DateField: { demo: 'DatePicker', test: 'DatePicker', slug: 'date-picker' },
 };
 
-/** ¿El archivo usa el componente, sea por su nombre o por alguno de los que exporta con él? */
+/** Does the file use the component, either by its name or by one of those it exports with it? */
 function mentionsAny(source, { name, siblingNames }) {
   return [name, ...siblingNames].some((n) => new RegExp(`\\b${n}\\b`).test(source));
 }
 
-/** Tramo del manifest de demos que corresponde a una categoría (ATOMS/MOLECULES/ORGANISMS). */
+/** Slice of the demos manifest that corresponds to a category (ATOMS/MOLECULES/ORGANISMS). */
 function manifestSection(manifest, category) {
   const order = ['ATOMS', 'MOLECULES', 'ORGANISMS'];
   const index = order.indexOf(category.toUpperCase());
@@ -71,7 +71,7 @@ function manifestSection(manifest, category) {
   return manifest.slice(start, next === -1 ? undefined : next);
 }
 
-/** Todo el código de la app de ejemplo concatenado, para preguntar "¿esto se usa en algún lado?". */
+/** All the example app's code concatenated, to ask "is this used anywhere?". */
 function readExampleSources() {
   const dirs = ['app', 'components', 'demos', 'services'];
   return dirs
@@ -99,30 +99,30 @@ function checkComponents() {
 
     const testFile = path.join(SRC, category, '__tests__', `${testBase}.test.tsx`);
     if (!exists(testFile)) {
-      fail('test', `${name}: falta packages/ui/src/${category}/__tests__/${testBase}.test.tsx`);
+      fail('test', `${name}: missing packages/ui/src/${category}/__tests__/${testBase}.test.tsx`);
     } else if (shared.test && !read(testFile).includes(name)) {
-      fail('test', `${name}: ${testBase}.test.tsx debería cubrirlo y ni lo nombra`);
+      fail('test', `${name}: ${testBase}.test.tsx should cover it and doesn't even name it`);
     }
 
     const demoFile = path.join(EXAMPLE, 'demos', `${demoBase}.demo.tsx`);
     if (!exists(demoFile)) {
-      fail('demo', `${name}: falta apps/example/demos/${demoBase}.demo.tsx`);
+      fail('demo', `${name}: missing apps/example/demos/${demoBase}.demo.tsx`);
     }
 
-    // El demo pareado alcanza para la navegación, pero lo que prueba que el
-    // componente está realmente ejercitado es que la app lo use en algún lado:
-    // un provider aparece montado en el layout, un hook adentro de un ejemplo.
+    // The paired demo is enough for navigation, but what proves the component
+    // is really exercised is that the app uses it somewhere: a provider shows
+    // up mounted in the layout, a hook inside an example.
     if (!mentionsAny(exampleSources, component)) {
-      fail('demo', `${name}: ningún archivo de apps/example lo usa (ni él ni los nombres que exporta)`);
+      fail('demo', `${name}: no file in apps/example uses it (neither it nor the names it exports)`);
     }
 
     const section = manifestSection(manifest, category);
     if (!section.includes(`slug: '${slug}'`)) {
-      fail('demo', `${name}: sin entrada slug: '${slug}' en ${category.toUpperCase()} de demos/manifest.ts`);
+      fail('demo', `${name}: no slug: '${slug}' entry in ${category.toUpperCase()} of demos/manifest.ts`);
     }
 
     if (!exists(EXAMPLE, '.maestro/flows/smoke', `${category}-${slug}.yaml`)) {
-      fail('maestro', `${name}: falta .maestro/flows/smoke/${category}-${slug}.yaml (corré pnpm --filter example gen:maestro)`);
+      fail('maestro', `${name}: missing .maestro/flows/smoke/${category}-${slug}.yaml (run pnpm --filter example gen:maestro)`);
     }
 
     for (const [label, doc] of [
@@ -132,14 +132,14 @@ function checkComponents() {
       ['packages/ui/llms.txt', llms],
     ]) {
       const mentioned = label.endsWith('llms.txt') ? new RegExp(`\\b${name}\\b`).test(doc) : doc.includes(`\`${name}\``);
-      if (!mentioned) fail('docs', `${name}: sin fila/mención en ${label}`);
+      if (!mentioned) fail('docs', `${name}: no row/mention in ${label}`);
     }
   }
 }
 
-// ── conteos ────────────────────────────────────────────────────────────────
-// La tabla del README raíz es la fuente: un componente por fila, y las filas
-// que agrupan varios nombres (`Title`/`Subtitle`/...) cuentan por cada nombre.
+// ── counts ─────────────────────────────────────────────────────────────────
+// The root README's table is the source: one component per row, and rows
+// grouping several names (`Title`/`Subtitle`/...) count once per name.
 function documentedNames() {
   const rows = read(ROOT, 'README.md')
     .split('\n')
@@ -165,17 +165,17 @@ function checkCounts() {
   for (const [label, doc, re] of sources) {
     const match = doc.match(re);
     if (!match) {
-      fail('count', `${label}: no se encontró el conteo de componentes (${re})`);
+      fail('count', `${label}: component count not found (${re})`);
     } else if (Number(match[1]) !== expected) {
-      fail('count', `${label}: dice ${match[1]} componentes, la tabla del README lista ${expected}`);
+      fail('count', `${label}: says ${match[1]} components, the README table lists ${expected}`);
     }
   }
 
   const missing = components.filter((c) => !documentedNames().has(c.name));
-  for (const c of missing) fail('count', `${c.name}: exportado por el barrel pero sin fila en la tabla del README raíz`);
+  for (const c of missing) fail('count', `${c.name}: exported by the barrel but has no row in the root README table`);
 }
 
-// ── cero dependencias ──────────────────────────────────────────────────────
+// ── zero dependencies ──────────────────────────────────────────────────────
 const ALLOWED_IMPORTS = [/^react$/, /^react\//, /^react-native$/, /^react-native\//];
 const SAFE_AREA_ONLY = /^react-native-safe-area-context$/;
 
@@ -187,18 +187,18 @@ function checkDeps() {
       const spec = match[1];
       if (spec.startsWith('.')) continue;
       if (ALLOWED_IMPORTS.some((re) => re.test(spec))) continue;
-      // Única excepción: el UIProvider mide los insets con
-      // react-native-safe-area-context, peer obligatorio declarado.
+      // The only exception: UIProvider measures the insets with
+      // react-native-safe-area-context, a declared required peer.
       if (SAFE_AREA_ONLY.test(spec) && rel === path.join('theme', 'UIProvider.tsx')) continue;
-      fail('deps', `${rel}: importa '${spec}' — src/ sólo puede importar react y react-native`);
+      fail('deps', `${rel}: imports '${spec}' — src/ may only import react and react-native`);
     }
   }
 }
 
 // ── atomic design ──────────────────────────────────────────────────────────
-// Las capas van en un solo sentido: un átomo que importa un organismo deja de
-// ser un átomo, y el registry (que resuelve dependencias por archivo) empieza
-// a arrastrar medio catálogo por un componente.
+// Layers go in one direction only: an atom that imports an organism stops
+// being an atom, and the registry (which resolves dependencies per file)
+// starts dragging half the catalog along for one component.
 const FORBIDDEN_LAYERS = {
   atoms: ['molecules', 'organisms'],
   molecules: ['organisms'],
@@ -211,14 +211,14 @@ function checkLayers() {
       const source = stripComments(read(file));
       for (const banned of forbidden) {
         if (new RegExp(`from\\s+'\\.\\./${banned}/`).test(source)) {
-          fail('layers', `${path.relative(SRC, file)}: importa de ../${banned}/ — ${layer} no puede depender de ${banned}`);
+          fail('layers', `${path.relative(SRC, file)}: imports from ../${banned}/ — ${layer} can't depend on ${banned}`);
         }
       }
     }
   }
 }
 
-// ── tokens del tema ────────────────────────────────────────────────────────
+// ── theme tokens ───────────────────────────────────────────────────────────
 function checkTheme() {
   for (const layer of Object.keys(FORBIDDEN_LAYERS)) {
     for (const file of sourceFiles(path.join(SRC, layer))) {
@@ -226,38 +226,37 @@ function checkTheme() {
       stripComments(read(file))
         .split('\n')
         .forEach((line, index) => {
-          // `shadowColor` es la excepción documentada en theme/tokens.ts: el
-          // color de sombra por tema es un detalle demasiado fino para
-          // resolverlo por paleta.
+          // `shadowColor` is the exception documented in theme/tokens.ts: a
+          // per-theme shadow color is too fine a detail to resolve per palette.
           if (line.includes('shadowColor')) return;
           if (/#[0-9a-fA-F]{3,8}\b|\brgba?\(/.test(line)) {
-            fail('theme', `${rel}:${index + 1}: color hardcodeado — usar theme.colors.*`);
+            fail('theme', `${rel}:${index + 1}: hardcoded color — use theme.colors.*`);
           }
         });
     }
   }
 }
 
-// ── matriz de SDK ──────────────────────────────────────────────────────────
+// ── SDK matrix ─────────────────────────────────────────────────────────────
 function checkSdk() {
   const matrix = read(UI, 'scripts/compat-matrix.mjs');
   const sdks = [...matrix.matchAll(/sdk:\s*'(\d+)'/g)].map((m) => m[1]);
-  if (sdks.length === 0) return fail('sdk', 'compat-matrix.mjs: no se pudo leer la MATRIX de SDKs');
+  if (sdks.length === 0) return fail('sdk', 'compat-matrix.mjs: could not read the SDK MATRIX');
 
   const pkg = JSON.parse(read(UI, 'package.json'));
   const keywords = pkg.keywords.filter((k) => k.startsWith('expo-sdk-')).map((k) => k.replace('expo-sdk-', ''));
   const readme = read(ROOT, 'README.md');
 
   for (const sdk of sdks) {
-    if (!keywords.includes(sdk)) fail('sdk', `SDK ${sdk} está en la matriz pero falta el keyword expo-sdk-${sdk}`);
-    if (!readme.includes(sdk)) fail('sdk', `SDK ${sdk} está en la matriz pero el README no lo menciona`);
+    if (!keywords.includes(sdk)) fail('sdk', `SDK ${sdk} is in the matrix but the expo-sdk-${sdk} keyword is missing`);
+    if (!readme.includes(sdk)) fail('sdk', `SDK ${sdk} is in the matrix but the README doesn't mention it`);
   }
   for (const keyword of keywords) {
-    if (!sdks.includes(keyword)) fail('sdk', `keyword expo-sdk-${keyword} promete un SDK que la matriz no verifica`);
+    if (!sdks.includes(keyword)) fail('sdk', `keyword expo-sdk-${keyword} promises an SDK the matrix doesn't verify`);
   }
 }
 
-// ── flows de Maestro ───────────────────────────────────────────────────────
+// ── Maestro flows ──────────────────────────────────────────────────────────
 function checkMaestro() {
   const flowsDir = path.join(EXAMPLE, '.maestro/flows');
   const appId = JSON.parse(read(EXAMPLE, 'app.json')).expo.ios.bundleIdentifier;
@@ -266,9 +265,9 @@ function checkMaestro() {
     const dir = path.join(flowsDir, kind);
     for (const name of fs.readdirSync(dir).filter((f) => f.endsWith('.yaml'))) {
       const flow = read(dir, name);
-      if (!flow.includes(appId)) fail('maestro', `${kind}/${name}: no apunta al appId ${appId}`);
+      if (!flow.includes(appId)) fail('maestro', `${kind}/${name}: doesn't point to appId ${appId}`);
       for (const match of flow.matchAll(/file:\s*(\S+)/g)) {
-        if (!exists(dir, match[1])) fail('maestro', `${kind}/${name}: runFlow apunta a ${match[1]}, que no existe`);
+        if (!exists(dir, match[1])) fail('maestro', `${kind}/${name}: runFlow points to ${match[1]}, which doesn't exist`);
       }
     }
   }
@@ -294,7 +293,7 @@ function main() {
   }
 
   if (failures.length === 0) {
-    console.log(`✓ harness en verde — ${components.length} componentes verificados`);
+    console.log(`✓ harness green — ${components.length} components verified`);
     return;
   }
 
@@ -307,7 +306,7 @@ function main() {
     console.error(`\n✗ ${rule} (${messages.length})`);
     for (const message of messages) console.error(`  - ${message}`);
   }
-  console.error(`\n${failures.length} problema(s). Ver "Adding a component" en AGENTS.md.`);
+  console.error(`\n${failures.length} problem(s). See "Adding a component" in AGENTS.md.`);
   process.exit(1);
 }
 

@@ -1,24 +1,24 @@
 #!/usr/bin/env node
-// Cambia apps/example entre Expo SDK 54, 55, 56 y 57, y opcionalmente lo
-// arranca — un comando en vez de editar package.json a mano y acordarse de qué
-// versión de expo-router va con qué SDK.
+// Switches apps/example between Expo SDK 54, 55, 56 and 57, and optionally
+// starts it — one command instead of editing package.json by hand and
+// remembering which expo-router version goes with which SDK.
 //
-// Es el complemento en dispositivo de packages/ui/scripts/compat-matrix.mjs:
-// aquel verifica la librería contra los cuatro SDK con tsc + jest (rápido, sin
-// device); este pone la app de ejemplo en ese SDK y la corre de verdad.
+// It's the on-device complement to packages/ui/scripts/compat-matrix.mjs:
+// that one checks the library against the four SDKs with tsc + jest (fast, no
+// device); this one puts the example app on that SDK and actually runs it.
 //
-// Uso:
-//   pnpm sdk                 # qué SDK está puesto ahora
-//   pnpm sdk 54              # cambia a SDK 54 (reescribe package.json + install)
-//   pnpm sdk 54 --go         # cambia y arranca en Expo Go
-//   pnpm sdk 54 --export     # cambia y bundlea (verificación sin device)
-//   pnpm sdk 54 --ios        # cambia, prebuild --clean y expo run:ios
+// Usage:
+//   pnpm sdk                 # which SDK is set right now
+//   pnpm sdk 54              # switches to SDK 54 (rewrites package.json + install)
+//   pnpm sdk 54 --go         # switches and starts in Expo Go
+//   pnpm sdk 54 --export     # switches and bundles (check without a device)
+//   pnpm sdk 54 --ios        # switches, prebuild --clean and expo run:ios
 //   pnpm sdk 54 --android
-//   pnpm sdk 54 --no-install # sólo reescribe el manifest
+//   pnpm sdk 54 --no-install # only rewrites the manifest
 //
-// Volver al estado del repo: `pnpm sdk 57` (es el SDK por defecto), o
-// `git checkout -- apps/example/package.json pnpm-lock.yaml` si querés
-// descartar también los cambios del lockfile.
+// Back to the repo's state: `pnpm sdk 57` (it's the default SDK), or
+// `git checkout -- apps/example/package.json pnpm-lock.yaml` if you also want
+// to discard the lockfile changes.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -29,23 +29,23 @@ const APP_DIR = path.resolve(__dirname, '..');
 const REPO_ROOT = path.resolve(APP_DIR, '..', '..');
 const MANIFEST = path.join(APP_DIR, 'package.json');
 
-// Versiones que publica cada SDK. `react-native`/`react` salen de
+// Versions each SDK publishes. `react-native`/`react` come from
 // api.expo.dev/v2/versions/latest (facebookReactNativeVersion /
-// facebookReactVersion) y el resto de
+// facebookReactVersion) and the rest from
 // raw.githubusercontent.com/expo/expo/sdk-<NN>/packages/expo/bundledNativeModules.json
-// — o sea, exactamente lo que instalaría `expo install`. Los rangos `~` los
-// deja tal cual Expo; react/react-native van clavados porque un patch de
-// react-native no es un patch cualquiera.
+// — that is, exactly what `expo install` would install. The `~` ranges are
+// left as Expo has them; react/react-native are pinned because a react-native
+// patch isn't just any patch.
 //
-// SDK 54 todavía usa el versionado viejo de los paquetes expo-* (expo-router 6,
-// expo-constants 18); desde 55 cada expo-* sigue el número del SDK.
+// SDK 54 still uses the old versioning of the expo-* packages (expo-router 6,
+// expo-constants 18); from 55 on each expo-* follows the SDK number.
 //
-// @expo/metro-runtime va explícito aunque la app no lo importe: `expo` lo
-// declara como peer `"*"`, y con auto-install-peers (default en pnpm 10) eso
-// resuelve a la última versión publicada — 57.x aunque la app esté en SDK 54.
+// @expo/metro-runtime is explicit even though the app doesn't import it: `expo`
+// declares it as a `"*"` peer, and with auto-install-peers (default in pnpm 10)
+// that resolves to the latest published version — 57.x even if the app is on SDK 54.
 //
-// `navigationTheme`: de qué paquete salen ThemeProvider/DarkTheme/DefaultTheme
-// en ese SDK (ver components/navigationTheme.ts).
+// `navigationTheme`: which package ThemeProvider/DarkTheme/DefaultTheme come
+// from on that SDK (see components/navigationTheme.ts).
 const SDKS = {
   54: {
     navigationTheme: '@react-navigation/native',
@@ -134,11 +134,11 @@ function fail(message) {
   process.exit(1);
 }
 
-// `pnpm exec`, nunca `npx`: npx corre el binario que encuentre (y en esta
-// máquina está aliasado a `pnpm dlx`, que se baja un expo CLI nuevo del
-// registry). El CLI tiene que ser el del SDK que la app declara — uno de SDK 57
-// bundleando una app SDK 54 mezcla su propio @react-native/babel-preset con el
-// hermesc de la app y el build falla de formas difíciles de leer.
+// `pnpm exec`, never `npx`: npx runs whatever binary it finds (and on this
+// machine it's aliased to `pnpm dlx`, which downloads a fresh expo CLI from
+// the registry). The CLI has to be the one for the SDK the app declares — an
+// SDK 57 one bundling an SDK 54 app mixes its own @react-native/babel-preset
+// with the app's hermesc and the build fails in hard-to-read ways.
 function runExpo(args) {
   execFileSync('pnpm', ['exec', 'expo', ...args], { cwd: APP_DIR, stdio: 'inherit' });
 }
@@ -147,7 +147,7 @@ function readManifest() {
   return JSON.parse(fs.readFileSync(MANIFEST, 'utf8'));
 }
 
-/** Deduce el SDK puesto ahora a partir del rango de `expo` en el manifest. */
+/** Infers the currently set SDK from the `expo` range in the manifest. */
 function currentSdk(manifest) {
   const major = (manifest.dependencies?.expo ?? '').match(/(\d+)\./)?.[1];
   return major && SDKS[major] ? major : null;
@@ -158,11 +158,11 @@ function sortKeys(object) {
 }
 
 /**
- * Aplica el bloque de un SDK sobre las deps actuales. Los paquetes que sólo
- * existen en *algunos* SDK (hoy @react-navigation/native, que hace falta hasta
- * la 55 y sobra desde la 56) se borran antes de mezclar: dejarlo instalado en
- * SDK 57 mete una segunda copia de react-navigation al lado de la que expo-router
- * trae adentro, y el ThemeProvider de una no llega a los navigators de la otra.
+ * Applies an SDK's block over the current deps. Packages that only exist on
+ * *some* SDKs (today @react-navigation/native, needed up to 55 and
+ * unnecessary from 56) are deleted before merging: leaving it installed on
+ * SDK 57 adds a second copy of react-navigation next to the one expo-router
+ * ships inside, and one's ThemeProvider doesn't reach the other's navigators.
  */
 function applyBlock(current, block, field) {
   const managed = new Set(Object.values(SDKS).flatMap((sdk) => Object.keys(sdk[field] ?? {})));
@@ -173,23 +173,23 @@ function applyBlock(current, block, field) {
 }
 
 /**
- * Escribe components/navigationTheme.ts apuntando al paquete que expone el
- * theming de react-navigation en ese SDK. Es la única diferencia de código
- * fuente entre SDKs — el resto de la app y toda la librería son iguales.
+ * Writes components/navigationTheme.ts pointing to the package that exposes
+ * react-navigation's theming on that SDK. It's the only source code
+ * difference between SDKs — the rest of the app and the whole library are the same.
  */
 function writeNavigationTheme(entry, sdk) {
   const file = path.join(APP_DIR, 'components', 'navigationTheme.ts');
   fs.writeFileSync(
     file,
-    `// Generado por scripts/use-sdk.mjs — no editar a mano.
-// Fuente: Expo SDK ${sdk}
+    `// Generated by scripts/use-sdk.mjs — do not edit by hand.
+// Source: Expo SDK ${sdk}
 //
-// \`ThemeProvider\`/\`DarkTheme\`/\`DefaultTheme\` cambiaron de paquete entre SDKs:
-// expo-router los reexporta desde la 56 (SDK 56), y hasta la 55 hay que
-// tomarlos de @react-navigation/native, que expo-router 6/55 traen como
-// dependencia y las versiones nuevas ya no usan. No hay un import estático que
-// resuelva en los cuatro SDK, así que el que corresponde se escribe acá al
-// cambiar de SDK y el resto de la app importa siempre desde este archivo.
+// \`ThemeProvider\`/\`DarkTheme\`/\`DefaultTheme\` moved between packages across SDKs:
+// expo-router re-exports them since 56 (SDK 56), and up to 55 they have to be
+// taken from @react-navigation/native, which expo-router 6/55 ship as a
+// dependency and newer versions no longer use. There's no static import that
+// resolves on all four SDKs, so the right one is written here when switching
+// SDK and the rest of the app always imports from this file.
 export { DarkTheme, DefaultTheme, ThemeProvider } from '${entry.navigationTheme}';
 `
   );
@@ -202,10 +202,10 @@ function parseArgs(argv) {
     else if (arg === '--no-install') args.install = false;
     else if (['--go', '--ios', '--android', '--export'].includes(arg)) args.target = arg.slice(2);
     else if (/^-{0,2}\d+$/.test(arg)) {
-      // Acepta `54`, `-54` y `--54`: el número es lo que importa, no el guión.
+      // Accepts `54`, `-54` and `--54`: the number is what matters, not the dash.
       args.sdk = arg.replace(/^-+/, '');
     } else {
-      fail(`no entiendo "${arg}". Uso: pnpm sdk <54|55|56|57> [--go|--export|--ios|--android]`);
+      fail(`don't understand "${arg}". Usage: pnpm sdk <54|55|56|57> [--go|--export|--ios|--android]`);
     }
   }
   return args;
@@ -218,26 +218,26 @@ if (!args.sdk) {
   const current = currentSdk(manifest);
   console.log(
     current
-      ? `[sdk] apps/example está en Expo SDK ${current} (expo ${manifest.dependencies.expo}, react-native ${manifest.dependencies['react-native']})`
-      : `[sdk] no reconozco el SDK del manifest (expo ${manifest.dependencies?.expo})`
+      ? `[sdk] apps/example is on Expo SDK ${current} (expo ${manifest.dependencies.expo}, react-native ${manifest.dependencies['react-native']})`
+      : `[sdk] can't recognize the manifest's SDK (expo ${manifest.dependencies?.expo})`
   );
-  console.log(`[sdk] disponibles: ${Object.keys(SDKS).join(', ')} — por defecto ${DEFAULT_SDK}`);
+  console.log(`[sdk] available: ${Object.keys(SDKS).join(', ')} — default ${DEFAULT_SDK}`);
   process.exit(0);
 }
 
 const target = SDKS[args.sdk];
-if (!target) fail(`SDK ${args.sdk} no está en la tabla (hay: ${Object.keys(SDKS).join(', ')})`);
+if (!target) fail(`SDK ${args.sdk} is not in the table (available: ${Object.keys(SDKS).join(', ')})`);
 
 const before = currentSdk(manifest);
-// Siempre, incluso si el SDK ya era ese: es un archivo generado, y así una
-// copia editada a mano o a medio escribir vuelve a lo que corresponde.
+// Always, even if the SDK was already that one: it's a generated file, and
+// this way a hand-edited or half-written copy goes back to what it should be.
 writeNavigationTheme(target, args.sdk);
 
 if (before === args.sdk) {
-  console.log(`[sdk] apps/example ya está en SDK ${args.sdk}`);
+  console.log(`[sdk] apps/example is already on SDK ${args.sdk}`);
 } else {
-  // Merge, no reemplazo: `orn-ui` (workspace:*) y cualquier otra dependencia
-  // que no dependa del SDK tienen que sobrevivir el cambio.
+  // Merge, not replace: `orn-ui` (workspace:*) and any other dependency that
+  // doesn't depend on the SDK have to survive the switch.
   manifest.dependencies = applyBlock(manifest.dependencies, target.dependencies, 'dependencies');
   manifest.devDependencies = applyBlock(
     manifest.devDependencies,
@@ -248,37 +248,37 @@ if (before === args.sdk) {
   console.log(`[sdk] apps/example: SDK ${before ?? '?'} → ${args.sdk}`);
 
   if (args.install) {
-    // El lockfile es del workspace, así que el install corre desde la raíz
-    // aunque el único manifest que cambió sea el de la app.
+    // The lockfile belongs to the workspace, so the install runs from the root
+    // even though the only manifest that changed is the app's.
     //
-    // --no-frozen-lockfile explícito: en CI pnpm lo pone en true por defecto y
-    // fallaría, que es lo correcto para un install normal pero no acá — el
-    // manifest acaba de cambiar a propósito y el lockfile *tiene* que moverse.
+    // Explicit --no-frozen-lockfile: in CI pnpm sets it to true by default and
+    // it would fail, which is right for a normal install but not here — the
+    // manifest has just changed on purpose and the lockfile *has* to move.
     execFileSync('pnpm', ['install', '--no-frozen-lockfile'], {
       cwd: REPO_ROOT,
       stdio: 'inherit',
     });
   } else {
-    console.log('[sdk] --no-install: corré `pnpm install` antes de arrancar la app');
+    console.log('[sdk] --no-install: run `pnpm install` before starting the app');
   }
 }
 
 if (!args.target) process.exit(0);
 
 if (args.target === 'export') {
-  // Bundle completo con el Hermes de ese SDK: es la verificación más barata de
-  // que el SDK entero (metro + babel + hermesc) quedó consistente, sin device.
+  // Full bundle with that SDK's Hermes: it's the cheapest check that the
+  // whole SDK (metro + babel + hermesc) ended up consistent, without a device.
   runExpo(['export', '--platform', 'ios', '--output-dir', path.join(APP_DIR, 'dist')]);
 } else if (args.target === 'go') {
-  // --go fuerza Expo Go: apps/example tiene android/ e ios/ de un prebuild
-  // previo, y con eso el CLI arrancaría en modo dev-client por defecto.
-  // Necesitás el Expo Go de ese mismo SDK — su número de versión ES el número
-  // del SDK desde el 54; en simulador/emulador el CLI lo baja solo.
+  // --go forces Expo Go: apps/example has android/ and ios/ from a previous
+  // prebuild, and with that the CLI would start in dev-client mode by default.
+  // You need the Expo Go for that same SDK — its version number IS the SDK
+  // number since 54; on a simulator/emulator the CLI downloads it on its own.
   runExpo(['start', '--go', '--clear']);
 } else {
-  // Las carpetas nativas quedaron generadas por el SDK anterior: sin --clean,
-  // prebuild las deja como están y el build linkea un react-native que ya no es
-  // el del manifest.
+  // The native folders were generated by the previous SDK: without --clean,
+  // prebuild leaves them as they are and the build links a react-native that
+  // is no longer the manifest's.
   runExpo(['prebuild', '--clean', '--platform', args.target]);
   runExpo([`run:${args.target}`]);
 }

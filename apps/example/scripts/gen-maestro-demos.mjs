@@ -1,17 +1,17 @@
 #!/usr/bin/env node
-// Genera un flow de "clip para la doc" por cada demo del manifest, en
-// .maestro/demos/. No son tests: config.yaml sólo incluye flows/**, así que
-// `maestro test .maestro` nunca los corre. Ver .maestro/README.md.
+// Generates a "docs clip" flow for each demo in the manifest, in
+// .maestro/demos/. They're not tests: config.yaml only includes flows/**, so
+// `maestro test .maestro` never runs them. See .maestro/README.md.
 //
-// Lo que genera es un recorrido de variantes: entra por deep link, arranca la
-// grabación ya en la pantalla del demo y pagina por las N variantes dejando un
-// beat en cada una para que se lean. La cantidad de variantes sale de leer el
-// `.tsx` del demo — el manifest no la sabe.
+// What it generates is a walk through the variants: it enters via deep link,
+// starts recording already on the demo's screen and pages through the N
+// variants, leaving a beat on each so they can be read. The number of
+// variants comes from reading the demo's `.tsx` — the manifest doesn't know it.
 //
-// La interacción (abrir un modal, elegir una opción, escribir en un campo) no
-// se puede derivar del manifest: va declarada por componente y variante en la
-// tabla INTERACTIONS de más abajo, con selectores tomados de flows/behavior/.
-// Un flow escrito a mano en HAND_WRITTEN no se toca.
+// Interaction (opening a modal, picking an option, typing in a field) can't
+// be derived from the manifest: it's declared per component and variant in
+// the INTERACTIONS table further down, with selectors taken from flows/behavior/.
+// A hand-written flow in HAND_WRITTEN is left untouched.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,84 +22,84 @@ const ROOT = path.resolve(__dirname, '..');
 const DEMOS_DIR = path.join(ROOT, '.maestro/demos');
 const APP_ID = 'com.anonymous.orn-ui-example';
 
-// Flows escritos a mano: tienen interacción real (abren la hoja, cancelan un
-// form, cierran por backdrop) y el generador no sabe hacer eso. No se
-// sobrescriben ni se cuentan como sobrantes.
+// Hand-written flows: they have real interaction (they open the sheet, cancel
+// a form, close via backdrop) and the generator doesn't know how to do that.
+// They aren't overwritten or counted as leftovers.
 const HAND_WRITTEN = new Set(['organisms-bottom-sheet.yaml']);
-// Subflows del propio directorio, no son clips.
+// Subflows in this same directory, they're not clips.
 const SUBFLOWS = new Set(['_beat.yaml']);
 
-// Variantes que entran al clip, por componente. El default es "todas", que
-// para un catálogo de estilos (Button, Badge) es exactamente lo que hay que
-// ver. Pero hay componentes donde la variante no cambia lo que se ve en
-// reposo —- nueve Select cerrados son nueve campos idénticos— y el recorrido
-// completo es medio minuto de nada. Ahí se elige a mano lo que se muestra: la
-// que se abre, la que se comporta distinto, la que tiene otro estado.
+// Variants that go into the clip, per component. The default is "all", which
+// for a catalog of styles (Button, Badge) is exactly what you need to see.
+// But there are components where the variant doesn't change what's seen at
+// rest —- nine closed Selects are nine identical fields— and the full walk is
+// half a minute of nothing. There, what's shown is picked by hand: the one
+// that opens, the one that behaves differently, the one with another state.
 //
-// Las variantes que no están igual se atraviesan (el pager no puede saltar),
-// pero sin beat: se pasa de largo.
+// The variants that aren't listed are still passed through (the pager can't
+// skip), but without a beat: they're gone right past.
 const CLIP_VARIANTS = {
   'organisms/select': [0, 4, 7],
   'organisms/date-picker': [0, 1, 6],
-  // Spinner y Skeleton animan para siempre, y Maestro espera a que la
-  // pantalla se aquiete después de cada comando: cada variante de más son
-  // varios segundos de clip esperando a nada. El de Spinner llegó a durar 84
-  // segundos con las 7. Se muestran las que cambian la forma del indicador
-  // —lo que el resto varía (tamaño, color, nodo propio) se lee en la tabla de
-  // props, no hace falta verlo girar.
+  // Spinner and Skeleton animate forever, and Maestro waits for the screen to
+  // settle after each command: each extra variant is several seconds of clip
+  // waiting for nothing. Spinner's got to be 84 seconds long with all 7. The
+  // ones that change the indicator's shape are shown —what the rest vary
+  // (size, color, custom node) can be read in the props table, no need to
+  // watch it spin.
   'atoms/spinner': [0, 1, 2],
   'atoms/skeleton': [0, 1, 4],
-  // Los seis tipos de marca, que es lo que alguien viene a ver: barra vertical
-  // con su interacción, barra horizontal, línea, área, dona y radar. Apilado
-  // contra agrupado, o torta contra dona, se diferencian en una prop y eso se
-  // lee en la tabla — con las catorce el clip daba 34 segundos y 2 MB.
+  // The six mark types, which is what someone comes to see: vertical bar
+  // with its interaction, horizontal bar, line, area, donut and radar. Stacked
+  // vs grouped, or pie vs donut, differ by one prop and that can be read in
+  // the table — with all fourteen the clip was 34 seconds and 2 MB.
   //
-  // El demo las tiene justo en las seis primeras posiciones a propósito: el
-  // pager no puede saltar, así que cada variante que hay que atravesar para
-  // llegar a la última elegida es swipe y espera que igual se graban.
+  // The demo has them in exactly the first six positions on purpose: the
+  // pager can't skip, so every variant that has to be passed through to reach
+  // the last picked one is a swipe and a wait that get recorded anyway.
   //
-  // La variante en vivo queda afuera aunque sea la más vistosa: su
-  // `setInterval` no deja que la pantalla se aquiete nunca, así que cada
-  // `waitForAnimationToEnd` posterior se come su timeout entero.
+  // The live variant stays out even though it's the flashiest: its
+  // `setInterval` never lets the screen settle, so every following
+  // `waitForAnimationToEnd` eats its whole timeout.
   'organisms/chart': [0, 1, 2, 3, 4, 5],
-  // Timeline ocupa la pantalla entera y su halo es puro degradado: con las
-  // diez variantes el clip daba 29 segundos y 2 MB. Quedan la forma por
-  // defecto, el toque que hace viajar la línea, y las dos que cambian el
-  // camino (recto, y arrancando por la izquierda).
+  // Timeline takes up the whole screen and its halo is pure gradient: with all
+  // ten variants the clip was 29 seconds and 2 MB. What remains is the default
+  // shape, the tap that makes the line travel, and the two that change the
+  // path (straight, and starting on the left).
   //
-  // La que avanza sola queda afuera por lo mismo que la variante en vivo de
-  // Chart: su intervalo no deja que la pantalla se aquiete nunca.
+  // The one that advances on its own stays out for the same reason as Chart's
+  // live variant: its interval never lets the screen settle.
   'organisms/timeline': [0, 1, 5, 6],
 };
 
-// `waitForAnimationToEnd` sin timeout espera a que la pantalla se quede
-// quieta, y hay componentes que por definición no se quedan quietos nunca:
-// Spinner gira siempre, Skeleton late, Slides avanza solo. Ahí se comía el
-// timeout por defecto en cada variante — el clip de Spinner salió de 142
-// segundos, casi todo esperando. Con tope explícito la espera sirve para lo
-// que se necesita (que termine la transición de página) y no bloquea al resto.
+// `waitForAnimationToEnd` without a timeout waits for the screen to go still,
+// and some components by definition never go still: Spinner always spins,
+// Skeleton pulses, Slides advances on its own. There it ate the default
+// timeout on every variant — Spinner's clip came out at 142 seconds, almost
+// all of it waiting. With an explicit cap the wait does what it's needed for
+// (letting the page transition finish) and doesn't block the rest.
 const WAIT = `- waitForAnimationToEnd:
     timeout: 1200`;
 
-// Beat después de cada variante. Corto: son pantallas estáticas y el clip
-// entero tiene que seguir siendo un loop mirable — Button tiene 11 variantes.
+// Beat after each variant. Short: they're static screens and the whole clip
+// has to stay a watchable loop — Button has 11 variants.
 const BEAT_MS = 900;
-// El primero es más largo: es el frame que queda de poster y el que el
-// visitante ve mientras el video arranca.
+// The first one is longer: it's the frame left as the poster and the one the
+// visitor sees while the video starts.
 const FIRST_BEAT_MS = 1200;
 
-// Interacción por componente y variante (índice 0-based del array del demo).
-// Es lo que el recorrido de variantes no puede inventar: abrir el modal,
-// elegir una opción, escribir en el campo. Sin esto, media docena de clips
-// serían una pantalla con un botón sin apretar.
+// Interaction per component and variant (0-based index in the demo's array).
+// It's what the walk through variants can't make up: opening the modal,
+// picking an option, typing in the field. Without this, half a dozen clips
+// would be a screen with an unpressed button.
 //
-// Los selectores no son nuevos: salen de flows/behavior/, donde ya están
-// probados contra esta app. Un número en la lista es un beat en ms; el resto
-// va tal cual al YAML.
+// The selectors aren't new: they come from flows/behavior/, where they're
+// already tested against this app. A number in the list is a beat in ms; the
+// rest goes into the YAML as is.
 //
-// No hace falta cubrir cada variante: la que no está acá se muestra quieta,
-// que para una variante que sólo cambia estilo es exactamente lo que hay que
-// mostrar.
+// There's no need to cover every variant: one that isn't here is shown
+// still, which for a variant that only changes style is exactly what has to
+// be shown.
 const INTERACTIONS = {
   'atoms/checkbox': {
     0: ['- tapOn: "Accept terms"', 900, '- tapOn: "Accept terms"', 600],
@@ -109,7 +109,7 @@ const INTERACTIONS = {
     1: ['- tapOn: "Show password"', 900, '- tapOn: "Hide password"', 600],
   },
   'atoms/transition': {
-    // El título del botón alterna Show/Hide y el contenido arranca visible.
+    // The button's title toggles Show/Hide and the content starts visible.
     0: ['- tapOn: "Hide"', 900, '- tapOn: "Show"', 900],
   },
   'molecules/stepper': {
@@ -123,25 +123,25 @@ const INTERACTIONS = {
   },
   'organisms/modal': {
     0: ['- tapOn: "Open full"', WAIT, 1400, '- tapOn: "Close"', WAIT],
-    // El backdrop cubre la pantalla entera: su centro cae debajo de la card,
-    // así que se cierra por un punto explícito abajo (igual que el test).
+    // The backdrop covers the whole screen: its center falls under the card,
+    // so it's closed via an explicit point lower down (same as the test).
     1: ['- tapOn: "Open overlay"', WAIT, 1400, '- tapOn:\n    point: "50%,90%"', WAIT],
     2: ['- tapOn: "Open fullScreen"', WAIT, 1400, '- tapOn: "Close"', WAIT],
   },
   'organisms/select': {
-    // index: 1 — el label y el valor del campo comparten texto; el 0 es el label.
+    // index: 1 — the field's label and value share text; 0 is the label.
     0: ['- tapOn:\n    text: "Payment method"\n    index: 1', WAIT, 1000, '- tapOn: "Cash"', WAIT],
   },
   'organisms/alert': {
     0: ['- tapOn: "Show success"', WAIT, 1300, '- tapOn:\n    point: "50%,55%"', WAIT],
-    // El diálogo de confirmación no se cierra por texto: con
-    // accessibilityViewIsModal el Alert entero colapsa en UN nodo que ocupa la
-    // pantalla —- su label es "?, Delete invoice?, This cannot be undone.,
-    // Cancel, Delete" (verificado con `maestro hierarchy`)— así que no existe
-    // un nodo "Cancel" al que apuntar, ni por texto ni por regex. El toque por
-    // punto sí llega: la fusión es de accesibilidad, no de hit testing.
-    // Tampoco sirve tocar el backdrop acá: esta variante pasa onConfirm y
-    // onCancel, no onClose, así que tocar afuera no cierra nada.
+    // The confirmation dialog isn't closed by text: with
+    // accessibilityViewIsModal the whole Alert collapses into ONE node that
+    // fills the screen —- its label is "?, Delete invoice?, This cannot be
+    // undone., Cancel, Delete" (verified with `maestro hierarchy`)— so there's
+    // no "Cancel" node to target, neither by text nor by regex. A tap by
+    // point does get through: the merge is for accessibility, not hit testing.
+    // Tapping the backdrop doesn't work here either: this variant passes
+    // onConfirm and onCancel, not onClose, so tapping outside closes nothing.
     3: ['- tapOn: ".*Delete invoice.*"', WAIT, 1400, '- tapOn:\n    point: "31%,58%"', WAIT],
   },
   'organisms/toast': {
@@ -155,8 +155,8 @@ const INTERACTIONS = {
     0: ['- tapOn: "Search"', 900, '- tapOn: "Alerts"', 900, '- tapOn: "Home"', 600],
   },
   'organisms/wizard': {
-    // "Next", no "Continue": el label de flows/behavior/ es el de la variante
-    // de validación, que pasa labels propios. Ésta usa los del componente.
+    // "Next", not "Continue": the label in flows/behavior/ is the validation
+    // variant's, which passes its own labels. This one uses the component's.
     0: ['- tapOn: "Next"', 1000, '- tapOn: "Next"', 1000],
   },
   'organisms/list': {
@@ -172,10 +172,10 @@ const INTERACTIONS = {
     6: ['- tapOn: "Due date"', WAIT, 1500, '- tapOn:\n    point: "50%,8%"', WAIT],
   },
   'organisms/chart': {
-    // El chart quieto es una imagen; lo que hay que mostrar es que responde.
-    // Los tres selectores salen de flows/behavior/chart-select-and-filter.yaml:
-    // tocar una columna abre el globo y apaga el resto, tocar la leyenda saca
-    // una serie, y el filtro recorta los datos y lo redibuja.
+    // A still chart is an image; what has to be shown is that it responds.
+    // The three selectors come from flows/behavior/chart-select-and-filter.yaml:
+    // tapping a column opens the bubble and dims the rest, tapping the legend
+    // removes a series, and the filter trims the data and redraws it.
     0: [
       '- tapOn:\n    id: "chart-interactive-band-1"',
       1200,
@@ -186,10 +186,10 @@ const INTERACTIONS = {
     ],
   },
   'organisms/timeline': {
-    // Tocar un hito lleva la línea hasta ahí, y tocar el ya alcanzado la
-    // devuelve: los dos sentidos en una sola variante. El selector es el del
-    // flow de comportamiento — apuntando al texto, Maestro da el tap por hecho
-    // y el estado no cambia, porque el nodo que encuentra no es el Pressable.
+    // Tapping a milestone brings the line up to it, and tapping the one already
+    // reached sends it back: both directions in a single variant. The selector
+    // is the behavior flow's — targeting the text, Maestro considers the tap
+    // done and the state doesn't change, because the node it finds isn't the Pressable.
     1: ['- tapOn:\n    id: "timeline-tap-press-4"', 1300, '- tapOn:\n    id: "timeline-tap-press-4"', 1100],
   },
   'organisms/slides': {
@@ -208,11 +208,11 @@ function beat(ms) {
     env: { MAESTRO_APP_ID: ${APP_ID}, MS: "${ms}" }`;
 }
 
-// Paginar es el subflow que ya existe para los tests, no un swipe propio: ahí
-// están calibradas las coordenadas que avanzan exactamente una página. Un
-// swipe más largo acumula velocidad y con `pagingEnabled` saltea variantes
-// (ver el comentario de subflows/next-variant.yaml), que en un clip significa
-// una variante que nunca se ve.
+// Paging is the subflow that already exists for the tests, not a swipe of
+// its own: the coordinates that advance exactly one page are calibrated
+// there. A longer swipe builds up velocity and with `pagingEnabled` skips
+// variants (see the comment in subflows/next-variant.yaml), which in a clip
+// means a variant that's never seen.
 const PAGE_SWIPE = `- runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: ${APP_ID} }`;
@@ -231,8 +231,8 @@ function flowFor(entry, labels) {
   if (entry.paged && labels && labels.length > 1) {
     let first = true;
     labels.forEach((label, i) => {
-      // Una vez pasada la última variante elegida no hace falta seguir
-      // paginando: el clip termina ahí.
+      // Once past the last picked variant there's no need to keep paging:
+      // the clip ends there.
       if (i > lastShown) return;
       if (i > 0) {
         steps.push(PAGE_SWIPE);
@@ -245,15 +245,14 @@ function flowFor(entry, labels) {
       if (interactions[i]) steps.push(...render(interactions[i]));
     });
   } else if (interactions[0]) {
-    // Sin pager pero con interacción propia (List, SearchList, Reorderable):
-    // el clip es la interacción, no un scroll por contenido que ya se ve.
+    // No pager but with its own interaction (List, SearchList, Reorderable):
+    // the clip is the interaction, not a scroll through content already visible.
     steps.push(beat(FIRST_BEAT_MS));
     steps.push(...render(interactions[0]));
   } else {
-    // Sin pager: el demo hostea su propia lista (hostsList) o es una pantalla
-    // de flujo libre (freeScroll, los ejemplos). Ahí el clip muestra el
-    // contenido scrolleando, que es todo lo que hay para mostrar sin
-    // interacción específica.
+    // No pager: the demo hosts its own list (hostsList) or is a free-form
+    // screen (freeScroll, the examples). There the clip shows the content
+    // scrolling, which is all there is to show without specific interaction.
     steps.push(beat(FIRST_BEAT_MS));
     for (let i = 0; i < 2; i++) {
       steps.push(`- swipe:
@@ -265,12 +264,12 @@ function flowFor(entry, labels) {
     }
   }
 
-  const variantNote = labels ? `${labels.length} variante${labels.length === 1 ? '' : 's'}` : 'sin catálogo de variantes';
+  const variantNote = labels ? `${labels.length} variant${labels.length === 1 ? '' : 's'}` : 'no variant catalog';
 
-  return `# Generado por scripts/gen-maestro-demos.mjs — no editar a mano.
-# Fuente: ${manifestFile} (slug: ${entry.slug}) — ${variantNote}
+  return `# Generated by scripts/gen-maestro-demos.mjs — do not edit by hand.
+# Source: ${manifestFile} (slug: ${entry.slug}) — ${variantNote}
 #
-# Clip para la doc, no un test. Ver .maestro/README.md.
+# Clip for the docs, not a test. See .maestro/README.md.
 appId: ${APP_ID}
 ---
 - launchApp:
@@ -296,10 +295,10 @@ function main() {
   fs.mkdirSync(DEMOS_DIR, { recursive: true });
   const wanted = new Map();
   for (const entry of entries) {
-    // Los ejemplos (SignIn, CheckoutWizard, …) no tienen página en la doc: son
-    // pantallas de muestra del catálogo, no componentes documentados. Grabar
-    // su clip era medio minuto de simulador por archivo que nadie sirve. El
-    // suite de humo sí los cubre — eso no cambia.
+    // The examples (SignIn, CheckoutWizard, …) have no page in the docs: they
+    // are the catalog's sample screens, not documented components. Recording
+    // their clip was half a minute of simulator per file that nobody serves.
+    // The smoke suite does cover them — that doesn't change.
     if (entry.basePath === 'examples') continue;
     const filename = `${entry.basePath}-${entry.slug}.yaml`;
     if (HAND_WRITTEN.has(filename)) continue;
@@ -315,24 +314,24 @@ function main() {
     const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : null;
     if (current === content) continue;
     changed = true;
-    if (checkOnly) console.error(`✗ desactualizado: .maestro/demos/${filename}`);
+    if (checkOnly) console.error(`✗ out of date: .maestro/demos/${filename}`);
     else fs.writeFileSync(filePath, content);
   }
   for (const filename of stale) {
     changed = true;
-    if (checkOnly) console.error(`✗ sobrante: .maestro/demos/${filename}`);
+    if (checkOnly) console.error(`✗ leftover: .maestro/demos/${filename}`);
     else fs.unlinkSync(path.join(DEMOS_DIR, filename));
   }
 
   if (checkOnly) {
     if (changed) {
-      console.error('\nLos flows de clip no están al día. Corré: pnpm --filter example gen:maestro:demos');
+      console.error('\nThe clip flows are out of date. Run: pnpm --filter example gen:maestro:demos');
       process.exit(1);
     }
-    console.log(`✓ ${wanted.size} flows de clip al día (+${HAND_WRITTEN.size} a mano)`);
+    console.log(`✓ ${wanted.size} clip flows up to date (+${HAND_WRITTEN.size} hand-written)`);
     return;
   }
-  console.log(`✓ Generados ${wanted.size} flows de clip en .maestro/demos/ (+${HAND_WRITTEN.size} a mano)`);
+  console.log(`✓ Generated ${wanted.size} clip flows in .maestro/demos/ (+${HAND_WRITTEN.size} hand-written)`);
 }
 
 main();

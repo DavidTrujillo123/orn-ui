@@ -1,22 +1,22 @@
 #!/usr/bin/env node
-// Matriz de compatibilidad Expo SDK 54 / 55 / 56 / 57.
+// Compatibility matrix for Expo SDK 54 / 55 / 56 / 57.
 //
-// El repo se desarrolla contra un solo par (react-native, react): el que trae
-// el SDK más nuevo. Eso deja sin verificar el resto del rango que el paquete
-// promete en `peerDependencies`, y lo que se rompe de un SDK a otro no son
-// sólo los tipos: son APIs de react-native que se mueven de archivo o cambian
-// de forma, cosa que `tsc` con skipLibCheck no ve.
+// The repo is developed against a single pair (react-native, react): the one
+// shipped by the newest SDK. That leaves the rest of the range the package
+// promises in `peerDependencies` unverified, and what breaks from one SDK to
+// another isn't just the types: it's react-native APIs that move files or
+// change shape, which `tsc` with skipLibCheck doesn't see.
 //
-// Este script arma, por cada SDK, un sandbox aparte con el react-native y el
-// react exactos de ese SDK, y corre ahí las dos verificaciones que prueban
-// algo: `tsc` contra src/ con esos tipos, y la suite de jest completa contra
-// ese runtime. Nada se instala en el workspace: los sandboxes viven en
-// node_modules/.cache/ y se reusan entre corridas (--fresh los rehace).
+// For each SDK, this script builds a separate sandbox with that SDK's exact
+// react-native and react, and runs there the two checks that prove
+// something: `tsc` against src/ with those types, and the full jest suite
+// against that runtime. Nothing is installed in the workspace: the sandboxes
+// live in node_modules/.cache/ and are reused between runs (--fresh rebuilds them).
 //
-// Uso:
-//   node scripts/compat-matrix.mjs                 # los cuatro SDK
-//   node scripts/compat-matrix.mjs --sdk 54        # uno solo (o 54,55)
-//   node scripts/compat-matrix.mjs --fresh         # reinstala los sandboxes
+// Usage:
+//   node scripts/compat-matrix.mjs                 # all four SDKs
+//   node scripts/compat-matrix.mjs --sdk 54        # just one (or 54,55)
+//   node scripts/compat-matrix.mjs --fresh         # reinstalls the sandboxes
 //   node scripts/compat-matrix.mjs --only typecheck
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -27,10 +27,10 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UI_DIR = path.resolve(__dirname, '..');
 const CACHE_DIR = path.join(UI_DIR, 'node_modules', '.cache', 'orn-ui-compat');
 
-// Versiones exactas que publica cada SDK (api.expo.dev/v2/versions/latest,
-// campos facebookReactNativeVersion / facebookReactVersion). Al mover el rango
-// de SDK soportados, esta tabla y el README son la única fuente de verdad de
-// qué promete `peerDependencies`.
+// Exact versions each SDK publishes (api.expo.dev/v2/versions/latest,
+// fields facebookReactNativeVersion / facebookReactVersion). When moving the
+// supported SDK range, this table and the README are the only source of truth
+// for what `peerDependencies` promises.
 const MATRIX = [
   { sdk: '54', reactNative: '0.81.5', react: '19.1.0', safeArea: '5.4.0' },
   { sdk: '55', reactNative: '0.83.10', react: '19.2.0', safeArea: '5.6.2' },
@@ -54,16 +54,16 @@ function parseArgs(argv) {
   const args = { sdks: null, fresh: false, only: null };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
-    // npm reenvía el separador `--` al script, pnpm 10 lo pasa como argumento
-    // literal: en los dos casos no significa nada acá.
+    // npm forwards the `--` separator to the script, pnpm 10 passes it as a
+    // literal argument: in both cases it means nothing here.
     if (arg === '--') continue;
     else if (arg === '--fresh') args.fresh = true;
     else if (arg === '--sdk') args.sdks = (argv[++i] ?? '').split(',').map((s) => s.trim());
     else if (arg === '--only') args.only = argv[++i];
-    else fail(`opción desconocida: ${arg}`);
+    else fail(`unknown option: ${arg}`);
   }
   if (args.only && !['typecheck', 'test'].includes(args.only)) {
-    fail(`--only acepta "typecheck" o "test", no "${args.only}"`);
+    fail(`--only accepts "typecheck" or "test", not "${args.only}"`);
   }
   return args;
 }
@@ -72,7 +72,7 @@ function run(command, commandArgs, cwd) {
   execFileSync(command, commandArgs, { cwd, stdio: 'inherit' });
 }
 
-/** Instala en el sandbox el conjunto exacto de paquetes de ese SDK. */
+/** Installs that SDK's exact set of packages in the sandbox. */
 function installSandbox(entry, sandbox) {
   fs.mkdirSync(sandbox, { recursive: true });
   fs.writeFileSync(
@@ -83,8 +83,8 @@ function installSandbox(entry, sandbox) {
       2
     )}\n`
   );
-  // node-linker=hoisted deja node_modules/<pkg> en rutas planas, que es lo que
-  // esperan los moduleNameMapper de jest y los `paths` de tsc de más abajo.
+  // node-linker=hoisted leaves node_modules/<pkg> at flat paths, which is what
+  // jest's moduleNameMapper and tsc's `paths` further down expect.
   fs.writeFileSync(
     path.join(sandbox, '.npmrc'),
     'node-linker=hoisted\nstrict-peer-dependencies=false\n'
@@ -105,18 +105,18 @@ function installSandbox(entry, sandbox) {
     `react-test-renderer@${entry.react}`,
     `@types/jest@${TYPES_JEST}`,
   ];
-  // @react-native/jest-preset recién se publica como paquete propio desde
-  // react-native 0.85; en 0.81–0.84 el preset viene adentro de react-native.
-  // En los dos casos `preset: <sandbox>/node_modules/react-native` resuelve
-  // react-native/jest-preset.js, que en 0.85+ es un shim al paquete nuevo.
+  // @react-native/jest-preset is only published as its own package starting
+  // with react-native 0.85; in 0.81–0.84 the preset ships inside react-native.
+  // In both cases `preset: <sandbox>/node_modules/react-native` resolves
+  // react-native/jest-preset.js, which in 0.85+ is a shim to the new package.
   if (Number(entry.reactNative.split('.')[1]) >= 85) {
     deps.push(`@react-native/jest-preset@${entry.reactNative}`);
   }
 
-  // --ignore-workspace es obligatorio, no cosmético: el sandbox cuelga de
-  // packages/ui/node_modules/.cache/, así que sin el flag pnpm sube hasta el
-  // pnpm-workspace.yaml del repo, lo adopta como importer y le mete al
-  // pnpm-lock.yaml del workspace las dependencias del SDK viejo.
+  // --ignore-workspace is required, not cosmetic: the sandbox hangs off
+  // packages/ui/node_modules/.cache/, so without the flag pnpm walks up to the
+  // repo's pnpm-workspace.yaml, adopts it as an importer and puts the old
+  // SDK's dependencies into the workspace's pnpm-lock.yaml.
   run('pnpm', ['add', '--ignore-workspace', '--ignore-scripts', ...deps], sandbox);
 }
 
@@ -126,9 +126,9 @@ function writeConfigs(sandbox) {
     "module.exports = { presets: [require.resolve('@react-native/babel-preset')] };\n"
   );
 
-  // Mismas opciones que el tsconfig.json del paquete, más `paths`: tsc resuelve
-  // desde la ubicación del archivo, y src/ vive en el repo, así que sin esto
-  // `react-native` caería en el node_modules del workspace en vez del sandbox.
+  // Same options as the package's tsconfig.json, plus `paths`: tsc resolves
+  // from the file's location, and src/ lives in the repo, so without this
+  // `react-native` would land in the workspace's node_modules instead of the sandbox.
   const tsconfig = {
     compilerOptions: {
       target: 'esnext',
@@ -159,8 +159,8 @@ function writeConfigs(sandbox) {
   };
   fs.writeFileSync(path.join(sandbox, 'tsconfig.json'), `${JSON.stringify(tsconfig, null, 2)}\n`);
 
-  // rootDir es el sandbox (así el preset de react-native resuelve sus propios
-  // 'babel-jest' y compañía desde ahí) y `roots` apunta al src/ real.
+  // rootDir is the sandbox (so the react-native preset resolves its own
+  // 'babel-jest' and friends from there) and `roots` points to the real src/.
   const jestConfig = `const path = require('node:path');
 const NM = path.join(__dirname, 'node_modules');
 const UI = ${JSON.stringify(UI_DIR)};
@@ -199,7 +199,7 @@ const entries = args.sdks
   ? args.sdks.map((sdk) => {
       const hit = MATRIX.find((m) => m.sdk === sdk);
       if (!hit) {
-        fail(`no tengo el SDK ${sdk} en la matriz (hay: ${MATRIX.map((m) => m.sdk).join(', ')})`);
+        fail(`SDK ${sdk} is not in the matrix (available: ${MATRIX.map((m) => m.sdk).join(', ')})`);
       }
       return hit;
     })
@@ -214,7 +214,7 @@ for (const entry of entries) {
 
   if (args.fresh) fs.rmSync(sandbox, { recursive: true, force: true });
   if (fs.existsSync(path.join(sandbox, 'node_modules', 'react-native'))) {
-    console.log('[compat] sandbox ya instalado, se reusa (--fresh para rehacerlo)');
+    console.log('[compat] sandbox already installed, reusing it (--fresh to rebuild it)');
   } else {
     installSandbox(entry, sandbox);
   }
@@ -241,10 +241,10 @@ for (const entry of entries) {
   }
 }
 
-console.log('\n═══ resumen ═══');
+console.log('\n═══ summary ═══');
 if (failures.length) {
   for (const failure of failures) console.error(`  ✗ ${failure}`);
   process.exit(1);
 }
 const ran = args.only ? args.only : 'typecheck y tests';
-console.log(`  ✓ ${entries.map((e) => `SDK ${e.sdk}`).join(', ')} — ${ran} en verde`);
+console.log(`  ✓ ${entries.map((e) => `SDK ${e.sdk}`).join(', ')} — ${ran} green`);

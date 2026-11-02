@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// Genera registry/*.json: catálogo instalable componente-por-componente,
-// consumido por el CLI (bin/orn-ui.mjs) y por orn-ui-docs (que lo copia a
-// public/r/ para servirlo como endpoint estático).
+// Generates registry/*.json: a component-by-component installable catalog,
+// consumed by the CLI (bin/orn-ui.mjs) and by orn-ui-docs (which copies it to
+// public/r/ to serve it as a static endpoint).
 //
-// registry/core.json      -> theme/ + icons/ completos (todo componente los necesita)
-// registry/<slug>.json    -> archivo(s) propios del componente + sus deps
-// registry/index.json     -> catálogo liviano (sin contenido) para listar/buscar
-// registry/manifest.json  -> { components: [...] } crudo de discoverComponents(),
-//                             lo reusa orn-ui-docs/scripts/extract-docs.mjs para no
-//                             mantener una segunda lista de componentes a mano.
+// registry/core.json      -> full theme/ + icons/ (every component needs them)
+// registry/<slug>.json    -> the component's own file(s) + its deps
+// registry/index.json     -> lightweight catalog (no content) for listing/searching
+// registry/manifest.json  -> raw { components: [...] } from discoverComponents(),
+//                             reused by orn-ui-docs/scripts/extract-docs.mjs so a
+//                             second component list doesn't have to be kept by hand.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,7 +46,7 @@ function buildCore() {
   return {
     name: 'core',
     type: 'core',
-    description: 'theme (UIProvider, tokens, palettes) + icons — requerido por todos los componentes.',
+    description: 'theme (UIProvider, tokens, palettes) + icons — required by every component.',
     files: files.map((f) => fileEntry(f, SRC)),
     registryDependencies: [],
     peerDependencies: { react: '>=18.0.0', 'react-native': '>=0.73.0' },
@@ -62,7 +62,7 @@ function buildComponentEntry(component, components, fileMap) {
     category: component.category,
     exportedNames: [component.name, ...component.siblingNames],
     files: internalFiles.map((f) => fileEntry(f, SRC)),
-    // "core" siempre primero: el CLI lo instala antes de escribir el resto.
+    // "core" always first: the CLI installs it before writing the rest.
     registryDependencies: ['core', ...registryDependencies],
   };
 }
@@ -95,7 +95,7 @@ function main() {
   );
   fs.writeFileSync(path.join(OUT_DIR, 'manifest.json'), JSON.stringify({ components }, null, 2));
 
-  console.log(`[build-registry] ${components.length} componentes + core -> ${path.relative(ROOT, OUT_DIR)}/`);
+  console.log(`[build-registry] ${components.length} components + core -> ${path.relative(ROOT, OUT_DIR)}/`);
 }
 
 main();

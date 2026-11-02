@@ -1,12 +1,12 @@
 #!/usr/bin/env node
-// Genera el mapa "exports" de package.json: un subpath por componente
-// (orn-ui/button) más ./theme y ./icons, para que Metro/webpack puedan
-// empaquetar solo lo importado en vez del barrel completo (orn-ui/.).
-// No reemplaza "." ni "./package.json" — la instalación completa
-// (`import { Button } from 'orn-ui'`) sigue funcionando igual que siempre.
+// Generates the package.json "exports" map: one subpath per component
+// (orn-ui/button) plus ./theme and ./icons, so Metro/webpack can bundle
+// only what is imported instead of the full barrel (orn-ui/.).
+// It doesn't replace "." or "./package.json" — the full install
+// (`import { Button } from 'orn-ui'`) keeps working just as always.
 //
-// Corre en `prepare` (antes de `bob build`) y en CI, donde `--check` falla
-// si el package.json committeado quedó desactualizado respecto a src/.
+// Runs in `prepare` (before `bob build`) and in CI, where `--check` fails
+// if the committed package.json is out of date with respect to src/.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -35,9 +35,9 @@ function buildExports() {
     },
   };
 
-  // Un subpath por slug de componente (incluye siblings del mismo archivo
-  // bajo su propio nombre: Title/Subtitle/Body/Caption todas apuntan a
-  // Text.tsx, cada una con su propio subpath por legibilidad del import).
+  // One subpath per component slug (includes siblings from the same file
+  // under their own name: Title/Subtitle/Body/Caption all point to
+  // Text.tsx, each with its own subpath for import readability).
   const seen = new Set();
   for (const c of components) {
     const withoutExt = c.file.replace(/\.tsx?$/, '');
@@ -51,19 +51,19 @@ function buildExports() {
 
   exportsMap['./theme'] = subpathEntry('theme/index.ts', 'theme/index');
   exportsMap['./icons'] = subpathEntry('icons/index.ts', 'icons/index');
-  // Deprecado: SafeAreaUIProvider es ahora un alias de UIProvider, que mide
-  // los insets solo. Se mantiene el subpath para no romper imports existentes.
+  // Deprecated: SafeAreaUIProvider is now an alias of UIProvider, which
+  // measures the insets itself. The subpath is kept so existing imports don't break.
   exportsMap['./safe-area'] = subpathEntry('safe-area/index.ts', 'safe-area/index');
   exportsMap['./package.json'] = './package.json';
 
   return exportsMap;
 }
 
-/** Reemplaza solo el bloque "exports": {...} del texto crudo del package.json,
- * preservando byte a byte el resto del archivo (orden de claves, formato). */
+/** Replaces only the "exports": {...} block in package.json's raw text,
+ * preserving the rest of the file byte for byte (key order, formatting). */
 function spliceExports(source, newExportsValue) {
   const keyMatch = /"exports"\s*:\s*/.exec(source);
-  if (!keyMatch) throw new Error('package.json no tiene un campo "exports" existente.');
+  if (!keyMatch) throw new Error('package.json has no existing "exports" field.');
   const braceStart = source.indexOf('{', keyMatch.index);
 
   let depth = 0;
@@ -87,7 +87,7 @@ function spliceExports(source, newExportsValue) {
 
   const newBlock = JSON.stringify(newExportsValue, null, 2)
     .split('\n')
-    .join('\n  '); // indentar dos espacios extra: vive dentro del objeto raíz
+    .join('\n  '); // indent two extra spaces: it lives inside the root object
 
   return source.slice(0, braceStart) + newBlock + source.slice(braceEnd + 1);
 }
@@ -100,16 +100,16 @@ function main() {
   if (check) {
     if (generated !== original) {
       console.error(
-        '[gen-exports] package.json "exports" está desactualizado respecto a src/. Corre `pnpm --filter orn-ui gen:exports`.'
+        '[gen-exports] package.json "exports" is out of date with respect to src/. Run `pnpm --filter orn-ui gen:exports`.'
       );
       process.exit(1);
     }
-    console.log('[gen-exports] exports map al día.');
+    console.log('[gen-exports] exports map up to date.');
     return;
   }
 
   fs.writeFileSync(PKG_PATH, generated);
-  console.log('[gen-exports] package.json "exports" actualizado.');
+  console.log('[gen-exports] package.json "exports" updated.');
 }
 
 main();

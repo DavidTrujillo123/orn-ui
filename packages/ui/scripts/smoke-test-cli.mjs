@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// Smoke test end-to-end del CLI: instala TODO el catálogo (--all) dentro de
-// apps/example (que ya tiene react/react-native/@types instalados en el
-// workspace) y corre tsc real contra el árbol resultante. No es un mock del
-// registry ni de la resolución de módulos — es exactamente lo que un
-// consumidor haría con `npx orn-ui add --all`.
+// End-to-end smoke test of the CLI: installs the WHOLE catalog (--all) into
+// apps/example (which already has react/react-native/@types installed in the
+// workspace) and runs real tsc against the resulting tree. It isn't a mock of
+// the registry or of module resolution — it's exactly what a consumer would
+// do with `npx orn-ui add --all`.
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -32,12 +32,12 @@ try {
   run('node', [bin, 'init', '--cwd', EXAMPLE_ROOT, '--path', SMOKE_DIR_NAME, '--force'], EXAMPLE_ROOT);
   run('node', [bin, 'add', '--all', '--cwd', EXAMPLE_ROOT, '--path', SMOKE_DIR_NAME], EXAMPLE_ROOT);
 
-  console.log('[smoke-test-cli] tsc --noEmit sobre apps/example (incluye el árbol instalado) ...');
-  // .bin/tsc es un shell shim (shebang), no un módulo JS: se ejecuta
-  // directamente, no via `node <path>` (eso intenta parsearlo como JS).
+  console.log('[smoke-test-cli] tsc --noEmit on apps/example (includes the installed tree) ...');
+  // .bin/tsc is a shell shim (shebang), not a JS module: it is executed
+  // directly, not via `node <path>` (that tries to parse it as JS).
   run(path.join(EXAMPLE_ROOT, 'node_modules', '.bin', 'tsc'), ['--noEmit'], EXAMPLE_ROOT);
 
-  console.log('[smoke-test-cli] OK — el catálogo completo instalado por el CLI typechequea limpio.');
+  console.log('[smoke-test-cli] OK — the full catalog installed by the CLI typechecks cleanly.');
 } finally {
   cleanup();
 }

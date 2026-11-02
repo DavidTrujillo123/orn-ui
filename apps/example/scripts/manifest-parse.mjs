@@ -1,10 +1,10 @@
-// Lectura de los manifests de demos como texto plano, compartida por los dos
-// generadores de flows (humo y clips de doc).
+// Reads the demo manifests as plain text, shared by both flow generators
+// (smoke and docs clips).
 //
-// No importa manifest.ts: es TS, y los generadores corren con node pelado
-// desde un script de package.json. Los manifests son arrays de objetos
-// literales chatos, así que alcanza con trackear profundidad de llaves para
-// separar entradas, sin arrastrar un parser de TS a un `prepare`/CI step.
+// It doesn't import manifest.ts: it's TS, and the generators run with bare
+// node from a package.json script. The manifests are arrays of flat literal
+// objects, so tracking brace depth is enough to split entries, without
+// dragging a TS parser into a `prepare`/CI step.
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -15,15 +15,15 @@ export const SOURCES = [
   { file: 'demos/examples/manifest.ts', exportName: 'EXAMPLES', basePath: 'examples' },
 ];
 
-/** Extrae el texto entre `export const NAME: DemoEntry[] = [` y su `]` de cierre. */
+/** Extracts the text between `export const NAME: DemoEntry[] = [` and its closing `]`. */
 export function extractArrayLiteral(source, exportName) {
   const marker = `export const ${exportName}`;
   const start = source.indexOf(marker);
-  if (start === -1) throw new Error(`No se encontró "${marker}"`);
-  // Busca el "= [" del literal, no el "[]" de la anotación `DemoEntry[]` que
-  // aparece antes en la misma línea.
+  if (start === -1) throw new Error(`"${marker}" not found`);
+  // Looks for the literal's "= [", not the "[]" of the `DemoEntry[]`
+  // annotation that appears earlier on the same line.
   const assign = source.indexOf('= [', start);
-  if (assign === -1) throw new Error(`No se encontró "= [" para "${marker}"`);
+  if (assign === -1) throw new Error(`"= [" not found for "${marker}"`);
   const open = assign + 2;
   let depth = 0;
   for (let i = open; i < source.length; i++) {
@@ -33,10 +33,10 @@ export function extractArrayLiteral(source, exportName) {
       if (depth === 0) return source.slice(open + 1, i);
     }
   }
-  throw new Error(`Array "${exportName}" sin cerrar`);
+  throw new Error(`Array "${exportName}" is not closed`);
 }
 
-/** Divide el contenido del array en los objetos top-level `{ ... }`, trackeando profundidad. */
+/** Splits the array's content into top-level `{ ... }` objects, tracking depth. */
 export function splitObjects(arrayBody) {
   const objects = [];
   let depth = 0;
@@ -69,15 +69,15 @@ export function parseManifest(root, { file, exportName, basePath }) {
   return splitObjects(arrayBody).map((obj) => {
     const slug = field(obj, 'slug');
     const name = field(obj, 'name');
-    if (!slug || !name) throw new Error(`Entrada sin slug/name en ${exportName}: ${obj.slice(0, 80)}`);
+    if (!slug || !name) throw new Error(`Entry without slug/name in ${exportName}: ${obj.slice(0, 80)}`);
     const hostsList = boolField(obj, 'hostsList');
     const freeScroll = boolField(obj, 'freeScroll');
-    // VariantList pagina sólo cuando el demo no hostea su propia lista/scroll
-    // libre — mismo criterio que ComponentDetailScreen usa para decidir el
-    // contenedor (ver manifest.ts, comentario de DemoEntry.freeScroll).
+    // VariantList only pages when the demo doesn't host its own list/free
+    // scroll — the same criterion ComponentDetailScreen uses to decide the
+    // container (see manifest.ts, the comment on DemoEntry.freeScroll).
     const paged = !hostsList && !freeScroll;
-    // El identificador del componente (`Demo: ButtonDemo`), para resolver de
-    // qué archivo salen sus variantes.
+    // The component's identifier (`Demo: ButtonDemo`), to resolve which file
+    // its variants come from.
     const demoIdent = obj.match(/Demo:\s*([A-Za-z0-9_]+)/)?.[1];
     return { slug, name, basePath, paged, hostsList, freeScroll, demoIdent, source: file };
   });
@@ -88,12 +88,12 @@ export function parseAllManifests(root) {
 }
 
 /**
- * Cuenta las variantes que el demo le pasa a VariantList, leyendo el `.tsx`
- * del componente. Es lo que decide cuántas veces el clip tiene que paginar:
- * el manifest no lo sabe, la lista vive en el propio demo.
+ * Counts the variants the demo passes to VariantList, by reading the
+ * component's `.tsx`. It's what decides how many times the clip has to page:
+ * the manifest doesn't know it, the list lives in the demo itself.
  *
- * Devuelve `null` cuando el demo no arma un `VariantDef[]` (los ejemplos son
- * pantallas completas, no catálogos).
+ * Returns `null` when the demo doesn't build a `VariantDef[]` (the examples
+ * are full screens, not catalogs).
  */
 export function variantLabels(root, entry) {
   const importSource = entry.source === 'demos/examples/manifest.ts' ? 'demos/examples/manifest.ts' : 'demos/manifest.ts';

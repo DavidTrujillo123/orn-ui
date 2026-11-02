@@ -1,8 +1,8 @@
-// Resuelve, para un componente, qué necesita para funcionar aislado:
-// - `core: true` siempre (theme/ + icons/ — todo componente los usa,
-//   directa o transitivamente, ver theme/UIProvider.tsx).
-// - `registryDependencies`: otros componentes del registry de los que
-//   depende (p.ej. Wizard -> Steps, Button).
+// Resolves, for a component, what it needs to work in isolation:
+// - `core: true` always (theme/ + icons/ — every component uses them,
+//   directly or transitively, see theme/UIProvider.tsx).
+// - `registryDependencies`: other registry components it depends on
+//   (e.g. Wizard -> Steps, Button).
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -18,8 +18,8 @@ function resolveSpecifier(fromFile, specifier, srcDir) {
 }
 
 /**
- * `components`: salida de discoverComponents(). `fileMap`: fileToComponent(components).
- * Devuelve { registryDependencies: string[] (slugs, sin duplicados), core: true }.
+ * `components`: output of discoverComponents(). `fileMap`: fileToComponent(components).
+ * Returns { registryDependencies: string[] (slugs, no duplicates), core: true }.
  */
 export function resolveDeps(component, components, fileMap, srcDir) {
   const registryDeps = new Set();
@@ -39,14 +39,14 @@ export function resolveDeps(component, components, fileMap, srcDir) {
       if (!resolved) continue;
 
       if (resolved.startsWith('theme/') || resolved.startsWith('icons/')) {
-        // Parte de core, no de un componente individual: no recorrer más
-        // adentro de theme/icons, ya viene completo con el paquete `core`.
+        // Part of core, not of an individual component: don't walk any further
+        // into theme/icons, it already comes complete with the `core` package.
         continue;
       }
 
       const owner = fileMap.get(resolved);
       if (!owner) {
-        // Archivo helper interno no registrado como componente propio (ej. organisms/imperativeBridge.ts)
+        // Internal helper file not registered as a component of its own (e.g. organisms/imperativeBridge.ts)
         internalFiles.add(resolved);
         visit(resolved);
         continue;
