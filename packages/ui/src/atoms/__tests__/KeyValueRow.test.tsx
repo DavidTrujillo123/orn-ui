@@ -32,4 +32,33 @@ describe('KeyValueRow', () => {
     );
     expect(screen.getByTestId('custom-label')).toBeOnTheScreen();
   });
+
+  it('both sides shrink so a long value wraps instead of overflowing', () => {
+    render(
+      <UIProvider mode="light">
+        <KeyValueRow label="Address" value="1600 Amphitheatre Parkway, Mountain View, CA" />
+      </UIProvider>
+    );
+    expect(screen.getByText('Address')).toHaveStyle({ flexShrink: 0, maxWidth: '50%' });
+    expect(screen.getByText('1600 Amphitheatre Parkway, Mountain View, CA')).toHaveStyle({
+      flexShrink: 1,
+      fontVariant: ['tabular-nums'],
+    });
+  });
+
+  it('text label and value read as one element; a custom node keeps its own', () => {
+    const { rerender } = render(
+      <UIProvider mode="light">
+        <KeyValueRow label="Subtotal" value="$300.00" testID="row" />
+      </UIProvider>
+    );
+    expect(screen.getByTestId('row')).toHaveProp('accessible', true);
+
+    rerender(
+      <UIProvider mode="light">
+        <KeyValueRow label="Status" value={<Text>PAID</Text>} testID="row" />
+      </UIProvider>
+    );
+    expect(screen.getByTestId('row')).not.toHaveProp('accessible', true);
+  });
 });
