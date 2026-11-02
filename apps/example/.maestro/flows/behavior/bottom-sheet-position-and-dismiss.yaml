@@ -1,16 +1,15 @@
-# Regresión específica: un SafeAreaProvider de medición que envolvía el
-# contenido en vez de flotar aparte mandó la hoja arriba de la pantalla en vez
-# de anclarla abajo (ver commit "fix: prevent SafeAreaProvider from affecting
-# BottomSheet layout"). Un assertVisible por texto no la hubiera atrapado: el
-# texto estaba visible igual, sólo que en el lugar equivocado.
+# Specific regression: a measuring SafeAreaProvider that wrapped the content
+# instead of floating apart sent the sheet to the top of the screen instead
+# of anchoring it at the bottom (see commit "fix: prevent SafeAreaProvider
+# from affecting BottomSheet layout"). An assertVisible by text wouldn't have
+# caught it: the text was visible all the same, just in the wrong place.
 #
-# El `below: { point: "50%,50%" }` compara contra el punto medio de la
-# pantalla, no contra otro elemento de texto: un <Modal> nativo de iOS aísla
-# su ventana del árbol de accesibilidad del resto de la app mientras está
-# abierto (confirmado en vivo — la descripción del demo, en la pantalla de
-# atrás, deja de existir para Maestro apenas el backdrop sube), así que
-# cualquier ancla "afuera" del modal es inalcanzable. El punto medio sí vive
-# en la misma ventana que la hoja.
+# The `below: { point: "50%,50%" }` compares against the screen's midpoint,
+# not against another text element: a native iOS <Modal> isolates its window
+# from the rest of the app's accessibility tree while open (confirmed live —
+# the demo's description, on the screen behind, stops existing for Maestro as
+# soon as the backdrop rises), so any anchor "outside" the modal is
+# unreachable. The midpoint does live in the same window as the sheet.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -29,11 +28,11 @@ tags:
     below:
       point: "50%,50%"
 
-# Arrastrar el handle hacia abajo tiene que cerrar la hoja. Coordenadas
-# explícitas, no `direction: DOWN` con distancia por defecto: en esta
-# variante (contenido corto) el handle ya vive cerca del borde inferior —
-# la única forma de garantizar los >100pt de DISMISS_THRESHOLD es arrancar
-# arriba del todo del hit area del handle y soltar en el borde de la pantalla.
+# Dragging the handle down has to close the sheet. Explicit coordinates, not
+# `direction: DOWN` with the default distance: in this variant (short
+# content) the handle already lives near the bottom edge — the only way to
+# guarantee DISMISS_THRESHOLD's >100pt is to start at the very top of the
+# handle's hit area and release at the edge of the screen.
 - swipe:
     start: "50%,86%"
     end: "50%,100%"
@@ -41,12 +40,12 @@ tags:
 - assertNotVisible:
     id: "bottom-sheet-handle"
 
-# Cerrar tocando el backdrop, el otro camino de cierre — relanzando la app en
-# vez de reabrir la hoja sobre la misma pantalla: XCUITest reusa por un
-# instante la referencia vieja de un testID que acaba de desmontarse (visto en
-# vivo: el handle se ve perfecto en la captura y aun así "no encontrado"), y
-# un relanzamiento evita pelear con esa referencia stale del driver en vez de
-# con el componente.
+# Close by tapping the backdrop, the other way to close — relaunching the app
+# instead of reopening the sheet on the same screen: XCUITest briefly reuses
+# the stale reference of a testID that was just unmounted (seen live: the
+# handle looks perfect in the screenshot and still "not found"), and a
+# relaunch avoids fighting with that stale driver reference instead of with
+# the component.
 - runFlow:
     file: ../../subflows/open-demo.yaml
     env:

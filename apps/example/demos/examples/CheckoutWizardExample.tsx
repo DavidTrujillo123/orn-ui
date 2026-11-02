@@ -16,17 +16,17 @@ import {
 
 const SHIPPING_COST = 12;
 
-// Fuera del render: `new Date()` adentro devuelve un objeto distinto en cada
-// pasada, y DateField recibe un `minDate` nuevo cada vez que se tipea en
-// cualquier campo del wizard.
+// Outside render: `new Date()` inside returns a different object on each
+// pass, and DateField gets a new `minDate` every time you type in any field
+// of the wizard.
 const TODAY = new Date();
 const IN_TWO_MONTHS = new Date(TODAY.getFullYear(), TODAY.getMonth() + 2, TODAY.getDate());
 
 /**
  * CheckoutWizardExample
- * Checkout de 4 pasos que ata Wizard + Steps con validación real por paso:
- * cada `canGoNext` refleja el estado del formulario, así que Next queda
- * bloqueado hasta completar el paso. Al terminar dispara un Toast.
+ * 4-step checkout that ties Wizard + Steps together with real per-step
+ * validation: each `canGoNext` reflects the form's state, so Next stays
+ * blocked until the step is complete. Fires a Toast when finished.
  */
 export function CheckoutWizardExample() {
   const { show } = useToast();

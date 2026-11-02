@@ -1,14 +1,14 @@
-# Recorre las seis variantes del demo, una por página del pager.
+# Walks through the demo's six variants, one per pager page.
 #
-# Lo que un render test no puede ver: ShinyText no renderiza un <Text>, sino
-# dos nodos por letra dentro de un View con `accessible`. Jest confirma el prop
-# `accessibilityLabel`; sólo el dispositivo confirma que el sistema fusiona
-# esos nodos en uno y que la frase sigue siendo un string buscable — si la
-# fusión no ocurriera, Maestro vería "D", "e", "f"... y no el texto.
+# What a render test can't see: ShinyText doesn't render a <Text>, but two
+# nodes per letter inside a View with `accessible`. Jest confirms the
+# `accessibilityLabel` prop; only the device confirms the system merges those
+# nodes into one and that the phrase is still a searchable string — if the
+# merge didn't happen, Maestro would see "D", "e", "f"... and not the text.
 #
-# Cada variante tiene un texto propio justamente para esto: con dos páginas
-# diciendo lo mismo, un swipe que se queda corto pasaría desapercibido porque
-# el assert seguiría encontrando el texto de la página anterior.
+# Each variant has its own text precisely for this: with two pages saying the
+# same thing, a swipe that falls short would go unnoticed because the assert
+# would keep finding the previous page's text.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -21,25 +21,25 @@ tags:
       SLUG: "shiny-text"
       TITLE: "ShinyText"
 
-# 1 — los dos pares de color conviven en la misma página.
+# 1 — both color pairs coexist on the same page.
 - assertVisible: "Default pair"
 - assertVisible: "Maximum contrast"
 
-# El barrido es un loop infinito: waitForAnimationToEnd no sirve de ancla acá.
-# Que el texto siga visible después de un ciclo completo (2400ms + 600 de
-# pausa) prueba que ninguna letra se queda en opacidad 0 entre vueltas.
+# The sweep is an infinite loop: waitForAnimationToEnd is no use as an anchor here.
+# The text still being visible after a full cycle (2400ms + 600 of pause)
+# proves no letter gets stuck at opacity 0 between rounds.
 - extendedWaitUntil:
     visible: "Default pair"
     timeout: 4000
 
-# 2 — wrap por palabra: la frase larga tiene que aparecer entera.
+# 2 — word wrap: the long phrase has to appear in full.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 - assertVisible: "A headline long enough to wrap onto more than one line"
 
-# 3 — spread angosto y ancho, dos instancias animando a la vez.
+# 3 — narrow and wide spread, two instances animating at once.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -47,7 +47,7 @@ tags:
 - assertVisible: "Narrow glint"
 - assertVisible: "Soft wide wave"
 
-# 4 — duration 4000 / delay 1200: el ciclo más lento del demo.
+# 4 — duration 4000 / delay 1200: the slowest cycle in the demo.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -57,14 +57,14 @@ tags:
     visible: "Taking its time"
     timeout: 6000
 
-# 5 — animated={false}: un solo <Text> plano, no el árbol por letra.
+# 5 — animated={false}: a single flat <Text>, not the per-letter tree.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 - assertVisible: "No sweep at all"
 
-# 6 — dentro de un Card, con el acento de marca.
+# 6 — inside a Card, with the brand accent.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:

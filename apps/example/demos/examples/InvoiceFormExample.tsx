@@ -27,10 +27,10 @@ const TAX_RATE = 0.15;
 
 /**
  * InvoiceFormExample
- * Flujo real de "nueva factura": botón que abre un BottomSheet con un form
- * completo — AvatarHeader + Input + Stepper + Select +
- * Checkbox + KeyValueRow calculado + FormActions — y confirma con Alert
- * imperativo al guardar. Combina 9 componentes de las tres capas.
+ * A real "new invoice" flow: a button that opens a BottomSheet with a full
+ * form — AvatarHeader + Input + Stepper + Select +
+ * Checkbox + computed KeyValueRow + FormActions — and confirms with an
+ * imperative Alert on save. Combines 9 components from the three layers.
  */
 export function InvoiceFormExample() {
   const { alert } = useAlert();
@@ -41,9 +41,9 @@ export function InvoiceFormExample() {
   const [payment, setPayment] = useState<string | undefined>('card');
   const [markPaid, setMarkPaid] = useState(false);
 
-  // Number('') es 0 pero Number('12.5.5') es NaN, y el teclado numérico de
-  // Android deja escribir varios puntos: sin este guard el total se mostraba
-  // como "$NaN" en cuanto el precio quedaba a medio tipear.
+  // Number('') is 0 but Number('12.5.5') is NaN, and Android's numeric
+  // keyboard lets you type several dots: without this guard the total showed
+  // as "$NaN" as soon as the price was half-typed.
   const toAmount = (raw: string) => {
     const n = Number(raw);
     return Number.isFinite(n) && n >= 0 ? n : 0;

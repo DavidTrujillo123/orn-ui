@@ -3,8 +3,8 @@ import { View } from 'react-native';
 import { Body, Card, Caption, Subtitle, Transition, type TransitionPreset } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-// Los demos se animan solos, sin botones: una transición se entiende viéndola
-// moverse, y así también se puede grabar para la docs.
+// The demos animate on their own, without buttons: a transition is understood
+// by watching it move, and this way it can also be recorded for the docs.
 const AUTO_TOGGLE_MS = 1600;
 const AUTO_REPLAY_MS = 3000;
 const AUTO_REMOVE_MS = 900;
@@ -61,7 +61,7 @@ function ExitBeforeUnmount() {
       const id = setTimeout(() => setItems(ROWS), AUTO_REMOVE_MS);
       return () => clearTimeout(id);
     }
-    // Va sacando la primera fila: cada una sale animada antes de desmontarse.
+    // Keeps removing the first row: each one exits animated before unmounting.
     if (removing) return;
     const id = setTimeout(() => setRemoving(items[0]!), AUTO_REMOVE_MS);
     return () => clearTimeout(id);

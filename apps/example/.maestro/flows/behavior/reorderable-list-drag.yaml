@@ -1,11 +1,11 @@
-# Regresión específica: en iOS el UIScrollView del pager que envuelve al demo
-# le robaba el gesto a la fila apenas el arrastre vertical arrancaba, y el
-# drag moría a los pocos píxeles en vez de reordenar (ver commit del fix de
-# ReorderableList en iOS: onPanResponderTerminationRequest + onDragStart/End
-# para bloquear el scroll padre). Si esa negociación de responder se rompe,
-# arrastrar "Design review" hacia abajo mueve la *página* del pager en vez de
-# la fila, y el orden de abajo no cambia — que es justo lo que esta aserción
-# de posición relativa detecta.
+# Specific regression: on iOS the UIScrollView of the pager wrapping the demo
+# stole the gesture from the row as soon as the vertical drag started, and
+# the drag died after a few pixels instead of reordering (see the commit with
+# the ReorderableList iOS fix: onPanResponderTerminationRequest +
+# onDragStart/End to block the parent scroll). If that responder negotiation
+# breaks, dragging "Design review" down moves the pager's *page* instead of
+# the row, and the order below doesn't change — which is exactly what this
+# relative position assertion detects.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -29,8 +29,8 @@ tags:
     direction: DOWN
     duration: 600
 
-# Si el drag ganó (y no el scroll del pager), "Design review" bajó al menos
-# una fila.
+# If the drag won (and not the pager's scroll), "Design review" moved down at
+# least one row.
 - assertVisible:
     text: "Design review"
     below: "Write tests"

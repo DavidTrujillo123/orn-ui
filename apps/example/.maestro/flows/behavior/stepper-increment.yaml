@@ -1,5 +1,5 @@
-# Primer variant nomás (Stepper único): las otras variantes apilan 2-3
-# Steppers a la vez y "Increment"/"Decrement" dejarían de ser un match único.
+# First variant only (a single Stepper): the other variants stack 2-3
+# Steppers at once and "Increment"/"Decrement" would stop being a unique match.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior

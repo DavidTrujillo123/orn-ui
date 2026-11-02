@@ -1,21 +1,21 @@
-# Lo que un render test no puede ver: la rueda es un ScrollView anidado adentro
-# del pager vertical de VariantList, o sea dos scrolls verticales compitiendo
-# por el mismo gesto. Jest dispara `momentumScrollEnd` a mano y nunca prueba
-# que el dedo llegue a la rueda en vez de pasar la página. Tampoco ve el snap:
-# en jsdom no hay inercia, así que "soltar entre dos filas termina con una
-# centrada" sólo se puede afirmar acá.
+# What a render test can't see: the wheel is a ScrollView nested inside
+# VariantList's vertical pager, i.e. two vertical scrolls competing for the
+# same gesture. Jest fires `momentumScrollEnd` by hand and never proves the
+# finger reaches the wheel instead of turning the page. It doesn't see the
+# snap either: in jsdom there is no momentum, so "releasing between two rows
+# ends with one centered" can only be asserted here.
 #
-# Cada swipe de rueda sale de `from: { id: ... }` y no de coordenadas fijas:
-# las siete variantes tienen la rueda a distinta altura (una es compacta, otra
-# vive adentro de un Card con título encima), y un 52%→44% que sirve para la
-# primera cae afuera en las demás.
+# Each wheel swipe starts from `from: { id: ... }` and not from fixed
+# coordinates: the seven variants have the wheel at different heights (one is
+# compact, another lives inside a Card with a title above), and a 52%→44%
+# that works for the first lands outside in the others.
 #
-# Los asserts miran el eco que cada variante imprime debajo ("Picked:",
-# "Flat pick:", "Bag:"), no la fila centrada: el texto de la fila está igual de
-# visible esté elegida o no, así que sólo el eco prueba que el gesto movió la
-# selección. Y después de cada swipe se vuelve a afirmar un ancla de la propia
-# variante, porque si el pager se quedara con el gesto y pasara de página el
-# eco viejo también desaparecería y el assertNotVisible pasaría de prepo.
+# The asserts look at the echo each variant prints below ("Picked:",
+# "Flat pick:", "Bag:"), not at the centered row: the row's text is equally
+# visible whether it's selected or not, so only the echo proves the gesture
+# moved the selection. And after each swipe an anchor of the variant itself is
+# asserted again, because if the pager took the gesture and turned the page,
+# the old echo would also disappear and the assertNotVisible would pass by default.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -28,7 +28,7 @@ tags:
       SLUG: "option-wheel"
       TITLE: "OptionWheel"
 
-# 1 — arranca centrada en Medium y el gesto la mueve.
+# 1 — starts centered on Medium and the gesture moves it.
 - assertVisible: "Picked: Medium"
 - swipe:
     from:
@@ -38,10 +38,10 @@ tags:
 - assertVisible: "Size"
 - assertNotVisible: "Picked: Medium"
 
-# 2 — Small y Wide están deshabilitadas: la rueda no puede quedarse en ninguna
-# de las dos, se corra lo que se corra. Las etiquetas de esta variante no
-# comparten prefijo justamente por esto: con 'Large' y 'X-Large' el
-# assertNotVisible encuentra la una adentro de la otra y nunca falla.
+# 2 — Small and Wide are disabled: the wheel can't stay on either of them, no
+# matter how far it moves. This variant's labels don't share a prefix
+# precisely because of this: with 'Large' and 'X-Large' the
+# assertNotVisible finds one inside the other and never fails.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -56,7 +56,7 @@ tags:
 - assertNotVisible: "Picked: Small"
 - assertNotVisible: "Picked: Wide"
 
-# 3 — rueda compacta con unidad.
+# 3 — compact wheel with a unit.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -70,7 +70,7 @@ tags:
 - assertVisible: "Remind me in"
 - assertNotVisible: "Reminder in 15 minutes"
 
-# 4 — sin inclinación: el gesto tiene que moverla igual.
+# 4 — no tilt: the gesture still has to move it.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -84,14 +84,14 @@ tags:
 - assertVisible: "No tilt"
 - assertNotVisible: "Flat pick: Large"
 
-# 5 — deshabilitada: el mismo gesto que mueve a las demás no la mueve.
+# 5 — disabled: the same gesture that moves the others doesn't move it.
 #
-# Acá el swipe va corto y por coordenadas, no `from: { id: ... }` como en las
-# otras seis. Con `scrollEnabled` en false el gesto no muere en la rueda: se lo
-# lleva el pager, y encima con retardo. Un swipe largo pasaba de página después
-# de que el assert siguiente ya hubiera pasado, y el flow terminaba dos
-# variantes más adelante sin que nada fallara en el momento. Corto no le
-# alcanza el impulso.
+# Here the swipe is short and by coordinates, not `from: { id: ... }` as in
+# the other six. With `scrollEnabled` false the gesture doesn't die in the
+# wheel: the pager takes it, and with a delay on top of that. A long swipe
+# turned the page after the next assert had already passed, and the flow ended
+# up two variants further along without anything failing at the time. A short
+# one doesn't have enough momentum.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -104,7 +104,7 @@ tags:
 - waitForAnimationToEnd
 - assertVisible: "Locked on: Medium"
 
-# 6 — adentro de un Card.
+# 6 — inside a Card.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -119,9 +119,9 @@ tags:
 - assertVisible: "Ships free over 2 kg"
 - assertNotVisible: "Bag: Small"
 
-# 7 — spotlight adentro de un disco: sin banda, la fila nítida es la elegida.
-# El color y la forma los pone el demo, no la rueda. Se mueve igual que las
-# demás.
+# 7 — spotlight inside a disc: no band, the sharp row is the selected one.
+# The color and shape come from the demo, not the wheel. It moves just like
+# the others.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:

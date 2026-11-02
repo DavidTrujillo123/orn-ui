@@ -1,14 +1,14 @@
-# SignInExample es el único demo que ejercita el camino de error de un form
-# real: valida en submit (no en cada tecla), y separa el error de campo (bajo
-# el Input) del error de credenciales (Alert). Un smoke genérico sólo abre la
-# pantalla — no escribe nada ni confirma que validate()/handleSubmit realmente
-# bloqueen o dejen pasar.
+# SignInExample is the only demo that exercises a real form's error path: it
+# validates on submit (not on every keystroke), and separates the field error
+# (below the Input) from the credentials error (Alert). A generic smoke test
+# only opens the screen — it doesn't type anything or confirm that
+# validate()/handleSubmit actually block or let through.
 #
-# No se prueba el camino de credenciales incorrectas (Alert) acá: mismo
-# problema que documenta alert-confirm.yaml — el botón del Alert queda en un
-# único nodo de accesibilidad fusionado con el backdrop, no hay selector
-# estable por texto. El camino de validación de campo + éxito ya cubre la
-# integración real (Input <-> estado <-> Button loading) sin esa fragilidad.
+# The wrong-credentials path (Alert) isn't tested here: same problem
+# alert-confirm.yaml documents — the Alert's button ends up in a single
+# accessibility node merged with the backdrop, there's no stable selector by
+# text. The field validation + success path already covers the real
+# integration (Input <-> state <-> Button loading) without that fragility.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -21,27 +21,27 @@ tags:
       SLUG: "sign-in"
       TITLE: "Sign in"
 
-# El texto "Sign in" aparece 3 veces (título del demo, Title de la card y el
-# Button) — confirmado en vivo: tapOn sin desambiguar tocó el título, no el
-# botón, y nunca disparó submit. El Button es el único "Sign in" debajo del
-# checkbox.
+# The text "Sign in" appears 3 times (the demo's title, the card's Title and
+# the Button) — confirmed live: tapOn without disambiguation tapped the title,
+# not the button, and never fired submit. The Button is the only "Sign in"
+# below the checkbox.
 #
-# Submit vacío: validate() corta antes de setSubmitting — sin loading, ambos
-# errores de campo aparecen.
+# Empty submit: validate() stops before setSubmitting — no loading, both
+# field errors appear.
 - tapOn:
     text: "Sign in"
     below: "Keep me signed in"
 - assertVisible: "Enter a valid email address"
 - assertVisible: "At least 6 characters"
 
-# Credenciales válidas (VALID en SignInExample.tsx): setSubmitting -> 1200ms
-# de loading en el Button -> pantalla de éxito.
+# Valid credentials (VALID in SignInExample.tsx): setSubmitting -> 1200ms
+# of loading on the Button -> success screen.
 - tapOn: "you@example.com"
 - inputText: "acme@studio.com"
-# Password no fuerza keyboardType (isPassword sólo activa secureTextEntry) —
-# mismo problema que el Input de email en wizard-step-validation.yaml:
-# hideKeyboard falla ahí a veces ("no dismiss action"). pressKey Enter en su
-# lugar (confirmado en vivo).
+# Password doesn't force keyboardType (isPassword only enables secureTextEntry) —
+# same problem as the email Input in wizard-step-validation.yaml:
+# hideKeyboard sometimes fails there ("no dismiss action"). pressKey Enter
+# instead (confirmed live).
 - tapOn: "••••••"
 - inputText: "orn-ui"
 - pressKey: Enter
@@ -49,17 +49,17 @@ tags:
     text: "Sign in"
     below: "Keep me signed in"
 
-# waitForAnimationToEnd cubre el loading del Button (1200ms simulados en
-# handleSubmit) antes de mirar nada.
+# waitForAnimationToEnd covers the Button's loading (1200ms simulated in
+# handleSubmit) before looking at anything.
 - waitForAnimationToEnd
 
-# El simulador de iOS ofrece guardar la contraseña en Keychain apenas el
-# submit resuelve bien — un diálogo del sistema, no de la app, tapa "You are
-# in" (confirmado en vivo). Hay que sacarlo ANTES de mirar el texto de
-# éxito, si no extendedWaitUntil agota el timeout con el diálogo tapando
-# todo. "Ahora no"/"Not Now" según locale del simulador; cada bloque es
-# opcional (when: visible) porque en un simulador con Keychain desactivado
-# nunca aparece.
+# The iOS simulator offers to save the password to Keychain as soon as the
+# submit succeeds — a system dialog, not the app's, covers "You are in"
+# (confirmed live). It has to be dismissed BEFORE looking at the success
+# text, otherwise extendedWaitUntil runs out the timeout with the dialog
+# covering everything. "Ahora no"/"Not Now" depending on the simulator's
+# locale; each block is optional (when: visible) because on a simulator with
+# Keychain disabled it never shows up.
 - runFlow:
     when:
       visible: "Ahora no"
@@ -73,10 +73,10 @@ tags:
 
 - assertVisible: "You are in"
 
-# "Keep me signed in" queda tildado por default (value=true) — el copy de
-# éxito depende de ese estado, no es fijo.
+# "Keep me signed in" is checked by default (value=true) — the success copy
+# depends on that state, it isn't fixed.
 - assertVisible: "This device will stay signed in."
 
-# Sign out vuelve al form y limpia la contraseña (no la deja en memoria).
+# Sign out returns to the form and clears the password (doesn't keep it in memory).
 - tapOn: "Sign out"
 - assertVisible: "you@example.com"

@@ -61,8 +61,8 @@ export function NavigationBarDemo() {
       content: <ControlledBar position="top" />,
     },
     {
-      // El indicador vive fuera del safe area: con el inset dentro del padding
-      // de la barra, antes se estiraba hasta el borde de la pantalla.
+      // The indicator lives outside the safe area: with the inset inside the
+      // bar's padding, it used to stretch all the way to the edge of the screen.
       label: 'safeArea — the indicator stays above the home bar',
       content: <ControlledBarSafeArea />,
     },

@@ -1,10 +1,10 @@
-# Pausa deliberada dentro de un flow de demo. Maestro no tiene comando sleep
-# (`sleep`/`wait` son sintaxis inválida — verificado con check-syntax), y
-# waitForAnimationToEnd vuelve apenas la pantalla queda quieta, que es justo
-# lo contrario de lo que necesita un clip: el beat en el que el usuario
-# *mira* el estado nuevo antes de la siguiente acción.
+# Deliberate pause inside a demo flow. Maestro has no sleep command
+# (`sleep`/`wait` are invalid syntax — verified with check-syntax), and
+# waitForAnimationToEnd returns as soon as the screen goes still, which is
+# exactly the opposite of what a clip needs: the beat in which the user
+# *looks at* the new state before the next action.
 #
-# Parámetro (via runFlow -> env): MS.
+# Parameter (via runFlow -> env): MS.
 appId: ${MAESTRO_APP_ID}
 ---
 - evalScript: ${(function(){var t = Date.now(); while (Date.now() - t < Number(MS)) {} return 1})()}

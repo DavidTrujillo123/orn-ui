@@ -1,8 +1,8 @@
-# El trigger de Select duplica el label como texto suelto arriba (no
-# interactivo) Y como accessibilityLabel del Pressable real — mismo patrón
-# que Input. `index: 1` toca el segundo match (el Pressable); tocar sin
-# índice cae en el primero (el <Text> de arriba) y el dropdown ni abre —
-# visto en vivo con una captura: nada pasaba.
+# Select's trigger duplicates the label as standalone text above (not
+# interactive) AND as the real Pressable's accessibilityLabel — same pattern
+# as Input. `index: 1` taps the second match (the Pressable); tapping without
+# an index lands on the first (the <Text> above) and the dropdown doesn't
+# even open — seen live with a screenshot: nothing happened.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior

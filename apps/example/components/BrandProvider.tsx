@@ -17,8 +17,8 @@ interface BrandContextValue {
 const BrandContext = createContext<BrandContextValue | undefined>(undefined);
 
 /**
- * Deja el color de marca en estado para que el ejemplo de theming lo cambie en
- * vivo. Una app real llama a createTheme() una sola vez, fuera del árbol.
+ * Keeps the brand color in state so the theming example can change it live.
+ * A real app calls createTheme() just once, outside the tree.
  */
 export function BrandProvider({
   children,

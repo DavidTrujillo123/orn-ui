@@ -45,17 +45,17 @@ const RANGES = [
 ];
 
 /**
- * Un chart de verdad: filtro de rango arriba, leyenda que apaga series y un
- * eco de la selección debajo. El eco existe para el flow de Maestro — la
- * barra resaltada y el globo son píxeles, y un assert no los ve.
+ * A real chart: range filter on top, a legend that turns series off and an
+ * echo of the selection below. The echo exists for the Maestro flow — the
+ * highlighted bar and the bubble are pixels, and an assert can't see them.
  */
 function Interactive() {
   const [range, setRange] = useState('6');
   const [picked, setPicked] = useState<ChartSelection | null>(null);
   const rows = useMemo(() => MONTHS.slice(-Number(range)), [range]);
 
-  // Cambiar el rango suelta la selección: el mes elegido puede no estar en el
-  // recorte nuevo, y dejar el eco hablando de un mes que ya no se ve miente.
+  // Changing the range releases the selection: the selected month may not be
+  // in the new slice, and leaving the echo talking about a month no longer visible lies.
   const changeRange = (next: string) => {
     setRange(next);
     setPicked(null);
@@ -81,16 +81,16 @@ function Interactive() {
 }
 
 /**
- * Datos que llegan solos, que es lo que hace un WebSocket o un SSE: acá el
- * que empuja es un `setInterval` porque un demo no debería depender de una
- * red, pero el cableado con Chart es el mismo — `setRows` y nada más.
+ * Data that arrives on its own, which is what a WebSocket or SSE does: here
+ * the pusher is a `setInterval` because a demo shouldn't depend on a
+ * network, but the wiring with Chart is the same — `setRows` and nothing else.
  *
- * Las tres props que hacen que un chart en vivo se lea:
- * - `window`, la ventana deslizante;
- * - `domain="sticky"`, para que el eje no se reacomode en cada tick y haga
- *   saltar la línea aunque el dato no se haya movido;
- * - `selectBy`, para que el punto elegido siga a su dato mientras la ventana
- *   corre, en vez de quedarse pegado a un índice que ya es de otro.
+ * The three props that make a live chart readable:
+ * - `window`, the sliding window;
+ * - `domain="sticky"`, so the axis doesn't rearrange on every tick and make
+ *   the line jump even though the data hasn't moved;
+ * - `selectBy`, so the selected point follows its datum as the window
+ *   slides, instead of staying stuck to an index that now belongs to another.
  */
 function LiveChart() {
   const [rows, setRows] = useState<ChartRow[]>([{ t: 0, value: 50 }]);
@@ -102,8 +102,8 @@ function LiveChart() {
       setRows((previous) => {
         const last = Number(previous[previous.length - 1]?.value ?? 50);
         tick.current += 1;
-        // Paseo aleatorio acotado: sube y baja como una métrica de verdad, sin
-        // irse a un número que haga ilegible al resto.
+        // Bounded random walk: goes up and down like a real metric, without
+        // drifting to a number that makes the rest unreadable.
         const next = Math.max(5, Math.min(95, last + (Math.random() - 0.5) * 24));
         return [...previous, { t: tick.current, value: Math.round(next) }];
       });

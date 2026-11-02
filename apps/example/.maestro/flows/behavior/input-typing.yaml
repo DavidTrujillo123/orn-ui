@@ -1,8 +1,8 @@
-# Cada Input tiene DOS elementos con el mismo texto: el <Text> del label
-# flotante y el accessibilityLabel del propio TextInput (ambos "Email") — ver
-# packages/ui/src/atoms/Input.tsx. tapOn por ese texto es ambiguo (2 matches),
-# así que acá se toca por el placeholder (único) para enfocar, y "Show
-# password" (accessibilityLabel propio del IconButton) para el toggle.
+# Each Input has TWO elements with the same text: the floating label's
+# <Text> and the TextInput's own accessibilityLabel (both "Email") — see
+# packages/ui/src/atoms/Input.tsx. tapOn by that text is ambiguous (2 matches),
+# so here we tap the placeholder (unique) to focus, and "Show password" (the
+# IconButton's own accessibilityLabel) for the toggle.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -25,7 +25,7 @@ tags:
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 
-# Password — el toggle de mostrar/ocultar es lo único propio de este variant.
+# Password — the show/hide toggle is the only thing specific to this variant.
 - tapOn: "Show password"
 - assertVisible: "Hide password"
 - tapOn: "Hide password"

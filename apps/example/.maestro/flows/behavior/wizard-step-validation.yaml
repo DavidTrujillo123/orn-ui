@@ -1,9 +1,9 @@
-# canGoNext gatea el avance de cada paso — sin esto, un formulario incompleto
-# podría "terminar" el wizard sin datos válidos (ver Wizard.tsx: el botón
-# Next/Finish recibe disabled={!canGoNext} y el Pressable subyacente ignora
-# onPress mientras disabled). Este flow entra en el variant "Per-step
-# validation (canGoNext)" y confirma, paso por paso, que tocar el botón
-# deshabilitado NO avanza — no sólo que el botón exista.
+# canGoNext gates each step's progress — without it, an incomplete form could
+# "finish" the wizard without valid data (see Wizard.tsx: the Next/Finish
+# button gets disabled={!canGoNext} and the underlying Pressable ignores
+# onPress while disabled). This flow enters the "Per-step validation
+# (canGoNext)" variant and confirms, step by step, that tapping the disabled
+# button does NOT advance — not just that the button exists.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -30,37 +30,37 @@ tags:
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 
-# Paso "Account": Continue deshabilitado sin "@" en el email. Tocarlo con el
-# campo vacío no debe moverse del paso — el Input de email sigue ahí.
+# "Account" step: Continue disabled without "@" in the email. Tapping it with
+# the field empty must not leave the step — the email Input is still there.
 - tapOn: "Continue"
 - assertVisible: "you@example.com"
 - tapOn: "you@example.com"
 - inputText: "buyer@orn-ui.dev"
-# hideKeyboard falla acá ("no dismiss action"): el Input no fuerza
-# keyboardType="email-address", así que el teclado trae barra de sugerencias
-# sin tecla de bajar. Confirmado en vivo (2 veces): sin cerrar el teclado de
-# alguna forma, tapOn "Continue" no toca el botón real — la barra de
-# sugerencias tapa el footer y el tap le pifia (una vez hasta le metió una
-# sugerencia de autocorrección al email). pressKey Enter dispara el
-# returnKeyType default ("done") y cierra el teclado sin depender del botón
-# de esconder que este teclado no tiene.
+# hideKeyboard fails here ("no dismiss action"): the Input doesn't force
+# keyboardType="email-address", so the keyboard comes with a suggestions bar
+# and no dismiss key. Confirmed live (twice): without closing the keyboard
+# somehow, tapOn "Continue" doesn't hit the real button — the suggestions bar
+# covers the footer and the tap misses (once it even inserted an
+# autocorrect suggestion into the email). pressKey Enter fires the default
+# returnKeyType ("done") and closes the keyboard without relying on the hide
+# button this keyboard doesn't have.
 - pressKey: Enter
 - tapOn: "Continue"
 
-# Paso "Plan": Continue deshabilitado sin selección. A diferencia de
-# select-pick-option.yaml (mismo patrón pero sin `required`), acá el label
-# suelto se funde con el asterisco en un solo nodo "Plan *" — confirmado con
-# el dump de jerarquía: el único nodo con accessibilityText exactamente
-# "Plan" (sin índice) es el trigger real, no hay ambigüedad que desempatar.
+# "Plan" step: Continue disabled with no selection. Unlike
+# select-pick-option.yaml (same pattern but without `required`), here the
+# standalone label merges with the asterisk into a single "Plan *" node —
+# confirmed with the hierarchy dump: the only node with accessibilityText
+# exactly "Plan" (no index) is the real trigger, there's no ambiguity to break.
 - assertVisible: "Plan"
 - tapOn: "Continue"
 - tapOn: "Plan"
 - tapOn: "Free"
 - tapOn: "Continue"
 
-# Paso "Confirm": Create account (finishLabel) deshabilitado sin aceptar los
-# términos. Tocarlo sin tildar el checkbox no debe disparar onFinish — sigue
-# viéndose el checkbox sin tildar (mismo selector que checkbox-toggle.yaml).
+# "Confirm" step: Create account (finishLabel) disabled without accepting the
+# terms. Tapping it without checking the checkbox must not fire onFinish — the
+# unchecked checkbox is still visible (same selector as checkbox-toggle.yaml).
 - assertVisible: "Create account"
 - tapOn: "Create account"
 - assertVisible: ".*checkbox, unchecked.*"

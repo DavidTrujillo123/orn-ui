@@ -1,25 +1,24 @@
-# CheckoutWizardExample combina Wizard + DateField + OptionCard en una
-# pantalla real (no el catálogo de variantes aislado que ya cubre
-# wizard-step-validation.yaml). Este flow recorre los 4 pasos hasta el final
-# para confirmar que la integración entre componentes funciona junta — cada
-# uno por separado ya tiene su propio smoke/behavior, esto prueba el
-# cableado entre ellos (canGoNext de cada paso leyendo el estado real del
-# form, no un mock).
+# CheckoutWizardExample combines Wizard + DateField + OptionCard in a real
+# screen (not the isolated variant catalog wizard-step-validation.yaml already
+# covers). This flow walks through the 4 steps to the end to confirm the
+# integration between components works together — each one already has its
+# own smoke/behavior test, this tests the wiring between them (each step's
+# canGoNext reading the form's real state, not a mock).
 #
-# También es, sin querer, el único test confiable del sync DateField <->
-# DatePicker: hubo un date-field-pick-day.yaml que probaba lo mismo aislado
-# en el demo de DatePicker, pero necesitaba 6 next-variant.yaml seguidos para
-# llegar al variant correcto, y el pager de VariantList no es determinístico
-# a esa distancia — confirmado en vivo con capturas: 6 swipes calibrados
-# (los mismos que usa next-variant.yaml) aterrizaron en el variant 5 una vez,
-# no en el 6. Ese archivo se borró en vez de seguir parchándolo: acá no hace
-# falta pager, DateField vive directo en la pantalla.
+# It is also, unintentionally, the only reliable test of the DateField <->
+# DatePicker sync: there was a date-field-pick-day.yaml testing the same thing
+# in isolation in the DatePicker demo, but it needed 6 next-variant.yaml in a
+# row to reach the right variant, and VariantList's pager isn't
+# deterministic at that distance — confirmed live with screenshots: 6
+# calibrated swipes (the same ones next-variant.yaml uses) landed on variant 5
+# once, not 6. That file was deleted instead of patching it further: here no
+# pager is needed, DateField lives directly on the screen.
 #
-# El día se elige navegando un mes adelante ("Next month") y tocando el 10,
-# no un día fijo del mes actual: minDate=hoy hace que cualquier día ya pasado
-# del mes visible esté deshabilitado, y un mes entero completo está siempre
-# dentro de minDate/maxDate (maxDate = hoy + 2 meses) sea cual sea el día en
-# que corra el test.
+# The day is picked by navigating one month ahead ("Next month") and tapping
+# the 10th, not a fixed day of the current month: minDate=today makes any
+# already past day of the visible month disabled, and a whole full month is
+# always within minDate/maxDate (maxDate = today + 2 months) whatever day the
+# test runs on.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -38,10 +37,10 @@ tags:
 - hideKeyboard
 - tapOn: "Next"
 
-# Paso 2 — Delivery (Input + DateField). El Input de Address, a diferencia
-# del de Email, no fuerza keyboardType — mismo problema que
-# wizard-step-validation.yaml: hideKeyboard no encuentra tecla de bajar en
-# ese teclado. pressKey Enter en su lugar (confirmado en vivo).
+# Step 2 — Delivery (Input + DateField). The Address Input, unlike the Email
+# one, doesn't force keyboardType — same problem as
+# wizard-step-validation.yaml: hideKeyboard finds no dismiss key on that
+# keyboard. pressKey Enter instead (confirmed live).
 - tapOn: "221B Baker Street"
 - inputText: "742 Evergreen Terrace"
 - pressKey: Enter
@@ -52,12 +51,12 @@ tags:
 - assertNotVisible: "Select date"
 - tapOn: "Next"
 
-# Paso 3 — Payment (OptionCard, accessibilityLabel = label directo, sin
-# duplicar — ver OptionCard.tsx)
+# Step 3 — Payment (OptionCard, accessibilityLabel = label directly, not
+# duplicated — see OptionCard.tsx)
 - tapOn: "Cash"
 - tapOn: "Next"
 
-# Paso 4 — Review: KeyValueRow refleja lo cargado en los pasos anteriores.
+# Step 4 — Review: KeyValueRow reflects what was entered in the previous steps.
 - assertVisible: "buyer@orn-ui.dev"
 - assertVisible: "742 Evergreen Terrace"
 - assertVisible: "cash"

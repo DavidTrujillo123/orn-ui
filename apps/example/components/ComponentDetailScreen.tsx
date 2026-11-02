@@ -6,20 +6,20 @@ import type { DemoEntry } from '@/demos/manifest';
 
 export interface ComponentDetailScreenProps {
   entry: DemoEntry | undefined;
-  /** Ruta de la lista a la que vuelve el back, ej. "/molecules". */
+  /** Route of the list the back button returns to, e.g. "/molecules". */
   basePath: string;
 }
 
-/** Detalle de un componente: back + nombre + descripción + su demo con sus variantes. */
+/** A component's detail: back + name + description + its demo with its variants. */
 export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreenProps) {
   const router = useRouter();
 
-  // Destino explícito en vez de "volver al anterior": ni router.back() (que
-  // recorre el historial global) ni navigation.goBack() garantizan la lista
-  // de ESTA categoría — al cambiar de pestaña el paso previo del historial es
-  // otra pestaña, y el back terminaba en Atoms viniendo de una molécula.
-  // dismissTo desapila hasta esa lista con la animación de vuelta; replace
-  // (el camino de entrada directa por deep link) cambia la pantalla sin animar.
+  // Explicit destination instead of "go back to the previous one": neither
+  // router.back() (which walks the global history) nor navigation.goBack()
+  // guarantee THIS category's list — after switching tabs the previous step
+  // in the history is another tab, and back ended up in Atoms coming from a molecule.
+  // dismissTo pops down to that list with the back animation; replace
+  // (the direct entry path via deep link) switches the screen without animating.
   const goBack = () => {
     if (router.canDismiss()) router.dismissTo(basePath as Href);
     else router.replace(basePath as Href);
@@ -38,9 +38,9 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
 
   const { Demo } = entry;
 
-  // Salvo los flujos libres, el demo se lleva todo el alto restante: adentro
-  // vive un pager con snap (VariantList) que necesita una altura fija por
-  // página, y eso es incompatible con un Screen que scrollea por su cuenta.
+  // Except for free-form flows, the demo takes all the remaining height:
+  // inside lives a snapping pager (VariantList) that needs a fixed height per
+  // page, and that is incompatible with a Screen that scrolls on its own.
   const freeScroll = !!entry.freeScroll;
 
   return (
@@ -72,8 +72,8 @@ export function ComponentDetailScreen({ entry, basePath }: ComponentDetailScreen
 
 const styles = StyleSheet.create({
   navBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, gap: 4 },
-  // Header compacto: cada punto que se lleva el intro se lo saca a la página
-  // del pager, que es donde se mira el componente.
+  // Compact header: every point the intro takes is taken away from the pager's
+  // page, which is where the component is looked at.
   intro: { paddingHorizontal: 20, paddingTop: 4, paddingBottom: 12, gap: 4 },
   description: { lineHeight: 18 },
   demoFill: { flex: 1 },

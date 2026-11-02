@@ -9,14 +9,14 @@ import * as SystemUI from 'expo-system-ui';
 import type { ThemeMode } from 'orn-ui';
 
 function Providers({ children }: { children: ReactNode }) {
-  // Controlado con estado propio. Antes se pasaba `mode="system"` fijo: como
-  // `mode` es la prop *controlada* del provider, el ThemeToggle llamaba a
-  // setMode, el provider delegaba en `onModeChange` (que no existía) y el tema
-  // nunca cambiaba — el modo oscuro solo se podía activar desde el sistema.
+  // Controlled with its own state. It used to pass a fixed `mode="system"`:
+  // since `mode` is the provider's *controlled* prop, ThemeToggle called
+  // setMode, the provider delegated to `onModeChange` (which didn't exist) and
+  // the theme never changed — dark mode could only be turned on from the system.
   const [mode, setMode] = useState<ThemeMode>('system');
-  // BrandProvider monta el UIProvider (que mide los insets: olvidarlos
-  // deja los modales abajo del notch) con el theme derivado del color de marca
-  // que el ejemplo de theming cambia en vivo.
+  // BrandProvider mounts the UIProvider (which measures the insets: forgetting
+  // them leaves modals under the notch) with the theme derived from the brand
+  // color that the theming example changes live.
   return (
     <BrandProvider mode={mode} onModeChange={setMode}>
       <AlertProvider>
@@ -27,22 +27,22 @@ function Providers({ children }: { children: ReactNode }) {
 }
 
 /**
- * El Stack de expo-router (y cada Stack anidado en las tabs) pinta su propio
- * fondo detrás de las pantallas usando el theme de *react-navigation*, no el
- * de orn-ui. Sin `ThemeProvider` acá cae en su `DefaultTheme` (gris claro
- * hardcodeado, rgb(242,242,242)) sin importar el modo — eso es el parpadeo
- * blanco al navegar entre tabs (el Background de cada tab, el contentStyle
- * de los Stacks anidados y el nativeContainerStyle de cada uno lo leen de
- * ahí). `sceneStyle` en contentStyle solo tapaba el Stack raíz, no los
- * anidados de atoms/molecules/organisms/examples.
+ * expo-router's Stack (and each Stack nested in the tabs) paints its own
+ * background behind the screens using *react-navigation*'s theme, not
+ * orn-ui's. Without a `ThemeProvider` here it falls back to its `DefaultTheme`
+ * (hardcoded light gray, rgb(242,242,242)) regardless of the mode — that is
+ * the white flicker when navigating between tabs (each tab's Background, the
+ * nested Stacks' contentStyle and each one's nativeContainerStyle read it
+ * from there). `sceneStyle` in contentStyle only covered the root Stack, not
+ * the nested atoms/molecules/organisms/examples ones.
  *
- * SystemUI.setBackgroundColorAsync sincroniza el window background nativo de
- * Android (fuera de lo que React pinta) para que tampoco asome blanco en el
- * primer frame de montaje de una tab lazy.
+ * SystemUI.setBackgroundColorAsync syncs Android's native window background
+ * (outside what React paints) so white doesn't peek through on the first
+ * mount frame of a lazy tab either.
  *
- * La status bar se invierte respecto del fondo resuelto, no del esquema del
- * sistema — si no, en "Dark" forzado sobre un sistema claro los íconos
- * quedaban negros sobre negro.
+ * The status bar is inverted relative to the resolved background, not the
+ * system scheme — otherwise, with "Dark" forced on a light system, the icons
+ * ended up black on black.
  */
 function ThemedStack() {
   const colors = useColors();

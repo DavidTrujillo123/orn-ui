@@ -1,10 +1,9 @@
-# El SegmentedControl del demo cambia isLoading/isRefreshing/isLoadingMore
-# "en vivo" sobre el mismo List — un smoke genérico sólo ve el estado inicial
-# (loaded) y nunca ejercita el camino de skeleton/empty que ListDemo existe
-# para mostrar. No se prueba "Refresh": RefreshControl sólo se ve mientras el
-# usuario está arrastrando el gesto nativo de pull-to-refresh, no al setear
-# isRefreshing por estado — no hay nada estable que assertVisible pueda
-# atrapar ahí.
+# The demo's SegmentedControl switches isLoading/isRefreshing/isLoadingMore
+# "live" on the same List — a generic smoke test only sees the initial state
+# (loaded) and never exercises the skeleton/empty path ListDemo exists to
+# show. "Refresh" isn't tested: RefreshControl is only visible while the user
+# is dragging the native pull-to-refresh gesture, not when isRefreshing is set
+# through state — there's nothing stable for assertVisible to catch there.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -19,10 +18,10 @@ tags:
 
 - assertVisible: "Item 1"
 
-# EmptyState fusiona título + descripción en un único nodo de accesibilidad
-# ("No items, Try a different filter" — confirmado en vivo con el dump de
-# jerarquía) — mismo patrón que el Alert fusionado o los tabs "Atoms, tab, 2
-# of 5" que documenta el README. Match exacto nunca calza; regex sí.
+# EmptyState merges title + description into a single accessibility node
+# ("No items, Try a different filter" — confirmed live with the hierarchy
+# dump) — same pattern as the merged Alert or the "Atoms, tab, 2 of 5" tabs
+# documented in the README. An exact match never fits; a regex does.
 - tapOn: "Empty"
 - assertVisible: ".*No items.*"
 - assertNotVisible: "Item 1"

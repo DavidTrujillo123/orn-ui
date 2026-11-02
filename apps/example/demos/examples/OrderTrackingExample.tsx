@@ -28,19 +28,19 @@ const PRODUCT_IMAGE = 'https://picsum.photos/seed/orn-ui-order/200/200';
 
 /**
  * OrderTrackingExample
- * Estado que avanza solo: el pedido sube un escalón cada 2.5s, así que Steps,
- * Badge y el resumen se ven cambiar sin tocar nada — a diferencia de los demos
- * por componente, que son estáticos. Cubre además los dos estados que una
- * pantalla real siempre necesita y los catálogos suelen saltear: la carga
- * inicial y el pedido inexistente.
+ * State that advances on its own: the order goes up one stage every 2.5s, so
+ * Steps, Badge and the summary are seen changing without touching anything —
+ * unlike the per-component demos, which are static. It also covers the two
+ * states a real screen always needs and catalogs usually skip: the initial
+ * load and the nonexistent order.
  */
 export function OrderTrackingExample() {
   const { show } = useToast();
   const [loading, setLoading] = useState(true);
   const [missing, setMissing] = useState(false);
   const [stage, setStage] = useState(0);
-  // Sin este guard el toast de "delivered" se repetía en cada tick una vez
-  // alcanzada la última etapa.
+  // Without this guard the "delivered" toast repeated on every tick once
+  // the last stage was reached.
   const announced = useRef(false);
 
   useEffect(() => {
@@ -56,9 +56,9 @@ export function OrderTrackingExample() {
     return () => clearInterval(id);
   }, [loading, missing]);
 
-  // El toast se dispara desde un efecto, no desde el updater de setStage:
-  // React reejecuta los updaters durante el render, y mostrarlo ahí actualizaba
-  // el ToastProvider mientras se renderizaba este componente.
+  // The toast is fired from an effect, not from setStage's updater: React
+  // re-runs updaters during render, and showing it there updated the
+  // ToastProvider while this component was rendering.
   useEffect(() => {
     if (loading || missing || stage < STAGES.length - 1 || announced.current) return;
     announced.current = true;

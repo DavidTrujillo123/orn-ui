@@ -8,8 +8,8 @@ import { OrderTrackingExample } from './OrderTrackingExample';
 import { BrandThemeExample } from './BrandThemeExample';
 
 /**
- * Ejemplos de integración: varios componentes trabajando juntos en un flujo
- * realista, a diferencia de las otras pestañas que aíslan un componente por vez.
+ * Integration examples: several components working together in a realistic
+ * flow, unlike the other tabs, which isolate one component at a time.
  */
 export const EXAMPLES: DemoEntry[] = [
   {
@@ -24,7 +24,7 @@ export const EXAMPLES: DemoEntry[] = [
     name: 'Invoice form',
     description: 'Bottom-sheet modal with AvatarHeader, Input, Stepper, Select, Checkbox, KeyValueRow and FormActions',
     Demo: InvoiceFormExample,
-    // Flujo, no catálogo de variantes: scroll libre en vez del pager.
+    // A flow, not a catalog of variants: free scroll instead of the pager.
     freeScroll: true,
   },
   {
@@ -39,7 +39,7 @@ export const EXAMPLES: DemoEntry[] = [
     name: 'Checkout wizard',
     description: '4-step wizard with per-step validation, DateField, OptionCard and a Toast on finish',
     Demo: CheckoutWizardExample,
-    // El Wizard necesita flex:1 real para que el footer quede abajo.
+    // The Wizard needs a real flex:1 so the footer stays at the bottom.
     hostsList: true,
   },
   {

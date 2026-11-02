@@ -26,10 +26,10 @@ const PAGE_SIZE = 8;
 
 /**
  * ClientListExample
- * Lista real con búsqueda, paginación incremental y borrado con
- * confirmación imperativa — SearchList + Avatar + Badge + IconButton +
- * useAlert trabajando juntos sobre datos que sí cambian con el tiempo
- * (no solo el layout estático de los demos por componente).
+ * A real list with search, incremental pagination and deletion with
+ * imperative confirmation — SearchList + Avatar + Badge + IconButton +
+ * useAlert working together over data that does change over time
+ * (not just the static layout of the per-component demos).
  */
 export function ClientListExample() {
   const { confirm } = useAlert();
@@ -37,8 +37,8 @@ export function ClientListExample() {
   const [clients, setClients] = useState(ALL_CLIENTS);
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
-  // Busca también por email: el placeholder promete "search clients" y filtrar
-  // sólo por nombre hacía ver "No clients found" al pegar una dirección.
+  // Also searches by email: the placeholder promises "search clients" and
+  // filtering only by name showed "No clients found" when pasting an address.
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return clients;

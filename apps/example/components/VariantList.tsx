@@ -19,10 +19,10 @@ export interface VariantDef {
 }
 
 /**
- * Los demos con gestos propios (arrastrar para reordenar) compiten con el
- * scroll del pager y el del stage: en iOS el `UIScrollView` cancela los toques
- * del contenido apenas su gesto vertical arranca y el arrastre muere. Este
- * contexto les deja apagar ambos scrolls mientras dura el gesto.
+ * Demos with their own gestures (drag to reorder) compete with the pager's
+ * and the stage's scroll: on iOS the `UIScrollView` cancels the content's
+ * touches as soon as its vertical gesture starts and the drag dies. This
+ * context lets them turn off both scrolls for the duration of the gesture.
  */
 const ScrollLockContext = React.createContext<(locked: boolean) => void>(() => {});
 
@@ -37,20 +37,20 @@ export interface VariantListProps {
 
 /**
  * VariantList
- * Pager vertical a pantalla completa: una variante por página, swipe arriba /
- * abajo con snap. Antes eran tarjetas apiladas en un scroll libre; con snap
- * cada variante queda encuadrada sola, sin quedar cortada a mitad de gesto ni
- * competir visualmente con la de al lado.
+ * Full-screen vertical pager: one variant per page, swipe up / down with
+ * snap. They used to be cards stacked in a free scroll; with snap each
+ * variant is framed on its own, without being cut off mid-gesture or
+ * competing visually with the next one.
  *
- * ScrollView con pagingEnabled, no FlatList: varios demos montan scrollers
- * propios adentro (calendarios, formularios) y anidar VirtualizedLists en el
- * mismo eje rompe la virtualización y dispara warnings en runtime.
+ * ScrollView with pagingEnabled, not FlatList: several demos mount their own
+ * scrollers inside (calendars, forms) and nesting VirtualizedLists on the
+ * same axis breaks virtualization and fires warnings at runtime.
  */
 export function VariantList({ variants, fill = false }: VariantListProps) {
   const colors = useColors();
   const [pageHeight, setPageHeight] = useState(() => Dimensions.get('window').height);
-  // `?v=N` (1-based) abre directo la variante N: deja revisar cada variante por
-  // deep link (`ornui:///atoms/typography?v=3`) sin depender de un swipe.
+  // `?v=N` (1-based) opens variant N directly: lets you review each variant via
+  // deep link (`ornui:///atoms/typography?v=3`) without depending on a swipe.
   const { v } = useLocalSearchParams<{ v?: string }>();
   const initialIndex = Math.min(Math.max((parseInt(v ?? '', 10) || 1) - 1, 0), Math.max(variants.length - 1, 0));
   const [index, setIndex] = useState(initialIndex);
@@ -99,9 +99,9 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   const onMomentumEnd = useCallback(
     (e: NativeSyntheticEvent<NativeScrollEvent>) => {
       if (pageHeight <= 0) return;
-      // Acotado: con `?v=N` el primer scrollTo usa el alto de la ventana y, al
-      // medirse la página real, iOS recorta el offset y dispara este evento con
-      // un índice fuera de rango (página en blanco, ningún tick activo).
+      // Clamped: with `?v=N` the first scrollTo uses the window height and, once
+      // the real page is measured, iOS trims the offset and fires this event with
+      // an out-of-range index (blank page, no active tick).
       const next = Math.min(Math.max(Math.round(e.nativeEvent.contentOffset.y / pageHeight), 0), variants.length - 1);
       indexRef.current = next;
       setIndex(next);
@@ -197,7 +197,7 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   );
 }
 
-/** Fila de ejemplos chicos lado a lado dentro de un mismo `content`. */
+/** Row of small examples side by side within the same `content`. */
 export function VariantRow({ children }: { children: React.ReactNode }) {
   return <View style={styles.row}>{children}</View>;
 }

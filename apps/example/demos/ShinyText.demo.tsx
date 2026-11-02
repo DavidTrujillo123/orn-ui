@@ -42,8 +42,8 @@ function UpgradeCard() {
 
 export function ShinyTextDemo() {
   // #region demo
-  // Los colores de reposo siempre legibles (AA): el brillo es decorativo, el
-  // texto tiene que leerse también cuando la banda no está encima.
+  // The resting colors are always legible (AA): the shine is decorative, the
+  // text has to read also when the band isn't over it.
   const variants: VariantDef[] = [
     {
       label: 'colors — the resting/shine pair is what makes it readable',

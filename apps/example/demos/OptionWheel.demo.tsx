@@ -12,10 +12,10 @@ const SIZES: OptionWheelOption<string>[] = [
   { label: 'XXL', value: 'xxl' },
 ];
 
-// Ninguna etiqueta es parte de otra a propósito: el flow de Maestro afirma
-// que la rueda nunca se queda en una deshabilitada con assertNotVisible, y con
-// 'Large'/'X-Large' ese assert da un falso negativo porque el selector
-// encuentra la una adentro de la otra.
+// No label is part of another on purpose: the Maestro flow asserts the wheel
+// never stays on a disabled one with assertNotVisible, and with
+// 'Large'/'X-Large' that assert gives a false negative because the selector
+// finds one inside the other.
 const STOCK: OptionWheelOption<string>[] = [
   { label: 'Tiny', value: 'xs' },
   { label: 'Small', value: 's', disabled: true },
@@ -42,24 +42,24 @@ const PORTFOLIO: OptionWheelOption<string>[] = [
 const ROW = 52;
 const ROWS = 5;
 /**
- * Radio de la rueda sobre la que caen las filas: con el centro afuera y a la
- * izquierda, cuanto más chico, más cerrada la curva. A 0.7 alturas de ventana
- * la circunferencia se lee de una, y la fila de más afuera todavía entra en la
- * caja.
+ * Radius of the wheel the rows fall on: with the center outside and to the
+ * left, the smaller it is, the tighter the curve. At 0.7 window heights the
+ * circumference reads at once, and the outermost row still fits in the box.
  */
 const CURVE = ROWS * ROW * 0.7;
 
 /**
- * 'spotlight' no pinta banda ni fondo: lo único que dice cuál está elegida es
- * que es la nítida y la de más contraste. La superficie de abajo —color y
- * forma— la pone quien compone la rueda, y el color de las filas entra por
- * `textColor`: el componente no elige ningún color acá.
+ * 'spotlight' paints no band or background: the only thing that says which
+ * one is selected is that it's the sharp one with the most contrast. The
+ * surface below —color and shape— is provided by whoever composes the wheel,
+ * and the rows' color comes in through `textColor`: the component picks no
+ * color here.
  *
- * `curveRadius` es lo que la hace parecer una rueda y no una lista: las filas
- * caen sobre el borde de un círculo cuyo centro queda afuera, a la izquierda,
- * así que se meten hacia adentro y se inclinan con la tangente a medida que se
- * alejan del centro. Va sin `perspective`: inclinar en dos ejes a la vez
- * ensucia el arco en vez de reforzarlo.
+ * `curveRadius` is what makes it look like a wheel and not a list: the rows
+ * fall on the edge of a circle whose center is outside, to the left, so they
+ * move inward and tilt with the tangent as they get further from the center.
+ * It goes without `perspective`: tilting on two axes at once muddies the arc
+ * instead of reinforcing it.
  */
 function PortfolioWheel() {
   const [bucket, setBucket] = useState('stocks');

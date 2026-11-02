@@ -5,9 +5,9 @@ import type { ScreenProps } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 /**
- * Screen ocupa la pantalla entera: dentro de una tarjeta de 120pt no se ve nada
- * de lo que hace. Cada variante abre una pantalla real y pinta encima las
- * franjas de safe area, que es lo único que hace visible el efecto de `edges`.
+ * Screen takes up the whole screen: inside a 120pt card nothing it does is
+ * visible. Each variant opens a real screen and paints the safe area strips
+ * on top, which is the only thing that makes the effect of `edges` visible.
  */
 function InsetGuides() {
   const insets = useInsets();

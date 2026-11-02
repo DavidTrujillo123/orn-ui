@@ -1,7 +1,7 @@
-# TabbedScreen mantiene el tab activo en estado propio (useState, no el
-# VariantList del demo) — un smoke genérico abre el demo y nunca toca la
-# barra, así que onChange/activeKey nunca corren. Primer variant (index 0,
-# sin swipe): "with the tab content".
+# TabbedScreen keeps the active tab in its own state (useState, not the
+# demo's VariantList) — a generic smoke test opens the demo and never touches
+# the bar, so onChange/activeKey never run. First variant (index 0, no
+# swipe): "with the tab content".
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior

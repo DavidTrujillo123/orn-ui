@@ -1,11 +1,11 @@
-# Modal comparte ModalSafeAreaBoundary con BottomSheet (mismo boundary de
-# insets que ya se rompió una vez, ver bottom-sheet-position-and-dismiss.yaml).
+# Modal shares ModalSafeAreaBoundary with BottomSheet (the same insets
+# boundary that already broke once, see bottom-sheet-position-and-dismiss.yaml).
 #
-# El ancla es el punto medio de la pantalla (`point:`), no texto del demo: un
-# <Modal> nativo de iOS aísla su ventana del árbol de accesibilidad del resto
-# de la app mientras está abierto (confirmado en vivo con BottomSheet — la
-# descripción del demo deja de existir para Maestro apenas sube el backdrop),
-# así que cualquier ancla "afuera" del modal es inalcanzable.
+# The anchor is the screen's midpoint (`point:`), not the demo's text: a
+# native iOS <Modal> isolates its window from the rest of the app's
+# accessibility tree while open (confirmed live with BottomSheet — the demo's
+# description stops existing for Maestro as soon as the backdrop rises), so
+# any anchor "outside" the modal is unreachable.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -18,8 +18,8 @@ tags:
       SLUG: "modal"
       TITLE: "Modal"
 
-# full — sin backdrop propio (presentationStyle "overFullScreen", sin tap
-# afuera); se cierra con el botón "Close" del header.
+# full — no backdrop of its own (presentationStyle "overFullScreen", no tap
+# outside); it closes with the header's "Close" button.
 - tapOn: "Open full"
 - assertVisible:
     text: "Slides up from the bottom and fills the screen."
@@ -33,13 +33,13 @@ tags:
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 
-# overlay — el único variant con backdrop propio (testID modal-backdrop). El
-# tap va a un punto explícito lejos del centro y del borde superior, no al
-# centroide del id ni a una esquina: el backdrop cubre toda la pantalla pero
-# la tarjeta está centrada encima suyo (tapear el centro del elemento
-# "backdrop" en realidad tapea la tarjeta), y el 5% superior cae sobre la
-# barra de estado del simulador, que se queda con el toque en vez de
-# reenviarlo a la app — visto en vivo con ambos.
+# overlay — the only variant with its own backdrop (testID modal-backdrop).
+# The tap goes to an explicit point away from the center and the top edge,
+# not to the id's centroid or a corner: the backdrop covers the whole screen
+# but the card is centered on top of it (tapping the center of the "backdrop"
+# element actually taps the card), and the top 5% falls on the simulator's
+# status bar, which keeps the touch instead of forwarding it to the app —
+# seen live with both.
 - tapOn: "Open overlay"
 - assertVisible:
     id: "modal-backdrop"
@@ -53,7 +53,7 @@ tags:
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 
-# fullScreen — presentación nativa de iOS.
+# fullScreen — native iOS presentation.
 - tapOn: "Open fullScreen"
 - assertVisible: "Native fullScreen presentation on iOS."
 - tapOn: "Close"

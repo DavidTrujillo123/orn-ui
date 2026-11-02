@@ -1,9 +1,9 @@
 import { showAlert, showConfirm, showToast } from 'orn-ui';
 
 /**
- * Capa de negocio pura: no es un componente, no tiene hooks y no sabe nada de
- * React. Aun así habla con el usuario, que es para lo que están showToast y
- * showAlert.
+ * Pure business layer: it isn't a component, has no hooks and knows nothing
+ * about React. Even so it talks to the user, which is what showToast and
+ * showAlert are for.
  */
 export async function deleteInvoice(id: string): Promise<boolean> {
   const confirmed = await showConfirm({
@@ -23,7 +23,7 @@ export async function deleteInvoice(id: string): Promise<boolean> {
   return true;
 }
 
-/** El caso típico: un interceptor de red que reporta el fallo por su cuenta. */
+/** The typical case: a network interceptor that reports the failure on its own. */
 export async function syncInvoices(): Promise<void> {
   showToast({ title: 'Syncing…', variant: 'info', duration: 800 });
   await new Promise((resolve) => setTimeout(resolve, 800));

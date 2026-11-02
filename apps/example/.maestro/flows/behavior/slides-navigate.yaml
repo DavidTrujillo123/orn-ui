@@ -1,12 +1,12 @@
-# Slides es todo posición y gesto: qué página quedó encuadrada, si el
-# autoPlay avanza solo, si el degradado de fondo se queda con los toques que
-# iban a un botón de la slide. Nada de eso lo ve jest — ahí las tres páginas
-# existen en el árbol a la vez y ninguna tiene coordenadas.
+# Slides is all position and gesture: which page ended up framed, whether
+# autoPlay advances on its own, whether the background gradient keeps the
+# touches meant for a button on the slide. Jest sees none of that — there all
+# three pages exist in the tree at once and none has coordinates.
 #
-# Los indicadores se tapean por `id` y no por su accessibilityLabel
-# ("Slide 2 of 3"): VariantList mantiene montada la variante vecina, así que
-# ese label existe varias veces en el árbol al mismo tiempo. Cada <Slides> del
-# demo lleva su propio testID y de ahí sale un id único por indicador.
+# The indicators are tapped by `id` and not by their accessibilityLabel
+# ("Slide 2 of 3"): VariantList keeps the neighboring variant mounted, so that
+# label exists several times in the tree at the same time. Each <Slides> in
+# the demo has its own testID and a unique id per indicator comes from it.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -19,10 +19,10 @@ tags:
       SLUG: "slides"
       TITLE: "Slides"
 
-# ── variante 1: autoPlay + loop ────────────────────────────────────────────
-# Las tres aserciones en orden son la prueba del ciclo: cada una espera a que
-# aparezca la siguiente slide sin tocar nada, y la última vuelve a la primera
-# — o sea que el clon de cola cerró la vuelta sin rebobinar.
+# ── variant 1: autoPlay + loop ─────────────────────────────────────────────
+# The three assertions in order are the proof of the cycle: each one waits
+# for the next slide to appear without touching anything, and the last one
+# returns to the first — meaning the tail clone closed the loop without rewinding.
 - assertVisible: "Zero dependencies"
 - extendedWaitUntil:
     visible: "Light and dark"
@@ -34,7 +34,7 @@ tags:
     visible: "Zero dependencies"
     timeout: 8000
 
-# ── variante 2: indicadores numerados, finito ──────────────────────────────
+# ── variant 2: numbered indicators, finite ─────────────────────────────────
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -48,32 +48,32 @@ tags:
     id: "slides-numbers-indicator-0"
 - assertVisible: "Zero dependencies"
 
-# Deslizar la slide, no el indicador: el gesto horizontal tiene que quedárselo
-# el carrusel y no el pager vertical de VariantList que lo envuelve.
+# Swipe the slide, not the indicator: the horizontal gesture has to be kept by
+# the carousel and not by VariantList's vertical pager wrapping it.
 #
-# La línea del gesto va por el título (45%), no por el medio de la slide: a
-# 55% roza el botón "Got it" y el press se queda con el responder. Y el swipe
-# es largo y rápido (70% del ancho en 250 ms) porque con 60%/400 ms la
-# velocidad no siempre alcanzaba para que `pagingEnabled` saltara de página —
-# medido, 5 de 5 con estos números.
+# The gesture line goes through the title (45%), not the middle of the slide:
+# at 55% it brushes the "Got it" button and the press keeps the responder. And
+# the swipe is long and fast (70% of the width in 250 ms) because with
+# 60%/400 ms the velocity wasn't always enough for `pagingEnabled` to jump a
+# page — measured, 5 out of 5 with these numbers.
 - swipe:
     start: "85%,45%"
     end: "15%,45%"
     duration: 250
-# extendedWaitUntil y no assertVisible: el snap de `pagingEnabled` es una
-# animación, y la aserción puede caer con la slide entrante todavía a medio
-# entrar. Esperar a que termine no debilita nada — tiene que aparecer igual.
+# extendedWaitUntil and not assertVisible: `pagingEnabled`'s snap is an
+# animation, and the assertion can land with the incoming slide still halfway
+# in. Waiting for it to finish weakens nothing — it has to appear anyway.
 - extendedWaitUntil:
     visible: "Light and dark"
     timeout: 5000
 
-# El fondo (degradado o color plano) se pinta con pointerEvents="none": si eso
-# se rompe, el botón sigue viéndose y deja de recibir el toque.
+# The background (gradient or flat color) is painted with pointerEvents="none":
+# if that breaks, the button is still visible but stops receiving the touch.
 - tapOn:
     id: "slides-button-2"
 - assertVisible: "pressed: Light and dark"
 
-# ── variante 3: orientación vertical ───────────────────────────────────────
+# ── variant 3: vertical orientation ────────────────────────────────────────
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -84,9 +84,9 @@ tags:
     id: "slides-vertical-indicator-2"
 - assertVisible: "Expo SDK 54-57"
 
-# El gesto vertical de la slide compite con el pager vertical de VariantList,
-# que la envuelve: si el carrusel no se lo queda, esto termina en la variante
-# siguiente en vez de en la slide siguiente.
+# The slide's vertical gesture competes with VariantList's vertical pager,
+# which wraps it: if the carousel doesn't keep it, this ends up on the next
+# variant instead of the next slide.
 - tapOn:
     id: "slides-vertical-indicator-0"
 - assertVisible: "Zero dependencies"

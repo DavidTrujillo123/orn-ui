@@ -1,16 +1,16 @@
-# Lo que un render test no puede ver: Chart no tiene layout propio hasta que el
-# dispositivo le dice cuánto mide. En jsdom el ancho es 0 y el componente no
-# dibuja nada; el test lo suple disparando un `layout` a mano, o sea que afirma
-# sobre una medida inventada. Acá la medida es real, y con ella:
+# What a render test can't see: Chart has no layout of its own until the
+# device tells it how big it is. In jsdom the width is 0 and the component
+# draws nothing; the test makes up for it by firing a `layout` by hand, which
+# means it asserts on a made-up measurement. Here the measurement is real, and with it:
 #
-# - que el tap caiga adentro de la banda que le corresponde (las bandas son
-#   cajas absolutas repartidas sobre un ancho que sólo existe en pantalla),
-# - que la serie que elige el tap sea la que tiene la marca más cerca del dedo
-#   —eso se decide con la coordenada del toque, que jsdom no produce—,
-# - que cambiar el filtro redibuje el chart con otras columnas.
+# - that the tap lands inside the band it belongs to (the bands are absolute
+#   boxes spread over a width that only exists on screen),
+# - that the series the tap picks is the one whose mark is closest to the
+#   finger —that is decided with the touch coordinate, which jsdom doesn't produce—,
+# - that changing the filter redraws the chart with other columns.
 #
-# Los asserts miran el eco de texto que imprime el demo: la barra resaltada, el
-# globo y la animación son píxeles, y un assert no los ve.
+# The asserts look at the text echo the demo prints: the highlighted bar, the
+# bubble and the animation are pixels, and an assert can't see them.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -23,27 +23,27 @@ tags:
       SLUG: "chart"
       TITLE: "Chart"
 
-# 1 — arranca sin nada elegido, con los seis meses.
+# 1 — starts with nothing selected, with all six months.
 - assertVisible: "Tap a month"
 - assertVisible: "Jan"
 - assertVisible: "Jun"
 
-# 2 — tocar una banda elige ese mes. El tap va por `id`: la banda es una caja
-# transparente sobre la columna, no tiene texto al que apuntar.
+# 2 — tapping a band selects that month. The tap goes by `id`: the band is a
+# transparent box over the column, it has no text to target.
 - tapOn:
     id: "chart-interactive-band-1"
 - waitForAnimationToEnd
 - assertVisible: "Feb: .*"
 
-# 3 — volver a tocar el mismo punto lo suelta. Sin esto no habría forma de
-# volver al chart entero sin tocar afuera.
+# 3 — tapping the same spot again releases it. Without this there would be no
+# way back to the whole chart without tapping outside.
 - tapOn:
     id: "chart-interactive-band-1"
 - waitForAnimationToEnd
 - assertVisible: "Tap a month"
 
-# 4 — la leyenda es el filtro: apagar "Costs" saca esa serie del chart, y con
-# una sola serie prendida el tap sólo puede caer en ella.
+# 4 — the legend is the filter: turning off "Costs" removes that series from
+# the chart, and with a single series on the tap can only land on it.
 - tapOn:
     id: "chart-interactive-legend-costs"
 - waitForAnimationToEnd
@@ -52,8 +52,8 @@ tags:
 - waitForAnimationToEnd
 - assertVisible: "Feb: sales .*"
 
-# 5 — el filtro de rango recorta los datos y el chart se redibuja: los meses
-# que salieron ya no tienen columna ni etiqueta.
+# 5 — the range filter trims the data and the chart redraws: the months that
+# left no longer have a column or a label.
 - tapOn:
     id: "chart-interactive-filter-range-3"
 - waitForAnimationToEnd
@@ -61,7 +61,7 @@ tags:
 - assertVisible: "Jun"
 - assertNotVisible: "Jan"
 
-# 6 — y el chart recortado sigue respondiendo, con las bandas reindexadas.
+# 6 — and the trimmed chart keeps responding, with the bands reindexed.
 - tapOn:
     id: "chart-interactive-band-0"
 - waitForAnimationToEnd

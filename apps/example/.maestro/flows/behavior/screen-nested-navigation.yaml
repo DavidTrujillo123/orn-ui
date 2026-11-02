@@ -1,8 +1,8 @@
-# Screen ocupa la pantalla entera: dentro del pager de VariantList no se ve
-# nada de lo que hace (ver comentario de Screen.demo.tsx). Cada variante abre
-# un <Modal> nativo aparte con el trigger — el smoke genérico (deep link +
-# swipe del pager) nunca toca ese botón, así que nunca llega a montar el
-# Screen real ni a scrollear su contenido.
+# Screen takes up the whole screen: inside VariantList's pager nothing it
+# does is visible (see the comment in Screen.demo.tsx). Each variant opens a
+# separate native <Modal> with the trigger — the generic smoke test (deep
+# link + pager swipe) never taps that button, so it never gets to mount the
+# real Screen or scroll its content.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -15,14 +15,14 @@ tags:
       SLUG: "screen"
       TITLE: "Screen"
 
-# Variant 1ro (index 0): edges={["top","bottom"]} — abrir y cerrar el modal.
+# 1st variant (index 0): edges={["top","bottom"]} — open and close the modal.
 - tapOn: "Open with safe area"
 - assertVisible: "The red bands are the safe-area insets. The title starts below the top one."
 - tapOn: "Close"
 - assertNotVisible: "The red bands are the safe-area insets. The title starts below the top one."
 
-# Variant 3ro (index 2): scrollable — contenido largo entra en el scroller
-# por default; el bloque 8 no entra en una pantalla sin scrollear.
+# 3rd variant (index 2): scrollable — long content goes into the scroller
+# by default; block 8 doesn't fit on one screen without scrolling.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -40,8 +40,8 @@ tags:
     direction: DOWN
 - assertVisible: "Block 8"
 
-# "Close" vive arriba del todo, antes del Block 1 — scrollUntilVisible a
-# Block 8 lo dejó fuera de pantalla. Confirmado en vivo.
+# "Close" lives at the very top, before Block 1 — scrollUntilVisible to
+# Block 8 left it off screen. Confirmed live.
 - scrollUntilVisible:
     element:
       text: "Close"

@@ -1,8 +1,8 @@
-# El botón del Alert queda dentro de un único nodo de accesibilidad fusionado
-# ("Invoice sent, Close", con el bounding box del backdrop entero) — no hay
-# forma de tocarlo por texto/id sin ambigüedad. Se toca por coordenadas,
-# calculadas leyendo los píxeles reales de una captura (no el screenshot ya
-# escalado que muestra el visor), 50%,55% para esta variante.
+# The Alert's button ends up inside a single merged accessibility node
+# ("Invoice sent, Close", with the whole backdrop's bounding box) — there's no
+# way to tap it by text/id without ambiguity. It's tapped by coordinates,
+# computed by reading the real pixels of a screenshot (not the already scaled
+# screenshot the viewer shows), 50%,55% for this variant.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior

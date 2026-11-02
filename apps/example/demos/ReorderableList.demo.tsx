@@ -30,9 +30,9 @@ function DraggableRow({ title }: { title: string }) {
 // #region demo
 function TaskList() {
   const [tasks, setTasks] = useState(INITIAL);
-  // El scroll vertical que envuelve al demo compite con el arrastre: en iOS el
-  // UIScrollView cancela los toques del contenido apenas su gesto arranca y la
-  // fila nunca llega a moverse. Se apaga mientras dura el drag.
+  // The vertical scroll wrapping the demo competes with the drag: on iOS the
+  // UIScrollView cancels the content's touches as soon as its gesture starts
+  // and the row never gets to move. It's turned off for the duration of the drag.
   const setScrollLocked = useVariantScrollLock();
 
   return (

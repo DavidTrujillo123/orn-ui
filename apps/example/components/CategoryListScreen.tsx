@@ -6,7 +6,7 @@ import { CategoryHeader } from './CategoryHeader';
 import { ComponentListItem } from './ComponentListItem';
 import type { DemoEntry } from '@/demos/manifest';
 
-/** Lista de componentes de una categoría (Atoms/Molecules/Organisms). Cada fila navega a su detalle. */
+/** List of a category's components (Atoms/Molecules/Organisms). Each row navigates to its detail. */
 export function CategoryListScreen({ title, basePath, entries }: { title: string; basePath: string; entries: DemoEntry[] }) {
   const router = useRouter();
   return (

@@ -29,10 +29,10 @@ const TABS: NavigationBarItem[] = [
 
 /**
  * BrandThemeExample
- * Un solo hex repinta toda la app: de `brand.primary` salen los cuatro roles
- * del acento (relleno, lo que va encima, el fondo tenue y la variante legible
- * sobre superficie) en light y en dark. Al elegir un color cambian también las
- * otras pestañas: el cambio es global, no de esta pantalla.
+ * A single hex repaints the whole app: from `brand.primary` come the accent's
+ * four roles (fill, what goes on top, the soft background and the variant
+ * legible over surface) in light and in dark. Picking a color also changes
+ * the other tabs: the change is global, not for this screen.
  */
 export function BrandThemeExample() {
   const { brand, setBrand } = useBrand();

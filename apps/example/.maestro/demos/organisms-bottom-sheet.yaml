@@ -1,23 +1,23 @@
-# Flow de presentación (no de test): graba el clip que la doc muestra en la
-# página de BottomSheet.
+# Presentation flow (not a test): records the clip the docs show on the
+# BottomSheet page.
 #
-# Vive fuera de flows/ a propósito — config.yaml sólo incluye
-# flows/**/*.yaml, así `maestro test .maestro` (o sea e2e:ios y CI) no lo
-# corre ni lo cuenta como cobertura. Un clip que falla no debe romper el
-# suite, y un assert acá no agrega señal: la regresión de posición de la hoja
-# ya la cubre flows/behavior/bottom-sheet-position-and-dismiss.yaml.
+# It lives outside flows/ on purpose — config.yaml only includes
+# flows/**/*.yaml, so `maestro test .maestro` (i.e. e2e:ios and CI) doesn't
+# run it or count it as coverage. A failing clip must not break the suite,
+# and an assert here adds no signal: the sheet position regression is
+# already covered by flows/behavior/bottom-sheet-position-and-dismiss.yaml.
 #
-# Recorre las 5 variantes del demo, una por página del pager vertical de
-# VariantList. Paginar va por subflows/next-variant.yaml, el mismo que usan
-# los tests: `direction: UP` no cambia de página y un swipe más largo saltea
-# variantes. Cada variante se abre, se deja quieta un
-# beat para que se lea, y se cierra por el camino que le corresponde: la que
-# arrastra se arrastra, la que tiene footer se cancela, la fija se cierra por
-# backdrop. El label de la variante queda arriba en pantalla, así el clip se
-# explica solo.
+# Walks through the demo's 5 variants, one per page of VariantList's
+# vertical pager. Paging goes through subflows/next-variant.yaml, the same
+# one the tests use: `direction: UP` doesn't change the page and a longer
+# swipe skips variants. Each variant is opened, left still for a
+# beat so it can be read, and closed the way that fits it: the draggable one
+# is dragged, the one with a footer is cancelled, the fixed one is closed via
+# backdrop. The variant's label stays at the top of the screen, so the clip
+# explains itself.
 #
-# startRecording arranca recién después del deep link: el clip empieza en la
-# pantalla del demo, sin splash ni navegación.
+# startRecording only starts after the deep link: the clip begins on the
+# demo's screen, with no splash or navigation.
 appId: com.anonymous.orn-ui-example
 ---
 - launchApp:
@@ -30,10 +30,10 @@ appId: com.anonymous.orn-ui-example
 
 - startRecording: bottom-sheet
 
-# 1 — bare: sólo handle. Se cierra arrastrando, que es el gesto que define al
-# componente. Coordenadas explícitas (no `direction: DOWN`): en esta variante
-# el handle ya vive cerca del borde inferior y hay que arrancar arriba del
-# todo de su hit area para superar el umbral de 100pt.
+# 1 — bare: handle only. It's closed by dragging, which is the gesture that
+# defines the component. Explicit coordinates (not `direction: DOWN`): in this
+# variant the handle already lives near the bottom edge and you have to start
+# at the very top of its hit area to pass the 100pt threshold.
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
@@ -51,8 +51,8 @@ appId: com.anonymous.orn-ui-example
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 2 — title + footer: un form adentro de la hoja. Cierra por "Cancel", el
-# camino que tiene un footer con acciones.
+# 2 — title + footer: a form inside the sheet. Closes via "Cancel", the
+# path a footer with actions has.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
@@ -68,10 +68,10 @@ appId: com.anonymous.orn-ui-example
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 3 — contenido largo: la hoja topa en maxHeight y el contenido queda
-# cortado, que es lo que muestra el tope. No se scrollea adentro a propósito:
-# ese gesto arrastraba la hoja y dejaba el pager corrido, y de ahí en adelante
-# el flow abría la variante equivocada.
+# 3 — long content: the sheet caps at maxHeight and the content is cut off,
+# which is what shows the cap. It doesn't scroll inside on purpose: that
+# gesture dragged the sheet and left the pager shifted, and from then on the
+# flow opened the wrong variant.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
@@ -84,10 +84,10 @@ appId: com.anonymous.orn-ui-example
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
-# Punto explícito arriba de todo, no `tapOn: { id: bottom-sheet-backdrop }`:
-# el backdrop cubre la pantalla entera, así que su centro cae DEBAJO de una
-# hoja alta y el tap termina en el contenido. La hoja quedaba abierta y el
-# resto del flow corría sobre la variante equivocada.
+# Explicit point at the very top, not `tapOn: { id: bottom-sheet-backdrop }`:
+# the backdrop covers the whole screen, so its center falls UNDER a tall
+# sheet and the tap ends up on the content. The sheet stayed open and the
+# rest of the flow ran on the wrong variant.
 - tapOn:
     point: "50%,8%"
 - waitForAnimationToEnd
@@ -95,9 +95,9 @@ appId: com.anonymous.orn-ui-example
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 4 — footerPlacement="hide-with-keyboard": el form largo conserva la fila de
-# acciones. Sin abrir teclado el clip muestra la hoja llena de campos; el
-# comportamiento con teclado no entra en un loop de pocos segundos.
+# 4 — footerPlacement="hide-with-keyboard": the long form keeps the actions
+# row. Without opening the keyboard the clip shows the sheet full of fields;
+# the keyboard behavior doesn't fit in a loop of a few seconds.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
@@ -113,8 +113,8 @@ appId: com.anonymous.orn-ui-example
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 5 — draggable={false} + maxHeight={0.4}: no se arrastra, se cierra tocando
-# afuera. Es la única variante donde el backdrop es el camino principal.
+# 5 — draggable={false} + maxHeight={0.4}: it doesn't drag, it closes by
+# tapping outside. It's the only variant where the backdrop is the main path.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }

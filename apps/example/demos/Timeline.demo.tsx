@@ -4,8 +4,8 @@ import { Body, Card, Timeline, type TimelineItem } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 /**
- * Hitos reales del paquete. Sin números adentro a propósito: un "544 tests" en
- * un demo queda mintiendo en cuanto alguien agrega un test.
+ * The package's real milestones. No numbers inside on purpose: a "544 tests"
+ * in a demo starts lying as soon as someone adds a test.
  */
 const ROADMAP: TimelineItem[] = [
   { label: 'Zero dependencies', emoji: '📦' },
@@ -15,7 +15,7 @@ const ROADMAP: TimelineItem[] = [
   { label: 'v1.0 release', emoji: '🏁', status: 'pending' },
 ];
 
-/** El camino que recorre un cambio antes de poder decirse terminado. */
+/** The path a change goes through before it can be called done. */
 const PIPELINE: TimelineItem[] = [
   { label: 'Harness', iconName: 'check' },
   { label: 'Coverage gate', iconName: 'check' },
@@ -23,15 +23,15 @@ const PIPELINE: TimelineItem[] = [
   { label: 'Publish to npm', iconName: 'info', status: 'pending' },
 ];
 
-/** Marca hasta `reached` y deja pendiente el resto. */
+/** Marks up to `reached` and leaves the rest pending. */
 function upTo(items: TimelineItem[], reached: number): TimelineItem[] {
   return items.map((item, index) => ({ ...item, status: index <= reached ? undefined : 'pending' }));
 }
 
 /**
- * Tocar un hito lo alcanza, y con él todo lo anterior: la línea viaja hasta
- * ahí. Tocar el que ya está alcanzado da marcha atrás, para poder mirar la
- * animación en los dos sentidos sin recargar.
+ * Tapping a milestone reaches it, and everything before it: the line travels
+ * there. Tapping the one already reached goes back, so you can watch the
+ * animation in both directions without reloading.
  */
 function TappableTimeline() {
   const [reached, setReached] = useState(1);
@@ -43,19 +43,19 @@ function TappableTimeline() {
         onItemPress={(index) => setReached(index === reached ? index - 1 : index)}
         testID="timeline-tap"
       />
-      {/* El eco existe para el flow de Maestro: el nodo que se llena y la
-          línea que viaja son píxeles, y un assert no los ve. El texto sí. */}
+      {/* The echo exists for the Maestro flow: the node filling up and the
+          traveling line are pixels, and an assert can't see them. Text it can. */}
       <Body>Reached: {ROADMAP[reached]?.label ?? 'nothing yet'}</Body>
     </View>
   );
 }
 
 /**
- * Avanza solo y vuelve a empezar: el demo existe para mirar el movimiento.
+ * Advances on its own and starts over: the demo exists to watch the motion.
  *
- * Sin botón de pausa a propósito. Iba uno, y caía justo donde el pager de
- * VariantList arranca su swipe (80% de la pantalla): el botón se quedaba con
- * el gesto y no se podía pasar de variante.
+ * No pause button on purpose. There was one, and it landed right where
+ * VariantList's pager starts its swipe (80% of the screen): the button kept
+ * the gesture and you couldn't move to the next variant.
  */
 function AutoTimeline() {
   const [reached, setReached] = useState(-1);
@@ -76,8 +76,8 @@ function AutoTimeline() {
 }
 
 /**
- * Avance estricto: sólo responde el hito que sigue, y lo alcanzado no se
- * devuelve. Es el onboarding que no deja saltear pasos.
+ * Strict progression: only the next milestone responds, and what was reached
+ * isn't given back. It's the onboarding that doesn't let you skip steps.
  */
 function SequentialTimeline() {
   const [reached, setReached] = useState(0);
@@ -100,9 +100,9 @@ function SequentialTimeline() {
 }
 
 /**
- * Progreso guardado, contenido revisitable: tocar un hito anterior cambia lo
- * que estoy mirando, no lo que llevo recorrido. La línea se queda donde
- * llegó y el borde marca dónde estoy parado.
+ * Saved progress, revisitable content: tapping an earlier milestone changes
+ * what I'm looking at, not how far I've gone. The line stays where it got to
+ * and the border marks where I'm standing.
  */
 function RevisitTimeline() {
   const [reached, setReached] = useState(2);
@@ -116,8 +116,8 @@ function RevisitTimeline() {
         selectedIndex={looking}
         onItemPress={(index) => {
           setLooking(index);
-          // Sólo el hito que sigue empuja el recorrido; los de atrás son una
-          // visita.
+          // Only the next milestone pushes the path forward; the ones behind
+          // are a visit.
           if (index > reached) setReached(index);
         }}
         testID="timeline-revisit"

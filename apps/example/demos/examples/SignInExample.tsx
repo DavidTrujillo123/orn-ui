@@ -15,16 +15,16 @@ import {
   useToast,
 } from 'orn-ui';
 
-/** La única credencial que "existe": todo lo demás rebota como en un backend real. */
+/** The only credential that "exists": everything else bounces like in a real backend. */
 const VALID = { email: 'acme@studio.com', password: 'orn-ui' };
 
 /**
  * SignInExample
- * Login con la parte que los formularios de ejemplo suelen omitir: el camino
- * de error. Valida en submit (no mientras se tipea, que acusa antes de que el
- * usuario termine), bloquea el botón con `loading` durante el request y
- * distingue el fallo de campo — que se pinta bajo el Input — del fallo de
- * credenciales, que va a un Alert porque no pertenece a ningún campo.
+ * Login with the part sample forms usually leave out: the error path. It
+ * validates on submit (not while typing, which accuses before the user is
+ * done), blocks the button with `loading` during the request and tells the
+ * field failure — painted under the Input — apart from the credentials
+ * failure, which goes to an Alert because it doesn't belong to any field.
  */
 export function SignInExample() {
   const { alert } = useAlert();
@@ -105,8 +105,8 @@ export function SignInExample() {
           value={email}
           onChangeText={(t) => {
             setEmail(t);
-            // Limpia el error del campo apenas se lo edita: dejarlo mientras el
-            // usuario corrige lo marca en rojo cuando ya lo está arreglando.
+            // Clears the field's error as soon as it's edited: leaving it while
+            // the user corrects it marks it red when they're already fixing it.
             if (errors.email) setErrors((e) => ({ ...e, email: undefined }));
           }}
           keyboardType="email-address"

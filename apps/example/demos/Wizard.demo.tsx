@@ -19,8 +19,8 @@ export function WizardDemo() {
   const [plan, setPlan] = useState<string | undefined>();
   const [accepted, setAccepted] = useState(false);
 
-  // Validación real por paso: Next queda deshabilitado hasta que el paso
-  // actual esté completo.
+  // Real per-step validation: Next stays disabled until the current step
+  // is complete.
   const validated: WizardStep[] = [
     {
       label: 'Account',

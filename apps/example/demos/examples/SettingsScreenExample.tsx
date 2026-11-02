@@ -26,10 +26,10 @@ const LANGUAGES = [
 
 /**
  * SettingsScreenExample
- * Pantalla de ajustes: el caso donde ThemeToggle se ve trabajar de verdad —
- * cambiar el modo repinta toda la app en el acto, no sólo esta tarjeta. Suma
- * preferencias con Checkbox, un Select de idioma, la sesión en InfoRow y una
- * zona de riesgo con confirmación destructiva.
+ * Settings screen: the case where ThemeToggle is seen really working —
+ * changing the mode repaints the whole app on the spot, not just this card.
+ * Adds preferences with Checkbox, a language Select, the session in InfoRow
+ * and a danger zone with destructive confirmation.
  */
 export function SettingsScreenExample() {
   const { confirm } = useAlert();

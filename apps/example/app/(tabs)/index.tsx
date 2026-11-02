@@ -1,6 +1,6 @@
 import { Redirect } from 'expo-router';
 
-/** "/" no tiene contenido propio: redirige al primer tab real (Atoms). */
+/** "/" has no content of its own: it redirects to the first real tab (Atoms). */
 export default function TabsRoot() {
   return <Redirect href="/atoms" />;
 }

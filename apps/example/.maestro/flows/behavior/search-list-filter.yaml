@@ -1,9 +1,9 @@
-# El filtrado de SearchList vive afuera del componente (el demo hace
-# ALL.filter(...) y pasa el resultado como `data`) — SearchList sólo expone
-# el input y renderiza lo que le llega. Este flow confirma que ese cableado
-# search -> filtro -> lista funciona de punta a punta, y que limpiar la
-# búsqueda (botón "x" del Input, rightIconName cuando hay texto) restaura la
-# lista completa — un smoke genérico sólo abre el demo, nunca escribe nada.
+# SearchList's filtering lives outside the component (the demo does
+# ALL.filter(...) and passes the result as `data`) — SearchList only exposes
+# the input and renders what it receives. This flow confirms that the
+# search -> filter -> list wiring works end to end, and that clearing the
+# search (the Input's "x" button, rightIconName when there's text) restores the
+# full list — a generic smoke test only opens the demo, it never types anything.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -23,8 +23,8 @@ tags:
 - assertVisible: "Banana"
 - assertNotVisible: "Apple"
 
-# Botón "x" (rightIconName="close", accessibilityLabel="Clear" — ver
-# Input.tsx) aparece sólo con texto y limpia el campo.
+# "x" button (rightIconName="close", accessibilityLabel="Clear" — see
+# Input.tsx) only appears with text and clears the field.
 - tapOn: "Clear"
 - assertVisible: "Apple"
 - assertVisible: "Banana"

@@ -1,25 +1,24 @@
-# Prueba el ThemeToggle del header global (tabs), no el demo aislado del
-# organismo — ese ya lo cubre organisms-theme-toggle.yaml (smoke generado).
+# Tests the global header's ThemeToggle (tabs), not the organism's isolated
+# demo — organisms-theme-toggle.yaml (generated smoke) already covers that.
 #
-# Regresión pasada: `mode` es la prop *controlada* del provider — sin
-# `onModeChange` cableado, ThemeToggle llamaba a setMode y el tema nunca
-# cambiaba (sólo servía el toggle del sistema). Cambiar de tab y volver
-# confirma además que el modo sobrevive a un remount de pantalla, no sólo al
-# primer tap.
+# Past regression: `mode` is the provider's *controlled* prop — without
+# `onModeChange` wired, ThemeToggle called setMode and the theme never
+# changed (only the system toggle worked). Switching tabs and coming back also
+# confirms the mode survives a screen remount, not just the first tap.
 #
-# El selector de texto de Maestro exige coincidencia completa del string, no
-# substring: cada tab de iOS expone accessibilityText "Atoms, tab, 2 of 5"
-# (no "Atoms" a secas). Por eso el tab se toca con `.*Atoms.*` y "llegué" se
-# confirma contra el header de la categoría (Title suelto, sin agrupar), no
-# contra una fila de la lista (esas concatenan título + descripción en un solo
-# nodo accesible y "Typography" a secas no matchea ese string completo).
+# Maestro's text selector requires a full string match, not a substring:
+# each iOS tab exposes accessibilityText "Atoms, tab, 2 of 5" (not just
+# "Atoms"). That's why the tab is tapped with `.*Atoms.*` and "I got there" is
+# confirmed against the category header (standalone Title, not grouped), not
+# against a list row (those concatenate title + description in a single
+# accessible node and a bare "Typography" doesn't match that full string).
 #
-# El primer assert va con extendedWaitUntil y no con assertVisible: este es el
-# único flow que arranca en la pantalla de tabs sin un `openLink` en el medio
-# (los demás pasan por subflows/open-demo.yaml, y ese paso ya le da al bundle
-# el tiempo de arrancar). Con assertVisible pelado, en un arranque en frío de
-# un build Release la jerarquía todavía está vacía cuando corre el assert y el
-# flow falla intermitente contra una pantalla en blanco.
+# The first assert uses extendedWaitUntil and not assertVisible: this is the
+# only flow that starts on the tabs screen without an `openLink` in between
+# (the others go through subflows/open-demo.yaml, and that step already gives
+# the bundle time to start). With a bare assertVisible, on a cold start of a
+# Release build the hierarchy is still empty when the assert runs and the
+# flow fails intermittently against a blank screen.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior

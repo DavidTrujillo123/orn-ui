@@ -18,9 +18,8 @@ const SLIDES: Slide[] = [
 
 const FLAT = ['#101014', '#1d2b3a', '#3a1d2b'];
 
-// Cada botón lleva su propio testID: las tres slides están montadas a la vez,
-// así que un selector por texto ("Got it") matchea también las que están fuera
-// de pantalla.
+// Each button has its own testID: all three slides are mounted at once, so a
+// selector by text ("Got it") also matches the ones off screen.
 function Panel({ slide, onPress }: { slide: Slide; onPress?: () => void }) {
   const colors = useColors();
   return (
@@ -62,9 +61,9 @@ export function SlidesDemo() {
       ),
     },
     {
-      // El botón vive acá y no en la variante de "indicadores afuera" a
-      // propósito: el flow de Maestro llega a esta página con un solo swipe
-      // del pager, y encadenar swipes no es determinista (ver .maestro/README).
+      // The button lives here and not in the "indicators outside" variant on
+      // purpose: the Maestro flow reaches this page with a single pager
+      // swipe, and chaining swipes isn't deterministic (see .maestro/README).
       label: 'numbered indicators · flat colors · finite · button inside',
       content: (
         <View style={{ width: '100%', gap: 8 }}>
