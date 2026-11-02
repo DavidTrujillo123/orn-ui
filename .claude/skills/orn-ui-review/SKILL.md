@@ -197,6 +197,8 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
 - **Nunca simular toques con eventos de mouse/teclado del Mac** (CGEvent,
   osascript, cliclick): si el Simulator no está al frente, el clic cae en otra
   app del usuario (pasó el 2026-11-02). Los toques solo con Maestro.
+- **Todo comentario de código en inglés** (regla del usuario, 2026-11-02): JSDoc,
+  comentarios de implementación, tests, demos y scripts, en los dos repos.
 - JSDoc de props públicas **siempre en inglés** (es el texto de la docs en
   inglés). Toda prop nueva o cambiada lleva su traducción en
   `orn-ui-docs/src/i18n/components/<slug>/es.json` (`props.<name>.description`);
