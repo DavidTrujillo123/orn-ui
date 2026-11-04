@@ -11,7 +11,11 @@ function OrderConfirmedHeader() {
 export function AvatarHeaderDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'With initials', content: <AvatarHeader initials="JD" title="Jane Doe" subtitle="Customer since 2023" /> },
+    { label: 'With initials', content: <AvatarHeader initials="JD" title="Jane Doe" subtitle="Premium customer" /> },
+    {
+      label: 'caption — third line, the limit',
+      content: <AvatarHeader initials="JD" title="Jane Doe" subtitle="Premium customer" caption="Joined March 2023" />,
+    },
     { label: 'With icon', content: <AvatarHeader iconName="star" title="Gold member" subtitle="1,240 points" /> },
     {
       label: 'iconColor — keep AA on the soft fill',

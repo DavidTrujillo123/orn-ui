@@ -51,4 +51,14 @@ describe('AvatarHeader', () => {
     render(withProvider(<AvatarHeader initials="JD" title="John Doe" subtitle="A long supporting line" />));
     expect(screen.getByText('A long supporting line')).toHaveStyle({ textAlign: 'center' });
   });
+
+  it('renders a caption as the third, smallest line', () => {
+    render(withProvider(<AvatarHeader initials="JD" title="John Doe" subtitle="Customer" caption="Joined 2023" />));
+    expect(screen.getByText('Joined 2023')).toHaveStyle({ fontSize: 12, textAlign: 'center' });
+  });
+
+  it('has no outer margin: the parent owns the spacing', () => {
+    render(withProvider(<AvatarHeader initials="JD" title="John Doe" testID="hdr" />));
+    expect(screen.getByTestId('hdr')).not.toHaveStyle({ marginBottom: 20 });
+  });
 });

@@ -16,6 +16,11 @@ export interface AvatarHeaderProps {
   title: string;
   /** Supporting line under the title. A string gets the muted style; a node renders as is. */
   subtitle?: React.ReactNode;
+  /**
+   * Third and last line, the least important detail ("Joined March 2023").
+   * Three lines is the limit: beyond that the header stops being scannable.
+   */
+  caption?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -24,7 +29,8 @@ const CIRCLE = 80;
 const ICON_SIZE = 40;
 
 const useStyles = createStyles((theme) => ({
-  container: { alignItems: 'center', marginBottom: theme.tokens.spacing.xl },
+  // No outer margin: the space below belongs to the parent's layout.
+  container: { alignItems: 'center' },
   avatar: {
     width: CIRCLE,
     height: CIRCLE,
@@ -53,6 +59,13 @@ const useStyles = createStyles((theme) => ({
     color: theme.colors.textLight,
     textAlign: 'center',
   },
+  caption: {
+    fontSize: theme.tokens.fontSize.sm,
+    lineHeight: theme.tokens.lineHeight.sm,
+    color: theme.colors.textLight,
+    textAlign: 'center',
+    marginTop: theme.tokens.spacing.xxs,
+  },
 }));
 
 /**
@@ -63,14 +76,15 @@ const useStyles = createStyles((theme) => ({
  * Gestalt, symmetry and focal point: everything sits on one centered axis and
  * the circle is the single large shape, so the eye lands there first and then
  * drops to the title. Proximity: title and subtitle are closer to each other
- * than to the circle, reading as one name + its detail. Long text wraps
- * centered, so the axis holds.
+ * than to the circle, reading as one name + its detail. Hierarchy by size:
+ * title, subtitle, caption — at most three lines of text. Long text wraps
+ * centered, so the axis holds. No outer margin: the parent sets the spacing.
  *
  * Accessibility: the title is a header; the circle is decorative (the
  * initials would only repeat the title).
  */
 export const AvatarHeader = memo(
-  ({ iconName, iconColor, initials, title, subtitle, style, testID }: AvatarHeaderProps) => {
+  ({ iconName, iconColor, initials, title, subtitle, caption, style, testID }: AvatarHeaderProps) => {
     const colors = useColors();
     const styles = useStyles();
     const allowFontScaling = useAllowFontScaling();
@@ -96,6 +110,11 @@ export const AvatarHeader = memo(
           </Text>
         ) : (
           subtitle
+        )}
+        {!!caption && (
+          <Text allowFontScaling={allowFontScaling} style={styles.caption}>
+            {caption}
+          </Text>
         )}
       </View>
     );
