@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { OptionCard } from 'orn-ui';
+import { OptionCard, useTheme } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-const PAYMENTS = [
-  { value: 'cash', label: 'Cash', iconName: 'check' },
-  { value: 'card', label: 'Card', iconName: 'info' },
-  { value: 'transfer', label: 'Transfer', iconName: 'search' },
+const PLANS = [
+  { value: 'basic', label: 'Basic', iconName: 'user' },
+  { value: 'plus', label: 'Plus', iconName: 'star' },
+  { value: 'family', label: 'Family', iconName: 'heart' },
 ] as const;
 
 const SHIPPING = [
@@ -14,69 +14,79 @@ const SHIPPING = [
   { value: 'express', label: 'Express', description: 'Tomorrow, $8 more' },
 ] as const;
 
-export function OptionCardDemo() {
-  const [payment, setPayment] = useState<string>('cash');
-  const [shipping, setShipping] = useState<string>('standard');
-
-  const row = (children: React.ReactNode) => (
-    <View style={{ flexDirection: 'row', gap: 8 }} accessibilityRole="radiogroup">
+// One question, one row: the screen reader announces the group as a radio group ("1 of 3").
+function OptionRow({ children }: { children: React.ReactNode }) {
+  const theme = useTheme();
+  return (
+    <View style={{ flexDirection: 'row', gap: theme.tokens.spacing.sm }} accessibilityRole="radiogroup">
       {children}
     </View>
   );
+}
+
+export function OptionCardDemo() {
+  const [plan, setPlan] = useState<string>('basic');
+  const [shipping, setShipping] = useState<string>('standard');
 
   // #region demo
   const variants: VariantDef[] = [
     {
       label: 'layout="horizontal" — two options',
-      content: row(
-        PAYMENTS.slice(0, 2).map((option) => (
-          <OptionCard
-            key={option.value}
-            label={option.label}
-            iconName={option.iconName}
-            isSelected={payment === option.value}
-            onPress={() => setPayment(option.value)}
-          />
-        ))
+      content: (
+        <OptionRow>
+          {PLANS.slice(0, 2).map((option) => (
+            <OptionCard
+              key={option.value}
+              label={option.label}
+              iconName={option.iconName}
+              isSelected={plan === option.value}
+              onPress={() => setPlan(option.value)}
+            />
+          ))}
+        </OptionRow>
       ),
     },
     {
       label: 'layout="vertical" — three options',
-      content: row(
-        PAYMENTS.map((option) => (
-          <OptionCard
-            key={option.value}
-            layout="vertical"
-            label={option.label}
-            iconName={option.iconName}
-            isSelected={payment === option.value}
-            onPress={() => setPayment(option.value)}
-          />
-        ))
+      content: (
+        <OptionRow>
+          {PLANS.map((option) => (
+            <OptionCard
+              key={option.value}
+              layout="vertical"
+              label={option.label}
+              iconName={option.iconName}
+              isSelected={plan === option.value}
+              onPress={() => setPlan(option.value)}
+            />
+          ))}
+        </OptionRow>
       ),
     },
     {
       label: 'with description, no icon',
-      content: row(
-        SHIPPING.map((option) => (
-          <OptionCard
-            key={option.value}
-            layout="vertical"
-            label={option.label}
-            description={option.description}
-            isSelected={shipping === option.value}
-            onPress={() => setShipping(option.value)}
-          />
-        ))
+      content: (
+        <OptionRow>
+          {SHIPPING.map((option) => (
+            <OptionCard
+              key={option.value}
+              layout="vertical"
+              label={option.label}
+              description={option.description}
+              isSelected={shipping === option.value}
+              onPress={() => setShipping(option.value)}
+            />
+          ))}
+        </OptionRow>
       ),
     },
     {
       label: 'disabled option',
-      content: row(
-        <>
-          <OptionCard label="Cash" iconName="check" isSelected onPress={() => {}} />
-          <OptionCard label="Card" iconName="info" isSelected={false} disabled onPress={() => {}} />
-        </>
+      content: (
+        <OptionRow>
+          <OptionCard label="Basic" iconName="user" isSelected onPress={() => {}} />
+          <OptionCard label="Plus" iconName="star" isSelected={false} disabled onPress={() => {}} />
+        </OptionRow>
       ),
     },
   ];

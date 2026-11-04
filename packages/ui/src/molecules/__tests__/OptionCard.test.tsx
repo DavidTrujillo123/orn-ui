@@ -33,14 +33,39 @@ describe('OptionCard', () => {
     expect(screen.getByRole('radio', { name: 'Cash' })).toBeOnTheScreen();
   });
 
-  it('renders the description and exposes it as a hint', () => {
+  it('reads the description as part of the name, not as a hint users can turn off', () => {
     render(
       withProvider(
         <OptionCard label="Standard" description="Arrives in 3 days" isSelected={false} onPress={() => {}} />
       )
     );
     expect(screen.getByText('Arrives in 3 days')).toBeOnTheScreen();
-    expect(screen.getByRole('radio', { name: 'Standard' }).props.accessibilityHint).toBe('Arrives in 3 days');
+    const radio = screen.getByRole('radio', { name: 'Standard, Arrives in 3 days' });
+    expect(radio.props.accessibilityHint).toBeUndefined();
+  });
+
+  it('keeps unselected labels in the text color and highlights only the selected one', () => {
+    render(
+      withProvider(
+        <>
+          <OptionCard label="Cash" isSelected onPress={() => {}} />
+          <OptionCard label="Card" isSelected={false} onPress={() => {}} />
+        </>
+      )
+    );
+    expect(screen.getByText('Card')).toHaveStyle({ color: '#333333' });
+    expect(screen.getByText('Cash')).not.toHaveStyle({ color: '#333333' });
+  });
+
+  it('the thicker selected border gives its width back in padding, so content does not shift', () => {
+    const { rerender } = render(
+      withProvider(<OptionCard label="Cash" isSelected={false} onPress={() => {}} testID="card" />)
+    );
+    const flat = (s: unknown) => Object.assign({}, ...[s].flat(Infinity).filter(Boolean));
+    const off = flat(screen.getByTestId('card').props.style);
+    rerender(withProvider(<OptionCard label="Cash" isSelected onPress={() => {}} testID="card" />));
+    const on = flat(screen.getByTestId('card').props.style);
+    expect(on.borderWidth + on.padding).toBe(off.borderWidth + off.padding);
   });
 
   it('disabled blocks the press and says so', () => {
