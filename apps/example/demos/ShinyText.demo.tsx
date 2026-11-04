@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Body, Caption, Card, ShinyText, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-function ColorPairs() {
+function ColorPairsExample() {
   const colors = useColors();
 
   return (
@@ -20,7 +20,7 @@ function ColorPairs() {
   );
 }
 
-function Spreads() {
+function SpreadsExample() {
   return (
     <View style={{ gap: 12 }}>
       <ShinyText text="Narrow glint" spread={0.08} />
@@ -29,7 +29,7 @@ function Spreads() {
   );
 }
 
-function UpgradeCard() {
+function UpgradeCardExample() {
   const colors = useColors();
 
   return (
@@ -47,7 +47,7 @@ export function ShinyTextDemo() {
   const variants: VariantDef[] = [
     {
       label: 'colors — the resting/shine pair is what makes it readable',
-      content: <ColorPairs />,
+      content: <ColorPairsExample />,
     },
     {
       label: 'align="center" — wraps by word on several lines',
@@ -57,7 +57,7 @@ export function ShinyTextDemo() {
     },
     {
       label: 'spread — narrow glint vs. soft wave',
-      content: <Spreads />,
+      content: <SpreadsExample />,
     },
     {
       label: 'duration and delay — slow sweep, long pause',
@@ -73,7 +73,7 @@ export function ShinyTextDemo() {
     },
     {
       label: 'in a card, with the brand accent',
-      content: <UpgradeCard />,
+      content: <UpgradeCardExample />,
     },
   ];
   return <VariantList variants={variants} />;

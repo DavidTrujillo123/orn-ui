@@ -1,67 +1,124 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Caption, Stepper, type StepperProps } from 'orn-ui';
+import { Caption, Stepper, useTheme } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-// A controlled Stepper: the component cleans what is typed and disables the
-// button that would leave the range; the arithmetic lives in the caller.
-function Quantity({ initial = '1', step = 1, ...props }: Partial<StepperProps> & { initial?: string; step?: number }) {
-  const [value, setValue] = useState(initial);
+// Stepper is controlled: it cleans what is typed and disables the button that
+// would leave the range; the arithmetic lives in your onIncrement/onDecrement.
+function StepperExample() {
+  const [qty, setQty] = useState('1');
   return (
     <Stepper
-      value={value}
-      onChangeText={setValue}
-      onIncrement={() => setValue(String(Number(value || 0) + step))}
-      onDecrement={() => setValue(String(Number(value || 0) - step))}
-      {...props}
+      value={qty}
+      onChangeText={setQty}
+      onIncrement={() => setQty(String(Number(qty || 0) + 1))}
+      onDecrement={() => setQty(String(Number(qty || 0) - 1))}
     />
+  );
+}
+
+function SmallStepperExample() {
+  const [qty, setQty] = useState('1');
+  return (
+    <Stepper
+      value={qty}
+      onChangeText={setQty}
+      onIncrement={() => setQty(String(Number(qty || 0) + 1))}
+      onDecrement={() => setQty(String(Number(qty || 0) - 1))}
+      size="sm"
+    />
+  );
+}
+
+function LargeStepperExample() {
+  const [qty, setQty] = useState('1');
+  return (
+    <Stepper
+      value={qty}
+      onChangeText={setQty}
+      onIncrement={() => setQty(String(Number(qty || 0) + 1))}
+      onDecrement={() => setQty(String(Number(qty || 0) - 1))}
+      size="lg"
+    />
+  );
+}
+
+function BlockStepperExample() {
+  const [qty, setQty] = useState('1');
+  return (
+    <Stepper
+      value={qty}
+      onChangeText={setQty}
+      onIncrement={() => setQty(String(Number(qty || 0) + 1))}
+      onDecrement={() => setQty(String(Number(qty || 0) - 1))}
+      block
+    />
+  );
+}
+
+function ButtonsOnlyExample() {
+  const theme = useTheme();
+  const [qty, setQty] = useState('1');
+  return (
+    <View style={{ gap: theme.tokens.spacing.md }}>
+      <Stepper
+        value={qty}
+        onChangeText={setQty}
+        onIncrement={() => setQty(String(Number(qty || 0) + 1))}
+        onDecrement={() => setQty(String(Number(qty || 0) - 1))}
+        editable={false}
+      />
+      <Caption>No tint: the value changes only with the buttons, and the keyboard never opens.</Caption>
+    </View>
+  );
+}
+
+function RangeExample() {
+  const theme = useTheme();
+  const [qty, setQty] = useState('5');
+  return (
+    <View style={{ gap: theme.tokens.spacing.md }}>
+      <Stepper
+        value={qty}
+        onChangeText={setQty}
+        onIncrement={() => setQty(String(Number(qty || 0) + 1))}
+        onDecrement={() => setQty(String(Number(qty || 0) - 1))}
+        min={1}
+        max={10}
+      />
+      <Caption>Range 1–10. Typing 99 and leaving the field clamps it back to 10.</Caption>
+    </View>
+  );
+}
+
+function DecimalsExample() {
+  const theme = useTheme();
+  const [qty, setQty] = useState('12.50');
+  return (
+    <View style={{ gap: theme.tokens.spacing.md }}>
+      <Stepper
+        value={qty}
+        onChangeText={setQty}
+        onIncrement={() => setQty(String(Number(qty || 0) + 0.5))}
+        onDecrement={() => setQty(String(Number(qty || 0) - 0.5))}
+        allowDecimals
+        min={0}
+      />
+      <Caption>Without it, digits only: letters, separators and the minus sign never reach the value.</Caption>
+    </View>
   );
 }
 
 export function StepperDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'size="md" (default)', content: <Quantity /> },
-    { label: 'size="sm"', content: <Quantity size="sm" /> },
-    { label: 'size="lg"', content: <Quantity size="lg" /> },
-    {
-      label: 'the three sizes together',
-      content: (
-        <View style={{ gap: 12 }}>
-          <Quantity size="sm" />
-          <Quantity size="md" />
-          <Quantity size="lg" />
-        </View>
-      ),
-    },
-    { label: 'block — fills the row, the input takes the rest', content: <Quantity block /> },
-    {
-      label: 'editable={false} — buttons only, no keyboard',
-      content: (
-        <View style={{ gap: 12 }}>
-          <Quantity editable={false} />
-          <Caption>No tint: the value changes only with the buttons, and the keyboard never opens.</Caption>
-        </View>
-      ),
-    },
-    {
-      label: 'min / max — the button that would leave the range is disabled',
-      content: (
-        <View style={{ gap: 12 }}>
-          <Quantity initial="5" min={1} max={10} />
-          <Caption>Range 1–10. Typing 99 and leaving the field clamps it back to 10.</Caption>
-        </View>
-      ),
-    },
-    {
-      label: 'allowDecimals — comma becomes dot',
-      content: (
-        <View style={{ gap: 12 }}>
-          <Quantity initial="12.50" step={0.5} allowDecimals min={0} />
-          <Caption>Without it, digits only: letters, separators and the minus sign never reach the value.</Caption>
-        </View>
-      ),
-    },
+    { label: 'size="md" (default)', content: <StepperExample /> },
+    { label: 'size="sm"', content: <SmallStepperExample /> },
+    { label: 'size="lg"', content: <LargeStepperExample /> },
+    { label: 'block — fills the row, the input takes the rest', content: <BlockStepperExample /> },
+    { label: 'editable={false} — buttons only, no keyboard', content: <ButtonsOnlyExample /> },
+    { label: 'min / max — the button that would leave the range is disabled', content: <RangeExample /> },
+    { label: 'allowDecimals — comma becomes dot', content: <DecimalsExample /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

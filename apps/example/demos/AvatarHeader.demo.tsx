@@ -3,7 +3,7 @@ import { AvatarHeader, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 // The icon takes a theme "Text" color: it keeps AA contrast on the soft fill.
-function OrderConfirmedHeader() {
+function OrderConfirmedExample() {
   const colors = useColors();
   return <AvatarHeader iconName="check" iconColor={colors.successText} title="Order confirmed" subtitle="#A-10492" />;
 }
@@ -19,7 +19,7 @@ export function AvatarHeaderDemo() {
     { label: 'With icon', content: <AvatarHeader iconName="star" title="Gold member" subtitle="1,240 points" /> },
     {
       label: 'iconColor — keep AA on the soft fill',
-      content: <OrderConfirmedHeader />,
+      content: <OrderConfirmedExample />,
     },
     { label: 'No icon or initials — user fallback', content: <AvatarHeader title="Guest" subtitle="Not signed in" /> },
     {

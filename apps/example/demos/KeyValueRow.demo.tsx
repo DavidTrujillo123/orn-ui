@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Badge, Divider, KeyValueRow, useTheme } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-function Totals() {
+function TotalsExample() {
   const theme = useTheme();
   const strong = { fontWeight: theme.tokens.fontWeight.bold, fontSize: theme.tokens.fontSize.md };
 
@@ -21,7 +21,7 @@ function Totals() {
 export function KeyValueRowDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'totals — digits line up in the value column', content: <Totals /> },
+    { label: 'totals — digits line up in the value column', content: <TotalsExample /> },
     { label: 'numeric value', content: <KeyValueRow label="Items" value={12} /> },
     {
       label: 'custom node as value',

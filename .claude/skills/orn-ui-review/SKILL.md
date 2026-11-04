@@ -197,9 +197,18 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
      (`{...bind(qty, setQty)}`): si hace falta estado, un componente
      auxiliar (`<Quantity size="sm" />`), que la docs muestra con su definición.
      Tampoco variables del cuerpo del demo (`useState`, `useColors()`,
-     `useTheme()` declarados en `XDemo()`): la docs no las muestra y la
-     variante usa algo sin origen. Van dentro de un componente auxiliar
-     (`<Segmented options={...} initial="week" />`, `<OrderConfirmedHeader />`).
+     `useTheme()` declarados en `XDemo()`): la docs no las muestra.
+     **Ejemplos para copiar y pegar** (error del 2026-11-04: `Segmented`,
+     `Quantity`, `Toggle`, `OptionRow`, `DetailList` parecían componentes de
+     la librería y no existen): si una variante necesita estado, va en una
+     función con sufijo `Example` (`ThreeOptionsExample`) que usa el
+     componente real directo con todas sus props escritas. Nunca un wrapper
+     genérico con props (`initial`, `...props`) ni un nombre que suene a
+     componente. Sin estado, el JSX va inline en `content`.
+     **Nada de timers/`useEffect` en ejemplos** salvo que el componente sea
+     una animación cuyo disparador es cambiar una prop (Transition); un
+     `useEffect` en el ejemplo hace creer que la animación propia del
+     componente es opcional.
   Sin los cinco pasos, no se commitea la docs.
 - **Nunca simular toques con eventos de mouse/teclado del Mac** (CGEvent,
   osascript, cliclick): si el Simulator no está al frente, el clic cae en otra

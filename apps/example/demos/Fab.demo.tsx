@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import { Fab, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-function CustomColor() {
+function CustomColorExample() {
   const colors = useColors();
   return (
     // Fab is absolute: here it anchors to a 96pt box. In a real screen it sits
@@ -32,7 +32,7 @@ export function FabDemo() {
         </View>
       ),
     },
-    { label: 'color — the icon picks black or white for contrast', content: <CustomColor /> },
+    { label: 'color — the icon picks black or white for contrast', content: <CustomColorExample /> },
     {
       label: 'size and iconName',
       content: (

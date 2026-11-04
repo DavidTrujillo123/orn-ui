@@ -3,10 +3,16 @@ import { View } from 'react-native';
 import { InfoRow, useTheme } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-// Rows sit further apart than label and value, so each row reads as one fact.
-function DetailList({ children }: { children: React.ReactNode }) {
+function DetailListExample() {
   const theme = useTheme();
-  return <View style={{ gap: theme.tokens.spacing.lg }}>{children}</View>;
+  return (
+    // Rows sit further apart than label and value, so each row reads as one fact.
+    <View style={{ gap: theme.tokens.spacing.lg }}>
+      <InfoRow icon="user" label="Name" value="Jane Cooper" placeholder="No name" />
+      <InfoRow icon="home" label="Address" value="4517 Washington Ave" placeholder="No address yet" />
+      <InfoRow icon="star" label="Membership" value={null} placeholder="Not a member" />
+    </View>
+  );
 }
 
 export function InfoRowDemo() {
@@ -30,13 +36,7 @@ export function InfoRowDemo() {
     },
     {
       label: 'Detail list',
-      content: (
-        <DetailList>
-          <InfoRow icon="user" label="Name" value="Jane Cooper" placeholder="No name" />
-          <InfoRow icon="home" label="Address" value="4517 Washington Ave" placeholder="No address yet" />
-          <InfoRow icon="star" label="Membership" value={null} placeholder="Not a member" />
-        </DetailList>
-      ),
+      content: <DetailListExample />,
     },
   ];
   return <VariantList variants={variants} />;

@@ -1,37 +1,22 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View } from 'react-native';
-import { Avatar, Badge, Body, Card, Skeleton, Subtitle } from 'orn-ui';
+import { Body, Card, Skeleton, useTheme } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-function LoadingCard() {
-  const [loaded, setLoaded] = useState(false);
-
-  useEffect(() => {
-    const id = setInterval(() => setLoaded((v) => !v), 2000);
-    return () => clearInterval(id);
-  }, []);
-
+// Same layout as the loaded card (avatar, two lines, badge), so the content
+// lands in place without a jump.
+function LoadingCardExample() {
+  const theme = useTheme();
   return (
     <Card>
-      {loaded ? (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Avatar name="Acme Studio" size={48} />
-          <View style={{ flex: 1, gap: 4 }}>
-            <Subtitle>Acme Studio</Subtitle>
-            <Body>Invoice #1042 · paid</Body>
-          </View>
-          <Badge label="PAID" variant="success" />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.tokens.spacing.md }}>
+        <Skeleton variant="circle" width={48} />
+        <View style={{ flex: 1, gap: theme.tokens.spacing.sm }}>
+          <Skeleton width="70%" height={14} />
+          <Skeleton width="45%" height={12} />
         </View>
-      ) : (
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          <Skeleton variant="circle" width={48} />
-          <View style={{ flex: 1, gap: 8 }}>
-            <Skeleton width="70%" height={14} />
-            <Skeleton width="45%" height={12} />
-          </View>
-          <Skeleton width={56} height={22} radius={11} />
-        </View>
-      )}
+        <Skeleton width={56} height={22} radius={11} />
+      </View>
     </Card>
   );
 }
@@ -73,8 +58,8 @@ export function SkeletonDemo() {
       content: <Skeleton height={20} animated={false} />,
     },
     {
-      label: 'reserves the exact space: toggles every 2s',
-      content: <LoadingCard />,
+      label: 'compose a card placeholder',
+      content: <LoadingCardExample />,
     },
   ];
   return <VariantList variants={variants} />;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import { Body, Card, Caption, Subtitle, Transition, type TransitionPreset } from 'orn-ui';
+import { Body, Card, Caption, Subtitle, Transition } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 // The demos animate on their own, without buttons: a transition is understood
@@ -9,9 +9,9 @@ const AUTO_TOGGLE_MS = 1600;
 const AUTO_REPLAY_MS = 3000;
 const AUTO_REMOVE_MS = 900;
 
-function Toggle({ preset, distance }: { preset: TransitionPreset | TransitionPreset[]; distance?: number }) {
+function FadeExample() {
+  // In your app `visible` comes from your state; here a timer flips it.
   const [visible, setVisible] = useState(true);
-
   useEffect(() => {
     const id = setInterval(() => setVisible((v) => !v), AUTO_TOGGLE_MS);
     return () => clearInterval(id);
@@ -19,7 +19,67 @@ function Toggle({ preset, distance }: { preset: TransitionPreset | TransitionPre
 
   return (
     <View style={{ height: 120, justifyContent: 'center' }}>
-      <Transition visible={visible} preset={preset} distance={distance}>
+      <Transition visible={visible} preset="fade">
+        <Card>
+          <Subtitle>Order #4821</Subtitle>
+          <Body style={{ marginTop: 4 }}>2 items · standard shipping</Body>
+        </Card>
+      </Transition>
+    </View>
+  );
+}
+
+function FadeSlideUpExample() {
+  // In your app `visible` comes from your state; here a timer flips it.
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const id = setInterval(() => setVisible((v) => !v), AUTO_TOGGLE_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <View style={{ height: 120, justifyContent: 'center' }}>
+      <Transition visible={visible} preset={['fade', 'slide-up']} distance={32}>
+        <Card>
+          <Subtitle>Order #4821</Subtitle>
+          <Body style={{ marginTop: 4 }}>2 items · standard shipping</Body>
+        </Card>
+      </Transition>
+    </View>
+  );
+}
+
+function PopExample() {
+  // In your app `visible` comes from your state; here a timer flips it.
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const id = setInterval(() => setVisible((v) => !v), AUTO_TOGGLE_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <View style={{ height: 120, justifyContent: 'center' }}>
+      <Transition visible={visible} preset="pop">
+        <Card>
+          <Subtitle>Order #4821</Subtitle>
+          <Body style={{ marginTop: 4 }}>2 items · standard shipping</Body>
+        </Card>
+      </Transition>
+    </View>
+  );
+}
+
+function FadeSlideRightExample() {
+  // In your app `visible` comes from your state; here a timer flips it.
+  const [visible, setVisible] = useState(true);
+  useEffect(() => {
+    const id = setInterval(() => setVisible((v) => !v), AUTO_TOGGLE_MS);
+    return () => clearInterval(id);
+  }, []);
+
+  return (
+    <View style={{ height: 120, justifyContent: 'center' }}>
+      <Transition visible={visible} preset={['fade', 'slide-right']} distance={48}>
         <Card>
           <Subtitle>Order #4821</Subtitle>
           <Body style={{ marginTop: 4 }}>2 items · standard shipping</Body>
@@ -31,7 +91,7 @@ function Toggle({ preset, distance }: { preset: TransitionPreset | TransitionPre
 
 const ROWS = ['Acme Studio', 'Bright Labs', 'Northwind', 'Contoso'];
 
-function StaggeredList() {
+function StaggeredListExample() {
   const [round, setRound] = useState(0);
 
   useEffect(() => {
@@ -52,7 +112,7 @@ function StaggeredList() {
   );
 }
 
-function ExitBeforeUnmount() {
+function ExitBeforeUnmountExample() {
   const [items, setItems] = useState(ROWS);
   const [removing, setRemoving] = useState<string | null>(null);
 
@@ -92,12 +152,12 @@ function ExitBeforeUnmount() {
 export function TransitionDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'fade (default)', content: <Toggle preset="fade" /> },
-    { label: "preset={['fade', 'slide-up']}", content: <Toggle preset={['fade', 'slide-up']} distance={32} /> },
-    { label: "preset='pop' — spring", content: <Toggle preset="pop" /> },
-    { label: "preset={['fade', 'slide-right']}", content: <Toggle preset={['fade', 'slide-right']} distance={48} /> },
-    { label: 'delay per index — staggered list', content: <StaggeredList /> },
-    { label: 'exit before unmount', content: <ExitBeforeUnmount /> },
+    { label: 'fade (default)', content: <FadeExample /> },
+    { label: "preset={['fade', 'slide-up']}", content: <FadeSlideUpExample /> },
+    { label: "preset='pop' — spring", content: <PopExample /> },
+    { label: "preset={['fade', 'slide-right']}", content: <FadeSlideRightExample /> },
+    { label: 'delay per index — staggered list', content: <StaggeredListExample /> },
+    { label: 'exit before unmount', content: <ExitBeforeUnmountExample /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

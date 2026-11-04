@@ -43,7 +43,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 5/5 — reserves the exact space: toggles every 2s
+# 5/5 — compose a card placeholder
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }

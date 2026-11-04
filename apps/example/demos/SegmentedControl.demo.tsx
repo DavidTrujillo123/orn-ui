@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { View } from 'react-native';
-import { Body, SegmentedControl, useTheme, type SegmentedControlOption } from 'orn-ui';
+import React, { useState } from 'react';
+import { SegmentedControl } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 const RANGES = [
@@ -9,76 +8,66 @@ const RANGES = [
   { value: 'month', label: 'Month' },
 ];
 
-const SORTS = [
-  { value: 'recent', label: 'Most recent' },
-  { value: 'popular', label: 'Most popular' },
-  { value: 'rated', label: 'Highest rated' },
-];
-
-// Holds the selected value: SegmentedControl is controlled.
-function Segmented({
-  options,
-  initial,
-  disabled,
-}: {
-  options: SegmentedControlOption[];
-  initial: string;
-  disabled?: boolean;
-}) {
-  const [value, setValue] = useState(initial);
-  return <SegmentedControl options={options} value={value} onChange={setValue} disabled={disabled} />;
+function ThreeOptionsExample() {
+  const [range, setRange] = useState('week');
+  return <SegmentedControl options={RANGES} value={range} onChange={setRange} />;
 }
 
-// Steps through the options on its own so the sliding indicator can be seen
-// (and recorded for the docs) without touching anything.
-const AUTO_STEP_MS = 1200;
-
-function AutoCycle() {
-  const [index, setIndex] = useState(0);
-  useEffect(() => {
-    const id = setInterval(() => setIndex((i) => (i + 1) % RANGES.length), AUTO_STEP_MS);
-    return () => clearInterval(id);
-  }, []);
-  return <SegmentedControl options={RANGES} value={RANGES[index]!.value} onChange={() => {}} />;
+function TwoOptionsExample() {
+  const [side, setSide] = useState('left');
+  return (
+    <SegmentedControl
+      options={[
+        { value: 'left', label: 'Left' },
+        { value: 'right', label: 'Right' },
+      ]}
+      value={side}
+      onChange={setSide}
+    />
+  );
 }
 
-// The control and the content it filters, one spacing token apart.
-function RangePicker() {
-  const theme = useTheme();
+function LongLabelsExample() {
+  const [sort, setSort] = useState('recent');
+  return (
+    <SegmentedControl
+      options={[
+        { value: 'recent', label: 'Most recent' },
+        { value: 'popular', label: 'Most popular' },
+        { value: 'rated', label: 'Highest rated' },
+      ]}
+      value={sort}
+      onChange={setSort}
+    />
+  );
+}
+
+function OneOptionDisabledExample() {
   const [range, setRange] = useState('week');
   return (
-    <View style={{ gap: theme.tokens.spacing.md }}>
-      <SegmentedControl options={RANGES} value={range} onChange={setRange} />
-      <Body>Showing the last {range}.</Body>
-    </View>
+    <SegmentedControl
+      options={[
+        { value: 'day', label: 'Day' },
+        { value: 'week', label: 'Week' },
+        { value: 'month', label: 'Month', disabled: true },
+      ]}
+      value={range}
+      onChange={setRange}
+    />
   );
 }
 
 export function SegmentedControlDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'three options', content: <RangePicker /> },
-    { label: 'the indicator slides to the new option', content: <AutoCycle /> },
+    { label: 'three options', content: <ThreeOptionsExample /> },
+    { label: 'two options', content: <TwoOptionsExample /> },
+    { label: 'long labels — one line each', content: <LongLabelsExample /> },
+    { label: 'one option disabled', content: <OneOptionDisabledExample /> },
     {
-      label: 'two options',
-      content: (
-        <Segmented
-          options={[
-            { value: 'left', label: 'Left' },
-            { value: 'right', label: 'Right' },
-          ]}
-          initial="left"
-        />
-      ),
+      label: 'disabled',
+      content: <SegmentedControl options={RANGES} value="week" onChange={() => {}} disabled />,
     },
-    { label: 'long labels — one line each', content: <Segmented options={SORTS} initial="recent" /> },
-    {
-      label: 'one option disabled',
-      content: (
-        <Segmented options={[...RANGES.slice(0, 2), { value: 'month', label: 'Month', disabled: true }]} initial="week" />
-      ),
-    },
-    { label: 'disabled', content: <Segmented options={RANGES} initial="week" disabled /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo
