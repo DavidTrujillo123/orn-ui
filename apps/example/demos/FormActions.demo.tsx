@@ -5,15 +5,48 @@ import { VariantList, type VariantDef } from '@/components/VariantList';
 export function FormActionsDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'Primary + secondary', content: <FormActions primaryLabel="Save" onPrimaryPress={() => {}} onSecondaryPress={() => {}} /> },
-    { label: 'Secondary only', content: <FormActions secondaryLabel="Close" onSecondaryPress={() => {}} /> },
     {
-      label: 'Primary disabled',
-      content: <FormActions primaryLabel="Save" onPrimaryPress={() => {}} primaryDisabled onSecondaryPress={() => {}} />,
+      label: 'Primary + secondary',
+      content: (
+        <FormActions primaryLabel="Save" onPrimaryPress={() => {}} secondaryLabel="Cancel" onSecondaryPress={() => {}} />
+      ),
     },
     {
-      label: 'Primary loading',
-      content: <FormActions primaryLabel="Saving..." onPrimaryPress={() => {}} primaryLoading onSecondaryPress={() => {}} />,
+      label: 'primaryLeftIconName',
+      content: (
+        <FormActions
+          primaryLabel="Confirm order"
+          primaryLeftIconName="check"
+          onPrimaryPress={() => {}}
+          secondaryLabel="Back"
+          onSecondaryPress={() => {}}
+        />
+      ),
+    },
+    { label: 'Secondary only — default label', content: <FormActions onSecondaryPress={() => {}} /> },
+    {
+      label: 'primaryDisabled — invalid form',
+      content: (
+        <FormActions
+          primaryLabel="Save"
+          onPrimaryPress={() => {}}
+          primaryDisabled
+          secondaryLabel="Cancel"
+          onSecondaryPress={() => {}}
+        />
+      ),
+    },
+    {
+      label: 'primaryLoading — cancel still works',
+      content: (
+        <FormActions
+          primaryLabel="Save"
+          onPrimaryPress={() => {}}
+          primaryLoading
+          secondaryLabel="Cancel"
+          onSecondaryPress={() => {}}
+        />
+      ),
     },
   ];
   return <VariantList variants={variants} />;
