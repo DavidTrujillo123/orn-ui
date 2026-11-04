@@ -1,7 +1,18 @@
-import React, { memo } from 'react';
-import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { memo, useEffect, useRef, useState } from 'react';
+import {
+  Animated,
+  Easing,
+  I18nManager,
+  Text,
+  TouchableOpacity,
+  View,
+  type LayoutChangeEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling } from '../theme/UIProvider';
+import { useAllowFontScaling, useTheme } from '../theme/UIProvider';
+import { useReduceMotion } from '../theme/useReduceMotion';
 
 export interface SegmentedControlOption<T extends string = string> {
   value: T;
@@ -50,6 +61,15 @@ const useStyles = createStyles((theme) => ({
   // Light: a white segment with a shadow over the grey track. Dark: shadows
   // don't show and `surface` is darker than the track (the segment looked
   // sunken), so the selected one takes the soft accent fill instead.
+  // One shared indicator slides under the segments; until the track is
+  // measured, the selected segment paints this same fill itself.
+  indicator: {
+    position: 'absolute',
+    top: TRACK_PADDING,
+    bottom: TRACK_PADDING,
+    start: TRACK_PADDING,
+    borderRadius: theme.tokens.radius.sm,
+  },
   segmentActive:
     theme.scheme === 'dark'
       ? { backgroundColor: theme.colors.primarySoft }
@@ -74,6 +94,10 @@ const useStyles = createStyles((theme) => ({
  * looks more important. Figure-ground: the selected segment is raised (surface
  * + shadow) above the sunken track; in dark, where shadows vanish, it takes
  * the soft accent fill. Fitts: every segment reaches 44pt.
+ *
+ * Continuity: the selection is one indicator that slides from the old segment
+ * to the new one, so the eye follows the change instead of seeing one fill
+ * vanish and another appear. With Reduce Motion it jumps.
  */
 function SegmentedControlInner<T extends string>({
   options,
@@ -84,17 +108,73 @@ function SegmentedControlInner<T extends string>({
   testID,
 }: SegmentedControlProps<T>) {
   const styles = useStyles();
+  const theme = useTheme();
   const allowFontScaling = useAllowFontScaling();
+  const reduceMotion = useReduceMotion();
+  const [trackWidth, setTrackWidth] = useState(0);
+  const offset = useRef(new Animated.Value(0)).current;
+  const placed = useRef(false);
+
+  const index = options.findIndex((option) => option.value === value);
+  const segmentWidth = trackWidth > 0 && options.length > 0 ? (trackWidth - TRACK_PADDING * 2) / options.length : 0;
+  const showIndicator = segmentWidth > 0 && index >= 0;
+  // transform isn't mirrored in RTL: the indicator starts at the right edge
+  // (`start`), so it moves left.
+  const target = index * segmentWidth * (I18nManager.isRTL ? -1 : 1);
+
+  useEffect(() => {
+    if (!showIndicator) return;
+    // First placement (and Reduce Motion) jumps; only a change of value slides.
+    if (!placed.current || reduceMotion) {
+      placed.current = true;
+      offset.setValue(target);
+      return;
+    }
+    const animation = Animated.timing(offset, {
+      toValue: target,
+      duration: theme.tokens.duration.base,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [target, showIndicator, reduceMotion, offset, theme.tokens.duration.base]);
+
+  // A new width (rotation, resize) places the indicator without animating.
+  const onLayout = (e: LayoutChangeEvent) => {
+    const width = e.nativeEvent.layout.width;
+    if (width === trackWidth) return;
+    placed.current = false;
+    setTrackWidth(width);
+  };
+
+  const activeDisabled = disabled || !!options[index]?.disabled;
 
   return (
-    <View style={[styles.track, style]} accessibilityRole="radiogroup" testID={testID}>
+    <View style={[styles.track, style]} accessibilityRole="radiogroup" testID={testID} onLayout={onLayout}>
+      {showIndicator && (
+        <Animated.View
+          pointerEvents="none"
+          testID={testID && `${testID}-indicator`}
+          style={[
+            styles.indicator,
+            styles.segmentActive,
+            { width: segmentWidth, transform: [{ translateX: offset }] },
+            activeDisabled && styles.segmentDisabled,
+          ]}
+        />
+      )}
       {options.map((option) => {
         const active = option.value === value;
         const isDisabled = disabled || !!option.disabled;
         return (
           <TouchableOpacity
             key={option.value}
-            style={[styles.segment, active && styles.segmentActive, isDisabled && styles.segmentDisabled]}
+            style={[
+              styles.segment,
+              active && !showIndicator && styles.segmentActive,
+              isDisabled && styles.segmentDisabled,
+            ]}
             onPress={() => {
               if (!active) onChange(option.value);
             }}

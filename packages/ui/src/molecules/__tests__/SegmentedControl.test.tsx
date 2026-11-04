@@ -1,5 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { act, render, screen, fireEvent } from '@testing-library/react-native';
+import { AccessibilityInfo, Animated } from 'react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { SegmentedControl } from '../SegmentedControl';
 
@@ -90,5 +91,45 @@ describe('SegmentedControl', () => {
       </UIProvider>
     );
     expect(screen.getByTestId('seg-week')).toHaveStyle({ backgroundColor: '#1b2740' });
+  });
+
+  describe('sliding indicator', () => {
+    const layout = { nativeEvent: { layout: { width: 306, height: 44, x: 0, y: 0 } } };
+    const flat = (style: unknown) => Object.assign({}, ...[style].flat(Infinity).filter(Boolean));
+
+    it('once measured, one indicator sits under the selected segment and the segment drops its own fill', () => {
+      render(withProvider(<SegmentedControl options={OPTIONS} value="week" onChange={() => {}} testID="seg" />));
+      fireEvent(screen.getByTestId('seg'), 'layout', layout);
+      const indicator = flat(screen.getByTestId('seg-indicator').props.style);
+      // (306 - 2 * 3) / 3 = 100 per segment; "week" is index 1.
+      expect(indicator.width).toBe(100);
+      expect(indicator.transform[0].translateX).toBe(100);
+      expect(flat(screen.getByTestId('seg-week').props.style).backgroundColor).toBeUndefined();
+    });
+
+    it('slides to the new value with a native-driver timing', () => {
+      const timing = jest.spyOn(Animated, 'timing');
+      const { rerender } = render(
+        withProvider(<SegmentedControl options={OPTIONS} value="day" onChange={() => {}} testID="seg" />)
+      );
+      fireEvent(screen.getByTestId('seg'), 'layout', layout);
+      expect(timing).not.toHaveBeenCalled();
+      rerender(withProvider(<SegmentedControl options={OPTIONS} value="month" onChange={() => {}} testID="seg" />));
+      expect(timing).toHaveBeenCalledWith(expect.anything(), expect.objectContaining({ toValue: 200, useNativeDriver: true }));
+      timing.mockRestore();
+    });
+
+    it('with Reduce Motion it jumps instead of sliding', async () => {
+      jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValueOnce(true);
+      const timing = jest.spyOn(Animated, 'timing');
+      const { rerender } = render(
+        withProvider(<SegmentedControl options={OPTIONS} value="day" onChange={() => {}} testID="seg" />)
+      );
+      await act(async () => {});
+      fireEvent(screen.getByTestId('seg'), 'layout', layout);
+      rerender(withProvider(<SegmentedControl options={OPTIONS} value="month" onChange={() => {}} testID="seg" />));
+      expect(timing).not.toHaveBeenCalled();
+      timing.mockRestore();
+    });
   });
 });

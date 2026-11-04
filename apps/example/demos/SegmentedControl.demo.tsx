@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Body, SegmentedControl, useTheme, type SegmentedControlOption } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
@@ -29,6 +29,19 @@ function Segmented({
   return <SegmentedControl options={options} value={value} onChange={setValue} disabled={disabled} />;
 }
 
+// Steps through the options on its own so the sliding indicator can be seen
+// (and recorded for the docs) without touching anything.
+const AUTO_STEP_MS = 1200;
+
+function AutoCycle() {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const id = setInterval(() => setIndex((i) => (i + 1) % RANGES.length), AUTO_STEP_MS);
+    return () => clearInterval(id);
+  }, []);
+  return <SegmentedControl options={RANGES} value={RANGES[index]!.value} onChange={() => {}} />;
+}
+
 // The control and the content it filters, one spacing token apart.
 function RangePicker() {
   const theme = useTheme();
@@ -45,6 +58,7 @@ export function SegmentedControlDemo() {
   // #region demo
   const variants: VariantDef[] = [
     { label: 'three options', content: <RangePicker /> },
+    { label: 'the indicator slides to the new option', content: <AutoCycle /> },
     {
       label: 'two options',
       content: (
