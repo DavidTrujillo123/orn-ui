@@ -196,6 +196,10 @@ defecto. Arreglos obvios (bug claro, a11y faltante) se pueden aplicar directo.
      Nada de funciones auxiliares sueltas en el código de una variante
      (`{...bind(qty, setQty)}`): si hace falta estado, un componente
      auxiliar (`<Quantity size="sm" />`), que la docs muestra con su definición.
+     Tampoco variables del cuerpo del demo (`useState`, `useColors()`,
+     `useTheme()` declarados en `XDemo()`): la docs no las muestra y la
+     variante usa algo sin origen. Van dentro de un componente auxiliar
+     (`<Segmented options={...} initial="week" />`, `<OrderConfirmedHeader />`).
   Sin los cinco pasos, no se commitea la docs.
 - **Nunca simular toques con eventos de mouse/teclado del Mac** (CGEvent,
   osascript, cliclick): si el Simulator no está al frente, el clic cae en otra

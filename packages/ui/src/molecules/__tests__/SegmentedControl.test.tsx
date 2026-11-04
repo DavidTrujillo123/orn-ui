@@ -58,4 +58,37 @@ describe('SegmentedControl', () => {
     fireEvent.press(screen.getByRole('radio', { name: 'Week' }));
     expect(onChange).toHaveBeenCalledWith('week');
   });
+
+  it('does not report a press on the segment already selected', () => {
+    const onChange = jest.fn();
+    render(withProvider(<SegmentedControl options={OPTIONS} value="week" onChange={onChange} />));
+    fireEvent.press(screen.getByRole('radio', { name: 'Week' }));
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('every segment reaches a 44pt touch target with the track inset', () => {
+    render(withProvider(<SegmentedControl options={OPTIONS} value="week" onChange={() => {}} testID="seg" />));
+    const segment = screen.getByTestId('seg-day');
+    const flat = Object.assign({}, ...[segment.props.style].flat(Infinity).filter(Boolean));
+    const slop = segment.props.hitSlop ?? {};
+    expect(flat.minHeight + (slop.top ?? 0) + (slop.bottom ?? 0)).toBeGreaterThanOrEqual(44);
+  });
+
+  it('keeps long labels on one line so segments stay equal', () => {
+    render(
+      withProvider(
+        <SegmentedControl options={[{ value: 'a', label: 'Highest rated first' }]} value="a" onChange={() => {}} />
+      )
+    );
+    expect(screen.getByText('Highest rated first').props.numberOfLines).toBe(1);
+  });
+
+  it('in dark the selected segment uses the soft accent, not a surface darker than the track', () => {
+    render(
+      <UIProvider mode="dark">
+        <SegmentedControl options={OPTIONS} value="week" onChange={() => {}} testID="seg" />
+      </UIProvider>
+    );
+    expect(screen.getByTestId('seg-week')).toHaveStyle({ backgroundColor: '#1b2740' });
+  });
 });
