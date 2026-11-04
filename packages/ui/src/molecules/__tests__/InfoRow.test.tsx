@@ -17,4 +17,17 @@ describe('InfoRow', () => {
     render(withProvider(<InfoRow icon="info" label="Email" value={undefined} placeholder="No email" />));
     expect(screen.getByText('No email')).toBeOnTheScreen();
   });
+
+  it('reads as one element: label then value', () => {
+    render(withProvider(<InfoRow icon="info" label="Email" value="a@b.com" placeholder="No email" testID="row" />));
+    const row = screen.getByTestId('row');
+    expect(row.props.accessible).toBe(true);
+    expect(row.props.accessibilityLabel).toBe('Email, a@b.com');
+  });
+
+  it('announces the placeholder when the value is empty', () => {
+    render(withProvider(<InfoRow icon="info" label="Phone" value="" placeholder="No phone" testID="row" />));
+    expect(screen.getByTestId('row').props.accessibilityLabel).toBe('Phone, No phone');
+    expect(screen.getByText('No phone')).toHaveStyle({ fontStyle: 'italic' });
+  });
 });

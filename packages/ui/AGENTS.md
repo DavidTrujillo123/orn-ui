@@ -184,7 +184,7 @@ hex in component styles, use `useColors()`.
 | `Stepper` | `orn-ui/stepper` | `value: string`, `onChangeText`, `onIncrement`, `onDecrement`, `size?: 'sm'\|'md'\|'lg'`, `block?`, `editable?`, `min?`, `max?`, `allowDecimals?`, `accessibilityLabel?` (labels.quantity), `incrementAccessibilityLabel?`, `decrementAccessibilityLabel?` (labels) |
 | `sanitizeNumeric` | `orn-ui/sanitize-numeric` | helper for numeric text input |
 | `OptionCard` | `orn-ui/option-card` | `label`, `isSelected`, `onPress`, `description?`, `iconName?`, `disabled?`, `layout?: 'vertical'\|'horizontal'` |
-| `InfoRow` | `orn-ui/info-row` | `icon: IconName`, `label`, `value: string\|null\|undefined`, `placeholder` |
+| `InfoRow` | `orn-ui/info-row` | `icon: IconName`, `label`, `value: string\|null\|undefined`, `placeholder`, `testID?` |
 | `FormActions` | `orn-ui/form-actions` | `onSecondaryPress`, `primaryLabel?`, `onPrimaryPress?`, `primaryDisabled?`, `primaryLoading?`, `primaryLeftIconName?`, `secondaryLabel?` |
 | `AvatarHeader` | `orn-ui/avatar-header` | `title`, `subtitle?`, `iconName?`, `iconColor?`, `initials?` |
 | `SegmentedControl` | `orn-ui/segmented-control` | `options: {value,label,disabled?}[]`, `value`, `onChange`, `disabled?` |
