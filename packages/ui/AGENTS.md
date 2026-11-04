@@ -186,7 +186,7 @@ hex in component styles, use `useColors()`.
 | `OptionCard` | `orn-ui/option-card` | `label`, `isSelected`, `onPress`, `description?`, `iconName?`, `disabled?`, `layout?: 'vertical'\|'horizontal'` |
 | `InfoRow` | `orn-ui/info-row` | `icon: IconName`, `label`, `value: string\|null\|undefined`, `placeholder`, `testID?` |
 | `FormActions` | `orn-ui/form-actions` | `onSecondaryPress`, `primaryLabel?`, `onPrimaryPress?`, `primaryDisabled?`, `primaryLoading?`, `primaryLeftIconName?`, `secondaryLabel?`, `testID?` |
-| `AvatarHeader` | `orn-ui/avatar-header` | `title`, `subtitle?`, `iconName?`, `iconColor?`, `initials?` |
+| `AvatarHeader` | `orn-ui/avatar-header` | `title`, `subtitle?`, `iconName?`, `iconColor?`, `initials?`, `testID?` |
 | `SegmentedControl` | `orn-ui/segmented-control` | `options: {value,label,disabled?}[]`, `value`, `onChange`, `disabled?` |
 | `Steps` | `orn-ui/steps` | `steps: {label,description?}[]`, `current`, `orientation?: 'horizontal'\|'vertical'`, `completedIndicator?: 'check'\|'number'`, `onStepPress?` |
 | `SymmetricGrid` | `orn-ui/symmetric-grid` | `data`, `renderItem`, `keyExtractor`, `columns?` (2), `gap?`, `balanceLastRow?` |
