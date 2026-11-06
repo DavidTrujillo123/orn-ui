@@ -1,17 +1,20 @@
 import React, { memo } from 'react';
 import { ScrollView, Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useLabels } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
 
 export interface StepItem {
+  /** Short name of the step ("Payment"). */
   label: string;
+  /** Optional second line with a detail ("Card or cash"). */
   description?: string;
 }
 
 export type StepStatus = 'completed' | 'current' | 'pending';
 
 export interface StepsProps {
+  /** The sequence, in order. */
   steps: StepItem[];
   /** Index of the current step (0-based). Earlier steps become 'completed'. */
   current: number;
@@ -25,11 +28,19 @@ export interface StepsProps {
   /** If provided, each step is tappable and reports its index. */
   onStepPress?: (index: number) => void;
   style?: StyleProp<ViewStyle>;
+  /** Root testID; each step gets `<testID>-<index>`. */
+  testID?: string;
 }
 
 const CIRCLE = 32;
+const CIRCLE_BORDER = 2;
+const CHECK_SIZE = 18;
+const CONNECTOR = 2;
 /** Minimum width of a horizontal column: below it, labels break mid-word. */
 const STEP_MIN_WIDTH = 76;
+/** Share of the row a horizontal connector takes next to a step (flex: 1). */
+const CONNECTOR_FLEX = 0.3;
+const PRESSED_OPACITY = 0.7;
 
 const useStyles = createStyles((theme) => ({
   rowContainer: { flexDirection: 'row', alignItems: 'flex-start' },
@@ -44,32 +55,46 @@ const useStyles = createStyles((theme) => ({
   // ("Almacé / n"): rather than squeezing the column below a regular
   // word, the row becomes scrollable.
   hStep: { flex: 1, minWidth: STEP_MIN_WIDTH, alignItems: 'center', gap: theme.tokens.spacing.sm },
-  hLabels: { alignItems: 'center', gap: 2, paddingHorizontal: 4 },
+  hLabels: { alignItems: 'center', gap: theme.tokens.spacing.xxs, paddingHorizontal: theme.tokens.spacing.xs },
   // The connector takes a small fraction of the width: competing on equal
   // terms with the steps (flex: 1), each label ended up with 1/(2n-1) of the
   // total.
-  hConnector: { height: 2, flex: 0.3, minWidth: 12, marginTop: CIRCLE / 2 - 1 },
-  hLabel: { fontSize: theme.tokens.fontSize.sm },
-  hDescription: { fontSize: theme.tokens.fontSize.xs },
+  hConnector: {
+    height: CONNECTOR,
+    flex: CONNECTOR_FLEX,
+    minWidth: theme.tokens.spacing.md,
+    marginTop: CIRCLE / 2 - CONNECTOR / 2,
+  },
+  hLabel: { fontSize: theme.tokens.fontSize.sm, lineHeight: theme.tokens.lineHeight.sm },
+  hDescription: { fontSize: theme.tokens.fontSize.xs, lineHeight: theme.tokens.lineHeight.sm },
 
   // vertical
   vStep: { flexDirection: 'row', gap: theme.tokens.spacing.md },
   vIndicatorColumn: { alignItems: 'center' },
-  vConnector: { width: 2, flex: 1, minHeight: 20, marginVertical: 4 },
-  vLabels: { flex: 1, gap: 2, paddingBottom: theme.tokens.spacing.lg },
+  vConnector: { width: CONNECTOR, flex: 1, minHeight: theme.tokens.spacing.xl, marginVertical: theme.tokens.spacing.xs },
+  vLabels: { flex: 1, gap: theme.tokens.spacing.xxs, paddingBottom: theme.tokens.spacing.lg },
+  // The last step has no connector below: no trailing space either.
+  vLabelsLast: { paddingBottom: 0 },
 
   circle: {
     width: CIRCLE,
     height: CIRCLE,
     borderRadius: CIRCLE / 2,
-    borderWidth: 2,
+    borderWidth: CIRCLE_BORDER,
     alignItems: 'center',
     justifyContent: 'center',
   },
   circleNumber: { fontSize: theme.tokens.fontSize.md, fontWeight: theme.tokens.fontWeight.semibold },
-  label: { fontSize: theme.tokens.fontSize.md, fontWeight: theme.tokens.fontWeight.semibold, color: theme.colors.text },
+  label: {
+    fontSize: theme.tokens.fontSize.md,
+    lineHeight: theme.tokens.lineHeight.md,
+    fontWeight: theme.tokens.fontWeight.semibold,
+    color: theme.colors.text,
+  },
+  labelCurrent: { color: theme.colors.primaryText },
+  labelPending: { color: theme.colors.textLight, fontWeight: theme.tokens.fontWeight.medium },
   labelCentered: { textAlign: 'center' },
-  description: { fontSize: theme.tokens.fontSize.sm, color: theme.colors.textLight },
+  description: { fontSize: theme.tokens.fontSize.sm, lineHeight: theme.tokens.lineHeight.sm, color: theme.colors.textLight },
   descriptionCentered: { textAlign: 'center' },
 }));
 
@@ -83,10 +108,28 @@ function statusOf(index: number, current: number): StepStatus {
  * Steps
  * Multi-step progress indicator. The visual base of `Wizard`, but usable on
  * its own to show progress through a flow that is navigated some other way.
+ *
+ * Gestalt, continuity: a connector line runs through the circles, so the steps
+ * read as one path; the stretch already walked is filled with the accent.
+ * Similarity: every step is the same circle + label, and the state only
+ * changes fill and color (done = filled, current = outlined accent, pending =
+ * grey). Von Restorff: the current step is the only accent-colored label.
+ *
+ * Accessibility: each step announces "Step 2 of 3: Payment, current", with
+ * every word from `labels`.
  */
 export const Steps = memo(
-  ({ steps, current, orientation = 'horizontal', completedIndicator = 'check', onStepPress, style }: StepsProps) => {
+  ({
+    steps,
+    current,
+    orientation = 'horizontal',
+    completedIndicator = 'check',
+    onStepPress,
+    style,
+    testID,
+  }: StepsProps) => {
     const colors = useColors();
+    const labels = useLabels();
     const styles = useStyles();
     const allowFontScaling = useAllowFontScaling();
     const isVertical = orientation === 'vertical';
@@ -103,7 +146,7 @@ export const Steps = memo(
       return (
         <View style={[styles.circle, { backgroundColor: c.bg, borderColor: c.border }]}>
           {showCheck ? (
-            <Icon name="check" size={18} color={c.fg} />
+            <Icon name="check" size={CHECK_SIZE} color={c.fg} />
           ) : (
             <Text allowFontScaling={allowFontScaling} style={[styles.circleNumber, { color: c.fg }]}>
               {index + 1}
@@ -113,15 +156,16 @@ export const Steps = memo(
       );
     };
 
-    const renderLabels = (step: StepItem, status: StepStatus, centered: boolean) => (
-      <View style={centered ? styles.hLabels : styles.vLabels}>
+    const renderLabels = (step: StepItem, status: StepStatus, centered: boolean, isLast = false) => (
+      <View style={centered ? styles.hLabels : [styles.vLabels, isLast && styles.vLabelsLast]}>
         <Text
           allowFontScaling={allowFontScaling}
           style={[
             styles.label,
             centered && styles.labelCentered,
             centered && styles.hLabel,
-            status === 'pending' && { color: colors.textLight },
+            status === 'current' && styles.labelCurrent,
+            status === 'pending' && styles.labelPending,
           ]}
         >
           {step.label}
@@ -137,15 +181,20 @@ export const Steps = memo(
       </View>
     );
 
+    const statusLabel = { completed: labels.stepCompleted, current: labels.stepCurrent, pending: labels.stepPending };
     const stepAccessibility = (index: number, step: StepItem, status: StepStatus) => ({
       accessibilityRole: (onStepPress ? 'button' : 'text') as 'button' | 'text',
-      accessibilityLabel: `Step ${index + 1}: ${step.label}`,
+      accessibilityLabel: `${labels.stepOf
+        .replace('{n}', String(index + 1))
+        .replace('{total}', String(steps.length))
+        .replace('{label}', step.label)}, ${statusLabel[status]}`,
       accessibilityState: { selected: status === 'current', disabled: false },
+      testID: testID && `${testID}-${index}`,
     });
 
     if (isVertical) {
       return (
-        <View style={[styles.columnContainer, style]}>
+        <View style={[styles.columnContainer, style]} testID={testID}>
           {steps.map((step, index) => {
             const status = statusOf(index, current);
             const isLast = index === steps.length - 1;
@@ -153,7 +202,7 @@ export const Steps = memo(
             // Only touchable when there is onStepPress: passing onPress/activeOpacity
             // to a plain View doesn't crash, but leaves them as silent noise.
             const interactiveProps = onStepPress
-              ? { onPress: () => onStepPress(index), activeOpacity: 0.7 }
+              ? { onPress: () => onStepPress(index), activeOpacity: PRESSED_OPACITY }
               : undefined;
             return (
               <Wrapper
@@ -173,7 +222,7 @@ export const Steps = memo(
                     />
                   )}
                 </View>
-                {renderLabels(step, status, false)}
+                {renderLabels(step, status, false, isLast)}
               </Wrapper>
             );
           })}
@@ -183,7 +232,7 @@ export const Steps = memo(
 
     return (
       <ScrollView
-        testID="steps-row"
+        testID={testID}
         horizontal
         showsHorizontalScrollIndicator={false}
         // With room to spare the steps share the row just like before
@@ -196,7 +245,7 @@ export const Steps = memo(
           const isLast = index === steps.length - 1;
           const Wrapper = onStepPress ? TouchableOpacity : View;
           const interactiveProps = onStepPress
-            ? { onPress: () => onStepPress(index), activeOpacity: 0.7 }
+            ? { onPress: () => onStepPress(index), activeOpacity: PRESSED_OPACITY }
             : undefined;
           return (
             <React.Fragment key={`${step.label}-${index}`}>

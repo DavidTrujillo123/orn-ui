@@ -95,13 +95,13 @@ describe('Wizard', () => {
   it('tapping a completed step in the indicator goes back to it', () => {
     render(withProvider(<Wizard steps={STEPS} />));
     fireEvent.press(screen.getByRole('button', { name: 'Next' }));
-    fireEvent.press(screen.getByLabelText('Step 1: Account'));
+    fireEvent.press(screen.getByLabelText('Step 1 of 3: Account, completed'));
     expect(screen.getByText('account content')).toBeOnTheScreen();
   });
 
   it('tapping a future step does nothing (would skip validation)', () => {
     render(withProvider(<Wizard steps={STEPS} />));
-    fireEvent.press(screen.getByLabelText('Step 3: Confirm'));
+    fireEvent.press(screen.getByLabelText('Step 3 of 3: Confirm, pending'));
     expect(screen.getByText('account content')).toBeOnTheScreen();
   });
 

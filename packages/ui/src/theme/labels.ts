@@ -33,6 +33,14 @@ export interface Labels {
   increment: string;
   /** Stepper: "-" button. */
   decrement: string;
+  /** Steps: accessible name of a step. `{n}`, `{total}` and `{label}` are replaced. */
+  stepOf: string;
+  /** Steps: state of a step already done. */
+  stepCompleted: string;
+  /** Steps: state of the step in progress. */
+  stepCurrent: string;
+  /** Steps: state of a step not reached yet. */
+  stepPending: string;
 }
 
 export const defaultLabels: Labels = {
@@ -62,4 +70,8 @@ export const defaultLabels: Labels = {
   quantity: 'Quantity',
   increment: 'Increment',
   decrement: 'Decrement',
+  stepOf: 'Step {n} of {total}: {label}',
+  stepCompleted: 'completed',
+  stepCurrent: 'current',
+  stepPending: 'pending',
 };

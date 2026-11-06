@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Steps, Button } from 'orn-ui';
+import { Button, Steps, useTheme } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 const STEPS = [
@@ -9,58 +9,48 @@ const STEPS = [
   { label: 'Confirm' },
 ];
 
-const LONG_STEPS = [
-  { label: 'Pago Confirmado', description: 'Verificado' },
-  { label: 'Almacén', description: 'Empacado' },
-  { label: 'En Ruta', description: 'Repartido o en camino' },
-  { label: 'Entregado', description: 'Entregado en destino' },
+const DELIVERY_STEPS = [
+  { label: 'Payment confirmed', description: 'Verified' },
+  { label: 'Warehouse', description: 'Packed' },
+  { label: 'Out for delivery', description: 'On its way' },
+  { label: 'Delivered', description: 'At your door' },
 ];
 
-export function StepsDemo() {
+function InteractiveStepsExample() {
+  const theme = useTheme();
   const [current, setCurrent] = useState(1);
+  return (
+    <View style={{ gap: theme.tokens.spacing.lg }}>
+      <Steps steps={STEPS} current={current} onStepPress={setCurrent} />
+      <Button
+        title="Next"
+        variant="outline"
+        onPress={() => setCurrent(Math.min(current + 1, STEPS.length))}
+      />
+    </View>
+  );
+}
+
+export function StepsDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    {
-      label: 'horizontal + check (defaults)',
-      content: <Steps steps={STEPS} current={1} />,
-    },
+    { label: 'horizontal + check (defaults)', content: <Steps steps={STEPS} current={1} /> },
     {
       label: 'horizontal + number on completed',
       content: <Steps steps={STEPS} current={2} completedIndicator="number" />,
     },
-    {
-      label: 'vertical + check',
-      content: <Steps steps={STEPS} current={1} orientation="vertical" />,
-    },
+    { label: 'vertical + check', content: <Steps steps={STEPS} current={1} orientation="vertical" /> },
     {
       label: 'vertical + number',
       content: <Steps steps={STEPS} current={2} orientation="vertical" completedIndicator="number" />,
     },
-    {
-      label: 'first step (nothing completed yet)',
-      content: <Steps steps={STEPS} current={0} />,
-    },
-    {
-      label: 'all completed',
-      content: <Steps steps={STEPS} current={3} />,
-    },
+    { label: 'first step (nothing completed yet)', content: <Steps steps={STEPS} current={0} /> },
+    { label: 'all completed', content: <Steps steps={STEPS} current={3} /> },
     {
       label: 'long labels — the row scrolls instead of breaking words',
-      content: <Steps steps={LONG_STEPS} current={3} />,
+      content: <Steps steps={DELIVERY_STEPS} current={2} />,
     },
-    {
-      label: 'interactive — onStepPress',
-      content: (
-        <View style={{ gap: 16 }}>
-          <Steps steps={STEPS} current={current} onStepPress={setCurrent} />
-          <Button
-            title="Advance"
-            variant="outline"
-            onPress={() => setCurrent((c) => Math.min(c + 1, STEPS.length))}
-          />
-        </View>
-      ),
-    },
+    { label: 'interactive — onStepPress', content: <InteractiveStepsExample /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

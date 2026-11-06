@@ -29,8 +29,8 @@ describe('Steps', () => {
 
   it('marks the current step as selected for accessibility', () => {
     render(withProvider(<Steps steps={STEPS} current={1} />));
-    expect(screen.getByLabelText('Step 2: Payment').props.accessibilityState.selected).toBe(true);
-    expect(screen.getByLabelText('Step 1: Account').props.accessibilityState.selected).toBe(false);
+    expect(screen.getByLabelText('Step 2 of 3: Payment, current').props.accessibilityState.selected).toBe(true);
+    expect(screen.getByLabelText('Step 1 of 3: Account, completed').props.accessibilityState.selected).toBe(false);
   });
 
   it('completedIndicator="number" keeps showing numbers on completed steps', () => {
@@ -67,24 +67,51 @@ describe('Steps', () => {
       )
     );
 
-    const step = screen.getByLabelText('Step 2: Almacén');
+    const step = screen.getByLabelText('Step 2 of 4: Almacén, completed');
     expect(StyleSheet.flatten(step.props.style).minWidth).toBeGreaterThanOrEqual(72);
   });
 
   it('the horizontal row hugs its content instead of stretching to the container height', () => {
-    render(withProvider(<Steps steps={STEPS} current={0} />));
-    expect(StyleSheet.flatten(screen.getByTestId('steps-row').props.style).flexGrow).toBe(0);
+    render(withProvider(<Steps steps={STEPS} current={0} testID="steps" />));
+    expect(StyleSheet.flatten(screen.getByTestId('steps').props.style).flexGrow).toBe(0);
   });
 
   it('is not pressable without onStepPress', () => {
     render(withProvider(<Steps steps={STEPS} current={0} />));
-    expect(screen.getByLabelText('Step 1: Account').props.accessibilityRole).toBe('text');
+    expect(screen.getByLabelText('Step 1 of 3: Account, current').props.accessibilityRole).toBe('text');
   });
 
   it('reports the pressed index when onStepPress is given', () => {
     const onStepPress = jest.fn();
     render(withProvider(<Steps steps={STEPS} current={2} onStepPress={onStepPress} />));
-    fireEvent.press(screen.getByLabelText('Step 1: Account'));
+    fireEvent.press(screen.getByLabelText('Step 1 of 3: Account, completed'));
     expect(onStepPress).toHaveBeenCalledWith(0);
+  });
+
+  it('announces position and state with words from labels', () => {
+    render(
+      <UIProvider
+        mode="light"
+        labels={{ stepOf: 'Paso {n} de {total}: {label}', stepCompleted: 'hecho', stepCurrent: 'actual', stepPending: 'pendiente' }}
+      >
+        <Steps steps={STEPS} current={1} />
+      </UIProvider>
+    );
+    expect(screen.getByLabelText('Paso 1 de 3: Account, hecho')).toBeTruthy();
+    expect(screen.getByLabelText('Paso 2 de 3: Payment, actual')).toBeTruthy();
+    expect(screen.getByLabelText('Paso 3 de 3: Confirm, pendiente')).toBeTruthy();
+  });
+
+  it('only the current step label takes the accent (Von Restorff)', () => {
+    render(withProvider(<Steps steps={STEPS} current={1} />));
+    const flat = (t: string) => StyleSheet.flatten(screen.getByText(t).props.style);
+    expect(flat('Payment').color).not.toBe(flat('Account').color);
+    expect(flat('Confirm').color).not.toBe(flat('Payment').color);
+  });
+
+  it('vertical: the last step adds no trailing space', () => {
+    render(withProvider(<Steps steps={STEPS} current={0} orientation="vertical" />));
+    const container = screen.getByText('Confirm').parent?.parent;
+    expect(StyleSheet.flatten(container?.props.style).paddingBottom).toBe(0);
   });
 });
