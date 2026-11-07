@@ -75,3 +75,17 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 - Futuro (después de revisar todos los componentes): compatibilidad web (PC/tablet) con react-native-web. Hallazgo ya visto: Title con role header sale como `<div>` sin `role=heading`/nivel en web; propuesta prop `level` (h1…h6). Chromium headless disponible en `~/Library/Caches/ms-playwright/chromium-1234` para capturas.
 - 2026-10-31 — Pendiente publicar orn-ui 0.2.11 (íconos nuevos, BUILT_IN_ICON_NAMES, IconName abierto). La docs ya lee el repo local (lista copiada de IconButton reemplazada por el import); falta publicar y subir la dependencia de `orn-ui-docs` a ^0.2.11 antes de desplegarla (Vercel usa npm).
 - 2026-10-31 — Visto en el ejemplo Sign in: `Button variant="link"` queda alineado a la izquierda aunque el texto de arriba esté centrado (fuerza `justifyContent: flex-start`). Revisar con Button o con el ejemplo.
+
+## 2026-11-06 — iOS: overlays apilados/secuenciales (pedido del usuario)
+
+Verificado en simulador con pantalla temporal `app/modal-lab.tsx` (timers, no
+commiteada). Fallaban en iOS: showAlert sobre BottomSheet, showConfirm sobre
+Modal, Alert justo después de cerrar un sheet, sheet justo después de cerrar un
+Modal, Alert hermano declarativo sobre sheet. Causa: iOS presenta un modal
+nativo a la vez desde la raíz. Arreglo: `theme/NativeOverlay.tsx` (coordinador:
+capa dentro del modal de arriba, o espera al que se cierra; anidados siguen
+nativos; Android = Modal plano). Usado por Alert, BottomSheet, Modal, Select.
+11 escenarios OK. Pendiente: si sheet y Alert se abren en el mismo tick, el
+orden lo decide el JSX (puede quedar el sheet encima del Alert). Select/DateField
+no verificados con toque (requieren tap; Maestro bloqueado), usan el mismo camino.
+

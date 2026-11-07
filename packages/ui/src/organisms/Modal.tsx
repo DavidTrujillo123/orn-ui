@@ -2,7 +2,6 @@ import React, { memo, useEffect, useState } from 'react';
 import {
   Dimensions,
   KeyboardAvoidingView,
-  Modal as RNModal,
   Platform,
   Pressable,
   ScrollView,
@@ -12,6 +11,7 @@ import {
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useColors, useModalSafeAreaBoundary } from '../theme/UIProvider';
+import { NativeOverlay } from '../theme/NativeOverlay';
 import { KeyboardHandled } from '../theme/KeyboardAvoidance';
 import type { EdgeInsets } from '../theme/insets';
 import { Title } from '../atoms/Text';
@@ -160,8 +160,9 @@ export const Modal = memo(
     if (!mounted) return null;
 
     return (
-      <RNModal
-        visible
+      <NativeOverlay
+        // closing: while the exit animation plays, no other overlay layers into it.
+        closing={!visible}
         onRequestClose={onRequestClose ?? onClose}
         animationType={isAnimatedVariant ? 'none' : 'slide'}
         // `full` animates its own entrance (translateY) with animationType="none"
@@ -242,7 +243,7 @@ export const Modal = memo(
           </ModalSafeAreaBoundary>
         </KeyboardAvoidingView>
         </KeyboardHandled>
-      </RNModal>
+      </NativeOverlay>
     );
   }
 );

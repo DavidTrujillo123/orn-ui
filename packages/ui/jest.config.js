@@ -8,6 +8,7 @@ module.exports = {
   // same config runs against all four SDKs (see scripts/compat-matrix.mjs).
   preset: 'react-native',
   setupFiles: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.after-env.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],
   // pnpm nests every package under node_modules/.pnpm/<pkg>/node_modules/<pkg>,
   // so a single "ignore unless it matches react-native/" regex always has an

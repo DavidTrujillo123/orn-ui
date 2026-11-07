@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ActivityIndicator,
   Keyboard,
-  Modal,
   Platform,
   Pressable,
   ScrollView,
@@ -14,6 +13,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
+import { NativeOverlay } from '../theme/NativeOverlay';
 import { useAllowFontScaling, useColors, useLabels } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
@@ -261,7 +261,7 @@ export function Select<T extends string | number>({
       </Pressable>
 
       {open && (
-        <Modal visible transparent animationType="fade" statusBarTranslucent onRequestClose={close}>
+        <NativeOverlay transparent animationType="fade" statusBarTranslucent onRequestClose={close}>
           <Pressable style={styles.backdrop} onPress={close} testID="select-backdrop" />
 
           <View style={[styles.sheet, placement]} accessibilityRole="radiogroup" testID="select-list">
@@ -321,7 +321,7 @@ export function Select<T extends string | number>({
               )}
             </ScrollView>
           </View>
-        </Modal>
+        </NativeOverlay>
       )}
 
       {!!error && (

@@ -1,5 +1,6 @@
 import React, { memo } from 'react';
-import { Modal, Text, TouchableWithoutFeedback, View } from 'react-native';
+import { Text, TouchableWithoutFeedback, View } from 'react-native';
+import { NativeOverlay } from '../theme/NativeOverlay';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors, useLabels, useTheme } from '../theme/UIProvider';
 import { Button, type ButtonVariant } from '../atoms/Button';
@@ -217,9 +218,15 @@ export const Alert = memo((props: AlertProps) => {
   }
 
   return (
-    <Modal transparent visible={visible} animationType="fade" statusBarTranslucent presentationStyle="overFullScreen" onRequestClose={onClose || (() => {})}>
+    <NativeOverlay
+      transparent
+      animationType="fade"
+      statusBarTranslucent
+      presentationStyle="overFullScreen"
+      onRequestClose={onClose || (() => {})}
+    >
       {content}
-    </Modal>
+    </NativeOverlay>
   );
 });
 Alert.displayName = 'Alert';

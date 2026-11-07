@@ -3,7 +3,6 @@ import {
   Animated,
   Keyboard,
   KeyboardAvoidingView,
-  Modal,
   PanResponder,
   Platform,
   Pressable,
@@ -16,6 +15,7 @@ import { createStyles } from '../theme/createStyles';
 import { useColors, useLabels, useModalSafeAreaBoundary, useTheme } from '../theme/UIProvider';
 import { useReduceMotion } from '../theme/useReduceMotion';
 import { KeyboardHandled } from '../theme/KeyboardAvoidance';
+import { NativeOverlay } from '../theme/NativeOverlay';
 import { Title } from '../atoms/Text';
 import { IconButton } from '../atoms/IconButton';
 import { Transition } from '../atoms/Transition';
@@ -322,9 +322,10 @@ export const BottomSheet = memo(
     }
 
     return (
-      <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
+      // closing: while the exit animation plays, no other overlay layers into it.
+      <NativeOverlay closing={!visible} transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
         {tree}
-      </Modal>
+      </NativeOverlay>
     );
   }
 );

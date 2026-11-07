@@ -134,6 +134,15 @@ only file importing it) and mounts `<SafeAreaProvider>` itself
 `BottomSheet` remeasure inside their own native window. Pass `insets` only to
 override the measured values (tests, screenshots). `SafeAreaUIProvider` from
 `orn-ui/safe-area` is a deprecated alias of `UIProvider`.
+
+Overlays (`Alert`, `BottomSheet`, `Modal`, `Select`, and `DateField` through
+`Modal`) never render React Native's `Modal` directly: they go through
+`theme/NativeOverlay.tsx`. iOS presents one native modal at a time from the
+root, so a second sibling `<Modal>` was silently dropped (an `showAlert()`
+over an open sheet, an alert right after closing a sheet). On iOS a new
+overlay is drawn as a layer inside the topmost presented one, or waits until
+a closing one is gone; nested overlays stay native. New overlay components
+must use `NativeOverlay` too (with `closing` while their exit animation plays).
 Every hook (`useTheme`, `useColors`, `useThemeMode`, `useIcons`, `useInsets`,
 `useLabels`) **throws** outside the provider — mount it at the app root.
 
