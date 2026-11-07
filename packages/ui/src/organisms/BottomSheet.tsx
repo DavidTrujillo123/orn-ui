@@ -274,7 +274,15 @@ export const BottomSheet = memo(
                 ]}
               >
                 {draggable && (
-                  <View style={styles.handleArea} testID="bottom-sheet-handle" {...panResponder.panHandlers}>
+                  // Decorative for screen readers: closing is already exposed by the
+                  // close button (with a title) or by the backdrop (without one).
+                  <View
+                    style={styles.handleArea}
+                    testID="bottom-sheet-handle"
+                    accessibilityElementsHidden
+                    importantForAccessibility="no-hide-descendants"
+                    {...panResponder.panHandlers}
+                  >
                     <View style={styles.handle} />
                   </View>
                 )}

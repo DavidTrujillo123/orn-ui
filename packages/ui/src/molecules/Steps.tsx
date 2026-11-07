@@ -1,5 +1,14 @@
-import React, { memo } from 'react';
-import { ScrollView, Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import React, { memo, useEffect, useRef, useState } from 'react';
+import {
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+  type LayoutChangeEvent,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
+import { useReduceMotion } from '../theme/useReduceMotion';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors, useLabels } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
@@ -133,6 +142,24 @@ export const Steps = memo(
     const styles = useStyles();
     const allowFontScaling = useAllowFontScaling();
     const isVertical = orientation === 'vertical';
+    const reduceMotion = useReduceMotion();
+
+    // Horizontal overflow: when the steps don't fit, the row scrolls. A hidden
+    // step gave no hint of existing, so the current step is brought into view
+    // and the scroll bar flashes once (visibility of system status).
+    const scrollRef = useRef<ScrollView>(null);
+    const [viewportWidth, setViewportWidth] = useState(0);
+    const [contentWidth, setContentWidth] = useState(0);
+    const stepX = useRef<number[]>([]);
+    const overflows = !isVertical && viewportWidth > 0 && contentWidth > viewportWidth + 1;
+
+    useEffect(() => {
+      if (!overflows) return;
+      const x = stepX.current[current] ?? 0;
+      // A quarter of the row of lead-in: the previous step stays partly visible.
+      scrollRef.current?.scrollTo({ x: Math.max(0, x - viewportWidth / 4), animated: !reduceMotion });
+      scrollRef.current?.flashScrollIndicators();
+    }, [overflows, current, viewportWidth, reduceMotion]);
 
     const colorsFor = (status: StepStatus) => {
       if (status === 'completed') return { bg: colors.primary, border: colors.primary, fg: colors.onPrimary };
@@ -232,9 +259,12 @@ export const Steps = memo(
 
     return (
       <ScrollView
+        ref={scrollRef}
         testID={testID}
         horizontal
-        showsHorizontalScrollIndicator={false}
+        showsHorizontalScrollIndicator={overflows}
+        onLayout={(e: LayoutChangeEvent) => setViewportWidth(e.nativeEvent.layout.width)}
+        onContentSizeChange={(width: number) => setContentWidth(width)}
         // With room to spare the steps share the row just like before
         // (flexGrow); when they don't fit, it scrolls instead of squeezing the text.
         style={[styles.hScrollView, style]}
@@ -251,6 +281,9 @@ export const Steps = memo(
             <React.Fragment key={`${step.label}-${index}`}>
               <Wrapper
                 style={styles.hStep}
+                onLayout={(e: LayoutChangeEvent) => {
+                  stepX.current[index] = e.nativeEvent.layout.x;
+                }}
                 {...interactiveProps}
                 {...stepAccessibility(index, step, status)}
               >

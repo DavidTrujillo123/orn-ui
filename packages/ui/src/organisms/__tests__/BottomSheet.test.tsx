@@ -118,7 +118,7 @@ describe('BottomSheet', () => {
         </BottomSheet>
       )
     );
-    expect(screen.getByTestId('bottom-sheet-handle')).toBeOnTheScreen();
+    expect(screen.getByTestId('bottom-sheet-handle', { includeHiddenElements: true })).toBeOnTheScreen();
 
     rerender(
       withProvider(
@@ -127,7 +127,7 @@ describe('BottomSheet', () => {
         </BottomSheet>
       )
     );
-    expect(screen.queryByTestId('bottom-sheet-handle')).not.toBeOnTheScreen();
+    expect(screen.queryByTestId('bottom-sheet-handle', { includeHiddenElements: true })).not.toBeOnTheScreen();
   });
 
   it('pushes the whole sheet above the keyboard, and only once', () => {
@@ -282,5 +282,17 @@ describe('BottomSheet', () => {
     );
     expect(screen.getByText('content')).toBeOnTheScreen();
     expect(screen.UNSAFE_queryAllByType(Modal)).toHaveLength(0);
+  });
+
+  it('the drag handle is hidden from screen readers (close is on the button/backdrop)', () => {
+    render(
+      withProvider(
+        <BottomSheet visible onClose={() => {}} title="Filters">
+          <Text>content</Text>
+        </BottomSheet>
+      )
+    );
+    expect(screen.queryByTestId('bottom-sheet-handle')).toBeNull();
+    expect(screen.getByTestId('bottom-sheet-handle', { includeHiddenElements: true })).toBeTruthy();
   });
 });

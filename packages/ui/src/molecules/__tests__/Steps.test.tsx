@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet } from 'react-native';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { act, render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Steps } from '../Steps';
 
@@ -113,5 +113,24 @@ describe('Steps', () => {
     render(withProvider(<Steps steps={STEPS} current={0} orientation="vertical" />));
     const container = screen.getByText('Confirm').parent?.parent;
     expect(StyleSheet.flatten(container?.props.style).paddingBottom).toBe(0);
+  });
+
+  it('when the row overflows, brings the current step into view and flashes the scroll bar', () => {
+    const { ScrollView } = require('react-native');
+    const scrollTo = jest.spyOn(ScrollView.prototype, 'scrollTo').mockImplementation(() => {});
+    const flash = jest.spyOn(ScrollView.prototype, 'flashScrollIndicators').mockImplementation(() => {});
+    render(withProvider(<Steps steps={STEPS} current={2} testID="steps" />));
+    const row = screen.getByTestId('steps');
+    act(() => {
+      fireEvent(screen.getByLabelText('Step 3 of 3: Confirm, current'), 'layout', {
+        nativeEvent: { layout: { x: 400, y: 0, width: 76, height: 60 } },
+      });
+      fireEvent(row, 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 300, height: 60 } } });
+      fireEvent(row, 'contentSizeChange', 500, 60);
+    });
+    expect(scrollTo).toHaveBeenCalledWith(expect.objectContaining({ x: 400 - 300 / 4 }));
+    expect(flash).toHaveBeenCalled();
+    scrollTo.mockRestore();
+    flash.mockRestore();
   });
 });
