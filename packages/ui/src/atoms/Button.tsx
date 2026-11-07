@@ -23,20 +23,36 @@ export type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'lin
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 export interface ButtonProps {
+  /** Visible label. Also the accessible name unless `accessibilityLabel` is set. */
   title: string;
+  /** Called on press. Not called while `disabled` or `loading`. */
   onPress: (e: GestureResponderEvent) => void;
+  /**
+   * Semantic style: `primary` is the filled focal action; the others step the visual weight down.
+   * @default 'primary'
+   */
   variant?: ButtonVariant;
+  /** Density: padding and font size. `sm` gets extra touch area through `hitSlop`. @default 'md' */
   size?: ButtonSize;
+  /** Shows a spinner over the hidden label (the width doesn't change) and blocks presses. @default false */
   loading?: boolean;
+  /** Paints the disabled colors and ignores presses. @default false */
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Extra style for the label text. */
   textStyle?: StyleProp<TextStyle>;
+  /** Custom node to the left of the label. Takes precedence over `leftIconName`. */
   leftIcon?: React.ReactNode;
+  /** Custom node to the right of the label. Takes precedence over `rightIconName`. */
   rightIcon?: React.ReactNode;
+  /** Icon from the library's set to the left of the label, sized to match `size`. */
   leftIconName?: IconName;
+  /** Icon from the library's set to the right of the label, sized to match `size`. */
   rightIconName?: IconName;
+  /** Color of `leftIconName`/`rightIconName`. Defaults to the label color of the variant. */
   iconColor?: string;
   testID?: string;
+  /** What screen readers announce. @default title */
   accessibilityLabel?: string;
 }
 

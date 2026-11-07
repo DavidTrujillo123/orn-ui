@@ -13,6 +13,7 @@ export interface PressableScaleProps extends Omit<PressableProps, 'style' | 'chi
   /** Target scale when pressed. @default 0.96 */
   scaleTo?: number;
   style?: StyleProp<ViewStyle>;
+  /** Pressable content. */
   children: React.ReactNode;
 }
 

@@ -8,6 +8,7 @@ import { createStyles } from '../theme/createStyles';
 import { useColors, useInsets, useTheme } from '../theme/UIProvider';
 
 export interface FabProps {
+  /** Called when the button is pressed. */
   onPress: (e: GestureResponderEvent) => void;
   /** Built-in or custom icon name. Ignored when `icon` is passed. @default 'plus' */
   iconName?: IconName;

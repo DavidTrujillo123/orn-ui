@@ -3,10 +3,13 @@ import { Animated, PanResponder, View, type StyleProp, type ViewStyle } from 're
 import { createStyles } from '../theme/createStyles';
 
 export interface ReorderableListProps<T> {
+  /** Items, in their current order. */
   data: T[];
+  /** Stable key per item. */
   keyExtractor: (item: T, index: number) => string;
   /** Fixed height of each row: needed to calculate the target index without measuring layout async. */
   itemHeight: number;
+  /** Renders each row; the third argument is true while that row is being dragged. */
   renderItem: (item: T, index: number, dragging: boolean) => React.ReactElement;
   /** Called on release, with the array already reordered. Does not mutate `data`. */
   onReorder: (data: T[]) => void;
@@ -19,6 +22,7 @@ export interface ReorderableListProps<T> {
   onDragStart?: (index: number) => void;
   /** Ends the drag — on release or cancellation. Always runs if `onDragStart` ran. */
   onDragEnd?: () => void;
+  /** Turns off dragging. @default false */
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
 }

@@ -29,21 +29,33 @@ export interface SelectOption<T> {
 }
 
 export interface SelectProps<T> {
+  /** Text above the field; also its accessible name. */
   label?: string;
+  /** Shows an asterisk next to the label. @default false */
   required?: boolean;
+  /** Options of the dropdown: label, value and, optionally, icon, emoji or disabled. */
   options: SelectOption<T>[];
+  /** Value of the selected option (controlled). `undefined` shows the placeholder. */
   selectedValue: T | undefined;
+  /** Called with the value of the chosen option; the dropdown then closes. */
   onSelect: (value: T) => void;
+  /** Text while nothing is selected. @default labels.selectPlaceholder */
   placeholder?: string;
+  /** Error shown under the field. */
   error?: string;
+  /** Shows a spinner in place of the chevron and blocks opening. @default false */
   isLoading?: boolean;
+  /** Dims the field and blocks opening. @default false */
   disabled?: boolean;
   /** Adds a search box inside the dropdown. @default false */
   searchable?: boolean;
+  /** Placeholder of the search box (with `searchable`). @default labels.search */
   searchPlaceholder?: string;
   /** Maximum height of the dropdown, if the available space allows it. @default 280 */
   maxHeight?: number;
+  /** Called with `true` when the dropdown opens and `false` when it closes. */
   onOpenChange?: (open: boolean) => void;
+  /** Style of the outer wrapper (label, field and error). */
   containerStyle?: StyleProp<ViewStyle>;
   testID?: string;
 }

@@ -24,15 +24,31 @@ export type ModalVariant = 'full' | 'overlay' | 'fullScreen';
 
 export interface ModalProps
   extends Pick<RNModalProps, 'statusBarTranslucent' | 'onRequestClose' | 'hardwareAccelerated'> {
+  /** Shows or hides the modal. The animated variants play their exit before unmounting. */
   visible: boolean;
+  /**
+   * Shows the close button in the header and is called by it, by a tap on the backdrop (`overlay`) and
+   * by Android's back button.
+   */
   onClose?: () => void;
+  /** Header title, on a single line. */
   title?: string;
+  /** Accessible name of the close button. @default 'Close' */
   closeAccessibilityLabel?: string;
+  /** Body of the modal. */
   children: React.ReactNode;
+  /** Fixed area below the content (e.g. actions); it doesn't scroll. */
   footer?: React.ReactNode;
+  /** Style of the card (`overlay`) or the full-screen wrapper. */
   containerStyle?: ViewStyle;
+  /** Style of the content area (the scroll container when `scrollable`). */
   contentStyle?: ViewStyle;
+  /**
+   * 'full' slides up a full page, 'overlay' a centered card over a dimmed backdrop, 'fullScreen' uses
+   * the native full-screen presentation. @default 'full'
+   */
   variant?: ModalVariant;
+  /** Wraps the content in a ScrollView. @default true */
   scrollable?: boolean;
 }
 

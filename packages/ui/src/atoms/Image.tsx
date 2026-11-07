@@ -17,10 +17,13 @@ import { Icon } from '../icons/Icon';
 import { Spinner } from './Spinner';
 
 export interface ImageProps {
+  /** Image to load (same as React Native's `source`). */
   source: ImageSourcePropType;
+  /** Width of the image slot, in pt. */
   width?: number;
+  /** Height of the image slot, in pt. */
   height?: number;
-  /** @default 'cover' */
+  /** How the image fits its slot (same as React Native). @default 'cover' */
   resizeMode?: ImageResizeMode;
   /** Corner radius, same pattern as Avatar/Card. @default 0 */
   radius?: number;
@@ -40,6 +43,7 @@ export interface ImageProps {
   onLoadEnd?: () => void;
   /** Describes the image for screen readers. Without it the image is decorative. */
   accessibilityLabel?: string;
+  /** Called when loading fails; the `fallback` is shown. */
   onError?: (error: NativeSyntheticEvent<ImageErrorEventData>) => void;
   testID?: string;
 }

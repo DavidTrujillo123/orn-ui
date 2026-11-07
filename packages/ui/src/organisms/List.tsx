@@ -8,18 +8,24 @@ import { Spinner } from '../atoms/Spinner';
 import type { IconName } from '../icons/types';
 
 export interface ListProps<T> {
+  /** Items to render. */
   data: T[];
+  /** Stable key per item. */
   keyExtractor: (item: T, index: number) => string;
+  /** Renders each row (same as FlatList's `renderItem`). */
   renderItem: FlatListProps<T>['renderItem'];
 
   /** Initial load: while true and there's no data, placeholders are shown. */
   isLoading: boolean;
   /** Reload with data already on screen (pull-to-refresh). @default false */
   isRefreshing?: boolean;
+  /** Shows a spinner in the footer while the next page loads. @default false */
   isLoadingMore?: boolean;
   /** Controlled by the consumer: while false, a fullscreen spinner is shown. @default true */
   isReady?: boolean;
+  /** Text of the fullscreen spinner shown while `isReady` is false. @default labels.loading */
   loadingText?: string;
+  /** Text of the footer spinner shown with `isLoadingMore`. @default labels.loadingMore */
   loadingMoreText?: string;
 
   /** Ghost rows for the initial load. @default 6 */
@@ -27,22 +33,33 @@ export interface ListProps<T> {
   /** Custom placeholder, to match the real shape of the item. */
   renderSkeletonItem?: () => React.ReactElement;
 
+  /** Called when scrolling gets close to the end (to load the next page). */
   onEndReached?: () => void;
+  /** How close to the end `onEndReached` fires, in visible lengths of the list. @default 0.3 */
   onEndReachedThreshold?: number;
+  /** Enables pull-to-refresh and is called when the user pulls. */
   onRefresh?: () => void;
 
+  /** Title of the empty state. @default labels.noResultsTitle */
   emptyTitle?: string;
+  /** Supporting line of the empty state. @default labels.noResultsDescription */
   emptyDescription?: string;
+  /** Icon of the empty state. @default 'search' */
   emptyIconName?: IconName;
 
+  /** Rendered above the items, inside the scroll. */
   ListHeaderComponent?: FlatListProps<T>['ListHeaderComponent'];
+  /** Rendered below the items, before the pagination loader. */
   ListFooterComponent?: FlatListProps<T>['ListFooterComponent'];
 
+  /** Style of the list's content container (also used by the skeleton). */
   contentContainerStyle?: ViewStyle;
+  /** Style of the outer wrapper. */
   containerStyle?: ViewStyle;
 
   /** List component to use (FlashList, etc). @default FlatList */
   ListComponent?: React.ComponentType<any>;
+  /** Extra props passed to `ListComponent`; they override the ones set here. */
   listProps?: Record<string, unknown>;
 }
 

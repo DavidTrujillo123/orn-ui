@@ -7,10 +7,18 @@ import { onColor } from '../icons/defaultIcons';
 import { useReduceMotion } from './Transition';
 
 export interface CheckboxProps {
+  /** Whether the box is checked (controlled). */
   value: boolean;
+  /** Called with the new value when the row is pressed. */
   onValueChange: (value: boolean) => void;
+  /** Text next to the box; the whole row is touchable. Also the accessible name. */
   label?: string;
+  /**
+   * Fill and border color when checked. The check turns black or white for contrast. @default
+   * colors.primary
+   */
   color?: string;
+  /** Dims the box and the label and ignores presses. */
   disabled?: boolean;
   /** Effectively required without `label`: it is all a screen reader announces. */
   accessibilityLabel?: string;

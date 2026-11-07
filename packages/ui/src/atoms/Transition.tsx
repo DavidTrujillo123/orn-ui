@@ -13,6 +13,7 @@ export type TransitionPreset =
   | 'slide-right';
 
 export interface TransitionProps {
+  /** Content that enters and exits. */
   children: React.ReactNode;
   /** Enters when true, exits (and unmounts) when false. @default true */
   visible?: boolean;
@@ -35,7 +36,9 @@ export interface TransitionProps {
    * whoever passes it decides when and how it advances (a PanResponder, for example).
    */
   value?: Animated.Value;
+  /** Called when the enter animation finishes. Not called when driven by `value`. */
   onEntered?: () => void;
+  /** Called when the exit animation finishes, before unmounting. Not called when driven by `value`. */
   onExited?: () => void;
   style?: StyleProp<ViewStyle>;
   testID?: string;

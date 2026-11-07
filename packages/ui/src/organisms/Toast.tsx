@@ -9,11 +9,15 @@ import type { IconName } from '../icons/types';
 export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
 
 export interface ToastProps {
+  /** Main line. */
   title: string;
+  /** Optional second line. */
   message?: string;
+  /** Sets the icon and the color of the side bar. @default 'info' */
   variant?: ToastVariant;
   /** Fires when the toast is tapped (in addition to closing it). */
   onPress?: () => void;
+  /** Shows the close X (unless `hideCloseButton`) and is called when it is pressed. */
   onDismiss?: () => void;
   /** Hides the close X. The toast still auto-dismisses by timeout. */
   hideCloseButton?: boolean;

@@ -27,7 +27,7 @@ export interface StepsProps {
   steps: StepItem[];
   /** Index of the current step (0-based). Earlier steps become 'completed'. */
   current: number;
-  /** @default 'horizontal' */
+  /** Lays the steps out in a row or in a column. @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
   /**
    * What the circle of an already-completed step shows: a check, or its number.

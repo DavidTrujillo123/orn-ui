@@ -33,6 +33,7 @@ export interface TimelineItem {
 }
 
 export interface TimelineProps {
+  /** The milestones, in order. Each has a label, optionally an icon or emoji, and its status. */
   items: TimelineItem[];
   /** Pixels the line bows away from the straight path. 0 draws it straight. @default 28 */
   curve?: number;

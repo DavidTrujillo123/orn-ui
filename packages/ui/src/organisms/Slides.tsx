@@ -24,7 +24,9 @@ export type SlidesIndicatorPlacement = 'overlay' | 'outside';
 export type SlideBackground = string | string[];
 
 export interface SlidesProps<T> {
+  /** One item per slide. */
   data: T[];
+  /** Stable key per item. */
   keyExtractor: (item: T, index: number) => string;
   /** Slide content: images, buttons, anything. Drawn on top of `background`. */
   renderItem: (item: T, index: number) => React.ReactNode;
@@ -32,7 +34,7 @@ export interface SlidesProps<T> {
   background?: (item: T, index: number) => SlideBackground | undefined;
   /** Gradient direction when `background` returns several colors. @default 'vertical' */
   gradientDirection?: GradientDirection;
-  /** @default 'horizontal' */
+  /** Direction of the swipe. @default 'horizontal' */
   orientation?: SlidesOrientation;
   /** Dots, numbered dots, or none. @default 'dots' */
   indicators?: SlidesIndicators;
@@ -59,12 +61,16 @@ export interface SlidesProps<T> {
   spacing?: number;
   /** Controlled index. Without it, the component manages its own from `defaultIndex`. */
   index?: number;
-  /** @default 0 */
+  /** Starting slide when the index is uncontrolled. @default 0 */
   defaultIndex?: number;
+  /** Called with the new index when the active slide changes. */
   onIndexChange?: (index: number) => void;
   /** Height of the swipeable area. @default 240 */
   height?: number;
-  /** @default true */
+  /**
+   * Lets the user swipe between slides. When false, they change only through the indicators,
+   * `autoPlay` or `index`. @default true
+   */
   swipeEnabled?: boolean;
   /** Styles for each slide's visible box — padding, alignment, radius. */
   slideStyle?: StyleProp<ViewStyle>;

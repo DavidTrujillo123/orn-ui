@@ -25,12 +25,15 @@ export interface NavigationBarItem {
 }
 
 export interface NavigationBarProps {
+  /** The destinations: key, label, and optionally an icon and a badge. */
   items: NavigationBarItem[];
+  /** Key of the selected item (controlled). */
   activeKey: string;
+  /** Called with the key of the pressed item. */
   onChange: (key: string) => void;
   /** Screen edge where the bar lives. @default 'bottom' */
   position?: 'bottom' | 'top';
-  /** @default true */
+  /** Shows the label under each icon. @default true */
   showLabels?: boolean;
   /** Adds the safe area inset for the edge where the bar lives. @default true */
   safeArea?: boolean;

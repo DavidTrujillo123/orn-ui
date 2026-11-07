@@ -6,10 +6,13 @@ import { useAllowFontScaling, useTheme } from '../theme/UIProvider';
 export type BadgeVariant = 'success' | 'error' | 'warning' | 'info' | 'neutral';
 
 export interface BadgeProps {
+  /** Text of the pill, on a single line (truncated with "…"). */
   label: string;
+  /** Semantic color set: success, error, warning, info or neutral. @default 'neutral' */
   variant?: BadgeVariant;
   /** Manual override, takes precedence over `variant`. */
   backgroundColor?: string;
+  /** Manual text color, takes precedence over `variant`. */
   textColor?: string;
   style?: StyleProp<ViewStyle>;
 }

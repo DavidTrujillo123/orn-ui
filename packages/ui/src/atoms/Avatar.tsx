@@ -21,12 +21,13 @@ export interface AvatarProps {
   name?: string;
   /** Icon shown when there is no photo or name. @default 'user' */
   iconName?: IconName;
+  /** Fill of the circle. @default colors.primarySoft */
   backgroundColor?: string;
   /** Color of the initials and icon. @default colors.primaryText */
   color?: string;
   /** Custom content; takes precedence over source/name/iconName. */
   children?: React.ReactNode;
-  /** @default name */
+  /** Accessible name. Without it (and without `name`) the avatar is decorative. @default name */
   accessibilityLabel?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;

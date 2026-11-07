@@ -43,6 +43,7 @@ export interface DateFieldProps
   onClear?: () => void;
   /** Text for that button. @default the `clear` from `useLabels()` */
   clearLabel?: string;
+  /** Style of the outer wrapper (label, field and error). */
   containerStyle?: StyleProp<ViewStyle>;
   testID?: string;
 }

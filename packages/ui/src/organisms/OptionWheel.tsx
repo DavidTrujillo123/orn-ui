@@ -24,8 +24,11 @@ export interface OptionWheelOption<T> {
 export type OptionWheelVariant = 'window' | 'spotlight';
 
 export interface OptionWheelProps<T> {
+  /** The range, in order. Each option has a label, its value, and may be disabled. */
   options: OptionWheelOption<T>[];
+  /** Value of the option in the centre row (controlled). */
   selectedValue: T | undefined;
+  /** Called with the value of the option the wheel settles on. */
   onSelect: (value: T) => void;
   /** Title above the wheel. */
   label?: string;
@@ -64,6 +67,7 @@ export interface OptionWheelProps<T> {
   curveRadius?: number;
   /** Which side the wheel's centre is on. @default 'left' */
   curveFrom?: 'left' | 'right';
+  /** Dims the wheel and stops it from turning. @default false */
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;

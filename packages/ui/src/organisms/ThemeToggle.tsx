@@ -5,6 +5,7 @@ import { SegmentedControl } from '../molecules/SegmentedControl';
 
 export interface ThemeToggleProps {
   style?: StyleProp<ViewStyle>;
+  /** Text of each segment; any mode left out keeps its default (Auto, Light, Dark). */
   labels?: Partial<Record<ThemeMode, string>>;
   testID?: string;
 }

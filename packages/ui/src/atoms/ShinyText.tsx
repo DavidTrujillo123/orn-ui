@@ -30,7 +30,7 @@ export interface ShinyTextProps {
   color?: string;
   /** Color of the band that travels across. @default theme.colors.primary */
   shineColor?: string;
-  /** @default 'left' */
+  /** Horizontal alignment of the line. @default 'left' */
   align?: 'left' | 'center' | 'right';
   /** Typography only: `color` and `shineColor` win over any color set here. */
   style?: StyleProp<TextStyle>;

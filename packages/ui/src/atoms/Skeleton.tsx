@@ -17,11 +17,11 @@ const PULSE_HALF_MS = 700;
 export type SkeletonVariant = 'rect' | 'text' | 'circle';
 
 export interface SkeletonProps {
-  /** @default '100%' ('circle' also uses this as the diameter) */
+  /** Width of the placeholder. @default '100%' ('circle' also uses this as the diameter) */
   width?: DimensionValue;
-  /** @default 16 ('text' uses Body's line height; 'circle', the width) */
+  /** Height of the placeholder. @default 16 ('text' uses Body's line height; 'circle', the width) */
   height?: DimensionValue;
-  /** @default 'rect' */
+  /** Shape: a block, a line of text or a circle. @default 'rect' */
   variant?: SkeletonVariant;
   /** Override of the theme's radius. */
   radius?: number;

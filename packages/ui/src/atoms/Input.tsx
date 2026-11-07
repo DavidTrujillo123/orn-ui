@@ -27,6 +27,7 @@ export type InputHandle = TextInput & {
 };
 
 export interface InputProps extends Omit<TextInputProps, 'style'> {
+  /** Text above the field; also its accessible name (falls back to `placeholder`). */
   label?: string;
   /** Shows an asterisk next to the label, and an empty value fails validation (`labels.requiredError`). */
   required?: boolean;
@@ -42,14 +43,20 @@ export interface InputProps extends Omit<TextInputProps, 'style'> {
   validateOn?: 'blur' | 'change' | 'submit';
   /** Called with the error (or undefined) every time the rules run. */
   onValidate?: (error: string | undefined) => void;
+  /** Style of the outer wrapper (label, field and error). */
   containerStyle?: StyleProp<ViewStyle>;
   style?: TextInputProps['style'];
+  /** Icon shown inside the field, to the left of the text. */
   leftIconName?: IconName;
+  /** Icon button inside the field, on the right. Ignored with `isPassword` or `isLoading`. */
   rightIconName?: IconName;
+  /** Called when the `rightIconName` button is pressed. Without it the button is disabled. */
   onRightIconPress?: () => void;
   /** Accessible name of the `rightIconName` button. @default labels.clear */
   rightIconAccessibilityLabel?: string;
+  /** Hides the text and adds an eye button to show or hide it. @default false */
   isPassword?: boolean;
+  /** Shows a small spinner on the right, in place of the right icon. @default false */
   isLoading?: boolean;
 }
 

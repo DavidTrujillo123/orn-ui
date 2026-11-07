@@ -22,16 +22,26 @@ export interface SearchListProps<T> {
   /** Optional chrome above the search bar (e.g. back button + title). */
   header?: React.ReactNode;
 
+  /** Text of the search box (controlled). */
   searchValue: string;
+  /** Called with the new text; the clear button calls it with an empty string. */
   onSearchChange: (text: string) => void;
+  /** Placeholder of the search box. @default labels.search */
   searchPlaceholder?: string;
+  /** Shows a spinner inside the search box. @default false */
   searchIsLoading?: boolean;
+  /** Shows a button next to the search box and is called when it is pressed. */
   onScanPress?: () => void;
+  /** Accessible name of the `onScanPress` button. @default 'Scan' */
   scanAccessibilityLabel?: string;
+  /** Extra nodes at the end of the search row. */
   extraActions?: React.ReactNode;
 
+  /** Items to render. */
   data: T[];
+  /** Stable key per item. */
   keyExtractor: (item: T, index: number) => string;
+  /** Renders each row (same as FlatList's `renderItem`). */
   renderItem: FlatListProps<T>['renderItem'];
 
   /** Initial load: while true and there's no data, placeholders are shown. */
@@ -40,12 +50,23 @@ export interface SearchListProps<T> {
   loadingMode?: 'replace' | 'overlay';
   /** Reload with data already on screen (pull-to-refresh). @default false */
   isRefreshing?: boolean;
+  /** Shows a spinner in the footer while the next page loads. @default false */
   isLoadingMore?: boolean;
   /** Controlled by the consumer: while false, a fullscreen spinner is shown. @default true */
   isReady?: boolean;
+  /**
+   * Text of the spinner shown while `isReady` is false and of the `overlay` loading. @default
+   * labels.loading
+   */
   loadingText?: string;
+  /** Text of the footer spinner shown with `isLoadingMore`. @default labels.loadingMore */
   loadingMoreText?: string;
+  /**
+   * Whether more pages remain. While false, `noMoreText` shows at the end of a non-empty list.
+   * @default false
+   */
   hasMore?: boolean;
+  /** Text shown at the end of the list when `hasMore` is false. */
   noMoreText?: string;
 
   /** Ghost rows for the initial load. @default 6 */
@@ -53,23 +74,35 @@ export interface SearchListProps<T> {
   /** Custom placeholder, to match the real shape of the item. */
   renderSkeletonItem?: () => React.ReactElement;
 
+  /** Called when scrolling gets close to the end. Takes precedence over `onEndReached`. */
   onLoadMore?: () => void;
+  /** Called when scrolling gets close to the end. Ignored when `onLoadMore` is passed. */
   onEndReached?: () => void;
+  /** How close to the end `onEndReached` fires, in visible lengths of the list. @default 0.3 */
   onEndReachedThreshold?: number;
+  /** Enables pull-to-refresh and is called when the user pulls. */
   onRefresh?: () => void;
 
+  /** Title of the empty state. @default labels.noResultsTitle */
   emptyTitle?: string;
+  /** Supporting line of the empty state. @default labels.noResultsDescription */
   emptyDescription?: string;
+  /** Icon of the empty state. @default 'search' */
   emptyIconName?: IconName;
 
+  /** Rendered above the items, inside the scroll. */
   ListHeaderComponent?: FlatListProps<T>['ListHeaderComponent'];
+  /** Rendered below the items, before the pagination loader and `noMoreText`. */
   ListFooterComponent?: FlatListProps<T>['ListFooterComponent'];
 
+  /** Style of the list's content container (also used by the skeleton). */
   contentContainerStyle?: StyleProp<ViewStyle>;
+  /** Style of the outer wrapper. */
   containerStyle?: ViewStyle;
 
   /** List component to use (FlashList, etc). @default FlatList */
   ListComponent?: React.ComponentType<any>;
+  /** Extra props passed to `ListComponent`; they override the ones set here. */
   listProps?: Record<string, unknown>;
 }
 

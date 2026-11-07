@@ -13,18 +13,25 @@ export interface WizardStep extends StepItem {
 }
 
 export interface WizardProps {
+  /** The steps, in order: label, optional description, content and `canGoNext`. */
   steps: WizardStep[];
   /** Current step (controlled). If omitted, the Wizard manages its own state. */
   current?: number;
+  /** Called with the new index when the step changes (Back, Next or a tap on the indicator). */
   onStepChange?: (index: number) => void;
+  /** Called when the finish button is pressed on the last step. */
   onFinish?: () => void;
-  /** @default 'horizontal' */
+  /** Layout of the step indicator: a row or a column. @default 'horizontal' */
   orientation?: 'horizontal' | 'vertical';
+  /** What the circle of a completed step shows: a check, or its number. @default 'check' */
   completedIndicator?: 'check' | 'number';
   /** Allows returning to an already-completed step by tapping it in the indicator. @default true */
   allowStepNavigation?: boolean;
+  /** Text of the back button (hidden on the first step). @default 'Back' */
   backLabel?: string;
+  /** Text of the next button. @default 'Next' */
   nextLabel?: string;
+  /** Text of the next button on the last step. @default 'Finish' */
   finishLabel?: string;
   /**
    * The step content scrolls when it doesn't fit. Set to false only if

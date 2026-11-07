@@ -3,6 +3,7 @@ import { View, type StyleProp, type ViewProps, type ViewStyle } from 'react-nati
 import { createStyles } from '../theme/createStyles';
 
 export interface CardProps extends ViewProps {
+  /** Content of the card, inside its padding, background and border. */
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }

@@ -7,6 +7,7 @@ import { KeyboardHandled, KeyboardPanArea, useKeyboardHost } from '../theme/Keyb
 export type ScreenEdge = 'top' | 'bottom';
 
 export interface ScreenProps {
+  /** Content of the screen. */
   children: React.ReactNode;
   /**
    * Fixed bar on top (back button, title, actions). It stays in place while
@@ -15,7 +16,9 @@ export interface ScreenProps {
    */
   header?: React.ReactNode;
   style?: ViewStyle;
+  /** Wraps the content in a ScrollView. @default true */
   scrollable?: boolean;
+  /** Style of the ScrollView's content container. Only applies when `scrollable`. */
   contentContainerStyle?: ViewStyle;
   /** Which safe area insets to apply. @default ['top', 'bottom'] */
   edges?: ScreenEdge[];

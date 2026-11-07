@@ -6,8 +6,11 @@ import { useAllowFontScaling, useColors, useLabels } from '../theme/UIProvider';
 export type SpinnerVariant = 'native' | 'dots' | 'ring';
 
 export interface SpinnerProps {
+  /** Indicator size; also scales the `dots` and `ring` variants. @default 'large' */
   size?: 'small' | 'large';
+  /** Indicator color. @default colors.primary */
   color?: string;
+  /** Message under the indicator. Also what screen readers announce. */
   text?: string;
   /** @default true. When false, doesn't take up flex:1 (useful inline, inside a button/row). */
   fullscreen?: boolean;

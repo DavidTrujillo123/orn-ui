@@ -7,13 +7,20 @@ import { createStyles } from '../theme/createStyles';
 import { useTheme } from '../theme/UIProvider';
 
 export interface IconButtonProps {
+  /** Icon from the library's set. Ignored when `icon` is passed. */
   iconName?: IconName;
+  /** Custom node in place of the icon. Takes precedence over `iconName`. */
   icon?: React.ReactNode;
+  /** Called on press. Not called while `disabled`. */
   onPress?: (e: GestureResponderEvent) => void;
+  /** Icon size in pt. The touch area is padded up to 44pt with `hitSlop`. @default 24 */
   size?: number;
+  /** Icon color. Defaults to `colors.text`. */
   color?: string;
+  /** Dims the button by half and ignores presses. */
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  /** Required: the button has no visible text, so this is all a screen reader announces. */
   accessibilityLabel: string;
   testID?: string;
 }
