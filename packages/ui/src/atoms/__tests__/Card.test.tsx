@@ -28,6 +28,9 @@ describe('Card', () => {
     // 1pt in a color that stands out from surface: a hairline in #2a2a2e
     // (1.17:1 on #1e1e1e) vanished on another surface.
     expect(screen.getByTestId('card')).toHaveStyle({ borderWidth: 1, borderColor: '#3a3a40' });
+    // The fill is lighter than surface (#1e1e1e): elevation in dark reads as
+    // a lighter tile, not a shadow.
+    expect(screen.getByTestId('card')).toHaveStyle({ backgroundColor: '#303036' });
     rerender(
       <UIProvider mode="light">
         <Card testID="card">

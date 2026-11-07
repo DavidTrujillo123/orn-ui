@@ -47,6 +47,12 @@ export interface ThemeColors {
   black: string;
   background: string;
   surface: string;
+  /**
+   * Fill of a surface that sits on another surface (Card). In light it equals
+   * `surface` (the shadow separates it); in dark it is lighter, because
+   * shadows don't show and elevation reads as a lighter fill.
+   */
+  surfaceRaised: string;
   text: string;
   textLight: string;
   border: string;
@@ -96,6 +102,7 @@ export const lightPalette: ThemeColors = {
 
   background: '#f8f9fa',
   surface: '#ffffff',
+  surfaceRaised: '#ffffff',
   text: '#333333',
   textLight: '#666666',
   border: '#e5e7eb',
@@ -140,11 +147,12 @@ export const darkPalette: ThemeColors = {
 
   background: '#121212',
   surface: '#1e1e1e',
+  surfaceRaised: '#303036',
   text: '#ecedee',
   textLight: '#9ba1a6',
   border: '#3a3a40',
   inputBackground: '#232326',
   overlay: 'rgba(0,0,0,0.6)',
   scrim: 'rgba(18,18,18,0.8)',
-  skeleton: '#2c2c30',
+  skeleton: '#44444b',
 };

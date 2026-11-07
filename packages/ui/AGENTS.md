@@ -240,6 +240,7 @@ Each accent (`primary`, `secondary`, `success`, `error`, `warning`) has four
 roles that are not interchangeable: `primary` (solid fill), `onPrimary`
 (content on that fill), `primarySoft` (tinted background), `primaryText`
 (accent text on `surface`/`background`). Neutrals: `background`, `surface`,
+`surfaceRaised` (a surface on a surface, e.g. Card: lighter in dark),
 `text`, `textLight`, `border`, `inputBackground`, `overlay`, `scrim`,
 `skeleton`, `white`, `black`.
 

@@ -11,7 +11,9 @@ const CARD_BORDER_DARK = 1;
 
 const useStyles = createStyles((theme) => ({
   card: {
-    backgroundColor: theme.colors.surface,
+    // surfaceRaised: lighter than surface in dark, so a card on a sheet or
+    // on another card still reads as a separate tile (figure and ground).
+    backgroundColor: theme.colors.surfaceRaised,
     borderRadius: theme.tokens.radius.xl,
     padding: theme.tokens.spacing.lg,
     ...theme.tokens.shadow.sm,
