@@ -1,7 +1,6 @@
 import React, { memo, useEffect, useRef, useState } from 'react';
 import {
   Animated,
-  Dimensions,
   Keyboard,
   KeyboardAvoidingView,
   Modal,
@@ -10,23 +9,34 @@ import {
   Pressable,
   ScrollView,
   View,
+  useWindowDimensions,
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useColors, useModalSafeAreaBoundary } from '../theme/UIProvider';
+import { useColors, useLabels, useModalSafeAreaBoundary, useTheme } from '../theme/UIProvider';
+import { useReduceMotion } from '../theme/useReduceMotion';
 import { KeyboardHandled } from '../theme/KeyboardAvoidance';
 import { Title } from '../atoms/Text';
 import { IconButton } from '../atoms/IconButton';
 import { Transition } from '../atoms/Transition';
 
-const { height: SCREEN_HEIGHT } = Dimensions.get('window');
-const DISMISS_THRESHOLD = 100;
+/** Drag distance (pt) that closes the sheet on release. */
+const DISMISS_DISTANCE = 100;
+/** Downward release speed that closes it even after a short drag (a flick). */
+const DISMISS_VELOCITY = 0.5;
+const HANDLE_WIDTH = 40;
+const HANDLE_HEIGHT = 5;
+const HANDLE_OPACITY = 0.4;
+const CLOSE_ICON_SIZE = 24;
 
 export type FooterPlacement = 'fixed' | 'scroll' | 'hide-with-keyboard';
 
 export interface BottomSheetProps {
+  /** Shows or hides the sheet (it slides in and out). */
   visible: boolean;
+  /** Called by the backdrop, the close button, the drag and Android back. */
   onClose: () => void;
+  /** Sheet content. */
   children: React.ReactNode;
   /** With a title, the header appears, with its close button. */
   title?: string;
@@ -44,9 +54,14 @@ export interface BottomSheetProps {
   draggable?: boolean;
   /** Fraction of the screen (0-1) or pixels. @default 0.9 */
   maxHeight?: number;
+  /** Accessible name of the close button and backdrop. @default labels.close */
   closeAccessibilityLabel?: string;
+  /** Style of the sheet itself (background, radius). */
   containerStyle?: ViewStyle;
+  /** Style of the content area (padding). */
   contentStyle?: ViewStyle;
+  /** Draws the sheet inside its parent instead of over the screen (docs, previews). @default false */
+  inline?: boolean;
   testID?: string;
 }
 
@@ -60,7 +75,15 @@ const useStyles = createStyles((theme) => ({
     ...theme.tokens.shadow.lg,
   },
   handleArea: { paddingVertical: theme.tokens.spacing.md, alignItems: 'center' },
-  handle: { width: 40, height: 5, borderRadius: 3, backgroundColor: theme.colors.border },
+  handle: {
+    width: HANDLE_WIDTH,
+    height: HANDLE_HEIGHT,
+    borderRadius: HANDLE_HEIGHT / 2,
+    // textLight, faded: `border` was nearly invisible on a white sheet, and
+    // the handle is the only hint that the sheet can be dragged.
+    backgroundColor: theme.colors.textLight,
+    opacity: HANDLE_OPACITY,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -89,6 +112,13 @@ const absoluteFill: ViewStyle = { position: 'absolute', top: 0, left: 0, right: 
  * an external gesture-handler: the library is zero-dependency). Header, footer
  * and scroll are optional, so it covers both the bare sheet and the full
  * form.
+ *
+ * Gestalt, figure-ground: the backdrop dims the screen, so the sheet is the
+ * only figure. Common region: header, content and footer share one panel;
+ * the footer's top border separates the actions from the content. Continuity:
+ * it slides from the edge it lives on and the drag follows the finger back
+ * down; a short flick closes it too. Fitts: content sits in the thumb zone.
+ * Reduce Motion: it appears and leaves without sliding.
  */
 export const BottomSheet = memo(
   ({
@@ -101,13 +131,25 @@ export const BottomSheet = memo(
     scrollable = true,
     draggable = true,
     maxHeight = 0.9,
-    closeAccessibilityLabel = 'Close',
+    closeAccessibilityLabel,
     containerStyle,
     contentStyle,
+    inline = false,
     testID,
   }: BottomSheetProps) => {
     const styles = useStyles();
     const colors = useColors();
+    const theme = useTheme();
+    const labels = useLabels();
+    const reduceMotion = useReduceMotion();
+    const { height: screenHeight } = useWindowDimensions();
+    const closeLabel = closeAccessibilityLabel ?? labels.close;
+    const { duration } = theme.tokens;
+    // The PanResponder is created once: it reads these through refs.
+    const screenHeightRef = useRef(screenHeight);
+    screenHeightRef.current = screenHeight;
+    const snapBackMs = useRef(duration.fast);
+    snapBackMs.current = reduceMotion ? 0 : duration.fast;
     const ModalSafeAreaBoundary = useModalSafeAreaBoundary();
     const [mounted, setMounted] = useState(visible);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
@@ -119,9 +161,11 @@ export const BottomSheet = memo(
     onCloseRef.current = onClose;
 
     useEffect(() => {
-      const animation = visible
-        ? Animated.timing(progress, { toValue: 1, duration: 250, useNativeDriver: true })
-        : Animated.timing(progress, { toValue: 0, duration: 200, useNativeDriver: true });
+      const animation = Animated.timing(progress, {
+        toValue: visible ? 1 : 0,
+        duration: reduceMotion ? 0 : visible ? duration.slow : duration.base,
+        useNativeDriver: true,
+      });
       if (visible) setMounted(true);
       animation.start(({ finished }) => {
         if (!visible && finished) setMounted(false);
@@ -130,7 +174,7 @@ export const BottomSheet = memo(
       // finishes, it is cut short: otherwise, a late `finished` could call
       // `setMounted` on an already unmounted component.
       return () => animation.stop();
-    }, [visible, progress]);
+    }, [visible, progress, reduceMotion, duration.slow, duration.base]);
 
     useEffect(() => {
       if (footerPlacement !== 'hide-with-keyboard') return;
@@ -147,13 +191,14 @@ export const BottomSheet = memo(
       PanResponder.create({
         onMoveShouldSetPanResponder: (_, gesture) => gesture.dy > 5 && Math.abs(gesture.dy) > Math.abs(gesture.dx),
         onPanResponderMove: (_, gesture) => {
-          if (gesture.dy > 0) progress.setValue(1 - Math.min(gesture.dy, SCREEN_HEIGHT) / SCREEN_HEIGHT);
+          const h = screenHeightRef.current;
+          if (gesture.dy > 0) progress.setValue(1 - Math.min(gesture.dy, h) / h);
         },
         onPanResponderRelease: (_, gesture) => {
-          if (gesture.dy > DISMISS_THRESHOLD) {
+          if (gesture.dy > DISMISS_DISTANCE || (gesture.dy > 0 && gesture.vy > DISMISS_VELOCITY)) {
             onCloseRef.current();
           } else {
-            Animated.timing(progress, { toValue: 1, duration: 150, useNativeDriver: true }).start();
+            Animated.timing(progress, { toValue: 1, duration: snapBackMs.current, useNativeDriver: true }).start();
           }
         },
       })
@@ -191,8 +236,8 @@ export const BottomSheet = memo(
       </View>
     );
 
-    return (
-      <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
+    const tree = (
+        <>
         {/* The sheet is anchored at the bottom, so the keyboard covers it
             entirely: it has to be pushed up, not adjusted with insets inside
             the scroll. A single compensation, the container's. */}
@@ -209,7 +254,7 @@ export const BottomSheet = memo(
               onPress={onClose}
               testID="bottom-sheet-backdrop"
               accessibilityRole={hasHeader ? undefined : 'button'}
-              accessibilityLabel={hasHeader ? undefined : closeAccessibilityLabel}
+              accessibilityLabel={hasHeader ? undefined : closeLabel}
             />
           </Transition>
 
@@ -220,11 +265,11 @@ export const BottomSheet = memo(
               <Transition
                 value={progress}
                 preset="slide-up"
-                distance={SCREEN_HEIGHT}
+                distance={screenHeight}
                 testID={testID}
                 style={[
                   styles.sheet,
-                  { maxHeight: resolvedMaxHeight, paddingBottom: Math.max(insets.bottom, 20) },
+                  { maxHeight: resolvedMaxHeight, paddingBottom: Math.max(insets.bottom, theme.tokens.spacing.xl) },
                   containerStyle,
                 ]}
               >
@@ -241,10 +286,10 @@ export const BottomSheet = memo(
                     </Title>
                     <IconButton
                       iconName="close"
-                      size={24}
+                      size={CLOSE_ICON_SIZE}
                       color={colors.text}
                       onPress={onClose}
-                      accessibilityLabel={closeAccessibilityLabel}
+                      accessibilityLabel={closeLabel}
                     />
                   </View>
                 )}
@@ -257,6 +302,20 @@ export const BottomSheet = memo(
           </ModalSafeAreaBoundary>
         </KeyboardAvoidingView>
         </KeyboardHandled>
+        </>
+    );
+
+    if (inline) {
+      return (
+        <View style={absoluteFill} pointerEvents="box-none">
+          {tree}
+        </View>
+      );
+    }
+
+    return (
+      <Modal visible transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
+        {tree}
       </Modal>
     );
   }

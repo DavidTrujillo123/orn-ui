@@ -236,4 +236,51 @@ describe('BottomSheet', () => {
     });
     expect(screen.queryByText('content')).not.toBeOnTheScreen();
   });
+
+  it('names the close button from labels', () => {
+    render(
+      <UIProvider mode="light" labels={{ close: 'Cerrar' }}>
+        <BottomSheet visible onClose={() => {}} title="Filters">
+          <Text>content</Text>
+        </BottomSheet>
+      </UIProvider>
+    );
+    expect(screen.getByRole('button', { name: 'Cerrar' })).toBeOnTheScreen();
+  });
+
+  it('a short downward flick closes it, a slow short drag snaps back', () => {
+    const { PanResponder } = require('react-native');
+    const configs: Array<{ onPanResponderRelease: (e: unknown, g: { dy: number; vy: number }) => void }> = [];
+    const spy = jest.spyOn(PanResponder, 'create').mockImplementation((config: never) => {
+      configs.push(config);
+      return { panHandlers: {} };
+    });
+    const onClose = jest.fn();
+    render(
+      withProvider(
+        <BottomSheet visible onClose={onClose}>
+          <Text>content</Text>
+        </BottomSheet>
+      )
+    );
+    const release = configs[configs.length - 1]!.onPanResponderRelease;
+    act(() => release({}, { dy: 30, vy: 0.1 }));
+    expect(onClose).not.toHaveBeenCalled();
+    act(() => release({}, { dy: 30, vy: 1.2 }));
+    expect(onClose).toHaveBeenCalledTimes(1);
+    spy.mockRestore();
+  });
+
+  it('inline draws the sheet in place, without a native Modal', () => {
+    const { Modal } = require('react-native');
+    render(
+      withProvider(
+        <BottomSheet visible inline onClose={() => {}} title="Filters">
+          <Text>content</Text>
+        </BottomSheet>
+      )
+    );
+    expect(screen.getByText('content')).toBeOnTheScreen();
+    expect(screen.UNSAFE_queryAllByType(Modal)).toHaveLength(0);
+  });
 });

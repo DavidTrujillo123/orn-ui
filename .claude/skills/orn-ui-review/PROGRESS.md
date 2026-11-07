@@ -45,7 +45,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | componente | slug | estado | fecha | notas |
 |---|---|---|---|---|
 | Modal | modal | pendiente | | |
-| BottomSheet | bottom-sheet | pendiente | | |
+| BottomSheet | bottom-sheet | arreglado | 2026-11-06 | Gestalt figura-fondo + región común + continuidad + Fitts en doc comment. Close label desde `labels.close` (era "Close" fijo). Reduce Motion (duración 0), duraciones de tokens, flick corto cierra (vy>0.5), alto con `useWindowDimensions` (rotación). Handle visible en claro (textLight 0.4; `border` casi blanco). Prop nueva `inline` (como Alert) para docs. Demo: ejemplos `XxxExample` abiertos inline. Docs: crop explícito `organisms bottom-sheet 5 715 1520`, mp4 borrado. Pendiente: handle sin acción accesible (cerrar está en el botón/fondo). |
 | Select | select | pendiente | | |
 | OptionWheel | option-wheel | pendiente | | |
 | Timeline | timeline | pendiente | | |
