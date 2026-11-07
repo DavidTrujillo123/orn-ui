@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
-import { Body, Card, Chart, type ChartRow, type ChartSelection } from 'orn-ui';
+import { Body, Card, Chart, useTheme, type ChartRow, type ChartSelection } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
 const MONTHS: ChartRow[] = [
@@ -49,7 +49,8 @@ const RANGES = [
  * echo of the selection below. The echo exists for the Maestro flow — the
  * highlighted bar and the bubble are pixels, and an assert can't see them.
  */
-function Interactive() {
+function InteractiveChartExample() {
+  const theme = useTheme();
   const [range, setRange] = useState('6');
   const [picked, setPicked] = useState<ChartSelection | null>(null);
   const rows = useMemo(() => MONTHS.slice(-Number(range)), [range]);
@@ -62,7 +63,7 @@ function Interactive() {
   };
 
   return (
-    <View style={{ gap: 12 }}>
+    <View style={{ gap: theme.tokens.spacing.md }}>
       <Card>
         <Chart
           type="bar"
@@ -92,7 +93,8 @@ function Interactive() {
  * - `selectBy`, so the selected point follows its datum as the window
  *   slides, instead of staying stuck to an index that now belongs to another.
  */
-function LiveChart() {
+function LiveDataExample() {
+  const theme = useTheme();
   const [rows, setRows] = useState<ChartRow[]>([{ t: 0, value: 50 }]);
   const [picked, setPicked] = useState<ChartSelection | null>(null);
   const tick = useRef(0);
@@ -112,7 +114,7 @@ function LiveChart() {
   }, []);
 
   return (
-    <View style={{ gap: 12 }}>
+    <View style={{ gap: theme.tokens.spacing.md }}>
       <Card>
         <Chart
           type="area"
@@ -137,7 +139,7 @@ function LiveChart() {
 export function ChartDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'interactive: filter, legend, tooltip', content: <Interactive /> },
+    { label: 'interactive: filter, legend, tooltip', content: <InteractiveChartExample /> },
     {
       label: 'bar: horizontal',
       content: (
@@ -241,7 +243,7 @@ export function ChartDemo() {
         </Card>
       ),
     },
-    { label: 'live: window, sticky domain, selectBy', content: <LiveChart /> },
+    { label: 'live: window, sticky domain, selectBy', content: <LiveDataExample /> },
     {
       label: 'no data',
       content: (

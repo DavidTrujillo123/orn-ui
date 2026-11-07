@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo, useRef, useState } from 'react';
+import React, { createContext, memo, useCallback, useContext, useMemo, useRef, useState } from 'react';
 import {
   Pressable,
   Text,
@@ -11,6 +11,7 @@ import {
 import { contrast } from '../theme/colors';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useLabels, useTheme } from '../theme/UIProvider';
+import { useReduceMotion } from '../theme/useReduceMotion';
 import { SegmentedControl } from '../molecules/SegmentedControl';
 import { Bar, Dot, Polyline, Wedge } from './chart/marks';
 import { AxisLabels, CartesianGrid, Legend, RadarGrid, Tooltip, type LegendItem, type TooltipRow } from './chart/frame';
@@ -90,6 +91,7 @@ export interface ChartSelection {
 }
 
 interface ChartBaseProps {
+  /** Rows: one per category, with the label in `xKey` and one column per series. */
   data: ChartRow[];
   /**
    * Series to draw. 'pie'/'donut' only use the first one: a pie's categories
@@ -119,19 +121,21 @@ interface ChartBaseProps {
   legend?: 'auto' | 'none' | 'static' | 'toggle';
   /** Hidden series (controlled). Without it, Chart tracks them itself. */
   hiddenKeys?: string[];
-  /** @default [] */
+  /** Series hidden at first (uncontrolled). @default [] */
   defaultHiddenKeys?: string[];
+  /** Called when the legend shows or hides a series. */
   onHiddenKeysChange?: (keys: string[]) => void;
   /** Controls above the chart, one per filter. */
   filters?: ChartFilter[];
   /** Highlighted point (controlled). `null` means none. */
   selected?: ChartSelection | null;
+  /** Called when a category is tapped, with `null` when it is released. */
   onSelect?: (selection: ChartSelection | null) => void;
   /** Bubble with the values of the touched category. @default true */
   tooltip?: boolean;
-  /** @default compact format: 1.2k, 3.4M */
+  /** Formats values on the axis, tooltip and slices. @default compact format: 1.2k, 3.4M */
   formatValue?: (value: number) => string;
-  /** @default true */
+  /** Marks grow in on mount and morph on data changes (off with Reduce Motion). @default true */
   animate?: boolean;
   /** Duration in ms of the marks' animation. @default tokens.duration.slow * 2 */
   duration?: number;
@@ -139,8 +143,21 @@ interface ChartBaseProps {
   emptyText?: string;
   /** Required: a chart has no text that describes it. */
   accessibilityLabel: string;
+  /**
+   * Color behind the chart. The donut hole and the ring around points are
+   * painted with it, so they must match whatever the chart sits on.
+   * @default colors.surfaceRaised (a Chart usually lives in a Card)
+   */
+  surfaceColor?: string;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+}
+
+/** Background the marks paint "holes" with (donut center, point rings). */
+const ChartSurfaceContext = createContext<string | undefined>(undefined);
+function useChartSurface(): string {
+  const theme = useTheme();
+  return useContext(ChartSurfaceContext) ?? theme.colors.surfaceRaised;
 }
 
 interface CartesianProps {
@@ -166,6 +183,7 @@ interface CartesianProps {
 }
 
 interface BarChartProps extends CartesianProps {
+  /** Kind of chart. Props marked "Only with type" depend on it. */
   type: 'bar';
   /** 'horizontal' puts the categories on the vertical axis. @default 'vertical' */
   orientation?: 'vertical' | 'horizontal';
@@ -185,7 +203,7 @@ interface LineChartProps extends CartesianProps {
   decimate?: number | false;
   /** Catmull-Rom curves instead of straight segments. @default false */
   smooth?: boolean;
-  /** @default 2 */
+  /** Line width in pt. @default 2 */
   thickness?: number;
   /** A dot on each datum. @default true */
   dots?: boolean;
@@ -351,10 +369,11 @@ export function Chart(props: ChartProps) {
     onSelect,
     tooltip = true,
     formatValue = formatNumber,
-    animate = true,
+    animate: animateProp = true,
     duration,
     emptyText,
     accessibilityLabel,
+    surfaceColor,
     style,
     testID,
   } = props;
@@ -363,6 +382,9 @@ export function Chart(props: ChartProps) {
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
   const uiLabels = useLabels();
+  // Reduce Motion: the marks appear in their final shape instead of growing.
+  const reduceMotion = useReduceMotion();
+  const animate = animateProp && !reduceMotion;
   const [width, setWidth] = useState(0);
 
   const [hidden, setHidden, hiddenIsControlled] = useControlled(hiddenKeys, defaultHiddenKeys ?? []);
@@ -495,6 +517,7 @@ export function Chart(props: ChartProps) {
   };
 
   return (
+    <ChartSurfaceContext.Provider value={surfaceColor ?? theme.colors.surfaceRaised}>
     <View style={[styles.root, style]} testID={testID} accessible={false}>
       {filters && filters.length > 0 ? (
         <View style={styles.filters}>
@@ -567,6 +590,7 @@ export function Chart(props: ChartProps) {
         <Legend items={entries} hidden={hidden} onToggle={toggleable ? applyHidden : undefined} testID={testID && `${testID}-legend`} />
       ) : null}
     </View>
+    </ChartSurfaceContext.Provider>
   );
 }
 
@@ -659,6 +683,7 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
   } = props;
 
   const theme = useTheme();
+  const surface = useChartSurface();
   const horizontal = type === 'bar' && orientation === 'horizontal';
   const keys = useMemo(() => visible.map((entry) => entry.key), [visible]);
 
@@ -891,7 +916,7 @@ const CartesianPlot = memo((props: CartesianPlotProps) => {
                           key={index}
                           point={point}
                           color={entry.color}
-                          ringColor={theme.colors.surface}
+                          ringColor={surface}
                           size={selection?.index === index ? 8 : 6}
                           testID={testID && `${testID}-dot-${entry.key}-${index}`}
                         />
@@ -995,6 +1020,7 @@ function inkOn(background: string, theme: { colors: { white: string; black: stri
 const PiePlot = memo((props: PiePlotProps) => {
   const { rows, labels, entries, visible, width, height, formatValue, selection, onPick, tooltip, testID, donut, innerRadius, sliceLabels, valueKey } = props;
   const theme = useTheme();
+  const surface = useChartSurface();
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
 
@@ -1056,7 +1082,7 @@ const PiePlot = memo((props: PiePlotProps) => {
             width: hole * 2,
             height: hole * 2,
             borderRadius: hole,
-            backgroundColor: theme.colors.surface,
+            backgroundColor: surface,
           }}
         />
       ) : null}
@@ -1128,6 +1154,7 @@ const RADAR_LABEL_WIDTH = 56;
 const RadarPlot = memo((props: RadarPlotProps) => {
   const { rows, labels, visible, width, height, formatValue, selection, onPick, tooltip, testID, domain, levels, fill, thickness, dots } = props;
   const theme = useTheme();
+  const surface = useChartSurface();
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
 
@@ -1203,7 +1230,7 @@ const RadarPlot = memo((props: RadarPlotProps) => {
                     key={index}
                     point={point}
                     color={entry.color}
-                    ringColor={theme.colors.surface}
+                    ringColor={surface}
                     size={selection?.index === index ? 8 : 6}
                   />
                 ))

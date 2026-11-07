@@ -59,7 +59,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | ThemeToggle | theme-toggle | pendiente | | |
 | NavigationBar | navigation-bar | pendiente | | |
 | Slides | slides | pendiente | | |
-| Chart | chart | pendiente | | |
+| Chart | chart | arreglado | 2026-11-07 | Ya tenía Gestalt (destino común, similitud) y a11y por barra/porción. Arreglado: agujero del donut y anillo de puntos usaban `surface` → en dark disco negro dentro de la Card (nueva prop `surfaceColor`, default `surfaceRaised`). Reduce Motion no se respetaba (ahora sin animación). JSDoc de props faltantes. Docs: tabla de props estaba vacía (`ChartProps` es alias `Base & (A|B…)`) → extractor recorre alias/intersecciones/uniones y marca "Solo con type"; extractor también duplicaba constantes tipadas (`const X: T =`). Demo: `InteractiveChartExample`, `LiveDataExample`, gap con tokens. Docs en video (VIDEO=1 CLIP_S=4 BAND_H=1250, 14 variantes). |
 | ReorderableList | reorderable-list | pendiente | | |
 
 ## Decisiones y trabajo futuro

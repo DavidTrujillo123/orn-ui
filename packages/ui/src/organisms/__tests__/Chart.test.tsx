@@ -812,4 +812,63 @@ describe('chart/marks', () => {
     render(withProvider(<Bar x={0} y={0} width={10} height={20} color="#000000" from="bottom" testID="b" />));
     expect(screen.getByTestId('b').props.style.borderTopLeftRadius).toBeUndefined();
   });
+
+  describe('surfaceColor', () => {
+    const SHARE: ChartRow[] = [
+      { x: 'iOS', users: 4 },
+      { x: 'Android', users: 6 },
+    ];
+    const holeColors = () =>
+      screen
+        .UNSAFE_queryAllByType(require('react-native').View)
+        .map((v: { props: { style?: unknown } }) => Object.assign({}, ...[v.props.style].flat(Infinity).filter(Boolean)))
+        .filter((st: { position?: string; borderRadius?: number }) => st.position === 'absolute' && (st.borderRadius ?? 0) > 20)
+        .map((st: { backgroundColor?: string }) => st.backgroundColor);
+
+    it('the donut hole matches a Card by default (surfaceRaised), not the screen surface', () => {
+      render(
+        <UIProvider mode="dark">
+          <Chart type="donut" data={SHARE} series={[{ key: 'users' }]} accessibilityLabel="Share" animate={false} testID="c" />
+        </UIProvider>
+      );
+      act(() => layout());
+      expect(holeColors()).toContain('#303036');
+      expect(holeColors()).not.toContain('#1e1e1e');
+    });
+
+    it('surfaceColor paints the hole with whatever the chart sits on', () => {
+      render(
+        <UIProvider mode="dark">
+          <Chart
+            type="donut"
+            data={SHARE}
+            series={[{ key: 'users' }]}
+            accessibilityLabel="Share"
+            animate={false}
+            surfaceColor="#123456"
+            testID="c"
+          />
+        </UIProvider>
+      );
+      act(() => layout());
+      expect(holeColors()).toContain('#123456');
+    });
+  });
+
+  it('with Reduce Motion the marks do not animate', async () => {
+    const { AccessibilityInfo, Animated } = require('react-native');
+    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValueOnce(true);
+    const timing = jest.spyOn(Animated, 'timing');
+    render(
+      withProvider(
+        <Chart type="bar" data={[{ x: 'a', v: 1 }, { x: 'b', v: 2 }]} series={[{ key: 'v' }]} accessibilityLabel="A" testID="c" />
+      )
+    );
+    await act(async () => {});
+    timing.mockClear();
+    act(() => layout());
+    expect(timing).not.toHaveBeenCalled();
+    timing.mockRestore();
+  });
 });
+
