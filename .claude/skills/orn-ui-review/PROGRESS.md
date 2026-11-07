@@ -66,6 +66,8 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 - 2026-11-02 — Teclado: lo resuelve el UIProvider raíz (`keyboardAvoidance`, default true) con un desplazamiento tipo adjustPan en el hilo nativo; Input se registra al enfocarse. Screen (sin scroll / Android) ya no envuelve en KeyboardAvoidingView si hay host; Modal/BottomSheet (ventana propia) y ScrollView iOS con auto-insets (Screen, Wizard) marcan `KeyboardHandled`. PENDIENTE: verificar en iOS y Android con Maestro (Xcode 27) — campo al fondo, con header, pasar de un campo a otro, error que aparece con el teclado abierto.
 
+- 2026-11-07 — Hecho: todas las props públicas documentadas (en/es); demos Modal, SearchList, Slides y Wizard en `XxxExample` copiables; ícono `scan` (SearchList); VariantList `fill` respeta `?v=N` (antes la variante 2 de SearchList era inalcanzable). Transition: `onEntered`/`onExited` no corren con `value` a propósito (lo anima quien llama; documentado). SearchList aún sin capturas de docs: hacerlas al revisarlo.
+
 - 2026-11-01 — Docs i18n: Chart muestra la tabla de props vacía (el extractor no lee `ChartProps` por ser unión); override `firstDayOfWeek` huérfano en DateField. 255 props públicas sin descripción (List/SearchList, Button/Fab, Modal/BottomSheet, Select): completarlas al revisar cada componente.
 
 - **2026-11-01 — safe-area obligatoria.** `react-native-safe-area-context` (>=5.4.0, sin dependencias propias) pasa a peer obligatorio. `UIProvider` mide los insets (monta `SafeAreaProvider`, `mountSafeAreaProvider={false}` si ya hay uno) y el boundary de Modal/BottomSheet remide siempre. `orn-ui/safe-area` queda como alias deprecado (`SafeAreaUIProvider === UIProvider`); borrarlo en una minor posterior. Se quitó el aviso dev de "UIProvider sin insets". Requiere publicar como 0.3.0. La docs web (`orn-ui-docs`) aún muestra `SafeAreaUIProvider`: actualizarla.
@@ -85,7 +87,8 @@ Modal, Alert hermano declarativo sobre sheet. Causa: iOS presenta un modal
 nativo a la vez desde la raíz. Arreglo: `theme/NativeOverlay.tsx` (coordinador:
 capa dentro del modal de arriba, o espera al que se cierra; anidados siguen
 nativos; Android = Modal plano). Usado por Alert, BottomSheet, Modal, Select.
-11 escenarios OK. Pendiente: si sheet y Alert se abren en el mismo tick, el
-orden lo decide el JSX (puede quedar el sheet encima del Alert). Select/DateField
+11 escenarios OK. 2026-11-07: el Alert (`dialog`) siempre queda arriba, aunque
+se abra antes o en el mismo tick que un sheet (verificado en simulador, sin
+avisos de consola). Select/DateField
 no verificados con toque (requieren tap; Maestro bloqueado), usan el mismo camino.
 
