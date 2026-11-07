@@ -3,9 +3,13 @@ import { View } from 'react-native';
 import { BUILT_IN_ICON_NAMES, Caption, IconButton, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
+function ErrorColorExample() {
+  const colors = useColors();
+  return <IconButton iconName="check" color={colors.error} accessibilityLabel="Red" onPress={() => {}} />;
+}
+
 export function IconButtonDemo() {
   // #region demo
-  const colors = useColors();
   const variants: VariantDef[] = [
     {
       label: 'All built-in icons',
@@ -27,7 +31,7 @@ export function IconButtonDemo() {
     { label: 'search', content: <IconButton iconName="search" accessibilityLabel="Search" onPress={() => {}} /> },
     { label: 'small', content: <IconButton iconName="check" size={16} accessibilityLabel="Small" onPress={() => {}} /> },
     { label: 'large', content: <IconButton iconName="check" size={32} accessibilityLabel="Large" onPress={() => {}} /> },
-    { label: 'custom color', content: <IconButton iconName="check" color={colors.error} accessibilityLabel="Red" onPress={() => {}} /> },
+    { label: 'custom color', content: <ErrorColorExample /> },
     { label: 'disabled', content: <IconButton iconName="close" accessibilityLabel="Disabled" onPress={() => {}} disabled /> },
   ];
   return <VariantList variants={variants} />;

@@ -3,31 +3,43 @@ import { View } from 'react-native';
 import { Input } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-export function InputDemo() {
+function EmailExample() {
   const [email, setEmail] = useState('');
+  return (
+    <Input label="Email" required placeholder="you@example.com" value={email} onChangeText={setEmail} leftIconName="info" />
+  );
+}
+
+function PasswordExample() {
   const [password, setPassword] = useState('');
+  return <Input label="Password" isPassword value={password} onChangeText={setPassword} />;
+}
+
+function ClearableExample() {
   const [search, setSearch] = useState('orn-ui');
+  return (
+    <Input
+      label="Search"
+      value={search}
+      onChangeText={setSearch}
+      leftIconName="search"
+      rightIconName={search.length > 0 ? 'close' : undefined}
+      onRightIconPress={() => setSearch('')}
+    />
+  );
+}
+
+export function InputDemo() {
   // #region demo
   const variants: VariantDef[] = [
     {
       label: 'Default',
-      content: (
-        <Input label="Email" required placeholder="you@example.com" value={email} onChangeText={setEmail} leftIconName="info" />
-      ),
+      content: <EmailExample />,
     },
-    { label: 'Password', content: <Input label="Password" isPassword value={password} onChangeText={setPassword} /> },
+    { label: 'Password', content: <PasswordExample /> },
     {
       label: 'Clearable',
-      content: (
-        <Input
-          label="Search"
-          value={search}
-          onChangeText={setSearch}
-          leftIconName="search"
-          rightIconName={search.length > 0 ? 'close' : undefined}
-          onRightIconPress={() => setSearch('')}
-        />
-      ),
+      content: <ClearableExample />,
     },
     { label: 'Error', content: <Input label="Email" error="This field is required" value="" onChangeText={() => {}} /> },
     { label: 'Loading', content: <Input label="Checking availability" isLoading value="" onChangeText={() => {}} /> },

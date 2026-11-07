@@ -3,9 +3,13 @@ import { View } from 'react-native';
 import { Badge, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
+function CustomColorsExample() {
+  const colors = useColors();
+  return <Badge label="VIP" backgroundColor={colors.primarySoft} textColor={colors.primaryText} />;
+}
+
 export function BadgeDemo() {
   // #region demo
-  const colors = useColors();
   const variants: VariantDef[] = [
     { label: 'success', content: <Badge label="PAID" variant="success" /> },
     { label: 'error', content: <Badge label="OVERDUE" variant="error" /> },
@@ -24,7 +28,7 @@ export function BadgeDemo() {
         </View>
       ),
     },
-    { label: 'custom colors', content: <Badge label="VIP" backgroundColor={colors.primarySoft} textColor={colors.primaryText} /> },
+    { label: 'custom colors', content: <CustomColorsExample /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

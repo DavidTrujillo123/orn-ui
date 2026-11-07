@@ -3,8 +3,22 @@ import { View } from 'react-native';
 import { Button } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-export function ButtonDemo() {
+function LoadingButtonExample() {
   const [loading, setLoading] = useState(false);
+  return (
+    <Button
+      title="Tap to load"
+      loading={loading}
+      onPress={() => {
+        setLoading(true);
+        // Your request goes here; the timer stands in for it.
+        setTimeout(() => setLoading(false), 1500);
+      }}
+    />
+  );
+}
+
+export function ButtonDemo() {
   // #region demo
   const variants: VariantDef[] = [
     { label: 'Primary', content: <Button title="Primary" onPress={() => {}} /> },
@@ -27,16 +41,7 @@ export function ButtonDemo() {
     { label: 'Loading (static)', content: <Button title="Saving" loading onPress={() => {}} /> },
     {
       label: 'Loading',
-      content: (
-        <Button
-          title="Tap to load"
-          loading={loading}
-          onPress={() => {
-            setLoading(true);
-            setTimeout(() => setLoading(false), 1500);
-          }}
-        />
-      ),
+      content: <LoadingButtonExample />,
     },
     { label: 'Left icon', content: <Button title="Confirm" leftIconName="check" onPress={() => {}} /> },
     { label: 'Right icon', content: <Button title="Next" rightIconName="chevron-right" onPress={() => {}} /> },

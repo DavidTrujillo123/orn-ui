@@ -6,8 +6,21 @@ import { VariantList, type VariantDef } from '@/components/VariantList';
 const BOX = { height: 120, borderRadius: 12, width: '100%' } as const;
 const TILE = { height: 96, width: 96, borderRadius: 12 } as const;
 
-export function GradientDemo() {
+function TappableChildrenExample() {
   const colors = useColors();
+  return (
+    <Gradient
+      colors={['#0b2a8f', '#004cef']}
+      direction="diagonal"
+      style={{ ...BOX, alignItems: 'center', justifyContent: 'center', gap: 8 }}
+    >
+      <Body style={{ color: colors.white }}>Content sits on top</Body>
+      <Button title="Press me" variant="secondary" onPress={() => {}} />
+    </Gradient>
+  );
+}
+
+export function GradientDemo() {
 
   // #region demo
   const variants: VariantDef[] = [
@@ -44,16 +57,7 @@ export function GradientDemo() {
     },
     {
       label: 'children stay tappable — the gradient never takes the touch',
-      content: (
-        <Gradient
-          colors={['#0b2a8f', '#004cef']}
-          direction="diagonal"
-          style={{ ...BOX, alignItems: 'center', justifyContent: 'center', gap: 8 }}
-        >
-          <Body style={{ color: colors.white }}>Content sits on top</Body>
-          <Button title="Press me" variant="secondary" onPress={() => {}} />
-        </Gradient>
-      ),
+      content: <TappableChildrenExample />,
     },
   ];
   // #endregion demo

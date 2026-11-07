@@ -3,9 +3,19 @@ import { View } from 'react-native';
 import { Spinner, Avatar, Image, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
+function CustomColorsExample() {
+  const colors = useColors();
+  return (
+    <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
+      <Spinner variant="dots" color={colors.secondary} fullscreen={false} />
+      <Spinner variant="ring" color={colors.error} fullscreen={false} />
+      <Spinner color={colors.success} fullscreen={false} />
+    </View>
+  );
+}
+
 export function SpinnerDemo() {
   // #region demo
-  const colors = useColors();
   const variants: VariantDef[] = [
     {
       label: 'variant="native" (default — system ActivityIndicator)',
@@ -32,13 +42,7 @@ export function SpinnerDemo() {
     },
     {
       label: 'custom color',
-      content: (
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 12, alignItems: 'flex-start' }}>
-          <Spinner variant="dots" color={colors.secondary} fullscreen={false} />
-          <Spinner variant="ring" color={colors.error} fullscreen={false} />
-          <Spinner color={colors.success} fullscreen={false} />
-        </View>
-      ),
+      content: <CustomColorsExample />,
     },
     {
       label: 'indicator — bring your own node',

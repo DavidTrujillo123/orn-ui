@@ -3,9 +3,13 @@ import { View } from 'react-native';
 import { Divider, Body, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
+function AccentDividerExample() {
+  const colors = useColors();
+  return <Divider style={{ height: 2, backgroundColor: colors.primary }} />;
+}
+
 export function DividerDemo() {
   // #region demo
-  const colors = useColors();
   const variants: VariantDef[] = [
     {
       label: 'Default',
@@ -29,7 +33,7 @@ export function DividerDemo() {
         </View>
       ),
     },
-    { label: 'Custom style', content: <Divider style={{ height: 2, backgroundColor: colors.primary }} /> },
+    { label: 'Custom style', content: <AccentDividerExample /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

@@ -3,9 +3,13 @@ import { View } from 'react-native';
 import { Avatar, useColors } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
+function SoftColorsExample() {
+  const colors = useColors();
+  return <Avatar iconName="star" backgroundColor={colors.secondarySoft} color={colors.secondaryText} />;
+}
+
 export function AvatarDemo() {
   // #region demo
-  const colors = useColors();
   const variants: VariantDef[] = [
     { label: 'Initials from name', content: <Avatar name="Ada Lovelace" /> },
     { label: 'Photo', content: <Avatar name="Ada Lovelace" source={{ uri: 'https://picsum.photos/id/64/200' }} /> },
@@ -23,7 +27,7 @@ export function AvatarDemo() {
     },
     {
       label: 'Custom color',
-      content: <Avatar iconName="star" backgroundColor={colors.secondarySoft} color={colors.secondaryText} />,
+      content: <SoftColorsExample />,
     },
   ];
   return <VariantList variants={variants} />;
