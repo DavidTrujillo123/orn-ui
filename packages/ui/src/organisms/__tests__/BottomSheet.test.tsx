@@ -251,10 +251,10 @@ describe('BottomSheet', () => {
   it('a short downward flick closes it, a slow short drag snaps back', () => {
     const { PanResponder } = require('react-native');
     const configs: Array<{ onPanResponderRelease: (e: unknown, g: { dy: number; vy: number }) => void }> = [];
-    const spy = jest.spyOn(PanResponder, 'create').mockImplementation((config: never) => {
+    const spy = jest.spyOn(PanResponder, 'create').mockImplementation(((config: never) => {
       configs.push(config);
       return { panHandlers: {} };
-    });
+    }) as never);
     const onClose = jest.fn();
     render(
       withProvider(
