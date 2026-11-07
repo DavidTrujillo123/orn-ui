@@ -35,6 +35,12 @@ export interface NativeOverlayProps
    * animation: it stays on screen, but no other overlay may layer into it.
    */
   closing?: boolean;
+  /**
+   * A dialog (Alert) always ends up on top: whatever gets layered into it is
+   * drawn beneath its own content, and as a layer it is drawn after any
+   * non-dialog layer of the same host.
+   */
+  dialog?: boolean;
   children: React.ReactNode;
 }
 
@@ -52,7 +58,7 @@ const DISMISS_SETTLE_MS = 450;
 // Module-level registry: overlays live in different React subtrees, and the
 // constraint they share (one native presentation at a time) is global too.
 const hosts: Host[] = [];
-const layers = new Map<number, Map<number, React.ReactNode>>();
+const layers = new Map<number, Map<number, { node: React.ReactNode; dialog: boolean }>>();
 const ownerOf = new Map<number, number>();
 let nextId = 1;
 
@@ -139,18 +145,20 @@ function LayerOutlet({ hostId }: { hostId: number }) {
   }, [hostId]);
   const own = layers.get(hostId);
   if (!own || own.size === 0) return null;
+  // Dialogs last, so they are drawn on top of sheets and modals.
+  const ordered = [...own.entries()].sort(([, a], [, b]) => Number(a.dialog) - Number(b.dialog));
   return (
     <>
-      {[...own.entries()].map(([key, node]) => (
+      {ordered.map(([key, layer]) => (
         <View key={key} style={fill} pointerEvents="box-none">
-          {node}
+          {layer.node}
         </View>
       ))}
     </>
   );
 }
 
-export function NativeOverlay({ closing = false, children, ...modalProps }: NativeOverlayProps) {
+export function NativeOverlay({ closing = false, dialog = false, children, ...modalProps }: NativeOverlayProps) {
   const ios = Platform.OS === 'ios';
   const parentHost = useContext(HostContext);
   const idRef = useRef(0);
@@ -216,7 +224,7 @@ export function NativeOverlay({ closing = false, children, ...modalProps }: Nati
       ownerOf.set(id, owner);
     }
     if (!layers.has(owner)) layers.set(owner, new Map());
-    layers.get(owner)!.set(id, <HostContext.Provider value={owner}>{children}</HostContext.Provider>);
+    layers.get(owner)!.set(id, { node: <HostContext.Provider value={owner}>{children}</HostContext.Provider>, dialog });
     notifyLayers(owner);
   });
 
@@ -240,8 +248,10 @@ export function NativeOverlay({ closing = false, children, ...modalProps }: Nati
     return (
       <Modal visible {...modalProps}>
         <HostContext.Provider value={id}>
+          {/* A dialog host draws what was layered into it underneath itself. */}
+          {ios && dialog && <LayerOutlet hostId={id} />}
           {children}
-          {ios && <LayerOutlet hostId={id} />}
+          {ios && !dialog && <LayerOutlet hostId={id} />}
         </HostContext.Provider>
       </Modal>
     );

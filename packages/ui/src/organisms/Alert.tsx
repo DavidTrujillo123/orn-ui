@@ -219,6 +219,7 @@ export const Alert = memo((props: AlertProps) => {
 
   return (
     <NativeOverlay
+      dialog
       transparent
       animationType="fade"
       statusBarTranslucent

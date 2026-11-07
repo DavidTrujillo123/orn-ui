@@ -110,4 +110,28 @@ describe('NativeOverlay (iOS: one native presentation at a time)', () => {
       Object.defineProperty(Platform, 'OS', { value: original, configurable: true });
     }
   });
+
+  it('a dialog opened in the same tick as a sheet ends up on top (inside it), not under it', () => {
+    render(
+      withProvider(
+        <>
+          <Alert visible title="Dialog first in the tree" onClose={() => {}} />
+          <BottomSheet visible onClose={() => {}} title="Sheet">
+            <Text>sheet</Text>
+          </BottomSheet>
+        </>
+      )
+    );
+    act(() => jest.runOnlyPendingTimers());
+    // One native modal (the sheet's); the dialog is a layer inside it, drawn last.
+    expect(nativeModals()).toHaveLength(1);
+    expect(screen.getByText('Dialog first in the tree')).toBeOnTheScreen();
+    // Drawn order inside the native modal: the sheet first, the dialog after
+    // it (on top). Without the deferral the alert took the native slot and the
+    // sheet was layered over it.
+    const tree = JSON.stringify(screen.toJSON());
+    expect(tree.indexOf('"sheet"')).toBeGreaterThan(-1);
+    expect(tree.indexOf('"Dialog first in the tree"')).toBeGreaterThan(tree.indexOf('"sheet"'));
+  });
 });
+
