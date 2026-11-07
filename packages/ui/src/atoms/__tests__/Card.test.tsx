@@ -16,8 +16,8 @@ describe('Card', () => {
     expect(screen.getByText('inside')).toBeOnTheScreen();
   });
 
-  it('has a hairline border only in dark mode, where the shadow does not show', () => {
-    const { StyleSheet, Text } = require('react-native');
+  it('has a visible 1pt border only in dark mode, where the shadow does not show', () => {
+    const { Text } = require('react-native');
     const { rerender } = render(
       <UIProvider mode="dark">
         <Card testID="card">
@@ -25,7 +25,9 @@ describe('Card', () => {
         </Card>
       </UIProvider>
     );
-    expect(screen.getByTestId('card')).toHaveStyle({ borderWidth: StyleSheet.hairlineWidth });
+    // 1pt in a color that stands out from surface: a hairline in #2a2a2e
+    // (1.17:1 on #1e1e1e) vanished on another surface.
+    expect(screen.getByTestId('card')).toHaveStyle({ borderWidth: 1, borderColor: '#3a3a40' });
     rerender(
       <UIProvider mode="light">
         <Card testID="card">
@@ -33,7 +35,7 @@ describe('Card', () => {
         </Card>
       </UIProvider>
     );
-    expect(screen.getByTestId('card')).not.toHaveStyle({ borderWidth: StyleSheet.hairlineWidth });
+    expect(screen.getByTestId('card')).not.toHaveStyle({ borderWidth: 1 });
   });
 
   it('accepts a style array', () => {

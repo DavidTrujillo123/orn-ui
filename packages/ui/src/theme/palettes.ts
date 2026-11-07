@@ -142,7 +142,7 @@ export const darkPalette: ThemeColors = {
   surface: '#1e1e1e',
   text: '#ecedee',
   textLight: '#9ba1a6',
-  border: '#2a2a2e',
+  border: '#3a3a40',
   inputBackground: '#232326',
   overlay: 'rgba(0,0,0,0.6)',
   scrim: 'rgba(18,18,18,0.8)',

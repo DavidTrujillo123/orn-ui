@@ -1,11 +1,13 @@
 import React, { memo } from 'react';
-import { StyleSheet, View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
+import { View, type StyleProp, type ViewProps, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 
 export interface CardProps extends ViewProps {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
 }
+
+const CARD_BORDER_DARK = 1;
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -14,8 +16,9 @@ const useStyles = createStyles((theme) => ({
     padding: theme.tokens.spacing.lg,
     ...theme.tokens.shadow.sm,
     // In dark the shadow isn't visible and surface barely stands out from the
-    // background: a thin border restores the outline (figure and ground).
-    ...(theme.scheme === 'dark' && { borderWidth: StyleSheet.hairlineWidth, borderColor: theme.colors.border }),
+    // background (or not at all, on another surface): a 1pt border restores
+    // the outline (figure and ground). A hairline was invisible.
+    ...(theme.scheme === 'dark' && { borderWidth: CARD_BORDER_DARK, borderColor: theme.colors.border }),
   },
 }));
 
