@@ -170,6 +170,8 @@ module.exports = {
   rootDir: __dirname,
   roots: [path.join(UI, 'src')],
   setupFiles: [path.join(UI, 'jest.setup.ts')],
+  // Same as jest.config.js: resets NativeOverlay's registry before each test.
+  setupFilesAfterEnv: [path.join(UI, 'jest.after-env.ts')],
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],
   transformIgnorePatterns: [],
   transform: {
