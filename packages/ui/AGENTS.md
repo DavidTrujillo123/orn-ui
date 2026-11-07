@@ -227,7 +227,7 @@ hex in component styles, use `useColors()`.
 
 Built-in icons (`BuiltInIconName`, zero-dependency glyphs; the list is also
 exported as `BUILT_IN_ICON_NAMES`): `check`, `close`, `plus`, `minus`,
-`search`, `menu`, `more`, `home`, `settings`, `user`, `trash`, `edit`,
+`search`, `scan`, `menu`, `more`, `home`, `settings`, `user`, `trash`, `edit`,
 `share`, `heart`, `star`, `eye`, `eye-off`, `chevron-left`, `chevron-right`,
 `chevron-up`, `chevron-down`, `alert`, `warning`, `info`, `question`.
 Pass a custom `icons: IconRenderer` to `UIProvider` to swap in

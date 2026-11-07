@@ -249,7 +249,7 @@ export function SearchList<T>({
         />
         {onScanPress && (
           <IconButton
-            iconName="search"
+            iconName="scan"
             onPress={onScanPress}
             color={colors.onPrimary}
             style={styles.scanButton}

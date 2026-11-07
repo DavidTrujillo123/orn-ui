@@ -110,7 +110,8 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   );
 
   if (fill) {
-    const only = variants[0];
+    // One full-height stage, no pager: `?v=N` picks which variant it shows.
+    const only = variants[initialIndex];
     return (
       <View style={styles.fillRoot}>
         {!!only && (

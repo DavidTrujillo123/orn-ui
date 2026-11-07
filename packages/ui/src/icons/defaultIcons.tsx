@@ -297,6 +297,33 @@ const Menu = memo(({ size, color }: IconRenderProps) => {
 });
 Menu.displayName = 'Menu';
 
+const Scan = memo(({ size, color }: IconRenderProps) => {
+  const sw = stroke(size);
+  const arm = size * 0.26;
+  const inset = size * 0.1;
+  const corner = (v: 'top' | 'bottom', h: 'left' | 'right') => ({
+    position: 'absolute' as const,
+    [v]: inset,
+    [h]: inset,
+    width: arm,
+    height: arm,
+    borderColor: color,
+    [v === 'top' ? 'borderTopWidth' : 'borderBottomWidth']: sw,
+    [h === 'left' ? 'borderLeftWidth' : 'borderRightWidth']: sw,
+  });
+  return (
+    <View style={box(size)}>
+      {/* Viewfinder: four corner brackets and the scan line across the middle. */}
+      <View style={corner('top', 'left')} />
+      <View style={corner('top', 'right')} />
+      <View style={corner('bottom', 'left')} />
+      <View style={corner('bottom', 'right')} />
+      <View style={{ width: size * 0.6, height: sw, borderRadius: sw / 2, backgroundColor: color }} />
+    </View>
+  );
+});
+Scan.displayName = 'Scan';
+
 const More = memo(({ size, color }: IconRenderProps) => {
   const d = Math.max(3, size * 0.16);
   const dot = { width: d, height: d, borderRadius: d / 2, backgroundColor: color };
@@ -616,7 +643,7 @@ const warned = new Set<string>();
 
 /** All included glyphs, in catalog order. */
 export const BUILT_IN_ICON_NAMES: readonly BuiltInIconName[] = [
-  'check', 'close', 'plus', 'minus', 'search', 'menu', 'more', 'home', 'settings', 'user',
+  'check', 'close', 'plus', 'minus', 'search', 'scan', 'menu', 'more', 'home', 'settings', 'user',
   'trash', 'edit', 'share', 'heart', 'star', 'eye', 'eye-off',
   'chevron-left', 'chevron-right', 'chevron-up', 'chevron-down', 'alert', 'warning', 'info', 'question',
 ];
@@ -642,6 +669,8 @@ export function renderDefaultIcon(name: IconName, props: IconRenderProps): React
       return <Eye {...props} off />;
     case 'search':
       return <Search {...props} />;
+    case 'scan':
+      return <Scan {...props} />;
     case 'plus':
       return <PlusMinus {...props} />;
     case 'minus':

@@ -14,6 +14,7 @@ export type BuiltInIconName =
   | 'eye'
   | 'eye-off'
   | 'search'
+  | 'scan'
   | 'plus'
   | 'minus'
   | 'alert'

@@ -10,9 +10,9 @@ describe('renderDefaultIcon', () => {
     expect(toJSON()).toBeTruthy();
   });
 
-  it('lists all 25 built-in glyphs once', () => {
-    expect(ALL_NAMES).toHaveLength(25);
-    expect(new Set(ALL_NAMES).size).toBe(25);
+  it('lists all 26 built-in glyphs once', () => {
+    expect(ALL_NAMES).toHaveLength(26);
+    expect(new Set(ALL_NAMES).size).toBe(26);
   });
 
   it('renders nothing for an unknown name and warns once in development', () => {
