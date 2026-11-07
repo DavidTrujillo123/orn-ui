@@ -1,22 +1,15 @@
 import React from 'react';
-import { SymmetricGrid, Card, Body } from 'orn-ui';
+import { Body, Card, SymmetricGrid } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-interface Product {
-  id: string;
-  name: string;
-}
+const FOUR_ITEMS = [
+  { id: '1', name: 'Item 1' },
+  { id: '2', name: 'Item 2' },
+  { id: '3', name: 'Item 3' },
+  { id: '4', name: 'Item 4' },
+];
 
-function tile(name: string) {
-  return (
-    <Card style={{ height: 72, alignItems: 'center', justifyContent: 'center' }}>
-      <Body>{name}</Body>
-    </Card>
-  );
-}
-
-const FULL: Product[] = Array.from({ length: 4 }, (_, i) => ({ id: String(i), name: `Item ${i + 1}` }));
-const INCOMPLETE: Product[] = Array.from({ length: 5 }, (_, i) => ({ id: String(i), name: `Item ${i + 1}` }));
+const FIVE_ITEMS = [...FOUR_ITEMS, { id: '5', name: 'Item 5' }];
 
 export function SymmetricGridDemo() {
   // #region demo
@@ -25,10 +18,13 @@ export function SymmetricGridDemo() {
       label: 'complete rows (2 columns)',
       content: (
         <SymmetricGrid
-          data={FULL}
-          columns={2}
+          data={FOUR_ITEMS}
           keyExtractor={(item) => item.id}
-          renderItem={(item) => tile(item.name)}
+          renderItem={(item) => (
+            <Card>
+              <Body>{item.name}</Body>
+            </Card>
+          )}
         />
       ),
     },
@@ -36,10 +32,13 @@ export function SymmetricGridDemo() {
       label: 'incomplete last row — centered, not ragged',
       content: (
         <SymmetricGrid
-          data={INCOMPLETE}
-          columns={2}
+          data={FIVE_ITEMS}
           keyExtractor={(item) => item.id}
-          renderItem={(item) => tile(item.name)}
+          renderItem={(item) => (
+            <Card>
+              <Body>{item.name}</Body>
+            </Card>
+          )}
         />
       ),
     },
@@ -47,22 +46,44 @@ export function SymmetricGridDemo() {
       label: 'balanceLastRow={false} — left-aligned instead',
       content: (
         <SymmetricGrid
-          data={INCOMPLETE}
-          columns={2}
+          data={FIVE_ITEMS}
           balanceLastRow={false}
           keyExtractor={(item) => item.id}
-          renderItem={(item) => tile(item.name)}
+          renderItem={(item) => (
+            <Card>
+              <Body>{item.name}</Body>
+            </Card>
+          )}
         />
       ),
     },
     {
-      label: '3 columns',
+      label: 'columns={3}',
       content: (
         <SymmetricGrid
-          data={INCOMPLETE}
+          data={FIVE_ITEMS}
           columns={3}
           keyExtractor={(item) => item.id}
-          renderItem={(item) => tile(item.name)}
+          renderItem={(item) => (
+            <Card>
+              <Body>{item.name}</Body>
+            </Card>
+          )}
+        />
+      ),
+    },
+    {
+      label: 'gap={24}',
+      content: (
+        <SymmetricGrid
+          data={FOUR_ITEMS}
+          gap={24}
+          keyExtractor={(item) => item.id}
+          renderItem={(item) => (
+            <Card>
+              <Body>{item.name}</Body>
+            </Card>
+          )}
         />
       ),
     },
