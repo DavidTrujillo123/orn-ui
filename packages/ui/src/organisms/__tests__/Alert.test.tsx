@@ -63,4 +63,30 @@ describe('Alert', () => {
       expect(screen.getByText('X')).toBeOnTheScreen();
     }
   );
+
+  it('destructive paints the confirm button with the error color', () => {
+    const { lightPalette } = require('../../theme/palettes');
+    render(
+      withProvider(
+        <Alert visible title="Delete?" confirmText="Delete" cancelText="Cancel" destructive onConfirm={() => {}} />
+      )
+    );
+    const style = Object.assign(
+      {},
+      ...[screen.getByRole('button', { name: 'Delete' }).props.style].flat(Infinity).filter(Boolean)
+    );
+    expect(style.backgroundColor).toBe(lightPalette.error);
+  });
+
+  it('announces the title as a header', () => {
+    render(withProvider(<Alert visible title="Invoice sent" inline />));
+    expect(screen.getByRole('header', { name: 'Invoice sent' })).toBeOnTheScreen();
+  });
+
+  it('the VoiceOver escape gesture closes it', () => {
+    const onClose = jest.fn();
+    render(withProvider(<Alert visible title="Invoice sent" inline onClose={onClose} />));
+    fireEvent(screen.getByRole('alert'), 'accessibilityEscape');
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
 });

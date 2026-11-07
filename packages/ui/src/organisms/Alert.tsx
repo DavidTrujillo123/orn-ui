@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { Modal, Text, TouchableWithoutFeedback, View } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors, useLabels } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useLabels, useTheme } from '../theme/UIProvider';
 import { Button, type ButtonVariant } from '../atoms/Button';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
@@ -9,23 +9,40 @@ import type { IconName } from '../icons/types';
 export type AlertType = 'success' | 'error' | 'warning' | 'info' | 'question';
 
 export interface AlertButton {
+  /** Button label. */
   text: string;
+  /** Called on press; without it the button calls `onClose`. */
   onPress?: () => void;
+  /** 'cancel' renders outline, 'destructive' renders in the error color. */
   style?: 'cancel' | 'default' | 'destructive';
+  /** Explicit Button variant; wins over `style`. */
   variant?: ButtonVariant;
 }
 
 export interface AlertProps {
+  /** Shows or hides the dialog. */
   visible: boolean;
+  /** Short heading; screen readers announce it as a header. */
   title: string;
+  /** Optional explanation under the title. */
   message?: string;
+  /** Icon and color of the dialog. @default 'info' */
   type?: AlertType;
+  /** Tap on the backdrop, Android back, VoiceOver escape. Without it the backdrop does nothing. */
   onClose?: () => void;
+  /** Custom buttons; three or more stack vertically. */
   buttons?: AlertButton[];
+  /** Shorthand: label of the confirm button. @default labels.confirm */
   confirmText?: string;
+  /** Shorthand: label of the cancel button (shown with `onCancel` or `cancelText`). @default labels.cancel */
   cancelText?: string;
+  /** Shorthand: confirm action. */
   onConfirm?: () => void;
+  /** Shorthand: cancel action (falls back to `onClose`). */
   onCancel?: () => void;
+  /** The confirm button uses the destructive color (delete, discard). @default false */
+  destructive?: boolean;
+  /** Draws the dialog inside its parent instead of over the screen (docs, previews). @default false */
   inline?: boolean;
 }
 
@@ -37,31 +54,61 @@ const ICON_BY_TYPE: Record<AlertType, IconName> = {
   info: 'info',
 };
 
+/** Readable line length for a short dialog on tablets too. */
+const DIALOG_MAX_WIDTH = 340;
+const ICON_SIZE = 48;
+/** Above any sibling of the inline host. */
+const INLINE_Z = 9999;
+
 const useStyles = createStyles((theme) => ({
-  overlay: { flex: 1, backgroundColor: theme.colors.overlay, justifyContent: 'center', alignItems: 'center', padding: theme.tokens.spacing.xl },
-  overlayInline: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 },
+  overlay: {
+    flex: 1,
+    backgroundColor: theme.colors.overlay,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: theme.tokens.spacing.xl,
+  },
+  fill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
+  overlayInline: { zIndex: INLINE_Z },
   container: {
     backgroundColor: theme.colors.surface,
     borderRadius: theme.tokens.radius.xl,
     padding: theme.tokens.spacing.xl,
     width: '100%',
-    maxWidth: 340,
+    maxWidth: DIALOG_MAX_WIDTH,
     alignItems: 'center',
     ...theme.tokens.shadow.md,
   },
-  iconContainer: { marginBottom: theme.tokens.spacing.lg - 1 },
-  title: { fontSize: theme.tokens.fontSize.xl, fontWeight: theme.tokens.fontWeight.bold, color: theme.colors.text, textAlign: 'center', marginBottom: theme.tokens.spacing.md - 2 },
-  message: { fontSize: theme.tokens.fontSize.md, color: theme.colors.textLight, textAlign: 'center', marginBottom: theme.tokens.spacing.xl, lineHeight: theme.tokens.lineHeight.md },
-  buttonContainer: { flexDirection: 'row', justifyContent: 'center', gap: theme.tokens.spacing.sm + 2, width: '100%' },
+  iconContainer: { marginBottom: theme.tokens.spacing.lg },
+  title: {
+    fontSize: theme.tokens.fontSize.xl,
+    lineHeight: theme.tokens.lineHeight.lg,
+    fontWeight: theme.tokens.fontWeight.bold,
+    color: theme.colors.text,
+    textAlign: 'center',
+    marginBottom: theme.tokens.spacing.sm,
+  },
+  message: {
+    fontSize: theme.tokens.fontSize.md,
+    lineHeight: theme.tokens.lineHeight.md,
+    color: theme.colors.textLight,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: theme.tokens.spacing.sm,
+    width: '100%',
+    marginTop: theme.tokens.spacing.xl,
+  },
   buttonContainerVertical: { flexDirection: 'column' },
-  button: { paddingVertical: theme.tokens.spacing.md - 2, paddingHorizontal: theme.tokens.spacing.xl },
   buttonHorizontal: { flex: 1 },
   buttonVertical: { width: '100%' },
 }));
 
 /** Derives the list of buttons from props, without mutating the `buttons` received through props. */
 function resolveButtons(props: AlertProps, labels: { confirm: string; cancel: string; close: string }): AlertButton[] {
-  const { buttons, confirmText, cancelText, onConfirm, onCancel, onClose } = props;
+  const { buttons, confirmText, cancelText, onConfirm, onCancel, onClose, destructive } = props;
   if (buttons && buttons.length > 0) return buttons;
 
   if (confirmText || onConfirm) {
@@ -69,7 +116,7 @@ function resolveButtons(props: AlertProps, labels: { confirm: string; cancel: st
     if (cancelText || onCancel) {
       list.push({ text: cancelText || labels.cancel, onPress: onCancel || onClose, variant: 'outline', style: 'cancel' });
     }
-    list.push({ text: confirmText || labels.confirm, onPress: onConfirm, variant: 'primary' });
+    list.push({ text: confirmText || labels.confirm, onPress: onConfirm, variant: destructive ? 'destructive' : 'primary' });
     return list;
   }
 
@@ -80,9 +127,19 @@ function resolveButtons(props: AlertProps, labels: { confirm: string; cancel: st
  * Alert
  * Declarative dialog component. For imperative use (showing it from a
  * handler without lifting your own state), use AlertProvider + useAlert().
+ *
+ * Gestalt, figure-ground: the overlay dims everything behind, so the dialog
+ * is the only figure. Proximity: icon, title and message sit together and the
+ * buttons a larger step below, as the answer block. Von Restorff: only the
+ * main action is filled (or red when `destructive`); cancel is outline.
+ * Hick: two buttons side by side; three or more stack so each reads alone.
+ *
+ * Accessibility: the title is a header, the dialog is modal for VoiceOver and
+ * the escape gesture (two-finger Z) calls `onClose`.
  */
 export const Alert = memo((props: AlertProps) => {
   const { visible, title, message, type = 'info', onClose, inline = false } = props;
+  const theme = useTheme();
   const colors = useColors();
   const styles = useStyles();
   const labels = useLabels();
@@ -104,14 +161,19 @@ export const Alert = memo((props: AlertProps) => {
 
   const content = (
     <TouchableWithoutFeedback onPress={onClose} accessibilityRole="none">
-      <View style={[styles.overlay, inline && styles.overlayInline]}>
+      <View style={[styles.overlay, inline && [styles.fill, styles.overlayInline]]}>
         <TouchableWithoutFeedback>
-          <View style={styles.container} accessibilityRole="alert" accessibilityViewIsModal>
+          <View
+            style={styles.container}
+            accessibilityRole="alert"
+            accessibilityViewIsModal
+            onAccessibilityEscape={onClose}
+          >
             <View style={styles.iconContainer}>
-              <Icon name={ICON_BY_TYPE[type]} size={48} color={iconColor[type]} />
+              <Icon name={ICON_BY_TYPE[type]} size={ICON_SIZE} color={iconColor[type]} />
             </View>
 
-            <Text allowFontScaling={allowFontScaling} style={styles.title}>
+            <Text allowFontScaling={allowFontScaling} style={styles.title} accessibilityRole="header">
               {title}
             </Text>
 
@@ -134,8 +196,8 @@ export const Alert = memo((props: AlertProps) => {
                     title={btn.text}
                     onPress={btn.onPress || onClose || (() => {})}
                     variant={variant}
-                    style={[styles.button, vertical ? styles.buttonVertical : styles.buttonHorizontal]}
-                    textStyle={{ fontSize: 14 }}
+                    style={vertical ? styles.buttonVertical : styles.buttonHorizontal}
+                    textStyle={{ fontSize: theme.tokens.fontSize.md }}
                   />
                 );
               })}
@@ -148,7 +210,7 @@ export const Alert = memo((props: AlertProps) => {
 
   if (inline) {
     return (
-      <View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }} pointerEvents="box-none">
+      <View style={styles.fill} pointerEvents="box-none">
         {content}
       </View>
     );

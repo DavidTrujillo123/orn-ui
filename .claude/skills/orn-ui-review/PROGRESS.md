@@ -49,7 +49,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | Select | select | pendiente | | |
 | OptionWheel | option-wheel | pendiente | | |
 | Timeline | timeline | pendiente | | |
-| Alert (+AlertProvider) | alert | pendiente | | |
+| Alert (+AlertProvider) | alert | arreglado | 2026-11-06 | Gestalt figura-fondo + proximidad + Von Restorff + Hick en doc comment. Prop nueva `destructive` (confirm en rojo). Título `header`, `onAccessibilityEscape`=onClose. Literales a tokens/constantes (`fontSize 14`, `lg-1`, `md-2`, `sm+2`), JSDoc de todas las props. Demo: ejemplos `XxxExample` abiertos con `inline` (la docs antes mostraba solo el botón), un solo botón relleno en custom. Docs: crop explícito `organisms alert 5 785 1380` (el velo full-width descentra BAND_H; opción `KEEP_FULL` añadida al script pero no bastó), mp4 borrado. AlertProvider sin cambios. |
 | Screen | screen | pendiente | | |
 | List | list | pendiente | | |
 | SearchList | search-list | pendiente | | |

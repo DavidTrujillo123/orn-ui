@@ -34,7 +34,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 2/5 — error
+# 2/5 — error — with message
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
@@ -52,7 +52,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 4/5 — question (confirm)
+# 4/5 — question — destructive confirm
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
@@ -71,7 +71,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 5/5 — custom buttons
+# 5/5 — custom buttons — three stack vertically
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
