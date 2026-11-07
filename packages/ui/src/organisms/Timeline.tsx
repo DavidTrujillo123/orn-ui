@@ -124,7 +124,7 @@ const useStyles = createStyles((theme) => ({
     borderRadius: theme.tokens.radius.full,
     borderWidth: 1,
     borderColor: theme.colors.border,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.surfaceRaised,
   },
   // Focus is marked with the border, not the fill: the fill is already
   // saying something else (whether the milestone has been reached or not).

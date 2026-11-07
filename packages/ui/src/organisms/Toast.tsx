@@ -33,7 +33,7 @@ const useStyles = createStyles((theme) => ({
     flexDirection: 'row',
     alignItems: 'center',
     gap: theme.tokens.spacing.md,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.surfaceRaised,
     borderRadius: theme.tokens.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,

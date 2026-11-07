@@ -79,7 +79,7 @@ const useStyles = createStyles((theme) => ({
     borderWidth: 2,
     borderColor: theme.colors.border,
     borderRadius: theme.tokens.radius.lg,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.surfaceRaised,
     overflow: 'hidden',
     ...theme.tokens.shadow.md,
   },

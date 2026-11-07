@@ -47,7 +47,7 @@ const useStyles = createStyles((theme) => ({
     paddingVertical: theme.tokens.spacing.sm,
     paddingHorizontal: theme.tokens.spacing.md,
     borderRadius: theme.tokens.radius.md,
-    backgroundColor: theme.colors.surface,
+    backgroundColor: theme.colors.surfaceRaised,
     borderWidth: 1,
     borderColor: theme.colors.border,
     gap: theme.tokens.spacing.xxs,

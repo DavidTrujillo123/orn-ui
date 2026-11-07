@@ -70,7 +70,7 @@ function PortfolioWheel() {
     <View style={{ gap: 8 }}>
       <View
         style={{
-          backgroundColor: colors.surface,
+          backgroundColor: colors.surfaceRaised,
           borderRadius: 24,
           borderWidth: 1,
           borderColor: colors.border,

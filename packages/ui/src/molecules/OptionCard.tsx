@@ -43,7 +43,8 @@ const useStyles = createStyles((theme) => ({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: theme.colors.surface,
+    // Raised: in dark it stays a visible tile on a surface (Card does the same).
+    backgroundColor: theme.colors.surfaceRaised,
     borderRadius: theme.tokens.radius.md,
     borderWidth: BORDER,
     borderColor: theme.colors.border,
