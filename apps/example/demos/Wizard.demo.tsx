@@ -14,14 +14,14 @@ const PLANS = [
   { label: 'Pro', value: 'pro' },
 ];
 
-export function WizardDemo() {
+function SignupWizardExample() {
   const [email, setEmail] = useState('');
   const [plan, setPlan] = useState<string | undefined>();
   const [accepted, setAccepted] = useState(false);
 
   // Real per-step validation: Next stays disabled until the current step
   // is complete.
-  const validated: WizardStep[] = [
+  const steps: WizardStep[] = [
     {
       label: 'Account',
       description: 'Email',
@@ -55,6 +55,14 @@ export function WizardDemo() {
     },
   ];
 
+  return (
+    <View style={{ height: 340 }}>
+      <Wizard steps={steps} nextLabel="Continue" finishLabel="Create account" onFinish={() => {}} />
+    </View>
+  );
+}
+
+export function WizardDemo() {
   // #region demo
   const variants: VariantDef[] = [
     {
@@ -83,11 +91,7 @@ export function WizardDemo() {
     },
     {
       label: 'Per-step validation (canGoNext)',
-      content: (
-        <View style={{ height: 340 }}>
-          <Wizard steps={validated} nextLabel="Continue" finishLabel="Create account" onFinish={() => {}} />
-        </View>
-      ),
+      content: <SignupWizardExample />,
     },
     {
       label: 'Custom labels',

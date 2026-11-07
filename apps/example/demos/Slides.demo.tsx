@@ -39,10 +39,25 @@ function Panel({ slide, onPress }: { slide: Slide; onPress?: () => void }) {
   );
 }
 
-export function SlidesDemo() {
+function SlidesWithButtonExample() {
   const colors = useColors();
   const [tapped, setTapped] = useState<string | null>(null);
+  return (
+    <View style={{ width: '100%', gap: 8 }}>
+      <Slides
+        testID="slides-numbers"
+        data={SLIDES}
+        keyExtractor={(item) => item.id}
+        background={(_item, index) => FLAT[index] as string}
+        renderItem={(item) => <Panel slide={item} onPress={() => setTapped(item.title)} />}
+        indicators="numbers"
+      />
+      <Caption style={{ color: colors.textLight }}>{tapped ? `pressed: ${tapped}` : 'press a button'}</Caption>
+    </View>
+  );
+}
 
+export function SlidesDemo() {
   // #region demo
   const variants: VariantDef[] = [
     {
@@ -65,19 +80,7 @@ export function SlidesDemo() {
       // purpose: the Maestro flow reaches this page with a single pager
       // swipe, and chaining swipes isn't deterministic (see .maestro/README).
       label: 'numbered indicators · flat colors · finite · button inside',
-      content: (
-        <View style={{ width: '100%', gap: 8 }}>
-          <Slides
-            testID="slides-numbers"
-            data={SLIDES}
-            keyExtractor={(item) => item.id}
-            background={(_item, index) => FLAT[index] as string}
-            renderItem={(item) => <Panel slide={item} onPress={() => setTapped(item.title)} />}
-            indicators="numbers"
-          />
-          <Caption style={{ color: colors.textLight }}>{tapped ? `pressed: ${tapped}` : 'press a button'}</Caption>
-        </View>
-      ),
+      content: <SlidesWithButtonExample />,
     },
     {
       label: 'vertical orientation',
