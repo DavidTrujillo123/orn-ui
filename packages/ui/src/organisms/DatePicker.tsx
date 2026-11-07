@@ -32,7 +32,9 @@ export interface DatePickerProps {
   range?: DateRange;
   /** Called in mode="range", both when setting the start and when closing the range. */
   onRangeChange?: (range: DateRange) => void;
+  /** Earliest selectable day; earlier days are dimmed and the back arrow stops there. */
   minDate?: Date;
+  /** Latest selectable day; later days are dimmed and the forward arrow stops there. */
   maxDate?: Date;
   /** Month shown on open if there's no `value`. @default today */
   defaultMonth?: Date;
@@ -92,9 +94,16 @@ export function buildMonthGrid(year: number, month: number, firstDayOfWeek: 0 | 
   return rows;
 }
 
+/** Drawn size of a day; hitSlop takes the touch target to 44pt (Fitts). */
+const DAY_SIZE = 36;
+const MIN_TOUCH = 44;
+const DAY_HIT_SLOP = (MIN_TOUCH - DAY_SIZE) / 2;
+const DAY_HIT = { top: DAY_HIT_SLOP, bottom: DAY_HIT_SLOP, left: DAY_HIT_SLOP, right: DAY_HIT_SLOP };
+
 const useStyles = createStyles((theme) => ({
   container: {
-    backgroundColor: theme.colors.surface,
+    // Raised, like Card: in dark the calendar reads as a panel, not only as a border.
+    backgroundColor: theme.colors.surfaceRaised,
     borderRadius: theme.tokens.radius.lg,
     borderWidth: 1,
     borderColor: theme.colors.border,
@@ -113,7 +122,7 @@ const useStyles = createStyles((theme) => ({
   },
   row: { flexDirection: 'row' },
   cell: { flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center' },
-  dayButton: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  dayButton: { width: DAY_SIZE, height: DAY_SIZE, borderRadius: DAY_SIZE / 2, alignItems: 'center', justifyContent: 'center' },
   dayText: { fontSize: theme.tokens.fontSize.md, color: theme.colors.text },
   daySelected: { backgroundColor: theme.colors.primary },
   dayTextSelected: { color: theme.colors.onPrimary, fontWeight: theme.tokens.fontWeight.bold },
@@ -173,7 +182,8 @@ const DayCell = memo(
         style={[styles.dayButton, selected && styles.daySelected, !selected && isToday && styles.dayToday]}
         onPress={() => onPress(day)}
         disabled={disabled}
-        activeOpacity={0.7}
+        activeOpacity={PRESSED_OPACITY}
+        hitSlop={DAY_HIT}
         accessibilityRole="button"
         accessibilityLabel={label}
         accessibilityState={{ selected, disabled }}
@@ -200,7 +210,18 @@ DayCell.displayName = 'DayCell';
  * Monthly calendar drawn with plain View/Text — without
  * @react-native-community/datetimepicker or any native picker, to keep the
  * library at zero dependencies and look the same on iOS and Android.
+ *
+ * Gestalt, common region and alignment: 6 rows of 7 cells always (the grid
+ * never jumps between months), weekdays aligned over their column. Similarity:
+ * every day is the same circle; state changes only fill and color (selected
+ * filled, today outlined, out of range dimmed). Continuity: a range is one
+ * band from start to end, not separate dots. Fitts: each day reaches a 44pt touch target (36pt circle + hitSlop).
+ *
+ * Accessibility: the month is a header, each day reads its full date, and the
+ * arrows' names come from `labels` (`previousMonth`, `nextMonth`).
  */
+const PRESSED_OPACITY = 0.7;
+
 export const DatePicker = memo(
   ({
     mode = 'single',
@@ -309,7 +330,7 @@ export const DatePicker = memo(
         <View style={styles.header}>
           <IconButton
             iconName="chevron-left"
-            accessibilityLabel="Previous month"
+            accessibilityLabel={labels.previousMonth}
             disabled={!canGoBack}
             onPress={() => shiftMonth(-1)}
           />
@@ -318,7 +339,7 @@ export const DatePicker = memo(
           </Text>
           <IconButton
             iconName="chevron-right"
-            accessibilityLabel="Next month"
+            accessibilityLabel={labels.nextMonth}
             disabled={!canGoForward}
             onPress={() => shiftMonth(1)}
           />

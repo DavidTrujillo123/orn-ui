@@ -54,7 +54,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 | List | list | pendiente | | |
 | SearchList | search-list | pendiente | | |
 | Toast (+ToastProvider) | toast | pendiente | | |
-| DatePicker (+DateField) | date-picker | pendiente | | |
+| DatePicker (+DateField) | date-picker | arreglado | 2026-11-07 | Gestalt en ambos doc comments (región común/alineación/similitud/continuidad; DateField similitud+Jakob con Input/Select). DatePicker: flechas desde labels (`previousMonth`/`nextMonth`, antes fijas en inglés), días 36pt + hitSlop → 44pt, panel `surfaceRaised` (dark), JSDoc minDate/maxDate. DateField: placeholder desde `labels.selectDate` (era "Select a date"), a11y con "required" y error como hint, chevron Icon (era "▾"), constantes. Demo: 10 ejemplos `XxxExample`. Docs: BAND_H=1250, mp4 borrado; extractor confundía genéricos `useState<Date>` con tags JSX. |
 | Wizard | wizard | pendiente | | |
 | ThemeToggle | theme-toggle | pendiente | | |
 | NavigationBar | navigation-bar | pendiente | | |

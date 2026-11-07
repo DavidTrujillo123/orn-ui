@@ -41,6 +41,10 @@ export interface Labels {
   stepCurrent: string;
   /** Steps: state of a step not reached yet. */
   stepPending: string;
+  /** DatePicker: button to the previous month. */
+  previousMonth: string;
+  /** DatePicker: button to the next month. */
+  nextMonth: string;
 }
 
 export const defaultLabels: Labels = {
@@ -74,4 +78,6 @@ export const defaultLabels: Labels = {
   stepCompleted: 'completed',
   stepCurrent: 'current',
   stepPending: 'pending',
+  previousMonth: 'Previous month',
+  nextMonth: 'Next month',
 };

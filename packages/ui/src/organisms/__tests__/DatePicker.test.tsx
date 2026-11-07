@@ -351,3 +351,34 @@ describe('DateField', () => {
     expect(screen.queryByRole('button', { name: 'Previous month' })).not.toBeOnTheScreen();
   });
 });
+
+describe('DatePicker / DateField accessibility', () => {
+  it('names the month arrows from labels', () => {
+    render(
+      <UIProvider mode="light" labels={{ previousMonth: 'Mes anterior', nextMonth: 'Mes siguiente' }}>
+        <DatePicker value={new Date(2024, 2, 15)} onChange={() => {}} />
+      </UIProvider>
+    );
+    expect(screen.getByRole('button', { name: 'Mes anterior' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Mes siguiente' })).toBeOnTheScreen();
+  });
+
+  it('every day reaches a 44pt touch target', () => {
+    render(withProvider(<DatePicker value={new Date(2024, 2, 15)} onChange={() => {}} />));
+    const day = screen.getByRole('button', { name: 'March 10, 2024' });
+    const flat = Object.assign({}, ...[day.props.style].flat(Infinity).filter(Boolean));
+    expect(flat.width + day.props.hitSlop.left + day.props.hitSlop.right).toBeGreaterThanOrEqual(44);
+  });
+
+  it('DateField: placeholder from labels, required in the name, error as a hint', () => {
+    render(
+      <UIProvider mode="light" labels={{ selectDate: 'Elegir fecha', required: 'obligatorio' }}>
+        <DateField label="Vence" required error="Falta la fecha" onChange={() => {}} />
+      </UIProvider>
+    );
+    expect(screen.getByText('Elegir fecha')).toBeOnTheScreen();
+    const field = screen.getByRole('button', { name: 'Vence, obligatorio' });
+    expect(field.props.accessibilityHint).toBe('Falta la fecha');
+  });
+});
+
