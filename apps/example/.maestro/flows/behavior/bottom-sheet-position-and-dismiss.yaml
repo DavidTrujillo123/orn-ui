@@ -23,8 +23,10 @@ tags:
       TITLE: "BottomSheet"
 
 - tapOn: "Open sheet"
+# The handle is hidden from accessibility (decorative), so the sheet is
+# located by its text.
 - assertVisible:
-    id: "bottom-sheet-handle"
+    text: "Drag the handle down, or tap outside, to dismiss."
     below:
       point: "50%,50%"
 
@@ -37,8 +39,7 @@ tags:
     start: "50%,86%"
     end: "50%,100%"
     duration: 400
-- assertNotVisible:
-    id: "bottom-sheet-handle"
+- assertNotVisible: "Drag the handle down, or tap outside, to dismiss."
 
 # Close by tapping the backdrop, the other way to close — relaunching the app
 # instead of reopening the sheet on the same screen: XCUITest briefly reuses
@@ -54,9 +55,7 @@ tags:
       SLUG: "bottom-sheet"
       TITLE: "BottomSheet"
 - tapOn: "Open sheet"
-- assertVisible:
-    id: "bottom-sheet-handle"
+- assertVisible: "Drag the handle down, or tap outside, to dismiss."
 - tapOn:
     id: "bottom-sheet-backdrop"
-- assertNotVisible:
-    id: "bottom-sheet-handle"
+- assertNotVisible: "Drag the handle down, or tap outside, to dismiss."

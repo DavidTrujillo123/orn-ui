@@ -23,7 +23,11 @@ tags:
 # The three assertions in order are the proof of the cycle: each one waits
 # for the next slide to appear without touching anything, and the last one
 # returns to the first — meaning the tail clone closed the loop without rewinding.
-- assertVisible: "Zero dependencies"
+# autoPlay may already have moved on by the time the screen settles: wait
+# for each slide instead of asserting the first one at once.
+- extendedWaitUntil:
+    visible: "Zero dependencies"
+    timeout: 8000
 - extendedWaitUntil:
     visible: "Light and dark"
     timeout: 8000
@@ -43,10 +47,14 @@ tags:
 
 - tapOn:
     id: "slides-numbers-indicator-2"
-- assertVisible: "Expo SDK 54-57"
+- extendedWaitUntil:
+    visible: "Expo SDK 54-57"
+    timeout: 3000
 - tapOn:
     id: "slides-numbers-indicator-0"
-- assertVisible: "Zero dependencies"
+- extendedWaitUntil:
+    visible: "Zero dependencies"
+    timeout: 3000
 
 # Swipe the slide, not the indicator: the horizontal gesture has to be kept by
 # the carousel and not by VariantList's vertical pager wrapping it.
@@ -82,14 +90,18 @@ tags:
 
 - tapOn:
     id: "slides-vertical-indicator-2"
-- assertVisible: "Expo SDK 54-57"
+- extendedWaitUntil:
+    visible: "Expo SDK 54-57"
+    timeout: 3000
 
 # The slide's vertical gesture competes with VariantList's vertical pager,
 # which wraps it: if the carousel doesn't keep it, this ends up on the next
 # variant instead of the next slide.
 - tapOn:
     id: "slides-vertical-indicator-0"
-- assertVisible: "Zero dependencies"
+- extendedWaitUntil:
+    visible: "Zero dependencies"
+    timeout: 3000
 - swipe:
     start: "50%,68%"
     end: "50%,44%"

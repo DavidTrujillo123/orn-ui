@@ -15,11 +15,13 @@ tags:
       SLUG: "alert"
       TITLE: "Alert"
 
-- tapOn: "Show success"
+- tapOn: "Send invoice"
 - waitForAnimationToEnd
 - assertVisible:
     text: ".*Invoice sent.*"
+# The backdrop closes it: a point well below the dialog.
 - tapOn:
-    point: "50%,55%"
+    point: "50%,85%"
+- waitForAnimationToEnd
 - assertNotVisible:
     text: ".*Invoice sent.*"

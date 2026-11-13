@@ -20,6 +20,13 @@ appId: com.anonymous.orn-ui-example
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
 - runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- tapOn: "[A-Za-z]+ 20, [0-9]+"
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
+- runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
@@ -28,6 +35,17 @@ appId: com.anonymous.orn-ui-example
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- tapOn: "[A-Za-z]+ 10, [0-9]+"
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
+- tapOn: "[A-Za-z]+ 18, [0-9]+"
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
@@ -57,15 +75,21 @@ appId: com.anonymous.orn-ui-example
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
-- tapOn: "Due date"
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "700" }
+- tapOn:
+    point: "50%,56%"
 - waitForAnimationToEnd:
     timeout: 1200
 - runFlow:
     file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1500" }
-- tapOn:
-    point: "50%,8%"
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn: "[A-Za-z]+ 24, [0-9]+"
 - waitForAnimationToEnd:
     timeout: 1200
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
 
 - stopRecording

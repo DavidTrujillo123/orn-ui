@@ -117,4 +117,22 @@ describe('Modal', () => {
     );
     expect(UNSAFE_getByType(ScrollView).props.automaticallyAdjustKeyboardInsets).toBe(true);
   });
+
+  it('names the close button from the provider labels and keeps screen readers inside', () => {
+    const onClose = jest.fn();
+    render(
+      <UIProvider mode="light" labels={{ close: 'Cerrar' }}>
+        <Modal visible variant="overlay" title="Hola" onClose={onClose}>
+          <Text>content</Text>
+        </Modal>
+      </UIProvider>
+    );
+    expect(screen.getByLabelText('Cerrar')).toBeOnTheScreen();
+    const modalView = screen.UNSAFE_root.findAll((n) => n.props.accessibilityViewIsModal === true)[0];
+    expect(modalView).toBeDefined();
+    // The VoiceOver escape gesture closes it, like the close button.
+    act(() => modalView!.props.onAccessibilityEscape());
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
 });

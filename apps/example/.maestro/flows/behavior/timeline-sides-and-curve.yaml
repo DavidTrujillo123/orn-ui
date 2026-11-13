@@ -27,7 +27,7 @@ tags:
     rightOf:
       point: "50%,50%"
 - assertVisible:
-    text: "Expo SDK 54–57"
+    text: "Expo SDK"
     leftOf:
       point: "50%,50%"
 - assertVisible:
@@ -36,7 +36,7 @@ tags:
       point: "50%,50%"
 # Pending milestones are just as legible as completed ones: what changes is
 # the node and the line, not legibility.
-- assertVisible: "Android device runs"
+- assertVisible: "Android runs"
 - assertVisible: "v1.0 release"
 
 # 2 — onItemPress: tapping a milestone brings the line up to it. What travels

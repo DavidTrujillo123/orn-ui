@@ -72,6 +72,9 @@ export function InvoiceFormExample() {
         visible={visible}
         onClose={() => setVisible(false)}
         title="New invoice"
+        // A long form: while typing, the actions give their strip back to the
+        // field being edited (with 'fixed' only one field fit above the keyboard).
+        footerPlacement="hide-with-keyboard"
         footer={
           <FormActions
             primaryLabel="Save invoice"

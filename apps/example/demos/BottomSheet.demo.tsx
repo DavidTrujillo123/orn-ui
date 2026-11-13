@@ -3,30 +3,25 @@ import { View } from 'react-native';
 import { BottomSheet, Body, Button, FormActions, Input, useTheme } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-// The examples start open and use `inline` so the sheet is drawn inside this
-// box. In your app, drop `inline`: the sheet then rises over the whole screen.
-const BOX = { height: 460 };
-
 function BareSheetExample() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   return (
-    <View style={BOX}>
+    <>
       <Button title="Open sheet" onPress={() => setVisible(true)} />
-      <BottomSheet inline visible={visible} onClose={() => setVisible(false)}>
+      <BottomSheet visible={visible} onClose={() => setVisible(false)}>
         <Body>Drag the handle down, or tap outside, to dismiss.</Body>
       </BottomSheet>
-    </View>
+    </>
   );
 }
 
 function FormSheetExample() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [note, setNote] = useState('');
   return (
-    <View style={BOX}>
+    <>
       <Button title="Add a note" onPress={() => setVisible(true)} />
       <BottomSheet
-        inline
         visible={visible}
         onClose={() => setVisible(false)}
         title="Add a note"
@@ -41,38 +36,37 @@ function FormSheetExample() {
       >
         <Input label="Note" placeholder="Anything worth remembering" value={note} onChangeText={setNote} />
       </BottomSheet>
-    </View>
+    </>
   );
 }
 
 function LongSheetExample() {
   const theme = useTheme();
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   return (
-    <View style={BOX}>
+    <>
       <Button title="Open long sheet" onPress={() => setVisible(true)} />
-      <BottomSheet inline visible={visible} onClose={() => setVisible(false)} title="Twelve rows" maxHeight={0.8}>
+      <BottomSheet visible={visible} onClose={() => setVisible(false)} title="Twelve rows" maxHeight={0.8}>
         <View style={{ gap: theme.tokens.spacing.md }}>
           {Array.from({ length: 12 }, (_, i) => (
             <Body key={i}>Row {i + 1} — the sheet scrolls when the content does not fit.</Body>
           ))}
         </View>
       </BottomSheet>
-    </View>
+    </>
   );
 }
 
 function HideWithKeyboardExample() {
   const theme = useTheme();
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [name, setName] = useState('');
   const [company, setCompany] = useState('');
   const [email, setEmail] = useState('');
   return (
-    <View style={BOX}>
+    <>
       <Button title="Open long form" onPress={() => setVisible(true)} />
       <BottomSheet
-        inline
         visible={visible}
         onClose={() => setVisible(false)}
         title="Long form"
@@ -92,17 +86,16 @@ function HideWithKeyboardExample() {
           <Input label="Email" value={email} onChangeText={setEmail} keyboardType="email-address" />
         </View>
       </BottomSheet>
-    </View>
+    </>
   );
 }
 
 function FixedSheetExample() {
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   return (
-    <View style={BOX}>
+    <>
       <Button title="Open fixed sheet" onPress={() => setVisible(true)} />
       <BottomSheet
-        inline
         visible={visible}
         onClose={() => setVisible(false)}
         title="No dragging"
@@ -111,7 +104,7 @@ function FixedSheetExample() {
       >
         <Body>Dismiss with the close button or by tapping outside.</Body>
       </BottomSheet>
-    </View>
+    </>
   );
 }
 

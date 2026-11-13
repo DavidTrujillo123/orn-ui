@@ -72,7 +72,8 @@ const useStyles = createStyles((theme) => ({
   fill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 },
   overlayInline: { zIndex: INLINE_Z },
   container: {
-    backgroundColor: theme.colors.surface,
+    // Raised: in dark mode the plain surface sank into the dimmed backdrop.
+    backgroundColor: theme.colors.surfaceRaised,
     borderRadius: theme.tokens.radius.xl,
     padding: theme.tokens.spacing.xl,
     width: '100%',

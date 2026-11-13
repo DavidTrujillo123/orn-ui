@@ -1,38 +1,56 @@
 import React, { useState } from 'react';
-import { Button, Modal, Body } from 'orn-ui';
+import { View } from 'react-native';
+import { Body, Button, FormActions, Input, Modal } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-function FullModalExample() {
+function EditProfileExample() {
   const [visible, setVisible] = useState(false);
+  const [name, setName] = useState('Ana Torres');
   return (
     <>
-      <Button title="Open full" onPress={() => setVisible(true)} />
-      <Modal visible={visible} onClose={() => setVisible(false)} title="Full">
-        <Body>Slides up from the bottom and fills the screen.</Body>
+      <Button title="Edit profile" onPress={() => setVisible(true)} />
+      <Modal
+        visible={visible}
+        onClose={() => setVisible(false)}
+        title="Edit profile"
+        footer={
+          <FormActions
+            primaryLabel="Save"
+            onPrimaryPress={() => setVisible(false)}
+            secondaryLabel="Cancel"
+            onSecondaryPress={() => setVisible(false)}
+          />
+        }
+      >
+        <View style={{ padding: 20 }}>
+          <Input label="Name" value={name} onChangeText={setName} />
+        </View>
       </Modal>
     </>
   );
 }
 
-function OverlayModalExample() {
+function OverlayExample() {
   const [visible, setVisible] = useState(false);
   return (
     <>
-      <Button title="Open overlay" onPress={() => setVisible(true)} />
-      <Modal visible={visible} onClose={() => setVisible(false)} title="Overlay" variant="overlay">
-        <Body>A centered card over a dimmed backdrop.</Body>
+      <Button title="What's new" onPress={() => setVisible(true)} />
+      <Modal variant="overlay" visible={visible} onClose={() => setVisible(false)} title="What's new">
+        <Body>Invoices now remember the last payment method. Tap outside or the close button to dismiss.</Body>
       </Modal>
     </>
   );
 }
 
-function FullScreenModalExample() {
+function FullScreenExample() {
   const [visible, setVisible] = useState(false);
   return (
     <>
-      <Button title="Open fullScreen" onPress={() => setVisible(true)} />
-      <Modal visible={visible} onClose={() => setVisible(false)} title="Full screen" variant="fullScreen">
-        <Body>Native fullScreen presentation on iOS.</Body>
+      <Button title="Open terms" onPress={() => setVisible(true)} />
+      <Modal variant="fullScreen" visible={visible} onClose={() => setVisible(false)} title="Terms of service">
+        <View style={{ padding: 20 }}>
+          <Body>On iOS this uses the native full-screen presentation: the screen behind is not visible.</Body>
+        </View>
       </Modal>
     </>
   );
@@ -41,9 +59,9 @@ function FullScreenModalExample() {
 export function ModalDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'full', content: <FullModalExample /> },
-    { label: 'overlay', content: <OverlayModalExample /> },
-    { label: 'fullScreen', content: <FullScreenModalExample /> },
+    { label: 'full — a page with a fixed footer', content: <EditProfileExample /> },
+    { label: 'overlay — a centered card', content: <OverlayExample /> },
+    { label: 'fullScreen — native presentation', content: <FullScreenExample /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

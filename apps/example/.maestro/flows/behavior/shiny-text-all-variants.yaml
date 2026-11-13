@@ -23,7 +23,7 @@ tags:
 
 # 1 — both color pairs coexist on the same page.
 - assertVisible: "Default pair"
-- assertVisible: "Maximum contrast"
+- assertVisible: "Custom pair"
 
 # The sweep is an infinite loop: waitForAnimationToEnd is no use as an anchor here.
 # The text still being visible after a full cycle (2400ms + 600 of pause)

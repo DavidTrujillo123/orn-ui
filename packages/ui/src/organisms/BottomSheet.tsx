@@ -69,7 +69,8 @@ const useStyles = createStyles((theme) => ({
   container: { flex: 1, justifyContent: 'flex-end' },
   backdrop: { backgroundColor: theme.colors.overlay },
   sheet: {
-    backgroundColor: theme.colors.surface,
+    // Raised: in dark mode the plain surface sank into the dimmed backdrop.
+    backgroundColor: theme.colors.surfaceRaised,
     borderTopLeftRadius: theme.tokens.radius.xxl,
     borderTopRightRadius: theme.tokens.radius.xxl,
     ...theme.tokens.shadow.lg,

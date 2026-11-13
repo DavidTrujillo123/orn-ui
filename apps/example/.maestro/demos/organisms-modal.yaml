@@ -15,17 +15,17 @@ appId: com.anonymous.orn-ui-example
 
 - startRecording: modal
 
-# 1/3 — full
+# 1/3 — full — a page with a fixed footer
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
-- tapOn: "Open full"
+- tapOn: "Edit profile"
 - waitForAnimationToEnd:
     timeout: 1200
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
-- tapOn: "Close"
+- tapOn: "Cancel"
 - waitForAnimationToEnd:
     timeout: 1200
 - runFlow:
@@ -33,11 +33,11 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 2/3 — overlay
+# 2/3 — overlay — a centered card
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
-- tapOn: "Open overlay"
+- tapOn: "What's new"
 - waitForAnimationToEnd:
     timeout: 1200
 - runFlow:
@@ -52,11 +52,11 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 3/3 — fullScreen
+# 3/3 — fullScreen — native presentation
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
-- tapOn: "Open fullScreen"
+- tapOn: "Open terms"
 - waitForAnimationToEnd:
     timeout: 1200
 - runFlow:

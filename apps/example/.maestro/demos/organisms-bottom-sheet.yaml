@@ -7,7 +7,7 @@
 # and an assert here adds no signal: the sheet position regression is
 # already covered by flows/behavior/bottom-sheet-position-and-dismiss.yaml.
 #
-# The examples start open, drawn inline in the demo box. Walks through the demo's 5 variants, one per page of VariantList's
+# Walks through the demo's 5 variants, one per page of VariantList's
 # vertical pager. Paging goes through subflows/next-variant.yaml, the same
 # one the tests use: `direction: UP` doesn't change the page and a longer
 # swipe skips variants. Each variant is opened, left still for a
@@ -30,80 +30,105 @@ appId: com.anonymous.orn-ui-example
 
 - startRecording: bottom-sheet
 
-# 1 — bare: handle only. Every example starts open (inline); it closes from the
-# backdrop at the top of the box before the pager moves on.
+# 1 — bare: handle only. It's closed by dragging, which is the gesture that
+# defines the component. Explicit coordinates (not `direction: DOWN`): in this
+# variant the handle already lives near the bottom edge and you have to start
+# at the very top of its hit area to pass the 100pt threshold.
 - runFlow:
     file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
-- tapOn:
-    point: "50%,33%"
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
+- tapOn: "Open sheet"
 - waitForAnimationToEnd
 - runFlow:
     file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "500" }
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1100" }
+- swipe:
+    start: "50%,86%"
+    end: "50%,100%"
+    duration: 400
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 2 — title + footer: a form in a sheet. Every example starts open (inline); it closes from the
-# backdrop at the top of the box before the pager moves on.
+# 2 — title + footer: a form inside the sheet. Closes via "Cancel", the
+# path a footer with actions has.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
-- tapOn:
-    point: "50%,33%"
+- tapOn: "Add a note"
 - waitForAnimationToEnd
 - runFlow:
     file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "500" }
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 3 — long content: capped at maxHeight. Every example starts open (inline); it closes from the
-# backdrop at the top of the box before the pager moves on.
+# 3 — long content: the sheet caps at maxHeight and the content is cut off,
+# which is what shows the cap. It doesn't scroll inside on purpose: that
+# gesture dragged the sheet and left the pager shifted, and from then on the
+# flow opened the wrong variant.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
-- tapOn:
-    point: "50%,33%"
+- tapOn: "Open long sheet"
 - waitForAnimationToEnd
 - runFlow:
     file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "500" }
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
+# Explicit point at the very top, not `tapOn: { id: bottom-sheet-backdrop }`:
+# the backdrop covers the whole screen, so its center falls UNDER a tall
+# sheet and the tap ends up on the content. The sheet stayed open and the
+# rest of the flow ran on the wrong variant.
+- tapOn:
+    point: "50%,8%"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 4 — footerPlacement="hide-with-keyboard": long form. Every example starts open (inline); it closes from the
-# backdrop at the top of the box before the pager moves on.
+# 4 — footerPlacement="hide-with-keyboard": the long form keeps the actions
+# row. Without opening the keyboard the clip shows the sheet full of fields;
+# the keyboard behavior doesn't fit in a loop of a few seconds.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
-- tapOn:
-    point: "50%,33%"
+- tapOn: "Open long form"
 - waitForAnimationToEnd
 - runFlow:
     file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "500" }
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn: "Cancel"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "400" }
 
-# 5 — draggable={false}: closes from the backdrop. Every example starts open (inline); it closes from the
-# backdrop at the top of the box before the pager moves on.
+# 5 — draggable={false} + maxHeight={0.4}: it doesn't drag, it closes by
+# tapping outside. It's the only variant where the backdrop is the main path.
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1400" }
-- tapOn:
-    point: "50%,33%"
+- tapOn: "Open fixed sheet"
 - waitForAnimationToEnd
 - runFlow:
     file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "500" }
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1300" }
+- tapOn:
+    point: "50%,8%"
+- waitForAnimationToEnd
+- runFlow:
+    file: _beat.yaml
+    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "600" }
 
 - stopRecording

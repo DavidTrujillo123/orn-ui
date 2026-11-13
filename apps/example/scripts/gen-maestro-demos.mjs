@@ -126,21 +126,23 @@ const INTERACTIONS = {
     7: ['- tapOn: "Advance"', 800, '- tapOn: "Advance"', 800],
   },
   'organisms/modal': {
-    0: ['- tapOn: "Open full"', WAIT, 1400, '- tapOn: "Close"', WAIT],
+    0: ['- tapOn: "Edit profile"', WAIT, 1400, '- tapOn: "Cancel"', WAIT],
     // The backdrop covers the whole screen: its center falls under the card,
     // so it's closed via an explicit point lower down (same as the test).
-    1: ['- tapOn: "Open overlay"', WAIT, 1400, '- tapOn:\n    point: "50%,90%"', WAIT],
-    2: ['- tapOn: "Open fullScreen"', WAIT, 1400, '- tapOn: "Close"', WAIT],
+    1: ['- tapOn: "What\'s new"', WAIT, 1400, '- tapOn:\n    point: "50%,90%"', WAIT],
+    2: ['- tapOn: "Open terms"', WAIT, 1400, '- tapOn: "Close"', WAIT],
   },
   'organisms/select': {
     // index: 1 — the field's label and value share text; 0 is the label.
     0: ['- tapOn:\n    text: "Payment method"\n    index: 1', WAIT, 1000, '- tapOn: "Cash"', WAIT],
   },
   'organisms/alert': {
-    // The examples start open (inline, inside the demo box). The button sits
-    // under the backdrop: the first tap lands on the backdrop and closes the
-    // dialog, the second one reopens it.
-    0: [1300, '- tapOn: "Send invoice"', WAIT, 900, '- tapOn: "Send invoice"', WAIT, 1300],
+    // Opens the real dialog (the whole screen dims) and closes it from the
+    // backdrop, well below the card.
+    0: ['- tapOn: "Send invoice"', WAIT, 1300, '- tapOn:\n    point: "50%,85%"', WAIT],
+    // The destructive confirm: its own Cancel button, by point (the dialog's
+    // buttons merge into one accessibility node).
+    3: ['- tapOn: "Delete invoice"', WAIT, 1400, '- tapOn:\n    point: "31%,58%"', WAIT],
   },
   'organisms/toast': {
     0: ['- tapOn: "Success"', WAIT, 1500, '- tapOn: "Dismiss"', WAIT],
@@ -181,7 +183,13 @@ const INTERACTIONS = {
     0: ['- swipe:\n    from:\n      text: "Design review"\n    direction: DOWN\n    duration: 600', WAIT, 1000],
   },
   'organisms/date-picker': {
-    6: ['- tapOn: "Due date"', WAIT, 1500, '- tapOn:\n    point: "50%,8%"', WAIT],
+    // Days are named "<Month> <day>, <year>" for screen readers: matched by
+    // day number so the clip works in any month.
+    0: [900, '- tapOn: "[A-Za-z]+ 20, [0-9]+"', 1200],
+    1: [900, '- tapOn: "[A-Za-z]+ 10, [0-9]+"', 600, '- tapOn: "[A-Za-z]+ 18, [0-9]+"', 1400],
+    // The field opens the calendar in an overlay; picking a day closes it.
+    // By point: "Due date" also matches the label above the field.
+    6: [700, '- tapOn:\n    point: "50%,56%"', WAIT, 1300, '- tapOn: "[A-Za-z]+ 24, [0-9]+"', WAIT, 1300],
   },
   'organisms/chart': {
     // A still chart is an image; what has to be shown is that it responds.

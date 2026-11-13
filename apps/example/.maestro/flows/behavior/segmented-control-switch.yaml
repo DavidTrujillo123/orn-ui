@@ -10,8 +10,19 @@ tags:
       SLUG: "segmented-control"
       TITLE: "SegmentedControl"
 
-- assertVisible: "Showing the last week."
+# The demo shows the control alone: the selected segment is checked through
+# its accessibility state.
+- assertVisible:
+    text: ".*Week.*"
+    selected: true
 - tapOn: "Day"
-- assertVisible: "Showing the last day."
+- assertVisible:
+    text: ".*Day.*"
+    selected: true
+- assertNotVisible:
+    text: ".*Week.*"
+    selected: true
 - tapOn: "Month"
-- assertVisible: "Showing the last month."
+- assertVisible:
+    text: ".*Month.*"
+    selected: true

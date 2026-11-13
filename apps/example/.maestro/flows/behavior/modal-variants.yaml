@@ -1,11 +1,4 @@
-# Modal shares ModalSafeAreaBoundary with BottomSheet (the same insets
-# boundary that already broke once, see bottom-sheet-position-and-dismiss.yaml).
-#
-# The anchor is the screen's midpoint (`point:`), not the demo's text: a
-# native iOS <Modal> isolates its window from the rest of the app's
-# accessibility tree while open (confirmed live with BottomSheet — the demo's
-# description stops existing for Maestro as soon as the backdrop rises), so
-# any anchor "outside" the modal is unreachable.
+# Each example opens from its button and closes the way its variant offers.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -18,42 +11,33 @@ tags:
       SLUG: "modal"
       TITLE: "Modal"
 
-# full — no backdrop of its own (presentationStyle "overFullScreen", no tap
-# outside); it closes with the header's "Close" button.
-- tapOn: "Open full"
-- assertVisible:
-    text: "Slides up from the bottom and fills the screen."
-    below:
-      point: "50%,50%"
-- tapOn: "Close"
-- assertNotVisible: "Slides up from the bottom and fills the screen."
+# full: the footer's Cancel closes it.
+- tapOn: "Edit profile"
+- assertVisible: "Name"
+- tapOn: "Cancel"
+- assertNotVisible: "Name"
 
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 
-# overlay — the only variant with its own backdrop (testID modal-backdrop).
-# The tap goes to an explicit point away from the center and the top edge,
-# not to the id's centroid or a corner: the backdrop covers the whole screen
-# but the card is centered on top of it (tapping the center of the "backdrop"
-# element actually taps the card), and the top 5% falls on the simulator's
-# status bar, which keeps the touch instead of forwarding it to the app —
-# seen live with both.
-- tapOn: "Open overlay"
+# overlay: a tap on the backdrop below the card closes it.
+- tapOn: "What's new"
 - assertVisible:
     id: "modal-backdrop"
-- assertVisible: "A centered card over a dimmed backdrop."
+- assertVisible: ".*remember the last payment method.*"
 - tapOn:
     point: "50%,90%"
-- assertNotVisible: "A centered card over a dimmed backdrop."
+- assertNotVisible: ".*remember the last payment method.*"
 
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 
-# fullScreen — native iOS presentation.
-- tapOn: "Open fullScreen"
-- assertVisible: "Native fullScreen presentation on iOS."
+# fullScreen: the header's close button.
+- tapOn: "Open terms"
+- assertVisible: ".*native full-screen presentation.*"
 - tapOn: "Close"
+- assertNotVisible: ".*native full-screen presentation.*"
