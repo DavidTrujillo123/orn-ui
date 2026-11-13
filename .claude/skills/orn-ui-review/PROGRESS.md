@@ -44,7 +44,7 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 
 | componente | slug | estado | fecha | notas |
 |---|---|---|---|---|
-| Modal | modal | pendiente | | |
+| Modal | modal | arreglado | 2026-11-13 | Leyes (figura/fondo, región común, Jakob, Fitts) en doc comment. a11y: `accessibilityViewIsModal` + `onAccessibilityEscape` (importa cuando se dibuja como capa dentro de otro overlay en iOS); `closeAccessibilityLabel` por defecto `labels.close`. Alto de ventana leído en render (antes `Dimensions` al cargar el módulo). Tokens (spacing.xl, duration.base/slow). `overlay` sobre `surfaceRaised`. Demo: 3 ejemplos reales (abren de verdad, oscurecen toda la pantalla). Límite iOS/RN: `fullScreen` abierto no sigue un cambio de apariencia del sistema (el root deja de recibir el trait change); abierto ya en oscuro se ve bien. Docs: FULL_SCREEN + TAPS. |
 | BottomSheet | bottom-sheet | arreglado | 2026-11-06 | Gestalt figura-fondo + región común + continuidad + Fitts en doc comment. Close label desde `labels.close` (era "Close" fijo). Reduce Motion (duración 0), duraciones de tokens, flick corto cierra (vy>0.5), alto con `useWindowDimensions` (rotación). Handle visible en claro (textLight 0.4; `border` casi blanco). Prop nueva `inline` (como Alert) para docs. Demo: ejemplos `XxxExample` abiertos inline. Docs: crop explícito `organisms bottom-sheet 5 715 1520`, mp4 borrado. Handle oculto al lector (decorativo; cerrar en botón/fondo). |
 | Select | select | pendiente | | |
 | OptionWheel | option-wheel | pendiente | | |
@@ -65,6 +65,8 @@ Deep link: `ornui:///<capa>/<slug>`. Orden sugerido: atoms → molecules → org
 ## Decisiones y trabajo futuro
 
 - 2026-11-02 — Teclado: lo resuelve el UIProvider raíz (`keyboardAvoidance`, default true) con un desplazamiento tipo adjustPan en el hilo nativo; Input se registra al enfocarse. Screen (sin scroll / Android) ya no envuelve en KeyboardAvoidingView si hay host; Modal/BottomSheet (ventana propia) y ScrollView iOS con auto-insets (Screen, Wizard) marcan `KeyboardHandled`. PENDIENTE: verificar en iOS y Android con Maestro (Xcode 27) — campo al fondo, con header, pasar de un campo a otro, error que aparece con el teclado abierto.
+
+- 2026-11-13 — Overlays: los demos de Alert/BottomSheet/Modal ya no usan `inline` (el usuario: "solo se pone oscura una parte de la pantalla"); docs con `FULL_SCREEN=1 TAPS=…` en capture-variants. Alert/BottomSheet/Modal overlay sobre `surfaceRaised`. Teclado verificado con Maestro (campo al fondo, Sign in, sheet real del ejemplo invoice con `hide-with-keyboard`); Select dentro de BottomSheet verificado con toque. Flows de comportamiento: Slides falla al volver al indicador 0 tras ir al 3 (revisar en Slides); Timeline/Wizard/checkout dependen de textos viejos (rehacer en su revisión).
 
 - 2026-11-13 — Xcode 27.2 instalado: Maestro funciona otra vez. Clips regrabados en build **Release** (`pnpm e2e:ios:build`; en Debug sale el banner "Refreshing..." de Metro el primer segundo): alert, bottom-sheet (flow manual reescrito: los ejemplos arrancan abiertos inline), date-picker, checkbox, input (CLIP_VARIANTS 0,1,3), pressable-scale, stepper, list. Pendiente con Maestro: verificar teclado (nota 2026-11-02) y Select/DateField con toque.
 
