@@ -73,14 +73,33 @@ const useStyles = createStyles((theme) => ({
     gap: theme.tokens.spacing.md,
     padding: theme.tokens.spacing.md,
   },
-  skeletonText: { flex: 1, gap: theme.tokens.spacing.sm },
+  skeletonText: { flex: 1 },
+  empty: { marginTop: theme.tokens.spacing.xxxl },
 }));
+
+/** Same as Avatar's default size: the placeholder row matches a typical avatar row. */
+const SKELETON_AVATAR = 44;
+
+function renderHeader(Header: ListProps<unknown>['ListHeaderComponent']) {
+  if (!Header) return null;
+  return typeof Header === 'function' ? <Header /> : (Header as React.ReactElement);
+}
 
 /**
  * List
  * List with loading/pagination/empty states handled, without being tied to
  * expo-router or FlashList: `ListComponent` lets you inject any of them
  * (React Native's own FlatList by default).
+ *
+ * Design:
+ * - Continuity (Gestalt): the first load shows placeholders shaped like the
+ *   rows and keeps `ListHeaderComponent` in place, so nothing jumps when the
+ *   data arrives.
+ * - Doherty threshold: every wait has immediate feedback (placeholders,
+ *   pull-to-refresh spinner, footer loader while paging), and "no results"
+ *   only appears once it is known there is nothing.
+ * - Jakob's law: the native pull-to-refresh and infinite scroll people
+ *   already know from other apps.
  */
 export function List<T>({
   data,
@@ -141,12 +160,12 @@ export function List<T>({
   // placeholders are shown, not "no results".
   const renderEmpty = useCallback(() => {
     if (isLoading || isRefreshing) return null;
-    return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={{ marginTop: 50 }} />;
-  }, [isLoading, isRefreshing, emptyTitle, emptyDescription, emptyIconName]);
+    return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={styles.empty} />;
+  }, [isLoading, isRefreshing, emptyTitle, emptyDescription, emptyIconName, styles.empty]);
 
   if (!isReady) {
     return (
-      <View style={styles.container}>
+      <View style={[styles.container, containerStyle]}>
         <Spinner text={resolvedLoadingText} />
       </View>
     );
@@ -154,21 +173,34 @@ export function List<T>({
 
   if (isInitialLoading) {
     return (
-      <View style={[styles.container, containerStyle]} testID="list-skeleton">
+      <View style={[styles.container, containerStyle]}>
         <View style={[styles.listContent, contentContainerStyle]}>
+        {/* Same padding as the loaded list, and outside the group below so it
+            stays reachable (a search field above the list, say). */}
+        {renderHeader(ListHeaderComponent as ListProps<unknown>['ListHeaderComponent'])}
+        <View
+          testID="list-skeleton"
+          // The placeholders themselves are hidden from screen readers: the
+          // group announces that the list is loading instead of silence.
+          accessible
+          accessibilityRole="progressbar"
+          accessibilityLabel={resolvedLoadingText}
+          accessibilityState={{ busy: true }}
+        >
           {Array.from({ length: skeletonCount }, (_, i) => (
             <React.Fragment key={i}>
               {renderSkeletonItem?.() ?? (
                 <View style={styles.skeletonRow}>
-                  <Skeleton variant="circle" width={40} />
+                  <Skeleton variant="circle" width={SKELETON_AVATAR} />
                   <View style={styles.skeletonText}>
-                    <Skeleton width="60%" height={14} />
-                    <Skeleton width="35%" height={12} />
+                    <Skeleton variant="text" width="60%" />
+                    <Skeleton variant="text" width="35%" />
                   </View>
                 </View>
               )}
             </React.Fragment>
           ))}
+        </View>
         </View>
       </View>
     );

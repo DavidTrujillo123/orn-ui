@@ -1,66 +1,141 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { List, Card, Body, Button, SegmentedControl } from 'orn-ui';
+import { List, Card, Body, Caption, Skeleton } from 'orn-ui';
 import { VariantList, type VariantDef } from '@/components/VariantList';
 
-const DATA = Array.from({ length: 20 }, (_, i) => ({ id: String(i), name: `Item ${i + 1}` }));
+interface Item {
+  id: string;
+  name: string;
+}
 
-type State = 'loaded' | 'first-load' | 'refreshing' | 'loading-more' | 'empty';
+const PAGE_SIZE = 15;
+const ITEMS: Item[] = Array.from({ length: PAGE_SIZE }, (_, i) => ({ id: String(i), name: `Item ${i + 1}` }));
 
-const STATES = [
-  { value: 'loaded', label: 'Loaded' },
-  { value: 'first-load', label: 'First load' },
-  { value: 'refreshing', label: 'Refresh' },
-  { value: 'loading-more', label: 'Paging' },
-  { value: 'empty', label: 'Empty' },
-];
+// Stands in for your API: page N of the feed, after a network delay.
+function fetchPage(page: number): Promise<Item[]> {
+  const items = Array.from({ length: PAGE_SIZE }, (_, i) => {
+    const n = page * PAGE_SIZE + i + 1;
+    return { id: String(n), name: `Item ${n}` };
+  });
+  return new Promise((resolve) => setTimeout(() => resolve(items), 1200));
+}
+
+function ItemCard({ item }: { item: Item }) {
+  return (
+    <Card style={{ marginBottom: 8 }}>
+      <Body>{item.name}</Body>
+    </Card>
+  );
+}
+
+function FeedExample() {
+  const [items, setItems] = useState(ITEMS);
+  const [page, setPage] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  const refresh = async () => {
+    setRefreshing(true);
+    setItems(await fetchPage(0));
+    setPage(0);
+    setRefreshing(false);
+  };
+
+  const loadMore = async () => {
+    if (loadingMore) return;
+    setLoadingMore(true);
+    const next = await fetchPage(page + 1);
+    setItems((current) => [...current, ...next]);
+    setPage(page + 1);
+    setLoadingMore(false);
+  };
+
+  return (
+    <List
+      data={items}
+      keyExtractor={(item) => item.id}
+      renderItem={({ item }) => <ItemCard item={item} />}
+      isLoading={false}
+      isRefreshing={refreshing}
+      onRefresh={refresh}
+      isLoadingMore={loadingMore}
+      onEndReached={loadMore}
+    />
+  );
+}
 
 export function ListDemo() {
-  const [state, setState] = useState<State>('loaded');
-
   // #region demo
   const variants: VariantDef[] = [
+    { label: 'Pull to refresh · infinite scroll', content: <FeedExample /> },
     {
-      label: 'every state of the same list',
+      label: 'First load · default placeholders',
       content: (
-        <View style={{ flex: 1, gap: 12 }}>
-          <SegmentedControl options={STATES} value={state} onChange={(next) => setState(next as State)} />
-          <List
-            data={state === 'empty' || state === 'first-load' ? [] : DATA}
-            keyExtractor={(item) => item.id}
-            isLoading={state === 'first-load'}
-            isRefreshing={state === 'refreshing'}
-            isLoadingMore={state === 'loading-more'}
-            onRefresh={() => setState('loaded')}
-            emptyTitle="No items"
-            emptyDescription="Try a different filter"
-            renderItem={({ item }) => (
-              <Card style={{ marginBottom: 8 }}>
-                <Body>{item.name}</Body>
-              </Card>
-            )}
-          />
-        </View>
+        <List
+          data={[]}
+          keyExtractor={(item: Item) => item.id}
+          renderItem={() => null}
+          isLoading
+        />
       ),
     },
     {
-      label: 'renderSkeletonItem — placeholders shaped like the real row',
+      label: 'renderSkeletonItem · custom placeholders',
       content: (
-        <View style={{ flex: 1, gap: 12 }}>
-          <Button title="Reload" variant="outline" onPress={() => setState('first-load')} />
-          <List
-            data={[]}
-            keyExtractor={(item: { id: string }) => item.id}
-            isLoading
-            skeletonCount={4}
-            renderSkeletonItem={() => (
-              <Card style={{ marginBottom: 8, height: 64 }}>
-                <View />
-              </Card>
-            )}
-            renderItem={() => null}
-          />
-        </View>
+        <List
+          data={[]}
+          keyExtractor={(item: Item) => item.id}
+          renderItem={() => null}
+          isLoading
+          skeletonCount={5}
+          renderSkeletonItem={() => (
+            <Card style={{ marginBottom: 8 }}>
+              <Skeleton variant="text" width="40%" />
+            </Card>
+          )}
+        />
+      ),
+    },
+    {
+      label: 'isLoadingMore · loading the next page',
+      content: (
+        <List
+          data={ITEMS.slice(0, 4)}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <ItemCard item={item} />}
+          isLoading={false}
+          isLoadingMore
+        />
+      ),
+    },
+    {
+      label: 'Empty state',
+      content: (
+        <List
+          data={[]}
+          keyExtractor={(item: Item) => item.id}
+          renderItem={() => null}
+          isLoading={false}
+          emptyTitle="No items"
+          emptyDescription="Try a different filter"
+        />
+      ),
+    },
+    {
+      label: 'ListHeaderComponent · stays while loading',
+      content: (
+        <List
+          data={[]}
+          keyExtractor={(item: Item) => item.id}
+          renderItem={() => null}
+          isLoading
+          skeletonCount={3}
+          ListHeaderComponent={
+            <View style={{ marginBottom: 8 }}>
+              <Caption>Recent orders</Caption>
+            </View>
+          }
+        />
       ),
     },
   ];

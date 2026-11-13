@@ -10,7 +10,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
-import { Caption, useColors } from 'orn-ui';
+import { Caption, SegmentedControl, useColors } from 'orn-ui';
 import { useLocalSearchParams } from 'expo-router';
 
 export interface VariantDef {
@@ -110,14 +110,25 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   );
 
   if (fill) {
-    // One full-height stage, no pager: `?v=N` picks which variant it shows.
-    const only = variants[initialIndex];
+    // One full-height stage, no pager (the content scrolls on its own): a
+    // numbered switcher picks the variant, and `?v=N` opens it directly.
+    const only = variants[index];
     return (
       <View style={styles.fillRoot}>
+        {variants.length > 1 && (
+          <SegmentedControl
+            options={variants.map((_, i) => ({ value: String(i), label: String(i + 1) }))}
+            value={String(index)}
+            onChange={(next) => setIndex(Number(next))}
+          />
+        )}
         {!!only && (
           <>
             <Caption style={styles.label}>{only.label}</Caption>
-            <View style={[styles.stage, styles.stageFill, { backgroundColor: colors.surface, borderColor: colors.border }]}>
+            <View
+              key={only.label}
+              style={[styles.stage, styles.stageFill, { backgroundColor: colors.surface, borderColor: colors.border }]}
+            >
               {only.content}
             </View>
           </>

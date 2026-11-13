@@ -47,52 +47,12 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 3/8 — Clearable
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
 - runFlow:
     file: ../subflows/next-variant.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
 # 4/8 — Error
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
-- runFlow:
-    file: ../subflows/next-variant.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
-- waitForAnimationToEnd:
-    timeout: 1200
-# 5/8 — Loading
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
-- runFlow:
-    file: ../subflows/next-variant.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
-- waitForAnimationToEnd:
-    timeout: 1200
-# 6/8 — Read-only
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
-- runFlow:
-    file: ../subflows/next-variant.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
-- waitForAnimationToEnd:
-    timeout: 1200
-# 7/8 — validation — required + rules, checked on blur
-- runFlow:
-    file: _beat.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
-- runFlow:
-    file: ../subflows/next-variant.yaml
-    env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
-- waitForAnimationToEnd:
-    timeout: 1200
-# 8/8 — keyboard — a field at the bottom stays above it
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }

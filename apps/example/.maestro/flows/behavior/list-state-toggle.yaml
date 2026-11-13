@@ -1,9 +1,7 @@
-# The demo's SegmentedControl switches isLoading/isRefreshing/isLoadingMore
-# "live" on the same List — a generic smoke test only sees the initial state
-# (loaded) and never exercises the skeleton/empty path ListDemo exists to
-# show. "Refresh" isn't tested: RefreshControl is only visible while the user
-# is dragging the native pull-to-refresh gesture, not when isRefreshing is set
-# through state — there's nothing stable for assertVisible to catch there.
+# Each List state is its own variant of the demo: the numbered switcher on
+# top of the fill-mode demo moves between them. "Refresh" isn't tested:
+# RefreshControl is only visible while the user drags the native
+# pull-to-refresh gesture — there's nothing stable for assertVisible to catch.
 appId: com.anonymous.orn-ui-example
 tags:
   - behavior
@@ -19,19 +17,24 @@ tags:
 - assertVisible: "Item 1"
 
 # EmptyState merges title + description into a single accessibility node
-# ("No items, Try a different filter" — confirmed live with the hierarchy
-# dump) — same pattern as the merged Alert or the "Atoms, tab, 2 of 5" tabs
-# documented in the README. An exact match never fits; a regex does.
-- tapOn: "Empty"
+# ("No items, Try a different filter"): an exact match never fits; a regex does.
+- tapOn: "5"
 - assertVisible: ".*No items.*"
 - assertNotVisible: "Item 1"
 
-- tapOn: "First load"
+- tapOn: "2"
 - assertVisible:
     id: "list-skeleton"
 - assertNotVisible: "Item 1"
 
-- tapOn: "Loaded"
+- tapOn: "1"
 - assertVisible: "Item 1"
 - assertNotVisible:
     id: "list-skeleton"
+
+# Infinite scroll: reaching the end of the first page (15 items) loads the
+# next one, so item 20 shows up.
+- scrollUntilVisible:
+    element: "Item 20"
+    direction: DOWN
+    timeout: 15000

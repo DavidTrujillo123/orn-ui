@@ -101,6 +101,25 @@ describe('List', () => {
     expect(screen.queryByText('Nothing')).not.toBeOnTheScreen();
   });
 
+  it('announces the first load to screen readers and keeps the header in place', () => {
+    render(
+      withProvider(
+        <List
+          data={[]}
+          keyExtractor={(i: any) => i.id}
+          isLoading
+          ListHeaderComponent={<Text>Search header</Text>}
+          renderItem={() => null}
+        />
+      )
+    );
+    const group = screen.getByRole('progressbar');
+    expect(group).toBeBusy();
+    expect(group.props.accessibilityLabel).toBe('Loading...');
+    // The header is outside the announced group, so it stays reachable.
+    expect(screen.getByText('Search header')).toBeOnTheScreen();
+  });
+
   it('keeps the rows on screen while refreshing, without placeholders', () => {
     render(
       withProvider(

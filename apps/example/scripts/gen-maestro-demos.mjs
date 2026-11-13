@@ -40,6 +40,10 @@ const SUBFLOWS = new Set(['_beat.yaml']);
 // skip), but without a beat: they're gone right past.
 const CLIP_VARIANTS = {
   'organisms/select': [0, 4, 7],
+  // Typing, the password toggle and the error state: the rest (clearable,
+  // loading, read-only, validation, keyboard) are static frames the
+  // Variants section already shows, and walking all eight took 40 seconds.
+  'atoms/input': [0, 1, 3],
   'organisms/date-picker': [0, 1, 6],
   // Spinner and Skeleton animate forever, and Maestro waits for the screen to
   // settle after each command: each extra variant is several seconds of clip
@@ -133,16 +137,10 @@ const INTERACTIONS = {
     0: ['- tapOn:\n    text: "Payment method"\n    index: 1', WAIT, 1000, '- tapOn: "Cash"', WAIT],
   },
   'organisms/alert': {
-    0: ['- tapOn: "Show success"', WAIT, 1300, '- tapOn:\n    point: "50%,55%"', WAIT],
-    // The confirmation dialog isn't closed by text: with
-    // accessibilityViewIsModal the whole Alert collapses into ONE node that
-    // fills the screen —- its label is "?, Delete invoice?, This cannot be
-    // undone., Cancel, Delete" (verified with `maestro hierarchy`)— so there's
-    // no "Cancel" node to target, neither by text nor by regex. A tap by
-    // point does get through: the merge is for accessibility, not hit testing.
-    // Tapping the backdrop doesn't work here either: this variant passes
-    // onConfirm and onCancel, not onClose, so tapping outside closes nothing.
-    3: ['- tapOn: ".*Delete invoice.*"', WAIT, 1400, '- tapOn:\n    point: "31%,58%"', WAIT],
+    // The examples start open (inline, inside the demo box). The button sits
+    // under the backdrop: the first tap lands on the backdrop and closes the
+    // dialog, the second one reopens it.
+    0: [1300, '- tapOn: "Send invoice"', WAIT, 900, '- tapOn: "Send invoice"', WAIT, 1300],
   },
   'organisms/toast': {
     0: ['- tapOn: "Success"', WAIT, 1500, '- tapOn: "Dismiss"', WAIT],
@@ -160,7 +158,21 @@ const INTERACTIONS = {
     0: ['- tapOn: "Next"', 1000, '- tapOn: "Next"', 1000],
   },
   'organisms/list': {
-    0: ['- tapOn: "Empty"', 1000, '- tapOn: "First load"', 1000, '- tapOn: "Loaded"', 800],
+    // The feed scrolls to its end (the next page loads under a footer
+    // spinner), then the numbered switcher walks the other states.
+    0: [
+      '- swipe:\n    start: "50%,80%"\n    end: "50%,25%"\n    duration: 500',
+      '- swipe:\n    start: "50%,80%"\n    end: "50%,25%"\n    duration: 500',
+      1800,
+      '- tapOn: "2"',
+      1200,
+      '- tapOn: "3"',
+      1200,
+      '- tapOn: "5"',
+      1200,
+      '- tapOn: "1"',
+      800,
+    ],
   },
   'organisms/search-list': {
     0: ['- tapOn: "Search..."', '- inputText: "ban"', 1300, '- tapOn: "Clear"', '- hideKeyboard', 700],
