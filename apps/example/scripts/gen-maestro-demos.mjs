@@ -145,7 +145,7 @@ const INTERACTIONS = {
     3: ['- tapOn: "Delete invoice"', WAIT, 1400, '- tapOn:\n    point: "31%,58%"', WAIT],
   },
   'organisms/toast': {
-    0: ['- tapOn: "Success"', WAIT, 1500, '- tapOn: "Dismiss"', WAIT],
+    0: ['- tapOn: "Success"', WAIT, 1500, '- tapOn: "Close"', WAIT],
     2: ['- tapOn: "Fire three at once"', WAIT, 1600, '- tapOn: "Dismiss all"', WAIT],
   },
   'organisms/theme-toggle': {

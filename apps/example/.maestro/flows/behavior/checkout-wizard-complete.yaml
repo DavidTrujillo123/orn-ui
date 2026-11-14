@@ -44,7 +44,8 @@ tags:
 - tapOn: "221B Baker Street"
 - inputText: "742 Evergreen Terrace"
 - pressKey: Enter
-- tapOn: "Delivery date"
+# Required DateField: its accessible name is "Delivery date, required".
+- tapOn: "Delivery date, required"
 - assertVisible: "Select date"
 - tapOn: "Next month"
 - tapOn: ".* 10, .*"
@@ -53,13 +54,14 @@ tags:
 
 # Step 3 — Payment (OptionCard, accessibilityLabel = label directly, not
 # duplicated — see OptionCard.tsx)
-- tapOn: "Cash"
+# OptionCard reads title and description together ("Cash, On delivery").
+- tapOn: ".*Cash.*"
 - tapOn: "Next"
 
 # Step 4 — Review: KeyValueRow reflects what was entered in the previous steps.
-- assertVisible: "buyer@orn-ui.dev"
-- assertVisible: "742 Evergreen Terrace"
-- assertVisible: "cash"
+- assertVisible: ".*buyer@orn-ui.dev.*"
+- assertVisible: ".*742 Evergreen Terrace.*"
+- assertVisible: ".*cash.*"
 - tapOn: "I accept the terms"
 - tapOn: "Place order"
 - assertVisible: "Order placed"

@@ -11,7 +11,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
-import { useAllowFontScaling, useColors, useTheme } from '../theme/UIProvider';
+import { useAllowFontScaling, useColors, useLabels, useTheme } from '../theme/UIProvider';
 import { useReduceMotion } from '../atoms/Transition';
 import { Gradient, type GradientDirection } from '../atoms/Gradient';
 import { useSlides, type SlidesOrientation } from './useSlides';
@@ -204,7 +204,18 @@ Dot.displayName = 'SlidesDot';
  * Sliding is a `ScrollView` with `pagingEnabled` instead of hand-made
  * gestures: it is the only thing that gives native snapping on iOS and
  * Android without `react-native-gesture-handler`, across the whole supported
- * range (Expo SDK 54–57).
+ * range of Expo SDKs.
+ *
+ * Design:
+ * - Jakob's law: native paging swipe and dots under the slide, like the
+ *   system's own onboarding carousels.
+ * - Similarity + Von Restorff: every indicator looks the same except the
+ *   current one.
+ * - Continuity: the slides slide (a jump with Reduce Motion, and autoPlay
+ *   stops); infinite mode clones the edges so the swipe never rewinds.
+ * - Fitts's law: indicators have padding around the dot as touch area.
+ * - Screen readers: each indicator is "Slide n of total" (`labels.slideOf`),
+ *   and autoPlay can be paused from its own button.
  */
 export function Slides<T>({
   data,
@@ -230,6 +241,7 @@ export function Slides<T>({
   testID,
 }: SlidesProps<T>) {
   const colors = useColors();
+  const labels = useLabels();
   const styles = useStyles();
   const allowFontScaling = useAllowFontScaling();
 
@@ -313,7 +325,7 @@ export function Slides<T>({
         activeOpacity={0.7}
         onPress={toggleAutoPlay}
         accessibilityRole="button"
-        accessibilityLabel={autoPlayPaused ? 'Resume automatic slides' : 'Pause automatic slides'}
+        accessibilityLabel={autoPlayPaused ? labels.resumeSlides : labels.pauseSlides}
         accessibilityState={{ selected: !autoPlayPaused }}
       >
         {autoPlayPaused ? (
@@ -353,7 +365,7 @@ export function Slides<T>({
             activeOpacity={0.7}
             onPress={() => goTo(position)}
             accessibilityRole="button"
-            accessibilityLabel={`Slide ${position + 1} of ${total}`}
+            accessibilityLabel={labels.slideOf.replace('{n}', String(position + 1)).replace('{total}', String(total))}
             accessibilityState={{ selected: position === active }}
           >
             {renderIndicator(position)}

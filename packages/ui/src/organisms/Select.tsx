@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
@@ -64,6 +64,10 @@ export interface SelectProps<T> {
 const GAP = 8;
 /** Below this the dropdown can't even show two rows. */
 const MIN_HEIGHT = 120;
+/** Same height as Input and DateField, so a form's fields line up. */
+const FIELD_MIN_HEIGHT = 50;
+const ICON_SIZE = 20;
+const CHECK_SIZE = 18;
 
 const useStyles = createStyles((theme) => ({
   container: { gap: theme.tokens.spacing.sm },
@@ -77,10 +81,11 @@ const useStyles = createStyles((theme) => ({
     borderColor: theme.colors.border,
     borderRadius: theme.tokens.radius.lg,
     backgroundColor: theme.colors.inputBackground,
-    minHeight: 50,
+    minHeight: FIELD_MIN_HEIGHT,
     paddingHorizontal: theme.tokens.spacing.lg,
   },
   fieldOpen: { borderColor: theme.colors.primary },
+  fieldError: { borderColor: theme.colors.error },
   fieldDisabled: { opacity: 0.5 },
   fieldValue: { flexDirection: 'row', alignItems: 'center', gap: theme.tokens.spacing.sm, flexShrink: 1 },
   fieldText: { fontSize: theme.tokens.fontSize.lg, color: theme.colors.text, flexShrink: 1 },
@@ -108,7 +113,7 @@ const useStyles = createStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: theme.tokens.spacing.lg,
-    paddingVertical: theme.tokens.spacing.md + 2,
+    paddingVertical: theme.tokens.spacing.md + theme.tokens.spacing.xxs,
     borderBottomWidth: 1,
     borderBottomColor: theme.colors.border,
   },
@@ -116,7 +121,7 @@ const useStyles = createStyles((theme) => ({
   optionRowSelected: { backgroundColor: theme.colors.primarySoft },
   optionRowDisabled: { opacity: 0.4 },
   optionLabel: { flexDirection: 'row', alignItems: 'center', gap: theme.tokens.spacing.sm, flexShrink: 1 },
-  optionText: { fontSize: theme.tokens.fontSize.lg - 1, color: theme.colors.text },
+  optionText: { fontSize: theme.tokens.fontSize.lg, color: theme.colors.text },
   optionTextSelected: { fontWeight: theme.tokens.fontWeight.semibold, color: theme.colors.primaryText },
   emoji: { fontSize: theme.tokens.fontSize.lg },
   empty: {
@@ -141,6 +146,14 @@ interface Anchor {
  * inside a Modal, not in the field's tree: that way no `overflow: hidden`
  * clips it, it doesn't depend on zIndex (unreliable on Android) and the
  * Modal's backdrop handles closing by tapping outside and with the back button.
+ *
+ * Design:
+ * - Proximity + continuity: the list opens right against the field, toward
+ *   wherever there is more room, so the eye goes from field to options.
+ * - Von Restorff: the picked option alone has the accent fill and a check.
+ * - Jakob's law: same field as Input and DateField (height, border, label,
+ *   red border with an error); tap outside or Android back closes it.
+ * - Hick's law: past a handful of options, `searchable` narrows the list.
  */
 export function Select<T extends string | number>({
   label,
@@ -165,12 +178,13 @@ export function Select<T extends string | number>({
   const allowFontScaling = useAllowFontScaling();
   const { height: windowHeight } = useWindowDimensions();
 
-  const fieldRef = useRef<View>(null);
+  const fieldRef = useRef<ComponentRef<typeof View>>(null);
   const [open, setOpen] = useState(false);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const [query, setQuery] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const isDisabled = disabled || isLoading;
+  const fieldName = label ?? placeholder ?? labels.selectPlaceholder;
   const selectedOption = options.find((o) => o.value === selectedValue);
 
   const close = useCallback(() => {
@@ -233,7 +247,7 @@ export function Select<T extends string | number>({
         </Text>
       );
     }
-    return option.iconName ? <Icon name={option.iconName} size={20} color={color} /> : null;
+    return option.iconName ? <Icon name={option.iconName} size={ICON_SIZE} color={color} /> : null;
   };
 
   return (
@@ -247,11 +261,12 @@ export function Select<T extends string | number>({
 
       <Pressable
         ref={fieldRef}
-        style={[styles.field, open && styles.fieldOpen, isDisabled && styles.fieldDisabled]}
+        style={[styles.field, !!error && styles.fieldError, open && styles.fieldOpen, isDisabled && styles.fieldDisabled]}
         onPress={openList}
         disabled={isDisabled}
         accessibilityRole="combobox"
-        accessibilityLabel={label ?? placeholder ?? labels.selectPlaceholder}
+        accessibilityLabel={required ? `${fieldName}, ${labels.required}` : fieldName}
+        accessibilityHint={error || undefined}
         accessibilityValue={{ text: selectedOption?.label ?? '' }}
         accessibilityState={{ expanded: open, disabled: isDisabled }}
       >
@@ -268,7 +283,7 @@ export function Select<T extends string | number>({
         {isLoading ? (
           <ActivityIndicator size="small" color={colors.primary} />
         ) : (
-          <Icon name={open ? 'chevron-up' : 'chevron-down'} size={20} color={colors.textLight} />
+          <Icon name={open ? 'chevron-up' : 'chevron-down'} size={ICON_SIZE} color={colors.textLight} />
         )}
       </Pressable>
 
@@ -276,7 +291,14 @@ export function Select<T extends string | number>({
         <NativeOverlay transparent animationType="fade" statusBarTranslucent onRequestClose={close}>
           <Pressable style={styles.backdrop} onPress={close} testID="select-backdrop" />
 
-          <View style={[styles.sheet, placement]} accessibilityRole="radiogroup" testID="select-list">
+          <View
+            style={[styles.sheet, placement]}
+            accessibilityRole="radiogroup"
+            // On iOS it may be drawn inside another open overlay: the reader stays in the list.
+            accessibilityViewIsModal
+            onAccessibilityEscape={close}
+            testID="select-list"
+          >
             {searchable && (
               <TextInput
                 allowFontScaling={allowFontScaling}
@@ -321,7 +343,7 @@ export function Select<T extends string | number>({
                         {option.label}
                       </Text>
                     </View>
-                    {isSelected && <Icon name="check" size={18} color={colors.primary} />}
+                    {isSelected && <Icon name="check" size={CHECK_SIZE} color={colors.primary} />}
                   </Pressable>
                 );
               })}

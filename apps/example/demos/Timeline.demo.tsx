@@ -33,7 +33,7 @@ function upTo(items: TimelineItem[], reached: number): TimelineItem[] {
  * there. Tapping the one already reached goes back, so you can watch the
  * animation in both directions without reloading.
  */
-function TappableTimeline() {
+function TapToReachExample() {
   const [reached, setReached] = useState(1);
 
   return (
@@ -57,7 +57,7 @@ function TappableTimeline() {
  * VariantList's pager starts its swipe (80% of the screen): the button kept
  * the gesture and you couldn't move to the next variant.
  */
-function AutoTimeline() {
+function AutoAdvanceExample() {
   const [reached, setReached] = useState(-1);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ function AutoTimeline() {
  * Strict progression: only the next milestone responds, and what was reached
  * isn't given back. It's the onboarding that doesn't let you skip steps.
  */
-function SequentialTimeline() {
+function SequentialExample() {
   const [reached, setReached] = useState(0);
 
   return (
@@ -104,7 +104,7 @@ function SequentialTimeline() {
  * what I'm looking at, not how far I've gone. The line stays where it got to
  * and the border marks where I'm standing.
  */
-function RevisitTimeline() {
+function RevisitExample() {
   const [reached, setReached] = useState(2);
   const [looking, setLooking] = useState(2);
 
@@ -137,19 +137,19 @@ export function TimelineDemo() {
     },
     {
       label: 'onItemPress — tap a milestone and the line travels there',
-      content: <TappableTimeline />,
+      content: <TapToReachExample />,
     },
     {
       label: 'advance="sequential" — only the next milestone answers, no going back',
-      content: <SequentialTimeline />,
+      content: <SequentialExample />,
     },
     {
       label: 'advance="revisit" — revisit the past, keep the progress',
-      content: <RevisitTimeline />,
+      content: <RevisitExample />,
     },
     {
       label: 'advancing on its own — the line draws itself, gap by gap',
-      content: <AutoTimeline />,
+      content: <AutoAdvanceExample />,
     },
     {
       label: 'curve={0} — a straight spine',

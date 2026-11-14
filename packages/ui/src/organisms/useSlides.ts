@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
 import type { LayoutChangeEvent, NativeScrollEvent, NativeSyntheticEvent, ScrollView } from 'react-native';
 import { useReduceMotion } from '../atoms/Transition';
 
@@ -30,7 +30,7 @@ export interface UseSlidesResult {
   size: { width: number; height: number };
   /** Length of a page along the scroll axis. At 0 it hasn't been measured yet. */
   pageSize: number;
-  scrollRef: React.RefObject<ScrollView | null>;
+  scrollRef: React.RefObject<ComponentRef<typeof ScrollView> | null>;
   autoPlayPaused: boolean;
   /** The system asked to reduce motion: no autoPlay or transitions. */
   motionReduced: boolean;
@@ -38,8 +38,8 @@ export interface UseSlidesResult {
   toggleAutoPlay: () => void;
   onLayout: (event: LayoutChangeEvent) => void;
   onMomentumScrollEnd: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
-  onScrollBeginDrag: () => void;
-  onScrollEndDrag: () => void;
+  onScrollBeginDrag: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
+  onScrollEndDrag: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
 }
 
 export function clampIndex(value: number, total: number): number {
@@ -58,6 +58,9 @@ export function clampIndex(value: number, total: number): number {
  * It works only with indexes, never with the items: that way it doesn't need
  * the component's generic `T`, and the UI resolves `pages[i].real` against its own `data`.
  */
+/** Points a finger has to move the slides for the drag to count as a swipe. */
+const DRAG_SLOP = 10;
+
 export function useSlides({
   total,
   orientation,
@@ -83,12 +86,19 @@ export function useSlides({
   const [size, setSize] = useState({ width: 0, height: 0 });
   const pageSize = isHorizontal ? size.width : size.height;
 
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   /** The page actually visible (index within `pages`, clones included). */
   const offsetPageRef = useRef(isLoop ? 1 : 0);
   const didInitRef = useRef(false);
   const lastPageSizeRef = useRef(0);
   const draggingRef = useRef(false);
+  /**
+   * Page an animated `scrollTo` was sent to and hasn't reached yet. On iOS a
+   * touch (tapping another indicator) stops that animation midway: the
+   * scroll then ends on the wrong page, and committing it undid the tap.
+   */
+  const pendingPageRef = useRef<number | null>(null);
+  const dragStartRef = useRef(0);
 
   const pages = useMemo<SlidesPage[]>(() => {
     const real = Array.from({ length: total }, (_, i) => ({ real: i, clone: null }));
@@ -131,6 +141,7 @@ export function useSlides({
     didInitRef.current = true;
     lastPageSizeRef.current = pageSize;
     offsetPageRef.current = target;
+    pendingPageRef.current = animated ? target : null;
     scrollToPage(target, animated);
   }, [active, isLoop, pageSize, scrollToPage, total]);
 
@@ -145,6 +156,16 @@ export function useSlides({
       if (pageSize === 0) return;
       const { contentOffset } = event.nativeEvent;
       const page = Math.round((isHorizontal ? contentOffset.x : contentOffset.y) / pageSize);
+      // A scrollTo still on its way: if it stopped short (a touch interrupted
+      // it), finish the trip instead of committing where it stopped.
+      const pending = pendingPageRef.current;
+      if (pending !== null) {
+        if (page !== pending) {
+          scrollToPage(pending, true);
+          return;
+        }
+        pendingPageRef.current = null;
+      }
 
       if (isLoop) {
         if (page === 0) {
@@ -170,15 +191,28 @@ export function useSlides({
     [goTo, isHorizontal, isLoop, pageSize, scrollToPage, total]
   );
 
-  const onScrollBeginDrag = useCallback(() => {
-    draggingRef.current = true;
-  }, []);
+  const onScrollBeginDrag = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      draggingRef.current = true;
+      const { contentOffset } = event.nativeEvent;
+      dragStartRef.current = isHorizontal ? contentOffset.x : contentOffset.y;
+    },
+    [isHorizontal]
+  );
 
-  const onScrollEndDrag = useCallback(() => {
-    // A short drag can be released without momentum and not emit
-    // momentumScrollEnd: without this autoPlay would stay paused forever.
-    draggingRef.current = false;
-  }, []);
+  const onScrollEndDrag = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      // A short drag can be released without momentum and not emit
+      // momentumScrollEnd: without this autoPlay would stay paused forever.
+      draggingRef.current = false;
+      // A finger that really moved the slides takes over from a pending
+      // scrollTo; a tap (no movement) doesn't.
+      const { contentOffset } = event.nativeEvent;
+      const moved = Math.abs((isHorizontal ? contentOffset.x : contentOffset.y) - dragStartRef.current);
+      if (moved > DRAG_SLOP) pendingPageRef.current = null;
+    },
+    [isHorizontal]
+  );
 
   const toggleAutoPlay = useCallback(() => setAutoPlayPaused((paused) => !paused), []);
 
@@ -195,6 +229,7 @@ export function useSlides({
       // Last one in infinite mode: advances to the clone of the first instead
       // of rewinding; momentumScrollEnd completes the jump to the original.
       offsetPageRef.current = total + 1;
+      pendingPageRef.current = total + 1;
       scrollToPage(total + 1, true);
     }, interval);
     return () => clearInterval(timer);

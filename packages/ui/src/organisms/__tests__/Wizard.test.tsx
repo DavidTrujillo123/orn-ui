@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text } from 'react-native';
+import { AccessibilityInfo, Text } from 'react-native';
 import { act, render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Wizard, type WizardStep } from '../Wizard';
@@ -125,5 +125,26 @@ describe('Wizard', () => {
   it('renders a vertical indicator when asked', () => {
     render(withProvider(<Wizard steps={STEPS} orientation="vertical" />));
     expect(screen.getByText('account content')).toBeOnTheScreen();
+  });
+
+  it('announces the new step to screen readers on Next, not on mount', () => {
+    const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => {});
+    // RN's jest preset already mocks it: drop the calls other tests left.
+    announce.mockClear();
+    render(
+      <UIProvider mode="light">
+        <Wizard
+          animated={false}
+          steps={[
+            { label: 'Account', content: <Text>one</Text> },
+            { label: 'Plan', content: <Text>two</Text> },
+          ]}
+        />
+      </UIProvider>
+    );
+    expect(announce).not.toHaveBeenCalled();
+    fireEvent.press(screen.getByText('Next'));
+    expect(announce).toHaveBeenCalledWith('Step 2 of 2: Plan');
+    announce.mockRestore();
   });
 });

@@ -19,7 +19,27 @@ function layout(testID = 'slides') {
   });
 }
 
+function scrollEvent(offset: number, orientation: 'horizontal' | 'vertical') {
+  return {
+    nativeEvent: {
+      contentOffset: { x: orientation === 'horizontal' ? offset : 0, y: orientation === 'horizontal' ? 0 : offset },
+      layoutMeasurement: { width: WIDTH, height: HEIGHT },
+      contentSize: { width: WIDTH * 3, height: HEIGHT * 3 },
+    },
+  };
+}
+
+/** A finger swipe that settles on `page`: a drag that moves, then the momentum end. */
 function momentumTo(page: number, orientation: 'horizontal' | 'vertical' = 'horizontal') {
+  const size = orientation === 'horizontal' ? WIDTH : HEIGHT;
+  const scroll = screen.getByTestId('slides-scroll');
+  fireEvent(scroll, 'scrollBeginDrag', scrollEvent(0, orientation));
+  fireEvent(scroll, 'scrollEndDrag', scrollEvent(size / 2, orientation));
+  settleAt(page, orientation);
+}
+
+/** Only the end of a scroll, with no drag before it: what a `scrollTo` animation reports. */
+function settleAt(page: number, orientation: 'horizontal' | 'vertical' = 'horizontal') {
   const offset = page * (orientation === 'horizontal' ? WIDTH : HEIGHT);
   fireEvent(screen.getByTestId('slides-scroll'), 'momentumScrollEnd', {
     nativeEvent: {
@@ -129,6 +149,26 @@ describe('Slides', () => {
       expect(onIndexChange).toHaveBeenCalledWith(2);
     });
 
+    it('keeps the newer tap when the touch stops the scroll on the old page', () => {
+      renderSlides();
+      fireEvent.press(screen.getByTestId('slides-indicator-2'));
+      // iOS: the tap on another indicator lands as a drag that doesn't move…
+      const scroll = screen.getByTestId('slides-scroll');
+      fireEvent(scroll, 'scrollBeginDrag', scrollEvent(2 * WIDTH, 'horizontal'));
+      fireEvent(scroll, 'scrollEndDrag', scrollEvent(2 * WIDTH, 'horizontal'));
+      fireEvent.press(screen.getByTestId('slides-indicator-0'));
+      // …and the scroll ends where the animation was stopped.
+      settleAt(2);
+      expectActive(0);
+    });
+
+    it('lets a real swipe take over from a pending indicator tap', () => {
+      renderSlides();
+      fireEvent.press(screen.getByTestId('slides-indicator-2'));
+      momentumTo(1);
+      expectActive(1);
+    });
+
     it('places them outside the swipeable area when asked to', () => {
       renderSlides({ indicatorPlacement: 'outside' });
       expect(screen.getByTestId('slides-indicators')).toBeOnTheScreen();
@@ -212,11 +252,11 @@ describe('Slides', () => {
     it('pauses while the finger is dragging', () => {
       const onIndexChange = jest.fn();
       renderSlides({ autoPlay: true, interval: 1000, onIndexChange });
-      fireEvent(screen.getByTestId('slides-scroll'), 'scrollBeginDrag', { nativeEvent: {} });
+      fireEvent(screen.getByTestId('slides-scroll'), 'scrollBeginDrag', scrollEvent(0, 'horizontal'));
       act(() => jest.advanceTimersByTime(3000));
       expect(onIndexChange).not.toHaveBeenCalled();
 
-      fireEvent(screen.getByTestId('slides-scroll'), 'scrollEndDrag', { nativeEvent: {} });
+      fireEvent(screen.getByTestId('slides-scroll'), 'scrollEndDrag', scrollEvent(0, 'horizontal'));
       act(() => jest.advanceTimersByTime(1000));
       expect(onIndexChange).toHaveBeenCalledWith(1);
     });

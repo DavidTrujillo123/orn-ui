@@ -8,30 +8,12 @@ appId: com.anonymous.orn-ui-example
 tags:
   - behavior
 ---
-- runFlow:
-    file: ../../subflows/open-demo.yaml
-    env:
-      MAESTRO_APP_ID: com.anonymous.orn-ui-example
-      BASE_PATH: "organisms"
-      SLUG: "wizard"
-      TITLE: "Wizard"
+# Straight to the validation variant (4th) by deep link: three pager swipes
+# didn't always land on it.
+- launchApp
+- openLink: "ornui:///organisms/wizard?v=4"
+- assertVisible: "Wizard"
 
-# Variant 4to (index 3): Basic, Vertical, Numbers, Per-step validation.
-- runFlow:
-    file: ../../subflows/next-variant.yaml
-    env:
-      MAESTRO_APP_ID: com.anonymous.orn-ui-example
-- runFlow:
-    file: ../../subflows/next-variant.yaml
-    env:
-      MAESTRO_APP_ID: com.anonymous.orn-ui-example
-- runFlow:
-    file: ../../subflows/next-variant.yaml
-    env:
-      MAESTRO_APP_ID: com.anonymous.orn-ui-example
-
-# "Account" step: Continue disabled without "@" in the email. Tapping it with
-# the field empty must not leave the step — the email Input is still there.
 - tapOn: "Continue"
 - assertVisible: "you@example.com"
 - tapOn: "you@example.com"
@@ -52,9 +34,10 @@ tags:
 # standalone label merges with the asterisk into a single "Plan *" node —
 # confirmed with the hierarchy dump: the only node with accessibilityText
 # exactly "Plan" (no index) is the real trigger, there's no ambiguity to break.
-- assertVisible: "Plan"
+# The required Select is named "Plan, required" for screen readers.
+- assertVisible: "Plan, required"
 - tapOn: "Continue"
-- tapOn: "Plan"
+- tapOn: "Plan, required"
 - tapOn: "Free"
 - tapOn: "Continue"
 

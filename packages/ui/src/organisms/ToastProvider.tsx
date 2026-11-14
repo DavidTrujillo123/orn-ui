@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { AccessibilityInfo, View } from 'react-native';
 import { AnimatedToast, Toast, type ToastVariant } from './Toast';
 import { useInsets } from '../theme/UIProvider';
 import { createStyles } from '../theme/createStyles';
@@ -117,6 +117,10 @@ export function ToastProvider({
         }
         return next;
       });
+
+      // It appears without focus: screen readers only hear it if it is
+      // announced (iOS ignores accessibilityRole="alert" on its own).
+      AccessibilityInfo.announceForAccessibility(options.message ? `${options.title}. ${options.message}` : options.title);
 
       if (duration > 0) {
         timers.current.set(

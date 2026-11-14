@@ -15,7 +15,7 @@ appId: com.anonymous.orn-ui-example
 
 - startRecording: screen
 
-# 1/5 — edges={["top","bottom"]} (default) — content clears the notch
+# 1/5 — default — safe area top and bottom, scrolls
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1200" }
@@ -24,7 +24,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 2/5 — edges={[]} — the same screen without insets
+# 2/5 — edges={[]} — no insets
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
@@ -33,7 +33,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 3/5 — scrollable (default) — long content scrolls
+# 3/5 — header — fixed bar, the content scrolls under it
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }
@@ -51,7 +51,7 @@ appId: com.anonymous.orn-ui-example
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example }
 - waitForAnimationToEnd:
     timeout: 1200
-# 5/5 — keyboard — the focused field stays visible
+# 5/5 — keyboard — a field at the bottom stays above it
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "900" }

@@ -203,5 +203,25 @@ describe('SearchList', () => {
     const list = screen.UNSAFE_root.findByType(require('react-native').FlatList);
     expect(list.props.refreshControl.props.refreshing).toBe(true);
   });
+
+  it('names the scan button from the provider labels and announces the first load', () => {
+    render(
+      <UIProvider mode="light" labels={{ scan: 'Escanear', loading: 'Cargando' }}>
+        <SearchList
+          searchValue=""
+          onSearchChange={() => {}}
+          onScanPress={() => {}}
+          data={[] as string[]}
+          keyExtractor={(item) => item}
+          renderItem={() => null}
+          isLoading
+        />
+      </UIProvider>
+    );
+    expect(screen.getByLabelText('Escanear')).toBeOnTheScreen();
+    const group = screen.getByRole('progressbar');
+    expect(group).toBeBusy();
+    expect(group.props.accessibilityLabel).toBe('Cargando');
+  });
 });
 

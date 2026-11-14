@@ -32,7 +32,7 @@ tags:
     visible: "Light and dark"
     timeout: 8000
 - extendedWaitUntil:
-    visible: "Expo SDK 54-57"
+    visible: "Expo SDK 54-58"
     timeout: 8000
 - extendedWaitUntil:
     visible: "Zero dependencies"
@@ -47,11 +47,13 @@ tags:
 
 - tapOn:
     id: "slides-numbers-indicator-2"
+- waitForAnimationToEnd
 - extendedWaitUntil:
-    visible: "Expo SDK 54-57"
+    visible: "Expo SDK 54-58"
     timeout: 3000
 - tapOn:
     id: "slides-numbers-indicator-0"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible: "Zero dependencies"
     timeout: 3000
@@ -64,6 +66,7 @@ tags:
 # the swipe is long and fast (70% of the width in 250 ms) because with
 # 60%/400 ms the velocity wasn't always enough for `pagingEnabled` to jump a
 # page — measured, 5 out of 5 with these numbers.
+- waitForAnimationToEnd
 - swipe:
     start: "85%,45%"
     end: "15%,45%"
@@ -90,8 +93,9 @@ tags:
 
 - tapOn:
     id: "slides-vertical-indicator-2"
+- waitForAnimationToEnd
 - extendedWaitUntil:
-    visible: "Expo SDK 54-57"
+    visible: "Expo SDK 54-58"
     timeout: 3000
 
 # The slide's vertical gesture competes with VariantList's vertical pager,
@@ -99,9 +103,11 @@ tags:
 # variant instead of the next slide.
 - tapOn:
     id: "slides-vertical-indicator-0"
+- waitForAnimationToEnd
 - extendedWaitUntil:
     visible: "Zero dependencies"
     timeout: 3000
+- waitForAnimationToEnd
 - swipe:
     start: "50%,68%"
     end: "50%,44%"

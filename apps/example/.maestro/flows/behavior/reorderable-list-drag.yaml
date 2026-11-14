@@ -19,18 +19,20 @@ tags:
       TITLE: "ReorderableList"
 
 # Orden inicial: Design review, Write tests, Ship release, Update docs.
+# Each row is one accessible element (it carries the Move up / Move down
+# actions), so its text is the row's whole label: matched by regex.
 - assertVisible:
-    text: "Write tests"
-    below: "Design review"
+    text: ".*Write tests.*"
+    below: ".*Design review.*"
 
 - swipe:
     from:
-      text: "Design review"
+      text: ".*Design review.*"
     direction: DOWN
     duration: 600
 
 # If the drag won (and not the pager's scroll), "Design review" moved down at
 # least one row.
 - assertVisible:
-    text: "Design review"
-    below: "Write tests"
+    text: ".*Design review.*"
+    below: ".*Write tests.*"

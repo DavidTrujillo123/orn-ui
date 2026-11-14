@@ -45,6 +45,30 @@ export interface Labels {
   previousMonth: string;
   /** DatePicker: button to the next month. */
   nextMonth: string;
+  /** ReorderableList: screen-reader action that moves a row one place up. */
+  moveUp: string;
+  /** ReorderableList: screen-reader action that moves a row one place down. */
+  moveDown: string;
+  /** SearchList: accessible name of the scan button. */
+  scan: string;
+  /** Slides: indicator name. `{n}` and `{total}` are replaced. */
+  slideOf: string;
+  /** Slides: button that pauses autoPlay. */
+  pauseSlides: string;
+  /** Slides: button that resumes autoPlay. */
+  resumeSlides: string;
+  /** ThemeToggle: segment that follows the system appearance. */
+  themeSystem: string;
+  /** ThemeToggle: light segment. */
+  themeLight: string;
+  /** ThemeToggle: dark segment. */
+  themeDark: string;
+  /** Wizard: button to the previous step. */
+  back: string;
+  /** Wizard: button to the next step. */
+  next: string;
+  /** Wizard: next button on the last step. */
+  finish: string;
 }
 
 export const defaultLabels: Labels = {
@@ -80,4 +104,16 @@ export const defaultLabels: Labels = {
   stepPending: 'pending',
   previousMonth: 'Previous month',
   nextMonth: 'Next month',
+  moveUp: 'Move up',
+  moveDown: 'Move down',
+  scan: 'Scan',
+  slideOf: 'Slide {n} of {total}',
+  pauseSlides: 'Pause automatic slides',
+  resumeSlides: 'Resume automatic slides',
+  themeSystem: 'Auto',
+  themeLight: 'Light',
+  themeDark: 'Dark',
+  back: 'Back',
+  next: 'Next',
+  finish: 'Finish',
 };

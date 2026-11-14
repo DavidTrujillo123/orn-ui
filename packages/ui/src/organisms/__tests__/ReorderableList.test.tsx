@@ -140,4 +140,29 @@ describe('ReorderableList', () => {
     act(() => row.props.onResponderRelease(event));
     expect(onDragEnd).toHaveBeenCalledTimes(1);
   });
+
+  it('offers Move up / Move down to screen readers, which reorder like a drop', () => {
+    const onReorder = jest.fn();
+    render(
+      withProvider(
+        <ReorderableList
+          data={ITEMS}
+          keyExtractor={(item) => item.id}
+          itemHeight={ITEM_HEIGHT}
+          renderItem={(item) => <Text>{item.id}</Text>}
+          onReorder={onReorder}
+        />
+      )
+    );
+    const rows = screen.UNSAFE_root.findAll(
+      (n) => typeof n.type === 'string' && Array.isArray(n.props.accessibilityActions) && !!n.props.onAccessibilityAction
+    );
+    const names = (row: (typeof rows)[number]) => row.props.accessibilityActions.map((a: { name: string }) => a.name);
+    // The first row can't go up, the last can't go down.
+    expect(names(rows[0]!)).toEqual(['moveDown']);
+    expect(names(rows[2]!)).toEqual(['moveUp']);
+    expect(rows[1]!.props.accessibilityActions.map((a: { label: string }) => a.label)).toEqual(['Move up', 'Move down']);
+    act(() => rows[1]!.props.onAccessibilityAction({ nativeEvent: { actionName: 'moveUp' } }));
+    expect(onReorder).toHaveBeenCalledWith([{ id: 'b' }, { id: 'a' }, { id: 'c' }]);
+  });
 });

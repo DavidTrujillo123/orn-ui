@@ -121,7 +121,7 @@ describe('Select', () => {
       const onSelect = jest.fn();
       render(withProvider(<Select label="Payment" options={OPTIONS} selectedValue={undefined} onSelect={onSelect} />));
       fireEvent.press(screen.getByRole('combobox', { name: 'Payment' }));
-      fireEvent.press(screen.getByTestId('select-backdrop'));
+      fireEvent.press(screen.getByTestId('select-backdrop', { includeHiddenElements: true }));
       expect(screen.queryByRole('radio', { name: 'Card' })).not.toBeOnTheScreen();
       expect(onSelect).not.toHaveBeenCalled();
     });
@@ -141,7 +141,7 @@ describe('Select', () => {
       );
       fireEvent.press(screen.getByRole('combobox', { name: 'Payment' }));
       expect(onOpenChange).toHaveBeenLastCalledWith(true);
-      fireEvent.press(screen.getByTestId('select-backdrop'));
+      fireEvent.press(screen.getByTestId('select-backdrop', { includeHiddenElements: true }));
       expect(onOpenChange).toHaveBeenLastCalledWith(false);
     });
 
@@ -198,7 +198,8 @@ describe('Select', () => {
       // the middle of the screen, which is where the keyboard decides the direction.
       jest
         .spyOn(View.prototype, 'measureInWindow')
-        .mockImplementation((cb) => cb(16, 900, 300, 50));
+        .mockImplementation(((cb: (x: number, y: number, width: number, height: number) => void) =>
+          cb(16, 900, 300, 50)) as never);
 
       render(
         withProvider(
@@ -222,5 +223,16 @@ describe('Select', () => {
       render(withProvider(<Select label="Payment" options={OPTIONS} selectedValue="card" onSelect={() => {}} />));
       expect(screen.getByRole('combobox', { name: 'Payment' }).props.accessibilityValue).toEqual({ text: 'Card' });
     });
+  });
+
+  it('marks an error on the field and announces required and the error', () => {
+    render(
+      <UIProvider mode="light">
+        <Select label="Plan" required error="Pick a plan" options={[{ label: 'Pro', value: 'pro' }]} selectedValue={undefined} onSelect={() => {}} />
+      </UIProvider>
+    );
+    const field = screen.getByRole('combobox');
+    expect(field.props.accessibilityLabel).toBe('Plan, required');
+    expect(field.props.accessibilityHint).toBe('Pick a plan');
   });
 });

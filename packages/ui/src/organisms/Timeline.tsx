@@ -161,6 +161,22 @@ function offsetAt(index: number, count: number, curve: number): number {
   return curve * Math.sin((2 * Math.PI * index) / (count - 1));
 }
 
+/**
+ * Timeline
+ * Milestones on a path: a line that bows from one to the next and fills up to
+ * the last one reached, with each label in a pill on alternating sides.
+ *
+ * Design:
+ * - Continuity (Gestalt): one curved line joins the milestones, so they read
+ *   as a single path; the reached part of it is filled.
+ * - Similarity + figure/ground: reached and pending milestones differ only by
+ *   fill, so status reads at a glance.
+ * - Common fate: when a milestone is reached the line travels there, gap by
+ *   gap (in place with Reduce Motion).
+ * - Fitts's law: with `onItemPress` the whole pill is the target.
+ * - Screen readers: each milestone is checked or not; with `onItemPress` it
+ *   is a button, disabled when `advance` doesn't let it respond.
+ */
 export const Timeline = memo(
   ({
     items,

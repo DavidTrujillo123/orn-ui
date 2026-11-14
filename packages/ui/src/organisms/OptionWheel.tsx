@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, type ComponentRef } from 'react';
 import {
   Animated,
   ScrollView,
@@ -227,7 +227,7 @@ export function OptionWheel<T extends string | number>({
   const allowFontScaling = useAllowFontScaling();
   const reduceMotion = useReduceMotion();
 
-  const scrollRef = useRef<ScrollView>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const scrollY = useRef(new Animated.Value(0)).current;
   // The first positioning isn't animated: the wheel has to appear already
   // set at its value, not traveling to it.

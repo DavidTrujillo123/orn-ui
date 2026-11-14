@@ -51,7 +51,7 @@ tags:
 # The taps go by `id` and not by text: targeting the text, Maestro considers
 # the tap done and the state doesn't change — the node it finds isn't the
 # Pressable. With the pill's testID the tap always gets through.
-- assertVisible: "Reached: Expo SDK 54–57"
+- assertVisible: "Reached: Expo SDK"
 - tapOn:
     id: "timeline-tap-press-4"
 - waitForAnimationToEnd
@@ -61,7 +61,7 @@ tags:
 - tapOn:
     id: "timeline-tap-press-4"
 - waitForAnimationToEnd
-- assertVisible: "Reached: Android device runs"
+- assertVisible: "Reached: Android runs"
 
 # 3 — advance="sequential": only the next milestone responds. Tapping one
 # further ahead does nothing, and neither does tapping one already reached:
@@ -70,15 +70,15 @@ tags:
     file: ../../subflows/next-variant.yaml
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
-- assertVisible: 'Only "Expo SDK 54–57" answers'
+- assertVisible: 'Only "Expo SDK" answers'
 - tapOn:
     id: "timeline-seq-press-3"
 - waitForAnimationToEnd
-- assertVisible: 'Only "Expo SDK 54–57" answers'
+- assertVisible: 'Only "Expo SDK" answers'
 - tapOn:
     id: "timeline-seq-press-0"
 - waitForAnimationToEnd
-- assertVisible: 'Only "Expo SDK 54–57" answers'
+- assertVisible: 'Only "Expo SDK" answers'
 - tapOn:
     id: "timeline-seq-press-1"
 - waitForAnimationToEnd
@@ -102,7 +102,7 @@ tags:
 - tapOn:
     id: "timeline-revisit-press-3"
 - waitForAnimationToEnd
-- assertVisible: "Progress stays at: Android device runs"
+- assertVisible: "Progress stays at: Android runs"
 
 # 5 — advances on its own. It's left running and we wait for the echo to
 # change: that proves the interval really moves the path, not that it got

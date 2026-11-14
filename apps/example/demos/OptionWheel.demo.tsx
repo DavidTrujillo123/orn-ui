@@ -61,7 +61,7 @@ const CURVE = ROWS * ROW * 0.7;
  * It goes without `perspective`: tilting on two axes at once muddies the arc
  * instead of reinforcing it.
  */
-function PortfolioWheel() {
+function PortfolioExample() {
   const [bucket, setBucket] = useState('stocks');
   const colors = useColors();
   const current = PORTFOLIO.find((option) => option.value === bucket);
@@ -97,27 +97,31 @@ function PortfolioWheel() {
   );
 }
 
-function SizeWheel({
-  label,
-  options,
-  testID,
-}: {
-  label: string;
-  options: OptionWheelOption<string>[];
-  testID: string;
-}) {
+function SizeExample() {
   const [size, setSize] = useState('m');
-  const current = options.find((option) => option.value === size);
+  const current = SIZES.find((option) => option.value === size);
 
   return (
     <View style={{ gap: 8 }}>
-      <OptionWheel label={label} options={options} selectedValue={size} onSelect={setSize} testID={testID} />
+      <OptionWheel label="Size" options={SIZES} selectedValue={size} onSelect={setSize} testID="wheel-size" />
       <Body>Picked: {current?.label ?? '—'}</Body>
     </View>
   );
 }
 
-function MinuteWheel() {
+function InStockExample() {
+  const [size, setSize] = useState('m');
+  const current = STOCK.find((option) => option.value === size);
+
+  return (
+    <View style={{ gap: 8 }}>
+      <OptionWheel label="In stock" options={STOCK} selectedValue={size} onSelect={setSize} testID="wheel-stock" />
+      <Body>Picked: {current?.label ?? '—'}</Body>
+    </View>
+  );
+}
+
+function MinutesExample() {
   const [minutes, setMinutes] = useState(15);
 
   return (
@@ -136,7 +140,7 @@ function MinuteWheel() {
   );
 }
 
-function FlatWheel() {
+function NoTiltExample() {
   const [size, setSize] = useState('l');
   const current = SIZES.find((option) => option.value === size);
 
@@ -155,7 +159,7 @@ function FlatWheel() {
   );
 }
 
-function LockedWheel() {
+function LockedExample() {
   const [size, setSize] = useState('m');
   const current = SIZES.find((option) => option.value === size);
 
@@ -174,7 +178,7 @@ function LockedWheel() {
   );
 }
 
-function InCard() {
+function InCardExample() {
   const [size, setSize] = useState('s');
   const current = SIZES.find((option) => option.value === size);
 
@@ -200,31 +204,31 @@ export function OptionWheelDemo() {
   const variants: VariantDef[] = [
     {
       label: 'default — five rows, the centre one is the pick',
-      content: <SizeWheel label="Size" options={SIZES} testID="wheel-size" />,
+      content: <SizeExample />,
     },
     {
       label: 'disabled options — the wheel slides off them on its own',
-      content: <SizeWheel label="In stock" options={STOCK} testID="wheel-stock" />,
+      content: <InStockExample />,
     },
     {
       label: 'unit and visibleCount={3} — a compact wheel',
-      content: <MinuteWheel />,
+      content: <MinutesExample />,
     },
     {
       label: 'perspective={false} — size and fade, no tilt',
-      content: <FlatWheel />,
+      content: <NoTiltExample />,
     },
     {
       label: 'disabled — the whole wheel is frozen',
-      content: <LockedWheel />,
+      content: <LockedExample />,
     },
     {
       label: 'inside a Card, named for screen readers',
-      content: <InCard />,
+      content: <InCardExample />,
     },
     {
       label: "variant='spotlight' — no band, the sharp row is the pick",
-      content: <PortfolioWheel />,
+      content: <PortfolioExample />,
     },
   ];
   return <VariantList variants={variants} />;

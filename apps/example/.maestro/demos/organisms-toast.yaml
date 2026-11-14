@@ -25,7 +25,7 @@ appId: com.anonymous.orn-ui-example
 - runFlow:
     file: _beat.yaml
     env: { MAESTRO_APP_ID: com.anonymous.orn-ui-example, MS: "1500" }
-- tapOn: "Dismiss"
+- tapOn: "Close"
 - waitForAnimationToEnd:
     timeout: 1200
 - runFlow:

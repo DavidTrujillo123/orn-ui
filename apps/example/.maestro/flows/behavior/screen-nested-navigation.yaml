@@ -16,13 +16,11 @@ tags:
       TITLE: "Screen"
 
 # 1st variant (index 0): edges={["top","bottom"]} — open and close the modal.
-- tapOn: "Open with safe area"
-- assertVisible: "The red bands are the safe-area insets. The title starts below the top one."
+- tapOn: "Open a screen"
+- assertVisible: ".*below the notch.*"
 - tapOn: "Close"
-- assertNotVisible: "The red bands are the safe-area insets. The title starts below the top one."
+- assertNotVisible: ".*below the notch.*"
 
-# 3rd variant (index 2): scrollable — long content goes into the scroller
-# by default; block 8 doesn't fit on one screen without scrolling.
 - runFlow:
     file: ../../subflows/next-variant.yaml
     env:
@@ -32,18 +30,13 @@ tags:
     env:
       MAESTRO_APP_ID: com.anonymous.orn-ui-example
 
-- tapOn: "Open a long screen"
-- assertVisible: "Block 1"
+# header: the content scrolls, the header (and its close button) stays.
+- tapOn: "Open with a header"
+- assertVisible: ".*Block 1:.*"
 - scrollUntilVisible:
     element:
-      text: "Block 8"
+      text: ".*Block 8:.*"
     direction: DOWN
-- assertVisible: "Block 8"
-
-# "Close" lives at the very top, before Block 1 — scrollUntilVisible to
-# Block 8 left it off screen. Confirmed live.
-- scrollUntilVisible:
-    element:
-      text: "Close"
-    direction: UP
+- assertVisible: "Clients"
 - tapOn: "Close"
+- assertNotVisible: "Clients"

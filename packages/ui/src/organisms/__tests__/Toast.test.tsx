@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, TouchableOpacity } from 'react-native';
+import { AccessibilityInfo, Text, TouchableOpacity } from 'react-native';
 import { act, render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Toast } from '../Toast';
@@ -27,13 +27,13 @@ describe('Toast', () => {
   it('calls onDismiss from the close button', () => {
     const onDismiss = jest.fn();
     render(withProvider(<Toast title="Saved" onDismiss={onDismiss} />));
-    fireEvent.press(screen.getByRole('button', { name: 'Dismiss' }));
+    fireEvent.press(screen.getByRole('button', { name: 'Close' }));
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
   it('hides the close button when hideCloseButton is set', () => {
     render(withProvider(<Toast title="Saved" onDismiss={() => {}} hideCloseButton />));
-    expect(screen.queryByRole('button', { name: 'Dismiss' })).not.toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Close' })).not.toBeOnTheScreen();
   });
 
   it.each(['success', 'error', 'warning', 'info'] as const)('renders the %s variant', (variant) => {
@@ -62,6 +62,16 @@ describe('useToast', () => {
       </>
     );
   }
+
+  it('announces each toast to screen readers as it appears', () => {
+    const announce = jest.spyOn(AccessibilityInfo, 'announceForAccessibility').mockImplementation(() => {});
+    // RN's jest preset already mocks it: drop the calls other tests left.
+    announce.mockClear();
+    render(withToastProvider(<Trigger options={{ message: 'Invoice #12' }} />));
+    fireEvent.press(screen.getByText('show'));
+    expect(announce).toHaveBeenCalledWith('Saved. Invoice #12');
+    announce.mockRestore();
+  });
 
   it('throws when used outside ToastProvider', () => {
     function Bare() {
@@ -188,5 +198,14 @@ describe('showToast (imperative, outside React)', () => {
     expect(showToast({ title: 'nowhere' })).toBe('');
     expect(warn).toHaveBeenCalled();
     warn.mockRestore();
+  });
+
+  it('reads title and message on a pressable toast and offers Close as an action', () => {
+    const onDismiss = jest.fn();
+    render(withProvider(<Toast title="Saved" message="Invoice #12" onPress={() => {}} onDismiss={onDismiss} />));
+    const toast = screen.getByRole('button', { name: 'Saved, Invoice #12' });
+    expect(toast.props.accessibilityActions).toEqual([{ name: 'dismiss', label: 'Close' }]);
+    fireEvent(toast, 'accessibilityAction', { nativeEvent: { actionName: 'dismiss' } });
+    expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 });

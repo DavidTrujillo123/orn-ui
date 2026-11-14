@@ -32,7 +32,7 @@ export interface SearchListProps<T> {
   searchIsLoading?: boolean;
   /** Shows a button next to the search box and is called when it is pressed. */
   onScanPress?: () => void;
-  /** Accessible name of the `onScanPress` button. @default 'Scan' */
+  /** Accessible name of the `onScanPress` button. @default labels.scan */
   scanAccessibilityLabel?: string;
   /** Extra nodes at the end of the search row. */
   extraActions?: React.ReactNode;
@@ -108,9 +108,9 @@ export interface SearchListProps<T> {
 
 const useStyles = createStyles((theme) => ({
   container: { flex: 1 },
-  searchRow: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.tokens.spacing.lg - 1, gap: theme.tokens.spacing.sm + 2 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', marginBottom: theme.tokens.spacing.lg, gap: theme.tokens.spacing.md },
   searchInput: { flex: 1, marginBottom: 0 },
-  scanButton: { backgroundColor: theme.colors.primary, width: 50, height: 50, borderRadius: theme.tokens.radius.lg, ...theme.tokens.shadow.sm },
+  scanButton: { backgroundColor: theme.colors.primary, width: SCAN_SIZE, height: SCAN_SIZE, borderRadius: theme.tokens.radius.lg, ...theme.tokens.shadow.sm },
   listArea: { flex: 1 },
   listContent: { paddingBottom: theme.tokens.spacing.xl },
   loadingOverlay: {
@@ -132,14 +132,30 @@ const useStyles = createStyles((theme) => ({
     gap: theme.tokens.spacing.md,
     padding: theme.tokens.spacing.md,
   },
-  skeletonText: { flex: 1, gap: theme.tokens.spacing.sm },
+  skeletonText: { flex: 1 },
+  empty: { marginTop: theme.tokens.spacing.xxxl },
 }));
+
+/** The scan button is square and as tall as the search Input beside it. */
+const SCAN_SIZE = 50;
+/** Same as Avatar's default size: the placeholder row matches a typical avatar row. */
+const SKELETON_AVATAR = 44;
 
 /**
  * SearchList
  * Search box + list + loading/pagination/empty states. The content of each
  * item (renderItem) is up to whoever uses it, since it differs completely
  * between use cases.
+ *
+ * Design:
+ * - Proximity + common region: the search row (box, scan, extra actions)
+ *   sits right on top of the results it filters.
+ * - Doherty threshold: every wait has immediate feedback (placeholders, a
+ *   spinner in the box while searching, a footer loader while paging), and
+ *   "no results" only appears once it is known there is nothing.
+ * - Jakob's law: the clear (×) inside the box, pull-to-refresh, the keyboard
+ *   dismissed when the list is dragged.
+ * - Fitts's law: the scan button is as tall as the box, a 50pt target.
  */
 export function SearchList<T>({
   header,
@@ -148,7 +164,7 @@ export function SearchList<T>({
   searchPlaceholder,
   searchIsLoading = false,
   onScanPress,
-  scanAccessibilityLabel = 'Scan',
+  scanAccessibilityLabel,
   extraActions,
   data,
   keyExtractor,
@@ -218,8 +234,8 @@ export function SearchList<T>({
   // placeholders are shown, not "no results".
   const renderEmpty = useCallback(() => {
     if (isLoading || isRefreshing) return null;
-    return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={{ marginTop: 50 }} />;
-  }, [isLoading, isRefreshing, emptyTitle, emptyDescription, emptyIconName]);
+    return <EmptyState title={emptyTitle} description={emptyDescription} iconName={emptyIconName} style={styles.empty} />;
+  }, [isLoading, isRefreshing, emptyTitle, emptyDescription, emptyIconName, styles.empty]);
 
   if (!isReady) {
     return (
@@ -253,7 +269,7 @@ export function SearchList<T>({
             onPress={onScanPress}
             color={colors.onPrimary}
             style={styles.scanButton}
-            accessibilityLabel={scanAccessibilityLabel}
+            accessibilityLabel={scanAccessibilityLabel ?? labels.scan}
           />
         )}
         {extraActions}
@@ -261,22 +277,37 @@ export function SearchList<T>({
 
       <View style={styles.listArea}>
         {showOverlayLoading && (
-          <View style={styles.loadingOverlay}>
+          <View
+            style={styles.loadingOverlay}
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel={resolvedLoadingText}
+            accessibilityState={{ busy: true }}
+          >
             <ActivityIndicator size="large" color={colors.primary} />
             <Text style={styles.footerText}>{resolvedLoadingText}</Text>
           </View>
         )}
 
         {isInitialLoading ? (
-          <View testID="list-skeleton" style={[styles.listContent, contentContainerStyle]}>
+          <View
+            testID="list-skeleton"
+            style={[styles.listContent, contentContainerStyle]}
+            // The placeholders are hidden from screen readers: the group
+            // announces that the list is loading instead of silence.
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel={resolvedLoadingText}
+            accessibilityState={{ busy: true }}
+          >
             {Array.from({ length: skeletonCount }, (_, i) => (
               <React.Fragment key={i}>
                 {renderSkeletonItem?.() ?? (
                   <View style={styles.skeletonRow}>
-                    <Skeleton variant="circle" width={40} />
+                    <Skeleton variant="circle" width={SKELETON_AVATAR} />
                     <View style={styles.skeletonText}>
-                      <Skeleton width="60%" height={14} />
-                      <Skeleton width="35%" height={12} />
+                      <Skeleton variant="text" width="60%" />
+                      <Skeleton variant="text" width="35%" />
                     </View>
                   </View>
                 )}

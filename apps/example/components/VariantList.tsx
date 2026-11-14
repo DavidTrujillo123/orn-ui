@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState, type ComponentRef } from 'react';
 import {
   Animated,
   Dimensions,
@@ -57,7 +57,7 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
   const [scrollLocked, setScrollLocked] = useState(false);
   const hintOpacity = useRef(new Animated.Value(1)).current;
   const hintDismissed = useRef(false);
-  const pagerRef = useRef<ScrollView>(null);
+  const pagerRef = useRef<ComponentRef<typeof ScrollView>>(null);
   const indexRef = useRef(initialIndex);
   const keyboardOpen = useRef(false);
 
@@ -81,7 +81,9 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
       }),
       Keyboard.addListener('keyboardDidHide', () => {
         keyboardOpen.current = false;
-        snapToCurrent();
+        // After the layout settles: snapping right away used the offset of a
+        // view still resizing back, and the page stayed shifted.
+        setTimeout(snapToCurrent, 120);
       }),
     ];
     return () => subs.forEach((s) => s.remove());

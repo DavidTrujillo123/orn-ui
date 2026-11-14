@@ -26,48 +26,58 @@ const WITH_ICONS = [
   { label: 'Rejected', value: 'rejected', iconName: 'close' as const },
 ];
 
-export function SelectDemo() {
-  const [value, setValue] = useState<string | undefined>();
-  const [required, setRequired] = useState<string | undefined>();
-  const [emoji, setEmoji] = useState<string | undefined>('card');
+function PaymentExample() {
+  const [method, setMethod] = useState<string | undefined>();
+  return <Select label="Payment method" options={OPTIONS} selectedValue={method} onSelect={setMethod} />;
+}
+
+function RequiredExample() {
+  const [method, setMethod] = useState<string | undefined>();
+  return <Select label="Payment method" required options={OPTIONS} selectedValue={method} onSelect={setMethod} />;
+}
+
+function EmojiExample() {
+  const [method, setMethod] = useState<string | undefined>('card');
+  return <Select label="Payment method" options={WITH_EMOJI} selectedValue={method} onSelect={setMethod} />;
+}
+
+function IconsExample() {
   const [status, setStatus] = useState<string | undefined>('approved');
+  return <Select label="Status" options={WITH_ICONS} selectedValue={status} onSelect={setStatus} />;
+}
+
+function SearchableExample() {
   const [country, setCountry] = useState<string | undefined>();
+  return <Select label="Country" searchable options={COUNTRIES} selectedValue={country} onSelect={setCountry} />;
+}
+
+function InCardExample() {
+  const [method, setMethod] = useState<string | undefined>('card');
+  return (
+    <Card>
+      <Select label="Payment method" options={WITH_EMOJI} selectedValue={method} onSelect={setMethod} />
+    </Card>
+  );
+}
+
+export function SelectDemo() {
   // #region demo
   const variants: VariantDef[] = [
-    { label: 'Default', content: <Select label="Payment method" options={OPTIONS} selectedValue={value} onSelect={setValue} /> },
-    {
-      label: 'Required',
-      content: <Select label="Payment method" required options={OPTIONS} selectedValue={required} onSelect={setRequired} />,
-    },
-    {
-      label: 'Options with emoji (one disabled)',
-      content: <Select label="Payment method" options={WITH_EMOJI} selectedValue={emoji} onSelect={setEmoji} />,
-    },
-    {
-      label: 'Options with icons from the theme set',
-      content: <Select label="Status" options={WITH_ICONS} selectedValue={status} onSelect={setStatus} />,
-    },
-    {
-      label: 'searchable — 20 options, scrolls and filters',
-      content: (
-        <Select label="Country" searchable options={COUNTRIES} selectedValue={country} onSelect={setCountry} />
-      ),
-    },
-    {
-      label: 'Inside a Card — the list is no longer clipped',
-      content: (
-        <Card>
-          <Select label="Payment method" options={WITH_EMOJI} selectedValue={emoji} onSelect={setEmoji} />
-        </Card>
-      ),
-    },
+    { label: 'Default', content: <PaymentExample /> },
+    { label: 'Required', content: <RequiredExample /> },
+    { label: 'Options with emoji (one disabled)', content: <EmojiExample /> },
+    { label: 'Options with icons from the theme set', content: <IconsExample /> },
+    { label: 'searchable — 20 options, scrolls and filters', content: <SearchableExample /> },
+    { label: 'Inside a Card — the list is no longer clipped', content: <InCardExample /> },
     {
       label: 'Disabled',
       content: <Select label="Payment method" disabled options={OPTIONS} selectedValue="cash" onSelect={() => {}} />,
     },
     {
       label: 'Error',
-      content: <Select label="Payment method" options={OPTIONS} selectedValue={undefined} onSelect={() => {}} error="Required" />,
+      content: (
+        <Select label="Payment method" options={OPTIONS} selectedValue={undefined} onSelect={() => {}} error="Pick a payment method" />
+      ),
     },
     {
       label: 'Loading',

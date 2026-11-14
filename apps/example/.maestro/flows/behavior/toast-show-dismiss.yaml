@@ -13,5 +13,5 @@ tags:
 - tapOn: "Success"
 - waitForAnimationToEnd
 - assertVisible: "Invoice sent"
-- tapOn: "Dismiss"
+- tapOn: "Close"
 - assertNotVisible: "Invoice sent"

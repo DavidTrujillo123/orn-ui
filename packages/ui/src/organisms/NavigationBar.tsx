@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
 import { useAllowFontScaling, useColors, useInsets, useTheme } from '../theme/UIProvider';
+import { useReduceMotion } from '../theme/useReduceMotion';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
 
@@ -20,7 +21,7 @@ export interface NavigationBarItem {
   key: string;
   label: string;
   iconName?: IconName;
-  /** Counter over the icon. `true` shows only the dot. */
+  /** Counter over the icon, also read by screen readers. `true` shows only the dot. */
   badge?: number | string | true;
 }
 
@@ -47,6 +48,13 @@ export interface NavigationBarProps {
   testID?: string;
 }
 
+/** Counter badge: a pill that still fits two digits over a 22pt icon. */
+const BADGE_SIZE = 16;
+const BADGE_DOT_SIZE = 10;
+const BADGE_FONT_SIZE = 10;
+/** Indicator spring: settles fast without bouncing past the tab. */
+const INDICATOR_SPRING = { friction: 9, tension: 90 };
+
 const useStyles = createStyles((theme) => ({
   bar: {
     flexDirection: 'row',
@@ -69,24 +77,24 @@ const useStyles = createStyles((theme) => ({
     backgroundColor: theme.colors.primarySoft,
   },
   item: { flex: 1, paddingVertical: theme.tokens.spacing.xs },
-  itemContent: { alignItems: 'center', justifyContent: 'center', gap: 2 },
+  itemContent: { alignItems: 'center', justifyContent: 'center', gap: theme.tokens.spacing.xxs },
   label: { fontSize: theme.tokens.fontSize.xs, fontWeight: theme.tokens.fontWeight.medium },
   badge: {
     position: 'absolute',
-    top: -4,
+    top: -theme.tokens.spacing.xs,
     left: '50%',
-    marginLeft: 4,
-    minWidth: 16,
-    height: 16,
-    paddingHorizontal: 4,
+    marginLeft: theme.tokens.spacing.xs,
+    minWidth: BADGE_SIZE,
+    height: BADGE_SIZE,
+    paddingHorizontal: theme.tokens.spacing.xs,
     borderRadius: theme.tokens.radius.full,
     backgroundColor: theme.colors.error,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  badgeDot: { minWidth: 10, height: 10, top: -2, paddingHorizontal: 0 },
+  badgeDot: { minWidth: BADGE_DOT_SIZE, height: BADGE_DOT_SIZE, top: -theme.tokens.spacing.xxs, paddingHorizontal: 0 },
   badgeText: {
-    fontSize: 10,
+    fontSize: BADGE_FONT_SIZE,
     fontWeight: theme.tokens.fontWeight.bold,
     color: theme.colors.onError,
   },
@@ -100,6 +108,16 @@ const ICON_SIZE = 22;
  * Android: the indicator slides to the active tab and its content grows and
  * takes the accent color with a cross-fade.
  * It doesn't navigate on its own — it reports the tapped tab and the consumer decides.
+ *
+ * Design:
+ * - Jakob's law: the tab bar people know from every app, at the bottom by
+ *   default, icon over label.
+ * - Similarity + Von Restorff: every tab looks the same except the active
+ *   one, which alone gets the accent and the indicator.
+ * - Continuity: the indicator slides from tab to tab instead of jumping
+ *   (in place with Reduce Motion).
+ * - Fitts's law: the whole column is the target, not just the icon.
+ * - Hick's law: meant for 3–5 destinations.
  */
 export const NavigationBar = memo(
   ({
@@ -118,6 +136,7 @@ export const NavigationBar = memo(
     const styles = useStyles();
     const insets = useInsets();
     const allowFontScaling = useAllowFontScaling();
+    const reduceMotion = useReduceMotion();
 
     const [barWidth, setBarWidth] = useState(0);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
@@ -148,13 +167,14 @@ export const NavigationBar = memo(
       const to = activeIndex * itemWidth;
       // On the first layout the indicator appears in place; animating it from 0
       // would be a slide the user didn't ask for.
-      if (!placed.current) {
+      // With Reduce Motion it moves without the slide, too.
+      if (!placed.current || reduceMotion) {
         placed.current = true;
         slide.setValue(to);
         return;
       }
-      Animated.spring(slide, { toValue: to, useNativeDriver: true, friction: 9, tension: 90 }).start();
-    }, [activeIndex, itemWidth, slide]);
+      Animated.spring(slide, { toValue: to, useNativeDriver: true, ...INDICATOR_SPRING }).start();
+    }, [activeIndex, itemWidth, slide, reduceMotion]);
 
     const onLayout = (e: LayoutChangeEvent) => {
       const next = e.nativeEvent.layout.width - theme.tokens.spacing.xs * 2;
@@ -224,6 +244,8 @@ export const NavigationBar = memo(
               accessibilityRole="tab"
               accessibilityLabel={item.label}
               accessibilityState={{ selected: active }}
+              // The badge is drawn, not text the reader reaches: its count goes in the value.
+              accessibilityValue={typeof item.badge === 'number' || typeof item.badge === 'string' ? { text: String(item.badge) } : undefined}
             >
               <Animated.View style={[styles.itemContent, { transform: [{ scale }] }]}>
                 {renderContent(item, colors.textLight)}

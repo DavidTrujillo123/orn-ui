@@ -13,7 +13,7 @@ interface Slide {
 const SLIDES: Slide[] = [
   { id: '1', title: 'Zero dependencies', body: 'Only react and react-native', gradient: ['#004cef', '#00cae1'] },
   { id: '2', title: 'Light and dark', body: 'Every pair clears WCAG AA', gradient: ['#7b2ff7', '#f107a3'] },
-  { id: '3', title: 'Expo SDK 54-57', body: 'Verified on all four', gradient: ['#0f9b0f', '#00cae1'] },
+  { id: '3', title: 'Expo SDK 54-58', body: 'Verified on all five', gradient: ['#0f9b0f', '#00cae1'] },
 ];
 
 const FLAT = ['#101014', '#1d2b3a', '#3a1d2b'];

@@ -43,6 +43,12 @@ describe('NavigationBar', () => {
     expect(screen.getByText('3')).toBeOnTheScreen();
   });
 
+  it('announces the badge count as the tab value', () => {
+    render(withProvider(<NavigationBar items={ITEMS} activeKey="home" onChange={() => {}} />));
+    expect(screen.getByRole('tab', { name: 'Profile' })).toHaveAccessibilityValue({ text: '3' });
+    expect(screen.getByRole('tab', { name: 'Home' }).props.accessibilityValue?.text).toBeUndefined();
+  });
+
   it('reads each label once: the cross-fade copy stays out of the accessibility tree', () => {
     render(withProvider(<NavigationBar items={ITEMS} activeKey="home" onChange={() => {}} />));
     expect(screen.getAllByText('Home')).toHaveLength(1);

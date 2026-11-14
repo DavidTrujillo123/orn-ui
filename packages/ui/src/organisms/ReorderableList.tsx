@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { Animated, PanResponder, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
+import { useLabels } from '../theme/UIProvider';
 
 export interface ReorderableListProps<T> {
   /** Items, in their current order. */
@@ -54,6 +55,11 @@ const useStyles = createStyles(() => ({
  * Inside a vertical scroll you have to wire `onDragStart`/`onDragEnd` to
  * `scrollEnabled`, or on iOS the drag never gets to start:
  *
+ * Screen readers can't drag: each row is one accessible element with two
+ * actions, "Move up" and "Move down" (`labels.moveUp` / `labels.moveDown`),
+ * that call `onReorder` the same way a drop does. The row's content is read
+ * as its label, so keep interactive controls out of reorderable rows.
+ *
  * ```tsx
  * const [dragging, setDragging] = useState(false);
  * <ScrollView scrollEnabled={!dragging}>
@@ -73,6 +79,7 @@ export function ReorderableList<T>({
   style,
 }: ReorderableListProps<T>) {
   const styles = useStyles();
+  const labels = useLabels();
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [targetIndex, setTargetIndex] = useState<number | null>(null);
   const dy = useRef(new Animated.Value(0)).current;
@@ -177,6 +184,17 @@ export function ReorderableList<T>({
                 : { transform: [{ translateY: shift }] },
             ]}
             {...panResponderFor(index).panHandlers}
+            accessible
+            accessibilityActions={[
+              ...(index > 0 ? [{ name: 'moveUp', label: labels.moveUp }] : []),
+              ...(index < data.length - 1 ? [{ name: 'moveDown', label: labels.moveDown }] : []),
+            ]}
+            onAccessibilityAction={(event) => {
+              if (disabled) return;
+              const to = event.nativeEvent.actionName === 'moveUp' ? index - 1 : index + 1;
+              if (to < 0 || to >= data.length) return;
+              onReorder(move(data, index, to));
+            }}
           >
             {renderItem(item, index, isActive)}
           </Animated.View>

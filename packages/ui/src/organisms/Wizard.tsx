@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Platform, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
+import { AccessibilityInfo, Platform, ScrollView, View, type StyleProp, type ViewStyle } from 'react-native';
 import { createStyles } from '../theme/createStyles';
+import { useLabels } from '../theme/UIProvider';
 import { KeyboardHandled } from '../theme/KeyboardAvoidance';
 import { Steps, type StepItem } from '../molecules/Steps';
 import { Button } from '../atoms/Button';
@@ -27,11 +28,11 @@ export interface WizardProps {
   completedIndicator?: 'check' | 'number';
   /** Allows returning to an already-completed step by tapping it in the indicator. @default true */
   allowStepNavigation?: boolean;
-  /** Text of the back button (hidden on the first step). @default 'Back' */
+  /** Text of the back button (hidden on the first step). @default labels.back */
   backLabel?: string;
-  /** Text of the next button. @default 'Next' */
+  /** Text of the next button. @default labels.next */
   nextLabel?: string;
-  /** Text of the next button on the last step. @default 'Finish' */
+  /** Text of the next button on the last step. @default labels.finish */
   finishLabel?: string;
   /**
    * The step content scrolls when it doesn't fit. Set to false only if
@@ -63,6 +64,17 @@ const useStyles = createStyles((theme) => ({
  * navigation bar. Works controlled (`current` + `onStepChange`) or on its
  * own. `canGoNext: false` on a step disables moving forward, which is where
  * that step's form validation hooks in.
+ *
+ * Design:
+ * - Chunking (Miller) + Hick's law: a long form split into a few steps, one
+ *   decision set at a time.
+ * - Continuity: the content slides in the direction of travel (a fade with
+ *   Reduce Motion), so forward and back feel like a path.
+ * - Proximity + Fitts's law: Back and Next share one row at the bottom, full
+ *   width, within thumb reach; Next is the filled one (Von Restorff).
+ * - Error prevention: Next stays disabled until the step is valid, and the
+ *   indicator only jumps back, never past an unvalidated step.
+ * - Screen readers: each step change is announced ("Step 2 of 3: Plan").
  */
 export function Wizard({
   steps,
@@ -72,14 +84,15 @@ export function Wizard({
   orientation = 'horizontal',
   completedIndicator = 'check',
   allowStepNavigation = true,
-  backLabel = 'Back',
-  nextLabel = 'Next',
-  finishLabel = 'Finish',
+  backLabel,
+  nextLabel,
+  finishLabel,
   scrollableContent = true,
   animated = true,
   style,
 }: WizardProps) {
   const styles = useStyles();
+  const labels = useLabels();
   const [uncontrolled, setUncontrolled] = useState(0);
   const isControlled = controlledCurrent !== undefined;
   const current = isControlled ? controlledCurrent : uncontrolled;
@@ -103,8 +116,22 @@ export function Wizard({
   const forward = current >= previous.current;
   const entered = useRef(false);
   useEffect(() => {
+    // Next/Back keep the focus on the button: without this the reader never
+    // learns that the content changed. Not on mount, only on a change.
+    if (entered.current && previous.current !== current) {
+      const step = steps[current];
+      if (step) {
+        AccessibilityInfo.announceForAccessibility(
+          labels.stepOf
+            .replace('{n}', String(current + 1))
+            .replace('{total}', String(steps.length))
+            .replace('{label}', step.label)
+        );
+      }
+    }
     previous.current = current;
     entered.current = true;
+    // Only a step change announces; new `steps` with the same step don't.
   }, [current]);
 
   const activeStep = steps[current];
@@ -167,10 +194,10 @@ export function Wizard({
 
       <View style={styles.footer}>
         {!isFirst && (
-          <Button title={backLabel} variant="outline" onPress={() => goTo(current - 1)} style={styles.footerButton} />
+          <Button title={backLabel ?? labels.back} variant="outline" onPress={() => goTo(current - 1)} style={styles.footerButton} />
         )}
         <Button
-          title={isLast ? finishLabel : nextLabel}
+          title={isLast ? (finishLabel ?? labels.finish) : (nextLabel ?? labels.next)}
           onPress={handleNext}
           disabled={!canGoNext}
           style={styles.footerButton}
