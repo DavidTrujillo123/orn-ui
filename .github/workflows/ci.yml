@@ -1,8 +1,13 @@
 name: CI
 
+# Every push to main and every PR is checked; only a `v*` tag publishes
+# (see the last step). It used to run on tags alone, so main went unverified
+# until the next release.
 on:
   push:
+    branches: [main]
     tags: ["*"]
+  pull_request:
 
 jobs:
   # One runner per supported Expo SDK: installs that SDK's exact
@@ -95,6 +100,17 @@ jobs:
 
       - name: Smoke test the install CLI (installs --all into apps/example, typechecks it)
         run: pnpm --filter orn-ui test:cli
+
+      # A tag that doesn't match packages/ui/package.json would publish the
+      # wrong version (or fail at npm with a less clear message).
+      - name: Check the tag matches the package version
+        if: startsWith(github.ref, 'refs/tags/v')
+        run: |
+          VERSION=$(node -p "require('./packages/ui/package.json').version")
+          if [ "${GITHUB_REF_NAME}" != "v${VERSION}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match packages/ui version ${VERSION}" >&2
+            exit 1
+          fi
 
       - name: Publish to npm
         if: startsWith(github.ref, 'refs/tags/v')
