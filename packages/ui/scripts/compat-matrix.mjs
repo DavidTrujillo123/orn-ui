@@ -207,6 +207,9 @@ module.exports = {
     '^react-test-renderer$': path.join(NM, 'react-test-renderer'),
     '^react-test-renderer/(.*)$': path.join(NM, 'react-test-renderer', '$1'),
     '^react-native-safe-area-context$': path.join(NM, 'react-native-safe-area-context'),
+    // jest.setup.ts loads its jest mock by subpath: unmapped, it came from the
+    // workspace's copy (another safe-area, built against another React).
+    '^react-native-safe-area-context/(.*)$': path.join(NM, 'react-native-safe-area-context', '$1'),
     '^@testing-library/react-native$': path.join(NM, '@testing-library', 'react-native'),
     '^@babel/runtime/(.*)$': path.join(NM, '@babel', 'runtime', '$1'),
   },
