@@ -1,4 +1,4 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, type ImageStyle, type TextStyle, type ViewStyle } from 'react-native';
 import { useTheme } from './UIProvider';
 import type { Theme } from './types';
 
@@ -14,13 +14,17 @@ import type { Theme } from './types';
  * call, i.e. one per component), so themes from different <UIProvider>s in
  * the same tree don't collide with each other.
  *
- * The `factory` type follows RN's official pattern for typed StyleSheets
- * (`T extends StyleSheet.NamedStyles<T> | StyleSheet.NamedStyles<any>`):
- * it is what gives TS the context to infer literals ('row', 'center', ...)
- * instead of widening them to `string` inside the returned object.
+ * The `factory` type follows RN's pattern for typed StyleSheets
+ * (`T extends NamedStyles<T> | NamedStyles<any>`): it is what gives TS the
+ * context to infer literals ('row', 'center', ...) instead of widening them
+ * to `string` inside the returned object. `NamedStyles` is declared here:
+ * react-native 0.88's generated types (Expo SDK 58) no longer export
+ * `StyleSheet.NamedStyles`.
  */
-export function createStyles<T extends StyleSheet.NamedStyles<T> | StyleSheet.NamedStyles<any>>(
-  factory: (theme: Theme) => T | StyleSheet.NamedStyles<T>
+type NamedStyles<T> = { [P in keyof T]: ViewStyle | TextStyle | ImageStyle };
+
+export function createStyles<T extends NamedStyles<T> | NamedStyles<any>>(
+  factory: (theme: Theme) => T | NamedStyles<T>
 ): () => T {
   const cache = new WeakMap<Theme, T>();
 

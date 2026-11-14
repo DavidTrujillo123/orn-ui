@@ -66,7 +66,7 @@ checks steps 1-8 and prints what's missing.
    doesn't ship the primitive (a gradient, a gesture), compose it — see
    `atoms/Gradient.tsx` (bands instead of a native gradient) and
    `organisms/ReorderableList.tsx` (PanResponder instead of gesture-handler).
-3. **Expo SDK 54-57.** Nothing newer than React Native 0.81 / React 19.1
+3. **Expo SDK 54-58.** Nothing newer than React Native 0.81 / React 19.1
    without gating it. `pnpm compat` is the proof, and it's the only one.
 4. **Theme tokens only** — colors, spacing, radii and durations come from
    `createStyles((theme) => ...)`, never from literals.

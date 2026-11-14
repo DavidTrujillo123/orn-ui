@@ -62,7 +62,7 @@ function makeVariant(
       </RNText>
     );
   });
-  Component.displayName = variant;
+  Component.displayName = String(variant);
   return Component;
 }
 

@@ -1,4 +1,4 @@
-import { useMemo, useRef, type RefObject } from 'react';
+import { useMemo, useRef, type RefObject, type ComponentRef } from 'react';
 import type { View } from 'react-native';
 import { useKeyboardHost, type KeyboardField } from './KeyboardAvoidance';
 
@@ -12,7 +12,7 @@ import { useKeyboardHost, type KeyboardField } from './KeyboardAvoidance';
  * container that already handles the keyboard there is no host and both are
  * no-ops.
  */
-export function useKeyboardField(boxRef: RefObject<View | null>) {
+export function useKeyboardField(boxRef: RefObject<ComponentRef<typeof View> | null>) {
   const host = useKeyboardHost();
   const field = useRef<KeyboardField>({
     measure: () =>

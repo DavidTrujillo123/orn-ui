@@ -1,7 +1,7 @@
 {
   "name": "orn-ui",
-  "version": "0.2.10",
-  "description": "React Native / Expo component library: 50 typed components, light/dark theming, zero runtime dependencies. Verified on Expo SDK 54-57. Agent-friendly: one component instead of hundreds of lines of hand-written UI.",
+  "version": "0.3.0",
+  "description": "React Native / Expo component library: 50 typed components, light/dark theming, zero runtime dependencies. Verified on Expo SDK 54-58. Agent-friendly: one component instead of hundreds of lines of hand-written UI.",
   "author": "David Trujillo <davot098@gmail.com>",
   "main": "lib/commonjs/index.js",
   "module": "lib/module/index.js",
@@ -389,18 +389,18 @@
     "react-native-safe-area-context": ">=5.4.0"
   },
   "devDependencies": {
-    "@react-native/babel-preset": "^0.86.2",
-    "@react-native/jest-preset": "^0.86.2",
+    "@react-native/babel-preset": "^0.88.1",
+    "@react-native/jest-preset": "^0.88.1",
     "@testing-library/react-native": "^13.3.3",
     "@types/jest": "^29.5.14",
-    "@types/react": "~19.2.14",
+    "@types/react": "~19.3.0",
     "@types/react-test-renderer": "^19.1.0",
     "jest": "^29.7.0",
-    "react": "19.2.3",
-    "react-native": "0.86.2",
+    "react": "19.3.0",
+    "react-native": "0.88.1",
     "react-native-builder-bob": "^0.35.3",
-    "react-native-safe-area-context": "~5.8.1",
-    "react-test-renderer": "19.2.3",
+    "react-native-safe-area-context": "~5.11.1",
+    "react-test-renderer": "19.3.0",
     "typescript": "~5.9.3"
   },
   "keywords": [
@@ -410,6 +410,7 @@
     "expo-sdk-55",
     "expo-sdk-56",
     "expo-sdk-57",
+    "expo-sdk-58",
     "ui",
     "components",
     "component-library",

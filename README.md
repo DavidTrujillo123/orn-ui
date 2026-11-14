@@ -27,7 +27,7 @@ pnpm add orn-ui
 
 ### Compatibility
 
-Verified against **Expo SDK 54, 55, 56 and 57** — the whole range, not just the
+Verified against **Expo SDK 54, 55, 56, 57 and 58** — the whole range, not just the
 newest:
 
 | Expo SDK | react-native | react  | react-native-safe-area-context |
@@ -36,6 +36,7 @@ newest:
 | 55       | 0.83.10      | 19.2.0 | 5.6.2                          |
 | 56       | 0.85.3       | 19.2.3 | 5.7.0                          |
 | 57       | 0.86.2       | 19.2.3 | 5.8.0                          |
+| 58       | 0.88.1       | 19.3.0 | 5.11.1                         |
 
 Two checks back that claim, both per SDK and both in CI:
 

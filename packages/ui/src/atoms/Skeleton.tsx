@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef } from 'react';
+import React, { memo, useEffect, useRef, type ComponentProps } from 'react';
 import {
   Animated,
   Easing,
@@ -106,7 +106,7 @@ export const Skeleton = memo(
     const resolvedRadius =
       radius ?? (isCircle ? theme.tokens.radius.full : isText ? theme.tokens.radius.xs : theme.tokens.radius.sm);
 
-    const barStyle = (barWidth: DimensionValue): StyleProp<ViewStyle> => [
+    const barStyle = (barWidth: DimensionValue): ComponentProps<typeof Animated.View>['style'] => [
       styles.block,
       isText && styles.textLine,
       { width: barWidth, height: resolvedHeight, borderRadius: resolvedRadius, opacity },

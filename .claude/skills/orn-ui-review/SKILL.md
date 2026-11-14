@@ -32,7 +32,7 @@ no tocarlas salvo que el usuario lo pida.
 1. Leer `PROGRESS.md`. Si el usuario no nombró un componente, tomar el primero en
    estado `pendiente` (o retomar el que esté `en-curso`).
 2. Leer `orn-ui/AGENTS.md` si no está en contexto: sus reglas son ley
-   (cero dependencias, Expo SDK 54-57 / RN 0.81 / React 19.1, tokens del theme,
+   (cero dependencias, Expo SDK 54-58 / RN 0.81 / React 19.1, tokens del theme,
    capas atómicas, Gestalt en el doc comment, accesibilidad).
 3. Usar graft para contexto (`graft_file_api`, `graft_find_code`,
    `graft_trace_calls`) antes de grep/read masivos.

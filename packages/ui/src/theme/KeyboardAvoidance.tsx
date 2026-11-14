@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useMemo, useRef } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useRef, type ComponentRef } from 'react';
 import {
   Animated,
   Easing,
@@ -98,7 +98,7 @@ export function KeyboardPanArea({
   clip?: boolean;
   children: React.ReactNode;
 }) {
-  const areaRef = useRef<View>(null);
+  const areaRef = useRef<ComponentRef<typeof View>>(null);
   const pan = useRef(new Animated.Value(0)).current;
   const offset = useRef(0);
   const field = useRef<KeyboardField | null>(null);
@@ -202,7 +202,7 @@ export function KeyboardPanArea({
 /** If the measurement never comes back (node unmounted), carry on without that limit. */
 const MEASURE_TIMEOUT_MS = 100;
 
-function measureTop(node: View | null): Promise<number | null> {
+function measureTop(node: ComponentRef<typeof View> | null): Promise<number | null> {
   return new Promise((resolve) => {
     if (!node) return resolve(null);
     const timer = setTimeout(() => resolve(null), MEASURE_TIMEOUT_MS);

@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useRef, useState } from 'react';
+import React, { memo, useEffect, useRef, useState, type ComponentRef } from 'react';
 import {
   ScrollView,
   Text,
@@ -147,7 +147,7 @@ export const Steps = memo(
     // Horizontal overflow: when the steps don't fit, the row scrolls. A hidden
     // step gave no hint of existing, so the current step is brought into view
     // and the scroll bar flashes once (visibility of system status).
-    const scrollRef = useRef<ScrollView>(null);
+    const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
     const [viewportWidth, setViewportWidth] = useState(0);
     const [contentWidth, setContentWidth] = useState(0);
     const stepX = useRef<number[]>([]);

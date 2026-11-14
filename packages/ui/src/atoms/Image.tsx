@@ -4,10 +4,9 @@ import {
   Platform,
   StyleSheet,
   View,
-  type ImageErrorEventData,
+  type ImageProps as RNImageProps,
   type ImageResizeMode,
   type ImageSourcePropType,
-  type NativeSyntheticEvent,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
@@ -15,6 +14,13 @@ import { createStyles } from '../theme/createStyles';
 import { useColors, useTheme } from '../theme/UIProvider';
 import { Icon } from '../icons/Icon';
 import { Spinner } from './Spinner';
+
+/**
+ * The event RN's Image passes to `onError`. Taken from its own prop type:
+ * react-native 0.88 (Expo SDK 58) renamed the exported name
+ * (`ImageErrorEventData` -> `ImageErrorEvent`).
+ */
+type ImageErrorEvent = Parameters<NonNullable<RNImageProps['onError']>>[0];
 
 export interface ImageProps {
   /** Image to load (same as React Native's `source`). */
@@ -44,7 +50,7 @@ export interface ImageProps {
   /** Describes the image for screen readers. Without it the image is decorative. */
   accessibilityLabel?: string;
   /** Called when loading fails; the `fallback` is shown. */
-  onError?: (error: NativeSyntheticEvent<ImageErrorEventData>) => void;
+  onError?: (error: ImageErrorEvent) => void;
   testID?: string;
 }
 
@@ -115,7 +121,7 @@ export const Image = memo(
     }, [priority, uri]);
 
     const handleError = useCallback(
-      (e: NativeSyntheticEvent<ImageErrorEventData>) => {
+      (e: ImageErrorEvent) => {
         setStatus('error');
         onError?.(e);
       },

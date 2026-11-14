@@ -1,4 +1,4 @@
-import React, { memo, useRef, useState } from 'react';
+import React, { memo, useRef, useState, type ComponentRef } from 'react';
 import {
   TextInput,
   TouchableOpacity,
@@ -140,7 +140,7 @@ export const Stepper = memo(
     const labels = useLabels();
     const allowFontScaling = useAllowFontScaling();
     const [focused, setFocused] = useState(false);
-    const controlRef = useRef<View>(null);
+    const controlRef = useRef<ComponentRef<typeof View>>(null);
     const keyboard = useKeyboardField(controlRef);
 
     const { height, icon, inputWidth } = SIZES[size];

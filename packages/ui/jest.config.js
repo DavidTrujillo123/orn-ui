@@ -1,3 +1,12 @@
+function hasLegacyPreset() {
+  try {
+    require.resolve('react-native/jest-preset');
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /** @type {import('jest').Config} */
 module.exports = {
   // 'react-native' resolves react-native/jest-preset.js, not the
@@ -6,7 +15,9 @@ module.exports = {
   // lives inside react-native. jest-preset.js is there across the whole
   // supported range — since 0.85 it's a shim to the new package —, so this
   // same config runs against all four SDKs (see scripts/compat-matrix.mjs).
-  preset: 'react-native',
+  // Since react-native 0.88 (Expo SDK 58) react-native/jest-preset.js is gone
+  // and the preset is only @react-native/jest-preset: whichever resolves wins.
+  preset: hasLegacyPreset() ? 'react-native' : '@react-native/jest-preset',
   setupFiles: ['<rootDir>/jest.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.after-env.ts'],
   testPathIgnorePatterns: ['/node_modules/', '/lib/'],

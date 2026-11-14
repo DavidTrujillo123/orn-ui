@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Compatibility matrix for Expo SDK 54 / 55 / 56 / 57.
+// Compatibility matrix for Expo SDK 54 / 55 / 56 / 57 / 58.
 //
 // The repo is developed against a single pair (react-native, react): the one
 // shipped by the newest SDK. That leaves the rest of the range the package
@@ -14,7 +14,7 @@
 // live in node_modules/.cache/ and are reused between runs (--fresh rebuilds them).
 //
 // Usage:
-//   node scripts/compat-matrix.mjs                 # all four SDKs
+//   node scripts/compat-matrix.mjs                 # every SDK in MATRIX
 //   node scripts/compat-matrix.mjs --sdk 54        # just one (or 54,55)
 //   node scripts/compat-matrix.mjs --fresh         # reinstalls the sandboxes
 //   node scripts/compat-matrix.mjs --only typecheck
@@ -36,7 +36,19 @@ const MATRIX = [
   { sdk: '55', reactNative: '0.83.10', react: '19.2.0', safeArea: '5.6.2' },
   { sdk: '56', reactNative: '0.85.3', react: '19.2.3', safeArea: '5.8.1' },
   { sdk: '57', reactNative: '0.86.2', react: '19.2.3', safeArea: '5.8.1' },
+  { sdk: '58', reactNative: '0.88.1', react: '19.3.0', safeArea: '5.11.1' },
 ];
+
+/** Minor of the SDK's react-native (0.88.1 -> 88). */
+function rnMinor(entry) {
+  return Number(entry.reactNative.split('.')[1]);
+}
+
+function rnTypesEntry(entry) {
+  return rnMinor(entry) >= 88
+    ? './node_modules/react-native/types_generated/index.d.ts'
+    : './node_modules/react-native/types/index.d.ts';
+}
 
 const TYPESCRIPT = '5.9.3';
 const JEST = '29.7.0';
@@ -109,7 +121,7 @@ function installSandbox(entry, sandbox) {
   // with react-native 0.85; in 0.81–0.84 the preset ships inside react-native.
   // In both cases `preset: <sandbox>/node_modules/react-native` resolves
   // react-native/jest-preset.js, which in 0.85+ is a shim to the new package.
-  if (Number(entry.reactNative.split('.')[1]) >= 85) {
+  if (rnMinor(entry) >= 85) {
     deps.push(`@react-native/jest-preset@${entry.reactNative}`);
   }
 
@@ -120,7 +132,7 @@ function installSandbox(entry, sandbox) {
   run('pnpm', ['add', '--ignore-workspace', '--ignore-scripts', ...deps], sandbox);
 }
 
-function writeConfigs(sandbox) {
+function writeConfigs(entry, sandbox) {
   fs.writeFileSync(
     path.join(sandbox, 'babel.config.js'),
     "module.exports = { presets: [require.resolve('@react-native/babel-preset')] };\n"
@@ -151,7 +163,10 @@ function writeConfigs(sandbox) {
       paths: {
         react: ['./node_modules/@types/react'],
         'react/*': ['./node_modules/@types/react/*'],
-        'react-native': ['./node_modules/react-native/types/index.d.ts'],
+        // The types an app on that SDK compiles against: up to 0.87 they are
+        // `types/`; 0.88 moved those to `types_DEPRECATED/` and its default
+        // (package `exports`) is the generated, stricter `types_generated/`.
+        'react-native': [rnTypesEntry(entry)],
         'react-native-safe-area-context': ['./node_modules/react-native-safe-area-context'],
       },
     },
@@ -166,7 +181,9 @@ const NM = path.join(__dirname, 'node_modules');
 const UI = ${JSON.stringify(UI_DIR)};
 
 module.exports = {
-  preset: path.join(NM, 'react-native'),
+  // react-native 0.88 no longer ships jest-preset.js: the preset is only the
+  // @react-native/jest-preset package.
+  preset: path.join(NM, ${JSON.stringify(rnMinor(entry) >= 88 ? '@react-native/jest-preset' : 'react-native')}),
   rootDir: __dirname,
   roots: [path.join(UI, 'src')],
   setupFiles: [path.join(UI, 'jest.setup.ts')],
@@ -182,7 +199,9 @@ module.exports = {
   },
   moduleNameMapper: {
     '^react-native$': path.join(NM, 'react-native'),
-    '^react-native/(.*)$': path.join(NM, 'react-native', '$1'),
+    // 0.88 resolves subpaths (react-native/setup-env…) through package
+    // \`exports\`: a plain path mapping points them at files that don't exist.
+    ${rnMinor(entry) >= 88 ? '' : "'^react-native/(.*)$': path.join(NM, 'react-native', '$1'),"}
     '^react$': path.join(NM, 'react'),
     '^react/(.*)$': path.join(NM, 'react', '$1'),
     '^react-test-renderer$': path.join(NM, 'react-test-renderer'),
@@ -220,7 +239,7 @@ for (const entry of entries) {
   } else {
     installSandbox(entry, sandbox);
   }
-  writeConfigs(sandbox);
+  writeConfigs(entry, sandbox);
 
   const steps = [
     [

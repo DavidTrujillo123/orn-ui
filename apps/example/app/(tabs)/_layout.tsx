@@ -10,11 +10,14 @@ const ICONS: Record<string, IconName> = {
   examples: 'info',
 };
 
+// The tab the app opens on. As a route setting, not a <Tabs> prop: expo-router
+// 58 (Expo SDK 58) no longer accepts `initialRouteName` on Tabs.
+export const unstable_settings = { initialRouteName: 'atoms' };
+
 export default function TabsLayout() {
   const colors = useColors();
   return (
     <Tabs
-      initialRouteName="atoms"
       screenOptions={{
         headerShown: false,
         animation: 'shift',

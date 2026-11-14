@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import React, { forwardRef, memo, useEffect, useImperativeHandle, useRef, useState, type ComponentRef } from 'react';
 import {
   AccessibilityInfo,
   ActivityIndicator,
@@ -21,7 +21,7 @@ import { validateInputValue, type InputRules } from './inputValidation';
 export type { InputRules, InputRuleValue } from './inputValidation';
 
 /** The TextInput instance, plus `validate()` to check the field on demand (e.g. on submit). */
-export type InputHandle = TextInput & {
+export type InputHandle = ComponentRef<typeof TextInput> & {
   /** Runs the rules, shows the error (if any) and returns it. */
   validate: () => string | undefined;
 };
@@ -153,8 +153,8 @@ export const Input = memo(
     const [isFocused, setIsFocused] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const focusProgress = useRef(new Animated.Value(0)).current;
-    const inputRef = useRef<TextInput>(null);
-    const containerRef = useRef<View>(null);
+    const inputRef = useRef<ComponentRef<typeof TextInput>>(null);
+    const containerRef = useRef<ComponentRef<typeof View>>(null);
     const [internalError, setInternalError] = useState<string | undefined>(undefined);
     // Last known value: the controlled one (`value`) or what was typed (uncontrolled).
     const valueRef = useRef(props.value ?? props.defaultValue ?? '');
@@ -168,7 +168,7 @@ export const Input = memo(
       return next;
     };
 
-    useImperativeHandle(ref, () => Object.assign(inputRef.current as TextInput, { validate: runValidation }));
+    useImperativeHandle(ref, () => Object.assign(inputRef.current as ComponentRef<typeof TextInput>, { validate: runValidation }));
 
     // The new error is announced right away, not only as a hint when returning to the field.
     useEffect(() => {

@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// Switches apps/example between Expo SDK 54, 55, 56 and 57, and optionally
+// Switches apps/example between Expo SDK 54, 55, 56, 57 and 58, and optionally
 // starts it — one command instead of editing package.json by hand and
 // remembering which expo-router version goes with which SDK.
 //
 // It's the on-device complement to packages/ui/scripts/compat-matrix.mjs:
-// that one checks the library against the four SDKs with tsc + jest (fast, no
+// that one checks the library against every SDK with tsc + jest (fast, no
 // device); this one puts the example app on that SDK and actually runs it.
 //
 // Usage:
@@ -16,7 +16,7 @@
 //   pnpm sdk 54 --android
 //   pnpm sdk 54 --no-install # only rewrites the manifest
 //
-// Back to the repo's state: `pnpm sdk 57` (it's the default SDK), or
+// Back to the repo's state: `pnpm sdk 58` (it's the default SDK), or
 // `git checkout -- apps/example/package.json pnpm-lock.yaml` if you also want
 // to discard the lockfile changes.
 import { execFileSync } from 'node:child_process';
@@ -125,9 +125,33 @@ const SDKS = {
     },
     devDependencies: { '@types/react': '~19.2.14' },
   },
+  58: {
+    navigationTheme: 'expo-router',
+    dependencies: {
+      '@expo/metro-runtime': '~58.0.17',
+      expo: '~58.0.25',
+      'expo-constants': '~58.0.16',
+      'expo-linking': '~58.0.17',
+      'expo-router': '~58.0.31',
+      'expo-status-bar': '~58.0.5',
+      'expo-system-ui': '~58.0.7',
+      react: '19.3.0',
+      'react-dom': '19.3.0',
+      'react-native': '0.88.1',
+      'react-native-safe-area-context': '~5.11.1',
+      'react-native-screens': '~4.30.1',
+      'react-native-web': '~0.21.4',
+      // expo-router's optional peers: left to auto-install-peers, pnpm picks
+      // reanimated 4.5 / worklets 0.11, which stop at react-native 0.86.
+      '@expo/dom-webview': '~58.0.2',
+      'react-native-reanimated': '4.7.1',
+      'react-native-worklets': '0.13.0',
+    },
+    devDependencies: { '@types/react': '~19.3.0' },
+  },
 };
 
-const DEFAULT_SDK = '57';
+const DEFAULT_SDK = '58';
 
 function fail(message) {
   console.error(`[sdk] ${message}`);
@@ -233,23 +257,40 @@ const before = currentSdk(manifest);
 // this way a hand-edited or half-written copy goes back to what it should be.
 writeNavigationTheme(target, args.sdk);
 
-if (before === args.sdk) {
+// Merge, not replace: `orn-ui` (workspace:*) and any other dependency that
+// doesn't depend on the SDK have to survive the switch. Applied even when the
+// SDK is already that one: a half-updated manifest (a pin added to the table
+// later, say) is put back in line too.
+const nextManifest = {
+  ...manifest,
+  dependencies: applyBlock(manifest.dependencies, target.dependencies, 'dependencies'),
+  devDependencies: applyBlock(manifest.devDependencies, target.devDependencies, 'devDependencies'),
+};
+let changed = JSON.stringify(nextManifest) !== JSON.stringify(manifest);
+if (changed) fs.writeFileSync(MANIFEST, `${JSON.stringify(nextManifest, null, 2)}\n`);
+
+// The workspace root also declares expo/react/react-native (so the expo CLI
+// resolves from the root): left behind, pnpm hoists the old SDK's
+// react-native next to the new one and jest/tsc pick the wrong copy.
+const ROOT_MANIFEST = path.join(REPO_ROOT, 'package.json');
+const root = JSON.parse(fs.readFileSync(ROOT_MANIFEST, 'utf8'));
+let rootChanged = false;
+for (const name of ['expo', 'react', 'react-native']) {
+  if (root.dependencies?.[name] && root.dependencies[name] !== target.dependencies[name]) {
+    root.dependencies[name] = target.dependencies[name];
+    rootChanged = true;
+  }
+}
+if (rootChanged) fs.writeFileSync(ROOT_MANIFEST, `${JSON.stringify(root, null, 2)}\n`);
+changed = changed || rootChanged;
+
+if (!changed) {
   console.log(`[sdk] apps/example is already on SDK ${args.sdk}`);
 } else {
-  // Merge, not replace: `orn-ui` (workspace:*) and any other dependency that
-  // doesn't depend on the SDK have to survive the switch.
-  manifest.dependencies = applyBlock(manifest.dependencies, target.dependencies, 'dependencies');
-  manifest.devDependencies = applyBlock(
-    manifest.devDependencies,
-    target.devDependencies,
-    'devDependencies'
-  );
-  fs.writeFileSync(MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`[sdk] apps/example: SDK ${before ?? '?'} → ${args.sdk}`);
 
   if (args.install) {
-    // The lockfile belongs to the workspace, so the install runs from the root
-    // even though the only manifest that changed is the app's.
+    // The lockfile belongs to the workspace, so the install runs from the root.
     //
     // Explicit --no-frozen-lockfile: in CI pnpm sets it to true by default and
     // it would fail, which is right for a normal install but not here — the

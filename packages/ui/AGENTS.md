@@ -66,6 +66,7 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | 55 | 0.83.10 | 19.2.0 | verified in CI |
 | 56 | 0.85.3 | 19.2.3 | verified in CI |
 | 57 | 0.86.2 | 19.2.3 | verified in CI |
+| 58 | 0.88.1 | 19.3.0 | verified in CI |
 
 Peers: `react >=19.1.0`, `react-native >=0.81.0`. Bare React Native in that
 range works — nothing here imports Expo. `react-native-safe-area-context
