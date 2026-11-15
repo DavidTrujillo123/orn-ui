@@ -331,7 +331,10 @@ function main() {
   let changed = false;
   for (const [filename, content] of wanted) {
     const filePath = path.join(DEMOS_DIR, filename);
-    const current = fs.existsSync(filePath) ? fs.readFileSync(filePath, 'utf8') : null;
+    // Windows checkout puede dejar CRLF; el contenido generado es siempre LF.
+    const current = fs.existsSync(filePath)
+      ? fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n')
+      : null;
     if (current === content) continue;
     changed = true;
     if (checkOnly) console.error(`✗ out of date: .maestro/demos/${filename}`);
