@@ -83,6 +83,7 @@ export const Screen = memo(({
   let content = scrollable ? (
     <ScrollView
       style={styles.container}
+      nestedScrollEnabled
       automaticallyAdjustKeyboardInsets={scrollHandles}
       contentContainerStyle={[
         styles.contentContainer,

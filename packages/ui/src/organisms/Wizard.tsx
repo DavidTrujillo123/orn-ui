@@ -180,6 +180,7 @@ export function Wizard({
           testID="wizard-content"
           style={styles.content}
           contentContainerStyle={styles.contentInner}
+          nestedScrollEnabled
           keyboardShouldPersistTaps="handled"
           automaticallyAdjustKeyboardInsets
           showsVerticalScrollIndicator={false}

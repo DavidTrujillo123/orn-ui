@@ -182,6 +182,7 @@ export const Modal = memo(
           <ScrollView
             style={[styles.scrollWrapper, isFull && styles.flex1]}
             contentContainerStyle={[!isFull ? styles.scrollContent : styles.scrollContentFull, contentStyle]}
+            nestedScrollEnabled
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
             bounces={Platform.OS === 'ios'}

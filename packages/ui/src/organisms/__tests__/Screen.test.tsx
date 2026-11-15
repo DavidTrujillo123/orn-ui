@@ -20,6 +20,18 @@ describe('Screen', () => {
     expect(screen.getByText('content')).toBeOnTheScreen();
   });
 
+  it('enables nested scrolling so a wheel inside the screen receives the drag on Android', () => {
+    const { UNSAFE_getByType } = render(
+      withProvider(
+        <Screen>
+          <Text>content</Text>
+        </Screen>
+      )
+    );
+
+    expect(UNSAFE_getByType(ScrollView).props.nestedScrollEnabled).toBe(true);
+  });
+
   it('renders its children when not scrollable', () => {
     render(
       withProvider(
