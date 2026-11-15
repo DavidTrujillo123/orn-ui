@@ -107,6 +107,13 @@ describe('SegmentedControl', () => {
       expect(flat(screen.getByTestId('seg-week').props.style).backgroundColor).toBeUndefined();
     });
 
+    it('keeps the labels above the elevated indicator on Android', () => {
+      render(withProvider(<SegmentedControl options={OPTIONS} value="week" onChange={() => {}} testID="seg" />));
+      fireEvent(screen.getByTestId('seg'), 'layout', layout);
+      expect(flat(screen.getByTestId('seg-indicator').props.style).elevation).toBeGreaterThan(0);
+      expect(flat(screen.getByTestId('seg-week').props.style).zIndex).toBeGreaterThan(0);
+    });
+
     it('slides to the new value with a native-driver timing', () => {
       const timing = jest.spyOn(Animated, 'timing');
       const { rerender } = render(
