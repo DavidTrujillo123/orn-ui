@@ -244,14 +244,34 @@ for (const entry of entries) {
   }
   writeConfigs(entry, sandbox);
 
+  // En Windows los shims de .bin no son ejecutables con execFileSync; correr
+  // los entrypoints de node directamente funciona en las tres plataformas.
   const steps = [
     [
       'typecheck',
-      () => run(path.join(sandbox, 'node_modules', '.bin', 'tsc'), ['-p', 'tsconfig.json'], sandbox),
+      () =>
+        run(
+          process.execPath,
+          [path.join(sandbox, 'node_modules', 'typescript', 'bin', 'tsc'), '-p', 'tsconfig.json'],
+          sandbox
+        ),
     ],
     [
       'test',
-      () => run(path.join(sandbox, 'node_modules', '.bin', 'jest'), ['-c', 'jest.config.js'], sandbox),
+      () =>
+        run(
+          process.execPath,
+          [
+            path.join(sandbox, 'node_modules', 'jest', 'bin', 'jest.js'),
+            '-c',
+            'jest.config.js',
+            // Jest's default cache lives in %TEMP%, shared by every sandbox. On
+            // Windows a lock from another run surfaces as EPERM; keep it local.
+            '--cacheDirectory',
+            path.join(sandbox, '.jest-cache'),
+          ],
+          sandbox
+        ),
     ],
   ].filter(([name]) => !args.only || args.only === name);
 
