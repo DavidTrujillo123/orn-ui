@@ -19,7 +19,7 @@ pnpm install
 pnpm --filter orn-ui test          # jest; test:coverage enforces 90%/85%
 pnpm --filter orn-ui typecheck
 pnpm --filter orn-ui build         # gen:exports + build:registry + bob build
-pnpm compat                        # typecheck + tests on Expo SDK 54/55/56/57
+pnpm compat                        # typecheck + tests on Expo SDK 54/55/56/57/58
 pnpm example                       # Expo dev server for apps/example
 pnpm harness                       # the repo's own checklist — run it before saying "done"
 ```
@@ -30,7 +30,7 @@ pnpm harness                       # the repo's own checklist — run it before 
   `react-native` may be imported by `src/`, with one exception:
   `src/theme/UIProvider.tsx` imports `react-native-safe-area-context` (required peer).
   A PR that adds a runtime dependency breaks the library's core promise.
-- **Support Expo SDK 54 through 57.** Don't use APIs newer than React Native
+- **Support Expo SDK 54 through 58.** Don't use APIs newer than React Native
   0.81 / React 19.1 without gating them; `pnpm compat` is what proves it.
 - **Never hardcode colors, spacing, radii or durations** in a component. Read
   them from theme tokens (`theme.colors.*`, `theme.tokens.*`) through

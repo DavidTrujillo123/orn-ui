@@ -40,7 +40,7 @@ These are not style preferences. Breaking one breaks the library's promise, and
   ship a primitive, compose it — `atoms/Gradient.tsx` builds a gradient out of
   bands, `organisms/ReorderableList.tsx` uses `PanResponder` instead of
   gesture-handler.
-- **Expo SDK 54 through 57.** Nothing newer than React Native 0.81 / React 19.1
+- **Expo SDK 54 through 58.** Nothing newer than React Native 0.81 / React 19.1
   without gating it. `pnpm compat` is the proof.
 - **Theme tokens only.** No hardcoded colors, spacing, radii or durations —
   they come from `createStyles((theme) => ...)`.
@@ -196,7 +196,7 @@ pnpm --filter example typecheck
 pnpm --filter orn-ui test:coverage
 pnpm --filter example gen:maestro:check
 pnpm --filter example gen:maestro:demos:check
-pnpm compat                       # slow: SDK 54-57, typecheck + tests each
+pnpm compat                       # slow: SDK 54-58, typecheck + tests each
 ```
 
 Run these locally. **CI on this repo only runs on tags** (`.github/workflows/ci.yml`),

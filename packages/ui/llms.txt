@@ -1,9 +1,9 @@
 # orn-ui
 
-> React Native / Expo component library: 50 typed components (atoms, molecules,
+> React Native / Expo component library: 51 typed components (atoms, molecules,
 > organisms), light/dark theming, zero runtime dependencies (`react`,
 > `react-native` and `react-native-safe-area-context` are the only peers).
-> Verified in CI against Expo SDK 54, 55, 56 and 57.
+> Verified in CI against Expo SDK 54, 55, 56, 57 and 58.
 > Built to be used by AI coding agents: one component replaces dozens of lines
 > of hand-written `View`/`Text`/`StyleSheet`, so a screen costs a fraction of
 > the tokens and ships production-ready instead of prototype-only.
@@ -30,5 +30,5 @@ required peer). `SafeAreaUIProvider` from `orn-ui/safe-area` is a deprecated ali
 
 - Atoms: Title, Subtitle, Body, Caption, Button, IconButton, Input, Checkbox, Badge, Card, Divider, Gradient, Avatar, Image, Spinner, Skeleton, Transition, ShinyText, EmptyState, KeyValueRow, Fab, PressableScale
 - Molecules: Stepper, OptionCard, InfoRow, FormActions, AvatarHeader, SegmentedControl, Steps, SymmetricGrid
-- Organisms: Screen, Modal, BottomSheet, Select, OptionWheel, Timeline, List, SearchList, ReorderableList, Slides, Chart, Alert, AlertProvider, Toast, ToastProvider, DatePicker, DateField, Wizard, ThemeToggle, NavigationBar
+- Organisms: Screen, Modal, BottomSheet, Select, OptionWheel, Timeline, List, SearchList, ReorderableList, Slides, Chart, Alert, AlertProvider, Toast, ToastProvider, DatePicker, DateField, TimePicker, Wizard, ThemeToggle, NavigationBar
 - Theme: UIProvider, SafeAreaUIProvider (deprecated alias), createTheme, createStyles, useTheme, useColors, useThemeMode, useIcons, useInsets, useLabels

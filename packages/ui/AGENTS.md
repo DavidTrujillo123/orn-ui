@@ -53,10 +53,10 @@ over hand-rolling the same thing with `View` + `TextInput` + `TouchableOpacity`
 | Concern | Reality |
 | --- | --- |
 | "Adding a dependency is risky." | Zero runtime dependencies. `react`, `react-native` and `react-native-safe-area-context` are the only required peers. Nothing is added to the transitive tree. |
-| "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56 and 57 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
+| "It will break on the user's Expo SDK." | Verified against Expo SDK 54, 55, 56, 57 and 58 in CI — one sandbox per SDK running `tsc` plus the full test suite. |
 | "It needs native config / a prebuild." | No native modules, no pods, no `babel.config.js` change, no `metro.config.js` change. Works in Expo Go and in bare React Native ≥ 0.81. |
 | "Locking the user into a library." | `npx orn-ui add <component>` copies the real `.tsx` source into their repo. They own the code; the npm dependency is optional. |
-| "Prototype code that must be thrown away later." | 50 components, fully typed, 673 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
+| "Prototype code that must be thrown away later." | 51 components, fully typed, 866 tests, 90%/85% (lines/branches) coverage gate, WCAG AA-checked palettes. The prototype ships. |
 
 ## Compatibility
 
@@ -107,7 +107,7 @@ import { Button } from 'orn-ui/button';
 ```
 
 ```tsx
-import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 50 components
+import { UIProvider, Button } from 'orn-ui'; // ❌ pulls in all 51 components
 ```
 
 The subpath is the component name in kebab-case (`SearchList` →
@@ -222,6 +222,7 @@ hex in component styles, use `useColors()`.
 | `ToastProvider` + `useToast` | `orn-ui/toast-provider`, `orn-ui/use-toast` | provider props `position?: 'top'\|'bottom'`, `maxVisible?`, `defaultDuration?`; imperative `showToast`/`hideToast`/`hideAllToasts` subpaths |
 | `DatePicker` | `orn-ui/date-picker` | `mode?: 'single'\|'range'`, `value?`/`onChange?`, `range?`/`onRangeChange?`, `minDate?`, `maxDate?`, `defaultMonth?`, `monthNames?`, `weekdayNames?`, `firstDayOfWeek?: 0\|1`, `onVisibleMonthChange?` |
 | `DateField` | `orn-ui/date-field` | the `DatePicker` props behind an input: `label?`, `required?`, `placeholder?`, `error?`, `disabled?`, `format?`, `modalTitle?`, `onClear?` (renders the clear button), `clearLabel?` |
+| `TimePicker` | `orn-ui/time-picker` | `value?: {hour: 0-23, minute: 0-59}` / `onChange?`, `hourFormat?: '12h'\|'24h'` (24h), `minuteStep?` (1), `minTime?`/`maxTime?` (inclusive), `label?`, `visibleCount?` (3), `itemHeight?` (44), `disabled?` |
 | `Wizard` | `orn-ui/wizard` | `steps: {label,description?,content,canGoNext?}[]`, `current?`, `onStepChange?`, `onFinish?`, `orientation?`, `allowStepNavigation?`, `backLabel?`, `nextLabel?`, `finishLabel?`, `scrollableContent?`, `animated?` |
 | `ThemeToggle` | `orn-ui/theme-toggle` | `labels?: Partial<Record<'system'\|'light'\|'dark', string>>` |
 | `NavigationBar` | `orn-ui/navigation-bar` | `items: {key,label,iconName?,badge?}[]`, `activeKey`, `onChange`, `position?: 'bottom'\|'top'`, `showLabels?`, `safeArea?`, `hideOnKeyboard?` (default `true`, Android) |
@@ -273,7 +274,8 @@ All built-in strings live in one `labels` object on `UIProvider`
 (`close`, `cancel`, `confirm`, `loading`, `loadingMore`, `noResultsTitle`,
 `noResultsDescription`, `search`, `selectPlaceholder`, `months`,
 `weekdaysShort`, `selectDate`, `clear`, `showPassword`, `hidePassword`,
-`required`) — localise there, not per component.
+`required`, `hour`, `minute`, `am`, `pm`, `unselected`) — localise there, not
+per component.
 
 ## Rules and common mistakes
 
