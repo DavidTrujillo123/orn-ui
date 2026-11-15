@@ -39,6 +39,7 @@ import { ListDemo } from './List.demo';
 import { SearchListDemo } from './SearchList.demo';
 import { ToastDemo } from './Toast.demo';
 import { DatePickerDemo } from './DatePicker.demo';
+import { TimePickerDemo } from './TimePicker.demo';
 import { WizardDemo } from './Wizard.demo';
 import { ThemeToggleDemo } from './ThemeToggle.demo';
 import { NavigationBarDemo } from './NavigationBar.demo';
@@ -148,6 +149,12 @@ export const ORGANISMS: DemoEntry[] = [
   { slug: 'search-list', name: 'SearchList', description: 'Search box + list + pagination', Demo: SearchListDemo, hostsList: true },
   { slug: 'toast', name: 'Toast', description: 'Ephemeral notification: useToast() in components, showToast() anywhere else', Demo: ToastDemo },
   { slug: 'date-picker', name: 'DatePicker', description: 'Calendar and DateField, no native picker', Demo: DatePickerDemo },
+  {
+    slug: 'time-picker',
+    name: 'TimePicker',
+    description: 'Hour and minute wheels with 12/24-hour formats, minute steps and bounds',
+    Demo: TimePickerDemo,
+  },
   { slug: 'wizard', name: 'Wizard', description: 'Multi-step flow over Steps, with per-step validation', Demo: WizardDemo },
   {
     slug: 'theme-toggle',

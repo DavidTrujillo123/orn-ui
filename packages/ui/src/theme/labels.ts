@@ -69,6 +69,16 @@ export interface Labels {
   next: string;
   /** Wizard: next button on the last step. */
   finish: string;
+  /** Columna de horas del TimePicker. */
+  hour: string;
+  /** Columna de minutos del TimePicker. */
+  minute: string;
+  /** Periodo AM del TimePicker en formato de 12 h. */
+  am: string;
+  /** Periodo PM del TimePicker en formato de 12 h. */
+  pm: string;
+  /** Texto que reemplaza a la selección mientras el TimePicker no tiene valor. */
+  unselected: string;
 }
 
 export const defaultLabels: Labels = {
@@ -116,4 +126,9 @@ export const defaultLabels: Labels = {
   back: 'Back',
   next: 'Next',
   finish: 'Finish',
+  hour: 'Hour',
+  minute: 'Minute',
+  am: 'AM',
+  pm: 'PM',
+  unselected: 'Not selected',
 };

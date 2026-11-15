@@ -26,6 +26,8 @@ export { DatePicker, buildMonthGrid, DEFAULT_MONTH_NAMES, DEFAULT_WEEKDAY_NAMES 
 export type { DatePickerProps, DateRange } from './DatePicker';
 export { DateField } from './DateField';
 export type { DateFieldProps } from './DateField';
+export { TimePicker } from './TimePicker';
+export type { TimePickerProps, TimeValue, TimeFormat } from './TimePicker';
 export { Wizard } from './Wizard';
 export type { WizardProps, WizardStep } from './Wizard';
 export { ThemeToggle } from './ThemeToggle';
