@@ -56,6 +56,11 @@ export interface ImageProps {
 
 const useStyles = createStyles((theme) => ({
   container: { overflow: 'hidden' },
+  // Explicit size, not just absoluteFill: for a local file (require) React
+  // Native puts the file's own width/height in front of the style, and
+  // top/left/right/bottom don't override them — the image was drawn at its
+  // natural size in the corner instead of filling the slot.
+  image: { position: 'absolute', top: 0, left: 0, width: '100%', height: '100%' },
   // Only while loading or on failure: once the image has loaded, a PNG with
   // transparency (a logo) let this gray show through.
   placeholder: { backgroundColor: theme.colors.skeleton },
@@ -144,7 +149,7 @@ export const Image = memo(
           <RNImage
             source={source}
             resizeMode={resizeMode}
-            style={StyleSheet.absoluteFill}
+            style={styles.image}
             fadeDuration={Platform.OS === 'android' ? theme.tokens.duration.fast : undefined}
             {...(Platform.OS === 'ios' ? { cache: 'force-cache' as const } : null)}
             onLoad={handleLoad}

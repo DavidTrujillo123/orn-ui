@@ -1,5 +1,5 @@
 import React from 'react';
-import { Image as RNImage, Platform, Text } from 'react-native';
+import { Image as RNImage, Platform, StyleSheet, Text } from 'react-native';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { Image, prefetchImage } from '../Image';
@@ -14,6 +14,14 @@ describe('Image', () => {
     expect(screen.UNSAFE_getByType(RNImage)).toBeTruthy();
     fireEvent(screen.UNSAFE_getByType(RNImage), 'loadEnd');
     expect(screen.UNSAFE_getByType(RNImage)).toBeTruthy();
+  });
+
+  it('fills its slot with a local (require) source, not the file size', () => {
+    // RN gives a local asset its file width/height before the style; only an
+    // explicit size in the style overrides it.
+    render(withProvider(<Image source={42} width={120} height={80} />));
+    const style = StyleSheet.flatten(screen.UNSAFE_getByType(RNImage).props.style);
+    expect(style).toMatchObject({ position: 'absolute', width: '100%', height: '100%' });
   });
 
   it('hides the loading indicator when loading={false}', () => {
