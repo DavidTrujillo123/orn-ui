@@ -18,6 +18,13 @@ const SLIDES: Slide[] = [
 
 const FLAT = ['#101014', '#1d2b3a', '#3a1d2b'];
 
+// Local files bundled with the app: they show up offline and with no wait.
+const PHOTOS = [
+  { id: '1', source: require('../assets/slides/1.jpg') },
+  { id: '2', source: require('../assets/slides/2.jpg') },
+  { id: '3', source: require('../assets/slides/3.jpg') },
+];
+
 // Each button has its own testID: all three slides are mounted at once, so a
 // selector by text ("Got it") also matches the ones off screen.
 function Panel({ slide, onPress }: { slide: Slide; onPress?: () => void }) {
@@ -130,11 +137,9 @@ export function SlidesDemo() {
       content: (
         <Slides
           testID="slides-images"
-          data={SLIDES}
-          keyExtractor={(item) => item.id}
-          renderItem={(item) => (
-            <Image source={{ uri: `https://picsum.photos/seed/${item.id}/600/400` }} style={{ flex: 1 }} />
-          )}
+          data={PHOTOS}
+          keyExtractor={(photo) => photo.id}
+          renderItem={(photo) => <Image source={photo.source} style={{ flex: 1 }} />}
           height={200}
           loop
         />
