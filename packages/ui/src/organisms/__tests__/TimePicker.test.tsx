@@ -14,7 +14,7 @@ function withProvider(children: React.ReactNode, labels?: Partial<Labels>) {
   );
 }
 
-/** Deja una rueda quieta en la fila `index`, como al final de la inercia. */
+/** Leaves a wheel quiet on row `index`, as at the end of a fling. */
 function settleIndex(wheelTestID: string, index: number) {
   fireEvent(screen.getByTestId(`${wheelTestID}-scroll`), 'momentumScrollEnd', {
     nativeEvent: { contentOffset: { y: index * ITEM_HEIGHT } },
@@ -38,6 +38,8 @@ describe('TimePicker', () => {
     expect(screen.getByText('Not selected')).toBeOnTheScreen();
     expect(screen.getByLabelText('Hour').props.accessibilityValue.text).toBeUndefined();
     expect(screen.getByLabelText('Minute').props.accessibilityValue.text).toBeUndefined();
+    expect(screen.queryByTestId('time-hour-window')).not.toBeOnTheScreen();
+    expect(screen.queryByTestId('time-minute-window')).not.toBeOnTheScreen();
   });
 
   it('emits the first valid minute of the chosen hour when starting empty', () => {
@@ -72,7 +74,7 @@ describe('TimePicker', () => {
       )
     );
 
-    settleIndex('time-minute', 9); // 0, 5, 10... → la fila 9 es el minuto 45
+    settleIndex('time-minute', 9); // 0, 5, 10... -> row 9 is minute 45
     expect(onChange).toHaveBeenCalledWith({ hour: 9, minute: 45 });
   });
 
@@ -82,8 +84,10 @@ describe('TimePicker', () => {
 
     expect(screen.getByRole('radio', { name: 'AM' })).toBeDisabled();
     expect(screen.getByRole('radio', { name: 'PM' })).toBeDisabled();
+    expect(screen.getByRole('radio', { name: 'AM' })).not.toBeSelected();
+    expect(screen.getByRole('radio', { name: 'PM' })).not.toBeSelected();
 
-    settleIndex('time-hour', 1); // 12, 1... → la fila 1 es la 1 AM
+    settleIndex('time-hour', 1); // 12, 1... -> row 1 is 1 AM
     expect(onChange).toHaveBeenCalledWith({ hour: 1, minute: 0 });
   });
 
@@ -200,7 +204,7 @@ describe('TimePicker', () => {
       )
     );
 
-    settleIndex('time-hour', 10); // 12, 1... → la fila 10 es la 10
+    settleIndex('time-hour', 10); // 12, 1... -> row 10 is 10
     expect(onChange).toHaveBeenCalledWith({ hour: 10, minute: 45 });
   });
 
@@ -220,7 +224,7 @@ describe('TimePicker', () => {
       )
     );
 
-    settleIndex('time-hour', 0); // 12 AM/PM quedan fuera de rango
+    settleIndex('time-hour', 0); // 12 AM/PM are out of bounds
     expect(onChange).toHaveBeenCalledWith({ hour: 13, minute: 30 });
   });
 
@@ -234,7 +238,7 @@ describe('TimePicker', () => {
     expect(screen.queryByText('57')).not.toBeOnTheScreen();
     expect(screen.queryByText('59')).not.toBeOnTheScreen();
 
-    settleIndex('time-minute', 8); // 0, 7... → la fila 8 es el minuto 56
+    settleIndex('time-minute', 8); // 0, 7... -> row 8 is minute 56
     expect(onChange).toHaveBeenCalledWith({ hour: 10, minute: 56 });
 
     onChange.mockClear();
@@ -271,7 +275,32 @@ describe('TimePicker', () => {
     expect(screen.getByLabelText('Minute').props.accessibilityValue.text).toBeUndefined();
     expect(screen.queryByText('17')).not.toBeOnTheScreen();
 
-    settleIndex('time-minute', 3); // 0, 5, 10, 15 → la fila 3 es el minuto 15
+    settleIndex('time-minute', 3); // 0, 5, 10, 15 -> row 3 is minute 15
+    expect(onChange).toHaveBeenCalledWith({ hour: 10, minute: 15 });
+  });
+
+  it('does not mark an out-of-range minute as selected and normalizes it on interaction', () => {
+    const onChange = jest.fn();
+    render(
+      withProvider(
+        <TimePicker
+          value={{ hour: 10, minute: 75 }}
+          onChange={onChange}
+          hourFormat="12h"
+          minuteStep={5}
+          testID="time"
+        />
+      )
+    );
+
+    expect(screen.getByLabelText('Hour').props.accessibilityValue.text).toBe('10');
+    expect(screen.getByLabelText('Minute').props.accessibilityValue.text).toBeUndefined();
+    expect(screen.getByTestId('time-hour-window')).toBeOnTheScreen();
+    expect(screen.queryByTestId('time-minute-window')).not.toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: 'AM' })).not.toBeSelected();
+    expect(screen.getByRole('radio', { name: 'PM' })).not.toBeSelected();
+
+    settleIndex('time-minute', 3); // 0, 5, 10, 15 -> row 3 is minute 15
     expect(onChange).toHaveBeenCalledWith({ hour: 10, minute: 15 });
   });
 
@@ -378,6 +407,12 @@ describe('TimePicker', () => {
     expect(screen.getByRole('radio', { name: 'a. m.' })).toBeOnTheScreen();
     expect(screen.getByRole('radio', { name: 'p. m.' })).toBeOnTheScreen();
     expect(screen.getByText('Sin seleccionar')).toBeOnTheScreen();
+  });
+
+  it('marks the visible label as a header', () => {
+    render(withProvider(<TimePicker label="Departure" testID="time" />));
+
+    expect(screen.getByText('Departure')).toHaveProp('accessibilityRole', 'header');
   });
 
   it('warns and ignores bounds when minTime is after maxTime', () => {

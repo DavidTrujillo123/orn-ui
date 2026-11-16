@@ -6,40 +6,40 @@ import { SegmentedControl } from '../molecules/SegmentedControl';
 import { OptionWheel, type OptionWheelOption } from './OptionWheel';
 
 export interface TimeValue {
-  /** 0–23. Siempre 24 h, aunque la UI sea de 12 h. */
+  /** 0–23. Always 24-hour, even when the UI shows 12-hour time. */
   hour: number;
-  /** 0–59. Se espera que caiga en la grilla de `minuteStep`. */
+  /** 0–59. Expected to fall on the `minuteStep` grid. */
   minute: number;
 }
 
 export type TimeFormat = '12h' | '24h';
 
 export interface TimePickerProps {
-  /** Valor controlado. `undefined` deja las ruedas sin selección. */
+  /** Controlled value. `undefined` leaves both wheels unselected. */
   value?: TimeValue;
   onChange?: (value: TimeValue) => void;
   /**
-   * Solo cambia la presentación; `onChange` siempre devuelve una hora 24 h.
+   * Changes the presentation only; `onChange` always returns a 24-hour time.
    * @default '24h'
    */
   hourFormat?: TimeFormat;
   /**
-   * Entero 1–60. Las opciones de minutos son 0, step, 2*step... menores que 60.
+   * Integer 1–60. Minute options are 0, step, 2*step... below 60.
    * @default 1
    */
   minuteStep?: number;
-  /** Límite inferior inclusivo. */
+  /** Inclusive lower bound. */
   minTime?: TimeValue;
-  /** Límite superior inclusivo. */
+  /** Inclusive upper bound. */
   maxTime?: TimeValue;
-  /** Título visible sobre el picker. */
+  /** Visible title above the picker. */
   label?: string;
   /**
-   * Filas visibles por rueda. `OptionWheel` fuerza un número impar.
+   * Visible rows per wheel. `OptionWheel` forces an odd number.
    * @default 3
    */
   visibleCount?: number;
-  /** Alto de cada fila. @default 44 */
+  /** Height of each row. @default 44 */
   itemHeight?: number;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
@@ -49,12 +49,14 @@ export interface TimePickerProps {
 type Period = 'am' | 'pm';
 
 const HOURS_24 = Array.from({ length: 24 }, (_, hour) => hour);
-/** Orden de un reloj de 12 h: 12, 1, 2... 11. */
+/** 12-hour clock order: 12, 1, 2... 11. */
 const HOURS_12 = Array.from({ length: 12 }, (_, index) => (index === 0 ? 12 : index));
 const MINUTES_IN_HOUR = 60;
 const DEFAULT_VISIBLE_COUNT = 3;
 const DEFAULT_ITEM_HEIGHT = 44;
 const DEFAULT_MINUTE_STEP = 1;
+/** Half ink: the wheels are present but nothing is selected yet. */
+const EMPTY_OPACITY = 0.5;
 
 function normalizeStep(step: number | undefined): number {
   if (step === undefined || !Number.isFinite(step)) return DEFAULT_MINUTE_STEP;
@@ -132,6 +134,10 @@ function isValidHour(hour: number): boolean {
   return Number.isInteger(hour) && hour >= 0 && hour < 24;
 }
 
+function isValidMinute(minute: number): boolean {
+  return Number.isInteger(minute) && minute >= 0 && minute < MINUTES_IN_HOUR;
+}
+
 const useStyles = createStyles((theme) => ({
   root: { gap: theme.tokens.spacing.sm },
   label: {
@@ -141,7 +147,7 @@ const useStyles = createStyles((theme) => ({
   },
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: theme.tokens.spacing.md },
   wheel: { flex: 1 },
-  empty: { opacity: 0.55 },
+  empty: { opacity: EMPTY_OPACITY },
   unselected: {
     fontSize: theme.tokens.fontSize.sm,
     color: theme.colors.textLight,
@@ -151,21 +157,21 @@ const useStyles = createStyles((theme) => ({
 
 /**
  * TimePicker
- * Dos ruedas —horas y minutos— compuestas con `OptionWheel`, sin picker
- * nativo. La rueda de horas en 12 h va de 12 a 11 y el periodo AM/PM es un
- * `SegmentedControl` aparte: una rueda de dos filas no tiene centro y
- * `OptionWheel` fuerza un número impar.
+ * Two wheels —hours and minutes— composed with `OptionWheel`, with no native
+ * picker. The 12-hour wheel runs from 12 to 11 and the AM/PM period is a
+ * separate `SegmentedControl`: a two-row wheel has no centre and `OptionWheel`
+ * forces an odd number of rows.
  *
- * Gestalt, proximidad y destino común: las dos columnas comparten el mismo
- * alto de fila y la misma ventana central, así que se leen como un solo
- * control de tiempo y no como dos listas independientes. El AM/PM queda
- * debajo porque pertenece a la hora, no a los minutos.
+ * Gestalt, proximity and common fate: both columns share the same row height
+ * and the same centre window, so they read as one time control and not as two
+ * independent lists. AM/PM sits below because it belongs to the hour, not to
+ * the minutes.
  *
- * El valor canónico siempre es 24 h. En 12 h, `0` se muestra como `12 AM`,
- * `12` como `12 PM` y `13` como `1 PM`. `OptionWheel` sólo corrige a la
- * opción habilitada más cercana en `commitAt()`/`step()` —interacción del
- * usuario—, nunca al montar ni al recibir un valor de afuera: por eso un
- * valor fuera de rango no dispara `onChange` hasta que se toca una rueda.
+ * The canonical value is always 24-hour. In 12-hour mode, `0` shows as
+ * `12 AM`, `12` as `12 PM` and `13` as `1 PM`. `OptionWheel` only corrects to
+ * the nearest enabled option in `commitAt()`/`step()` —user interaction—,
+ * never on mount or when receiving an external value: that is why an
+ * out-of-range value does not fire `onChange` until a wheel is touched.
  */
 export const TimePicker = memo(
   ({
@@ -213,7 +219,8 @@ export const TimePicker = memo(
 
     const hasValue = value !== undefined;
     const hasValidHour = value === undefined || isValidHour(value.hour);
-    const hasSelection = hasValue && hasValidHour && anchor !== undefined;
+    const hasValidMinute = value === undefined || isValidMinute(value.minute);
+    const hasSelection = hasValue && hasValidHour && hasValidMinute && anchor !== undefined;
 
     const hourOptions = useMemo<OptionWheelOption<number>[]>(
       () =>
@@ -252,6 +259,7 @@ export const TimePicker = memo(
     const displayedHour =
       hasValidHour && value ? toDisplayedHour(value.hour) : anchor ? toDisplayedHour(anchor.hour) : 12;
     const period = hasValidHour && value ? periodOf(value.hour) : anchor ? periodOf(anchor.hour) : 'am';
+    const selectedPeriod = hasSelection ? period : ('' as Period);
     const periodOptions = useMemo(() => {
       if (!is12h) return [];
       return (['am', 'pm'] as const).map((option) => ({
@@ -313,7 +321,7 @@ export const TimePicker = memo(
     return (
       <View style={[styles.root, style]} testID={testID}>
         {!!label && (
-          <Text allowFontScaling={allowFontScaling} style={styles.label}>
+          <Text accessibilityRole="header" allowFontScaling={allowFontScaling} style={styles.label}>
             {label}
           </Text>
         )}
@@ -335,7 +343,7 @@ export const TimePicker = memo(
           <OptionWheel
             label={labels.minute}
             options={minuteOptions}
-            selectedValue={hasValue && hasValidHour ? value!.minute : undefined}
+            selectedValue={hasValue && hasValidHour && hasValidMinute ? value!.minute : undefined}
             onSelect={handleMinuteSelect}
             visibleCount={visibleCount}
             itemHeight={itemHeight}
@@ -348,7 +356,7 @@ export const TimePicker = memo(
         {is12h && (
           <SegmentedControl
             options={periodOptions}
-            value={period}
+            value={selectedPeriod}
             onChange={handlePeriodSelect}
             disabled={disabled || !hasSelection || !hasValidHour}
             testID={testID ? `${testID}-period` : undefined}
