@@ -5,7 +5,7 @@ Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 `react-native-safe-area-context` are the only peers.
 
 51 components (atoms, molecules, organisms), fully typed, themeable
-(light/dark), 866 tests, 90%/85% (lines/branches) coverage gate.
+(light/dark), 868 tests, 90%/85% (lines/branches) coverage gate.
 
 **Works on Expo SDK 54, 55, 56, 57 and 58** — every row verified in CI with its own
 sandbox (`tsc` + full test suite). No native modules, no pods, no babel or
@@ -127,7 +127,7 @@ Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-
 The library is written to be *cheap to emit*: a themed, dark-mode-aware,
 accessible screen is 20-50 lines instead of 150-400, so an agent spends fewer
 tokens, the human reviews a smaller diff, and the generated code is already
-covered by 866 tests. One `<SearchList>` replaces a `FlatList` + search input +
+covered by 868 tests. One `<SearchList>` replaces a `FlatList` + search input +
 skeletons + pull-to-refresh + pagination + empty state.
 
 Three properties make it safe to reach for by default:
