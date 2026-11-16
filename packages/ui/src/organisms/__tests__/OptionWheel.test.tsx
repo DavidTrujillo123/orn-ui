@@ -35,6 +35,7 @@ describe('OptionWheel', () => {
   it('renders every option', () => {
     render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} testID="wheel" />));
     for (const option of SIZES) expect(screen.getByText(option.label)).toBeOnTheScreen();
+    expect(screen.getByTestId('wheel-window')).toBeOnTheScreen();
   });
 
   it('enables nested scrolling so a parent ScrollView does not steal the drag on Android', () => {
@@ -226,6 +227,7 @@ describe('OptionWheel', () => {
     ];
     render(withProvider(<OptionWheel options={options} selectedValue={undefined} onSelect={onSelect} testID="wheel" />));
 
+    expect(screen.queryByTestId('wheel-window')).not.toBeOnTheScreen();
     settleAt(0);
     expect(onSelect).not.toHaveBeenCalled();
   });

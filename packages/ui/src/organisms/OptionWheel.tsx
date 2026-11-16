@@ -215,7 +215,9 @@ function nearestEnabled<T>(options: OptionWheelOption<T>[], index: number): numb
  * is turned off and the size stays, since it is information, not decoration.
  *
  * `disabled` on an option can't keep the snap from centering it, so the
- * wheel centers it and moves on its own to the nearest enabled one.
+ * wheel centers it and moves on its own to the nearest enabled one. With no
+ * selected value there is no window either: an empty wheel must not look
+ * chosen.
  */
 export function OptionWheel<T extends string | number>({
   options,
@@ -434,10 +436,11 @@ export function OptionWheel<T extends string | number>({
         style={[styles.viewport, { height }]}
         testID={testID && `${testID}-viewport`}
       >
-        {variant === 'window' && (
+        {variant === 'window' && selectedIndex >= 0 && (
           <View
             pointerEvents="none"
             style={[styles.window, { top: padding, height: itemHeight, borderRadius: theme.tokens.radius.sm }]}
+            testID={testID && `${testID}-window`}
           />
         )}
 
