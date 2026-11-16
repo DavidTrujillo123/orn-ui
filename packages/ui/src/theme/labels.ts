@@ -69,15 +69,15 @@ export interface Labels {
   next: string;
   /** Wizard: next button on the last step. */
   finish: string;
-  /** Columna de horas del TimePicker. */
+  /** TimePicker: hour wheel label. */
   hour: string;
-  /** Columna de minutos del TimePicker. */
+  /** TimePicker: minute wheel label. */
   minute: string;
-  /** Periodo AM del TimePicker en formato de 12 h. */
+  /** TimePicker: AM period in 12-hour format. */
   am: string;
-  /** Periodo PM del TimePicker en formato de 12 h. */
+  /** TimePicker: PM period in 12-hour format. */
   pm: string;
-  /** Texto que reemplaza a la selección mientras el TimePicker no tiene valor. */
+  /** TimePicker: replaces the selection while there is no value. */
   unselected: string;
 }
 
