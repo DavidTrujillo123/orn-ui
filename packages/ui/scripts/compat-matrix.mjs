@@ -244,8 +244,8 @@ for (const entry of entries) {
   }
   writeConfigs(entry, sandbox);
 
-  // En Windows los shims de .bin no son ejecutables con execFileSync; correr
-  // los entrypoints de node directamente funciona en las tres plataformas.
+  // On Windows the .bin shims are not executable through execFileSync;
+  // calling the node entrypoints directly works on all three platforms.
   const steps = [
     [
       'typecheck',

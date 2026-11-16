@@ -66,7 +66,7 @@ function main() {
   let changed = false;
   for (const [filename, content] of wanted) {
     const filePath = path.join(FLOWS_DIR, filename);
-    // Windows checkout puede dejar CRLF; el contenido generado es siempre LF.
+    // A Windows checkout can leave CRLF; generated content is always LF.
     const current = fs.existsSync(filePath)
       ? fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n')
       : null;
