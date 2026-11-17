@@ -5,9 +5,9 @@ Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 `react-native-safe-area-context` are the only peers. No babel config, no metro
 config, no pods of its own.
 
-50 components across atoms, molecules and organisms, fully typed, themeable
-(light/dark), with 673 tests and a 90%/85% (lines/branches) coverage gate in CI.
-Runs on **Expo SDK 54, 55, 56 and 57** — every one verified in CI, not just the
+51 components across atoms, molecules and organisms, fully typed, themeable
+(light/dark), with 868 tests and a 90%/85% (lines/branches) coverage gate in CI.
+Runs on **Expo SDK 54, 55, 56, 57 and 58** — every one verified in CI, not just the
 newest — and in bare React Native >= 0.81, inside Expo Go, with no native build.
 
 **Writing code with an AI agent?** See
@@ -232,6 +232,7 @@ resolves against.
 | `Toast`/`ToastProvider` | `orn-ui/toast`, `orn-ui/toast-provider` |
 | `DatePicker` | `orn-ui/date-picker` |
 | `DateField` | `orn-ui/date-field` |
+| `TimePicker` | `orn-ui/time-picker` |
 | `Wizard` | `orn-ui/wizard` |
 | `ThemeToggle` | `orn-ui/theme-toggle` |
 | `NavigationBar` | `orn-ui/navigation-bar` |
@@ -305,6 +306,29 @@ Month and weekday names, the modal title and the clear label come from
 [labels](#labels); `monthNames`, `weekdayNames`, `modalTitle` and `clearLabel`
 still override them per instance.
 
+### Times: TimePicker
+
+Two `OptionWheel`s — hours and minutes — with no native time picker. The value
+is canonical 24-hour `{ hour, minute }` even when the wheels show 12-hour time.
+
+```tsx
+import { TimePicker } from 'orn-ui/time-picker';
+
+<TimePicker value={time} onChange={setTime} hourFormat="12h" minuteStep={5} />
+```
+
+- `hourFormat` defaults to `'24h'`; `'12h'` shows `12, 1 … 11` plus an AM/PM
+  `SegmentedControl`, and maps midnight to `12 AM` and noon to `12 PM`.
+- `minuteStep` (1–60) and inclusive `minTime`/`maxTime` disable the rows that
+  cannot produce a valid time. Changing the period keeps the displayed hour and
+  clamps the minute to the nearest valid one.
+- With no `value`, both wheels start unselected and AM/PM is disabled until the
+  first interaction; the first move emits the first valid time. An out-of-range
+  or off-grid `value` is shown honestly (no false selected row) and normalizes
+  on the next interaction.
+- The visible wheel labels and the empty-state text come from
+  [labels](#labels): `hour`, `minute`, `am`, `pm` and `unselected`.
+
 ### Steps
 
 `Steps` in `orientation="horizontal"` gives every step a minimum width and
@@ -323,6 +347,11 @@ Every built-in string lives in one object, overridable per app through
     search: 'Buscar...',
     selectDate: 'Elegí una fecha',
     clear: 'Limpiar',
+    hour: 'Hora',
+    minute: 'Minuto',
+    am: 'a. m.',
+    pm: 'p. m.',
+    unselected: 'Sin seleccionar',
     months: ['Enero', 'Febrero', /* … */],
     weekdaysShort: ['D', 'L', 'M', 'M', 'J', 'V', 'S'], // index 0 = Sunday
   }}
@@ -333,8 +362,8 @@ Every built-in string lives in one object, overridable per app through
 
 Keys: `close`, `cancel`, `confirm`, `loading`, `loadingMore`, `noResultsTitle`,
 `noResultsDescription`, `search`, `selectPlaceholder`, `months`,
-`weekdaysShort`, `selectDate`, `clear`. Anything you leave out keeps its
-English default.
+`weekdaysShort`, `selectDate`, `clear`, `hour`, `minute`, `am`, `pm`,
+`unselected`. Anything you leave out keeps its English default.
 
 ### Toasts and alerts from outside React
 
@@ -363,7 +392,7 @@ Most of this library's value shows up when an LLM writes the screen. A themed,
 dark-mode-aware, accessible React Native screen written by hand is 150-400 lines
 of JSX and `StyleSheet`; the same screen with orn-ui is 20-50 lines. Fewer
 tokens emitted, a smaller diff to review, and the output is already covered by
-673 tests instead of being freshly invented each time.
+868 tests instead of being freshly invented each time.
 
 ```tsx
 import { Screen } from 'orn-ui/screen';
@@ -388,9 +417,9 @@ The properties that make it a safe default rather than a gamble:
 | Usual objection | What is actually true |
 | --- | --- |
 | "Another dependency to maintain." | Zero runtime dependencies; `react`, `react-native` and `react-native-safe-area-context` (itself dependency-free) are the only peers, so nothing lands in the transitive tree. |
-| "It'll break on their Expo SDK." | SDK 54, 55, 56 and 57 each get a CI job running `tsc` and the full test suite against that exact `react-native`/`react` pair. |
+| "It'll break on their Expo SDK." | SDK 54, 55, 56, 57 and 58 each get a CI job running `tsc` and the full test suite against that exact `react-native`/`react` pair. |
 | "It needs native setup." | No native modules, no pods, no babel or metro config. Expo Go runs it as-is; bare React Native >= 0.81 too. |
-| "Prototype code we'll rewrite later." | Fully typed, 673 tests, 90%/85% coverage gate, WCAG AA contrast enforced by tests. The prototype is the production code. |
+| "Prototype code we'll rewrite later." | Fully typed, 868 tests, 90%/85% coverage gate, WCAG AA contrast enforced by tests. The prototype is the production code. |
 | "Lock-in." | `npx orn-ui add button select` copies the real `.tsx` source into the project. The npm dependency is optional; the code is theirs. |
 
 **Give the agent the cheat sheet.** [`packages/ui/AGENTS.md`](packages/ui/AGENTS.md)
@@ -539,7 +568,7 @@ pnpm --filter orn-ui typecheck
 pnpm --filter orn-ui build         # gen:exports + build:registry + bob build
 pnpm --filter example typecheck
 pnpm example                       # Expo dev server for apps/example
-pnpm compat                        # typecheck + tests on Expo SDK 54/55/56/57
+pnpm compat                        # typecheck + tests on Expo SDK 54/55/56/57/58
 pnpm harness                       # repo checklist: zero deps, layers, tokens, docs, demos, flows
 pnpm sdk                           # which SDK apps/example is on right now
 pnpm sdk 54 --go                   # switch apps/example to SDK 54 and run it
@@ -621,7 +650,7 @@ end-to-end proof the install-by-component flow actually produces valid code,
 not just that the registry JSON looks right.
 
 A second job fans out over the compatibility matrix — one runner per Expo SDK,
-54 through 57. Each runs `pnpm --filter orn-ui compat --sdk <NN>` for the
+54 through 58. Each runs `pnpm --filter orn-ui compat --sdk <NN>` for the
 library, then switches `apps/example` to that SDK and typechecks and bundles it
 (`pnpm sdk <NN> --export`). A release can't claim support for an SDK whose tests
 nobody ran, and it can't ship a library that only bundles on the newest one.

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated } from 'react-native';
+import { Animated, Platform } from 'react-native';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
 import { OptionWheel, type OptionWheelOption } from '../OptionWheel';
@@ -35,6 +35,13 @@ describe('OptionWheel', () => {
   it('renders every option', () => {
     render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} testID="wheel" />));
     for (const option of SIZES) expect(screen.getByText(option.label)).toBeOnTheScreen();
+    expect(screen.getByTestId('wheel-window')).toBeOnTheScreen();
+  });
+
+  it('enables nested scrolling so a parent ScrollView does not steal the drag on Android', () => {
+    render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} testID="wheel" />));
+
+    expect(screen.getByTestId('wheel-scroll')).toHaveProp('nestedScrollEnabled', true);
   });
 
   it('pushes the offset into the animated value when it jumps without animating', () => {
@@ -60,6 +67,27 @@ describe('OptionWheel', () => {
     expect(onSelect).not.toHaveBeenCalled();
   });
 
+  it('ignores layout passes after the first, so a late one cannot jump the wheel back', () => {
+    const setValue = jest.spyOn(Animated.Value.prototype, 'setValue');
+    render(withProvider(<OptionWheel options={SIZES} selectedValue="s" onSelect={jest.fn()} testID="wheel" />));
+    act(() => jest.runOnlyPendingTimers());
+
+    // The first layout is the one that positions the wheel.
+    fireEvent(screen.getByTestId('wheel-scroll'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 200, height: 5 * ITEM_HEIGHT } },
+    });
+    setValue.mockClear();
+
+    // A later layout can still carry the previous render's `selectedIndex`
+    // (the commit that ended a fling re-renders the parent); applying it would
+    // jump the wheel back to the old row without animating.
+    fireEvent(screen.getByTestId('wheel-scroll'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 200, height: 5 * ITEM_HEIGHT } },
+    });
+    expect(setValue).not.toHaveBeenCalled();
+    setValue.mockRestore();
+  });
+
   it('reports the option left in the centre', () => {
     const onSelect = jest.fn();
     render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={onSelect} testID="wheel" />));
@@ -68,11 +96,88 @@ describe('OptionWheel', () => {
     expect(onSelect).toHaveBeenCalledWith('l');
   });
 
-  it('also reports at the end of the drag, for Android drags with no momentum', () => {
+  it('on Android uses the native snap with a longer glide', () => {
+    const original = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { value: 'android', configurable: true });
+    try {
+      render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} testID="wheel" />));
+      expect(screen.getByTestId('wheel-scroll')).toHaveProp('snapToInterval', ITEM_HEIGHT);
+      expect(screen.getByTestId('wheel-scroll')).toHaveProp('decelerationRate', 0.995);
+    } finally {
+      Object.defineProperty(Platform, 'OS', { value: original, configurable: true });
+    }
+  });
+
+  it('keeps the native snap on iOS', () => {
+    render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={jest.fn()} testID="wheel" />));
+    expect(screen.getByTestId('wheel-scroll')).toHaveProp('snapToInterval', ITEM_HEIGHT);
+    expect(screen.getByTestId('wheel-scroll')).toHaveProp('decelerationRate', 'normal');
+  });
+
+  it('reports after a drag settles, for Android drags with no momentum', () => {
     const onSelect = jest.fn();
     render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={onSelect} testID="wheel" />));
 
     settleAt(3 * ITEM_HEIGHT, 'scrollEndDrag');
+    expect(onSelect).not.toHaveBeenCalled();
+
+    act(() => jest.advanceTimersByTime(100));
+    expect(onSelect).toHaveBeenCalledWith('xl');
+  });
+
+  it('on Android waits for momentum after a fast lift instead of reporting the row under the finger', () => {
+    const original = Platform.OS;
+    Object.defineProperty(Platform, 'OS', { value: 'android', configurable: true });
+    try {
+      const onSelect = jest.fn();
+      render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={onSelect} testID="wheel" />));
+
+      // The finger lifts on row 2 but the wheel is still moving: arming the
+      // fallback here would report row 2 and the parent would scroll back.
+      fireEvent(screen.getByTestId('wheel-scroll'), 'scrollEndDrag', {
+        nativeEvent: { contentOffset: { y: 2 * ITEM_HEIGHT }, velocity: { x: 0, y: 1.2 } },
+      });
+      act(() => jest.advanceTimersByTime(100));
+      expect(onSelect).not.toHaveBeenCalled();
+
+      settleAt(3 * ITEM_HEIGHT);
+      expect(onSelect).toHaveBeenCalledWith('xl');
+    } finally {
+      Object.defineProperty(Platform, 'OS', { value: original, configurable: true });
+    }
+  });
+
+  it('lets a fling keep its momentum instead of committing when the finger lifts', () => {
+    const onSelect = jest.fn();
+    render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={onSelect} testID="wheel" />));
+
+    settleAt(ITEM_HEIGHT, 'scrollEndDrag');
+    act(() => jest.advanceTimersByTime(50));
+    fireEvent(screen.getByTestId('wheel-scroll'), 'scroll', {
+      nativeEvent: { contentOffset: { y: 2 * ITEM_HEIGHT } },
+    });
+    act(() => jest.advanceTimersByTime(50));
+    expect(onSelect).not.toHaveBeenCalled();
+
+    settleAt(3 * ITEM_HEIGHT);
+    expect(onSelect).toHaveBeenCalledWith('xl');
+  });
+
+  it('does not report a row mid-fling when the scroll events pause', () => {
+    const onSelect = jest.fn();
+    render(withProvider(<OptionWheel options={SIZES} selectedValue="m" onSelect={onSelect} testID="wheel" />));
+
+    // The finger lifts on row 2 and the wheel starts gliding; if no scroll
+    // event arrives for a while (the fling is near its end), the fallback must
+    // not report row 2 and make the parent scroll back to it.
+    settleAt(2 * ITEM_HEIGHT, 'scrollEndDrag');
+    fireEvent(screen.getByTestId('wheel-scroll'), 'momentumScrollBegin', {
+      nativeEvent: { contentOffset: { y: 2 * ITEM_HEIGHT } },
+    });
+    act(() => jest.advanceTimersByTime(250));
+    expect(onSelect).not.toHaveBeenCalled();
+
+    settleAt(3 * ITEM_HEIGHT);
     expect(onSelect).toHaveBeenCalledWith('xl');
   });
 
@@ -122,6 +227,7 @@ describe('OptionWheel', () => {
     ];
     render(withProvider(<OptionWheel options={options} selectedValue={undefined} onSelect={onSelect} testID="wheel" />));
 
+    expect(screen.queryByTestId('wheel-window')).not.toBeOnTheScreen();
     settleAt(0);
     expect(onSelect).not.toHaveBeenCalled();
   });
@@ -202,6 +308,20 @@ describe('OptionWheel', () => {
 
     expect(screen.getByTestId('wheel-scroll')).toHaveProp('scrollEnabled', false);
     fireEvent(screen.getByLabelText('Size'), 'accessibilityAction', { nativeEvent: { actionName: 'increment' } });
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('does not auto-correct a value that is not in the options on mount or rerender', () => {
+    const onSelect = jest.fn();
+    const { rerender } = render(
+      withProvider(<OptionWheel options={SIZES} selectedValue="xxl" onSelect={onSelect} testID="wheel" />)
+    );
+
+    act(() => jest.runOnlyPendingTimers());
+    expect(onSelect).not.toHaveBeenCalled();
+
+    rerender(withProvider(<OptionWheel options={SIZES} selectedValue="xxl" onSelect={onSelect} testID="wheel" />));
+    act(() => jest.runOnlyPendingTimers());
     expect(onSelect).not.toHaveBeenCalled();
   });
 

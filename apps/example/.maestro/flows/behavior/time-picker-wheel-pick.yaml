@@ -1,0 +1,104 @@
+# What a render test cannot see: each wheel is a ScrollView nested inside
+# VariantList's vertical pager, i.e. two vertical scrolls competing for the
+# same gesture. Jest fires `momentumScrollEnd` by hand and never proves the
+# finger reaches the wheel instead of turning the page. It also does not see
+# the snap or that the disabled wheel stays put.
+#
+# After each gesture we assert an anchor from the variant itself (its label or
+# the echo below), because if the pager kept the swipe and changed page, the
+# old echo's assertNotVisible would also pass falsely.
+appId: com.anonymous.orn-ui-example
+tags:
+  - behavior
+---
+- runFlow:
+    file: ../../subflows/open-demo.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+      BASE_PATH: "organisms"
+      SLUG: "time-picker"
+      TITLE: "TimePicker"
+
+# 1 - 24 h: the hour wheel moves the selection and the minute stays.
+- assertVisible: "Selected: 09:30"
+- swipe:
+    from:
+      id: "time-24-hour-scroll"
+    direction: UP
+- waitForAnimationToEnd
+- assertVisible: "(?i)24-hour format \\(default\\)"
+- assertNotVisible: "Selected: 09:30"
+- assertVisible: "Selected: .*"
+
+# 2 - 12 h: the same gesture on the hour wheel and a tap on AM/PM.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Selected: 2:15 PM"
+- tapOn: "AM"
+- waitForAnimationToEnd
+- assertVisible: "(?i)12-hour format with AM/PM"
+- assertVisible: "Selected: 2:15 AM"
+
+# 3 - minuteStep={5}: the minute wheel moves in fives.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Selected: 10:00"
+- swipe:
+    from:
+      id: "time-step-minute-scroll"
+    direction: UP
+- waitForAnimationToEnd
+- assertVisible: "(?i)minuteStep=\\{5\\}"
+- assertNotVisible: "Selected: 10:00"
+- assertVisible: "Selected: .*"
+
+# 4 - bounds: the wheel keeps moving within 09:00-17:00.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Selected: 09:00"
+- swipe:
+    from:
+      id: "time-bounded-hour-scroll"
+    direction: UP
+- waitForAnimationToEnd
+- assertVisible: "(?i)minTime / maxTime \\(09:00 to 17:00\\)"
+- assertNotVisible: "Selected: 09:00"
+- assertVisible: "Selected: .*"
+
+# 5 - empty: AM/PM is disabled and the first wheel turn selects.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Selected: No time selected"
+- assertVisible: "Not selected"
+- tapOn: "AM"
+- assertVisible: "Selected: No time selected"
+- swipe:
+    from:
+      id: "time-empty-hour-scroll"
+    direction: UP
+- waitForAnimationToEnd
+- assertVisible: "(?i)empty state: no value until the first wheel move"
+- assertNotVisible: "Selected: No time selected"
+- assertVisible: "Selected: .*"
+
+# 6 - disabled: the same swipe does not move it.
+- runFlow:
+    file: ../../subflows/next-variant.yaml
+    env:
+      MAESTRO_APP_ID: com.anonymous.orn-ui-example
+- assertVisible: "Selected: 18:45"
+- swipe:
+    from:
+      id: "time-disabled-hour-scroll"
+    direction: UP
+- waitForAnimationToEnd
+- assertVisible: "(?i)disabled"
+- assertVisible: "Selected: 18:45"

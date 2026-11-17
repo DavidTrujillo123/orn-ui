@@ -224,6 +224,7 @@ export const BottomSheet = memo(
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={[styles.content, contentStyle]}
+        nestedScrollEnabled
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >

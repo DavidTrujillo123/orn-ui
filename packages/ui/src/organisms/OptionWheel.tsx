@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, type ComponentRef } from 'react';
 import {
   Animated,
+  Platform,
   ScrollView,
   Text,
   View,
@@ -76,6 +77,18 @@ export interface OptionWheelProps<T> {
 const DEFAULT_VISIBLE_COUNT = 5;
 /** 44pt: iOS's touch minimum, and enough for an `lg` line with room to spare. */
 const DEFAULT_ITEM_HEIGHT = 44;
+/**
+ * Quiet time after the wheel stops before the selection is reported. A drag
+ * can end with momentum still running: committing on `onScrollEndDrag` would
+ * cancel the fling and pull the wheel back to the row under the finger.
+ */
+const SETTLE_DELAY = 100;
+/**
+ * Lift speed, in px/ms, above which the wheel is flinging and must be left
+ * alone until `onMomentumScrollEnd`. Arming the fallback here is what used to
+ * report the row under the finger and pull a strong fling back to it.
+ */
+const FLING_VELOCITY = 0.15;
 /**
  * Rows toward each side that the interpolation distinguishes; further out,
  * all the same (`extrapolate: 'clamp'`). The three ranges are symmetric
@@ -202,7 +215,9 @@ function nearestEnabled<T>(options: OptionWheelOption<T>[], index: number): numb
  * is turned off and the size stays, since it is information, not decoration.
  *
  * `disabled` on an option can't keep the snap from centering it, so the
- * wheel centers it and moves on its own to the nearest enabled one.
+ * wheel centers it and moves on its own to the nearest enabled one. With no
+ * selected value there is no window either: an empty wheel must not look
+ * chosen.
  */
 export function OptionWheel<T extends string | number>({
   options,
@@ -232,6 +247,9 @@ export function OptionWheel<T extends string | number>({
   // The first positioning isn't animated: the wheel has to appear already
   // set at its value, not traveling to it.
   const settled = useRef(false);
+  const lastOffset = useRef(0);
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const didLayout = useRef(false);
 
   // Always odd: with an even number there is no center row to line up with
   // the window, and the snap would leave the selection between two rows.
@@ -248,6 +266,9 @@ export function OptionWheel<T extends string | number>({
     (index: number, animated: boolean) => {
       const y = index * itemHeight;
       scrollRef.current?.scrollTo({ y, animated });
+      // Where the wheel is, or is heading: the effect compares this to the
+      // selected row so it doesn't animate back to it after a commit.
+      lastOffset.current = y;
       // `scrollY` is only fed by `onScroll`, and an unanimated jump doesn't
       // always emit it: without this the value stays at 0, the interpolation
       // thinks the centered row is the first one and dims the one that is
@@ -260,19 +281,26 @@ export function OptionWheel<T extends string | number>({
 
   useEffect(() => {
     if (selectedIndex < 0) return;
+    // If the wheel is already centred on the row, animating to it would cut a
+    // fling that is still finishing. Otherwise (it stopped between two rows,
+    // or the value changed from outside) centre it.
+    const target = selectedIndex * itemHeight;
+    if (settled.current && Math.abs(lastOffset.current - target) < 1) return;
     scrollToIndex(selectedIndex, settled.current && !reduceMotion);
     settled.current = true;
-  }, [selectedIndex, scrollToIndex, reduceMotion]);
+  }, [selectedIndex, scrollToIndex, reduceMotion, itemHeight]);
 
   /**
-   * Runs both at the end of the drag and at the end of momentum: on Android
-   * a short drag with no momentum doesn't fire `onMomentumScrollEnd`, and the
-   * wheel would keep the old selection. Re-entering with the same index is
+   * Runs once the wheel is quiet, not when the finger lifts: a fling still has
+   * momentum then, and snapping at that moment cancels it and pulls the wheel
+   * back. `onMomentumScrollEnd` is the real signal; the fallback timer in
+   * `onScrollEndDrag` covers the drags that settle without momentum (and iOS
+   * not firing it for a short drag). Re-entering with the same index is
    * harmless because it only reports when it changes.
    */
-  const commit = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const raw = Math.round(event.nativeEvent.contentOffset.y / itemHeight);
+  const commitAt = useCallback(
+    (offsetY: number) => {
+      const raw = Math.round(offsetY / itemHeight);
       const clamped = Math.min(Math.max(raw, 0), options.length - 1);
       const landed = options[clamped];
       if (!landed) return;
@@ -281,10 +309,72 @@ export function OptionWheel<T extends string | number>({
       // With no enabled options there is nowhere to stop: the wheel stays where
       // it was left and reports nothing.
       if (!option) return;
+      // The native snap has already centred the row. Only a disabled row
+      // needs a second, animated move to the nearest enabled one.
       if (target !== clamped) scrollToIndex(target, true);
       if (option.value !== selectedValue) onSelect(option.value);
     },
     [options, itemHeight, selectedValue, onSelect, scrollToIndex]
+  );
+
+  const clearSettleTimer = useCallback(() => {
+    if (settleTimer.current !== null) {
+      clearTimeout(settleTimer.current);
+      settleTimer.current = null;
+    }
+  }, []);
+
+  const scheduleCommit = useCallback(() => {
+    clearSettleTimer();
+    settleTimer.current = setTimeout(() => {
+      settleTimer.current = null;
+      commitAt(lastOffset.current);
+    }, SETTLE_DELAY);
+  }, [clearSettleTimer, commitAt]);
+
+  useEffect(() => clearSettleTimer, [clearSettleTimer]);
+
+  const onScroll = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      lastOffset.current = event.nativeEvent.contentOffset.y;
+      // The fallback only exists while the wheel settles without momentum (a
+      // slow drag with no fling). A fling cancels it in
+      // `onMomentumScrollBegin`, so this can never report a row mid-flight.
+      if (settleTimer.current !== null) scheduleCommit();
+    },
+    [scheduleCommit]
+  );
+
+  const onScrollBeginDrag = useCallback(() => {
+    clearSettleTimer();
+  }, [clearSettleTimer]);
+
+  const onScrollEndDrag = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      lastOffset.current = event.nativeEvent.contentOffset.y;
+      // A fast lift becomes a fling. `onMomentumScrollBegin` cancels this
+      // timer, but if the JS thread is busy it can fire first, report the row
+      // the finger left, and the parent scrolls back to it. On Android the
+      // native momentum events are reliable, so only slow lifts need the
+      // fallback; iOS still arms it because it sometimes skips them.
+      const velocity = Math.abs(event.nativeEvent.velocity?.y ?? 0);
+      if (Platform.OS !== 'android' || velocity < FLING_VELOCITY) scheduleCommit();
+    },
+    [scheduleCommit]
+  );
+
+  const onMomentumScrollBegin = useCallback(() => {
+    // From here on the wheel is gliding: reporting a row now would make the
+    // parent scroll back to it and stop the fling in the middle.
+    clearSettleTimer();
+  }, [clearSettleTimer]);
+
+  const onMomentumScrollEnd = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      clearSettleTimer();
+      commitAt(event.nativeEvent.contentOffset.y);
+    },
+    [clearSettleTimer, commitAt]
   );
 
   /** VoiceOver/TalkBack go through the wheel with increment/decrement, not the finger. */
@@ -302,6 +392,12 @@ export function OptionWheel<T extends string | number>({
 
   const onLayout = useCallback(
     (_: LayoutChangeEvent) => {
+      // Only the first layout positions the wheel. Later layout passes can
+      // arrive with the `selectedIndex` of the previous render (the commit
+      // that just ended a fling re-renders the parent) and would jump the
+      // wheel back to the old row without animating.
+      if (didLayout.current) return;
+      didLayout.current = true;
       if (selectedIndex >= 0) scrollToIndex(selectedIndex, false);
     },
     [selectedIndex, scrollToIndex]
@@ -340,10 +436,11 @@ export function OptionWheel<T extends string | number>({
         style={[styles.viewport, { height }]}
         testID={testID && `${testID}-viewport`}
       >
-        {variant === 'window' && (
+        {variant === 'window' && selectedIndex >= 0 && (
           <View
             pointerEvents="none"
             style={[styles.window, { top: padding, height: itemHeight, borderRadius: theme.tokens.radius.sm }]}
+            testID={testID && `${testID}-window`}
           />
         )}
 
@@ -351,16 +448,20 @@ export function OptionWheel<T extends string | number>({
           ref={scrollRef as never}
           onLayout={onLayout}
           scrollEnabled={!disabled}
+          nestedScrollEnabled
           showsVerticalScrollIndicator={false}
           snapToInterval={itemHeight}
-          decelerationRate="fast"
+          decelerationRate={Platform.OS === 'android' ? 0.995 : 'normal'}
           scrollEventThrottle={16}
           contentContainerStyle={{ paddingVertical: padding }}
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
             useNativeDriver: true,
+            listener: onScroll,
           })}
-          onScrollEndDrag={commit}
-          onMomentumScrollEnd={commit}
+          onScrollBeginDrag={onScrollBeginDrag}
+          onScrollEndDrag={onScrollEndDrag}
+          onMomentumScrollBegin={onMomentumScrollBegin}
+          onMomentumScrollEnd={onMomentumScrollEnd}
           testID={testID && `${testID}-scroll`}
         >
           {options.map((option, index) => {

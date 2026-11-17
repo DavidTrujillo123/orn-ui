@@ -146,6 +146,7 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
           <ScrollView
             ref={pagerRef}
             pagingEnabled
+            nestedScrollEnabled
             scrollEnabled={!scrollLocked}
             showsVerticalScrollIndicator={false}
             decelerationRate="fast"
@@ -168,6 +169,7 @@ export function VariantList({ variants, fill = false }: VariantListProps) {
                     {isNear && (
                       <ScrollView
                         contentContainerStyle={styles.stageContent}
+                        nestedScrollEnabled
                         showsVerticalScrollIndicator={false}
                         keyboardShouldPersistTaps="handled"
                         scrollEnabled={!scrollLocked}

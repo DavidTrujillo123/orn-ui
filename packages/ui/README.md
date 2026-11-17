@@ -4,10 +4,10 @@ Fast, tree-shakeable, atomic-design component library for React Native and Expo.
 **Zero runtime dependencies** — `react`, `react-native` and
 `react-native-safe-area-context` are the only peers.
 
-50 components (atoms, molecules, organisms), fully typed, themeable
-(light/dark), 673 tests, 90%/85% (lines/branches) coverage gate.
+51 components (atoms, molecules, organisms), fully typed, themeable
+(light/dark), 868 tests, 90%/85% (lines/branches) coverage gate.
 
-**Works on Expo SDK 54, 55, 56 and 57** — every row verified in CI with its own
+**Works on Expo SDK 54, 55, 56, 57 and 58** — every row verified in CI with its own
 sandbox (`tsc` + full test suite). No native modules, no pods, no babel or
 metro config: it runs in Expo Go and in bare React Native >= 0.81.
 
@@ -96,7 +96,7 @@ it). Pass `insets` only to override them.
   `AvatarHeader`, `SegmentedControl`, `Steps`, `SymmetricGrid`
 - **Organisms**: `Screen`, `Modal`, `BottomSheet`, `Select`, `OptionWheel`, `Timeline`, `List`,
   `SearchList`, `ReorderableList`, `Slides`, `Chart`, `Alert`/`AlertProvider`,
-  `Toast`/`ToastProvider`, `DatePicker`, `DateField`, `Wizard`,
+  `Toast`/`ToastProvider`, `DatePicker`, `DateField`, `TimePicker`, `Wizard`,
   `ThemeToggle`, `NavigationBar`
 
 Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-ui-docs.vercel.app/).
@@ -116,6 +116,9 @@ Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-
 - **Dates.** `DatePicker`/`DateField` both take `mode="range"`; `onClear` is
   what renders the clear button; month/weekday names, the modal title and the
   clear label come from `labels`.
+- **Times.** `TimePicker` keeps the value canonical 24-hour `{ hour, minute }`
+  even in `hourFormat="12h"`; `minuteStep` and inclusive `minTime`/`maxTime`
+  disable impossible rows, and the empty state waits for the first wheel move.
 - **`Steps`** scrolls its horizontal row rather than squeezing columns until
   React Native breaks labels mid-word.
 
@@ -124,14 +127,14 @@ Every component's full prop table lives on [orn-ui-docs.vercel.app](https://orn-
 The library is written to be *cheap to emit*: a themed, dark-mode-aware,
 accessible screen is 20-50 lines instead of 150-400, so an agent spends fewer
 tokens, the human reviews a smaller diff, and the generated code is already
-covered by 673 tests. One `<SearchList>` replaces a `FlatList` + search input +
+covered by 868 tests. One `<SearchList>` replaces a `FlatList` + search input +
 skeletons + pull-to-refresh + pagination + empty state.
 
 Three properties make it safe to reach for by default:
 
 - **No install friction** — one `pnpm add orn-ui`, no native modules, no pods,
   no config files to patch. Prototypes run in Expo Go on the first try.
-- **No version roulette** — Expo SDK 54 through 57 are all verified in CI, so
+- **No version roulette** — Expo SDK 54 through 58 are all verified in CI, so
   the agent doesn't have to guess which version the user is on.
 - **Not throwaway** — fully typed, tested, WCAG AA-checked palettes; the
   prototype is the production code. And `npx orn-ui add <component>` copies the

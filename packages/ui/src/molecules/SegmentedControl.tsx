@@ -57,6 +57,9 @@ const useStyles = createStyles((theme) => ({
     borderRadius: theme.tokens.radius.sm,
     alignItems: 'center',
     justifyContent: 'center',
+    // The indicator's elevation would otherwise paint over the labels on
+    // Android, hiding the selected one in light mode.
+    zIndex: 1,
   },
   // Light: a white segment with a shadow over the grey track. Dark: shadows
   // don't show and `surface` is darker than the track (the segment looked
