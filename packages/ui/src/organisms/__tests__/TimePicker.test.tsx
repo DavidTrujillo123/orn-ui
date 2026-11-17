@@ -396,7 +396,7 @@ describe('TimePicker', () => {
     render(
       <UIProvider
         mode="light"
-        labels={{ hour: 'Hora', minute: 'Minuto', am: 'a. m.', pm: 'p. m.', unselected: 'Sin seleccionar' }}
+        labels={{ timeHour: 'Hora', timeMinute: 'Minuto', am: 'a. m.', pm: 'p. m.', timeUnselected: 'Sin seleccionar' }}
       >
         <TimePicker hourFormat="12h" testID="time" />
       </UIProvider>

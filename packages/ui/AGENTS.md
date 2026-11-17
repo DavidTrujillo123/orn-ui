@@ -274,7 +274,7 @@ All built-in strings live in one `labels` object on `UIProvider`
 (`close`, `cancel`, `confirm`, `loading`, `loadingMore`, `noResultsTitle`,
 `noResultsDescription`, `search`, `selectPlaceholder`, `months`,
 `weekdaysShort`, `selectDate`, `clear`, `showPassword`, `hidePassword`,
-`required`, `hour`, `minute`, `am`, `pm`, `unselected`) — localise there, not
+`required`, `timeHour`, `timeMinute`, `am`, `pm`, `timeUnselected`) — localise there, not
 per component.
 
 ## Rules and common mistakes

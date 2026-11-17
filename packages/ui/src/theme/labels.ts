@@ -70,15 +70,15 @@ export interface Labels {
   /** Wizard: next button on the last step. */
   finish: string;
   /** TimePicker: hour wheel label. */
-  hour: string;
+  timeHour: string;
   /** TimePicker: minute wheel label. */
-  minute: string;
+  timeMinute: string;
   /** TimePicker: AM period in 12-hour format. */
   am: string;
   /** TimePicker: PM period in 12-hour format. */
   pm: string;
   /** TimePicker: replaces the selection while there is no value. */
-  unselected: string;
+  timeUnselected: string;
 }
 
 export const defaultLabels: Labels = {
@@ -126,9 +126,9 @@ export const defaultLabels: Labels = {
   back: 'Back',
   next: 'Next',
   finish: 'Finish',
-  hour: 'Hour',
-  minute: 'Minute',
+  timeHour: 'Hour',
+  timeMinute: 'Minute',
   am: 'AM',
   pm: 'PM',
-  unselected: 'Not selected',
+  timeUnselected: 'Not selected',
 };

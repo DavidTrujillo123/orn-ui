@@ -328,7 +328,7 @@ export const TimePicker = memo(
 
         <View style={[styles.row, !hasSelection && styles.empty]}>
           <OptionWheel
-            label={labels.hour}
+            label={labels.timeHour}
             options={hourOptions}
             selectedValue={
               hasValue && hasValidHour ? (is12h ? toDisplayedHour(value!.hour) : value!.hour) : undefined
@@ -341,7 +341,7 @@ export const TimePicker = memo(
             testID={testID ? `${testID}-hour` : undefined}
           />
           <OptionWheel
-            label={labels.minute}
+            label={labels.timeMinute}
             options={minuteOptions}
             selectedValue={hasValue && hasValidHour && hasValidMinute ? value!.minute : undefined}
             onSelect={handleMinuteSelect}
@@ -365,7 +365,7 @@ export const TimePicker = memo(
 
         {!hasValue && (
           <Text allowFontScaling={allowFontScaling} style={styles.unselected}>
-            {labels.unselected}
+            {labels.timeUnselected}
           </Text>
         )}
       </View>

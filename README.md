@@ -327,7 +327,7 @@ import { TimePicker } from 'orn-ui/time-picker';
   or off-grid `value` is shown honestly (no false selected row) and normalizes
   on the next interaction.
 - The visible wheel labels and the empty-state text come from
-  [labels](#labels): `hour`, `minute`, `am`, `pm` and `unselected`.
+  [labels](#labels): `timeHour`, `timeMinute`, `am`, `pm` and `timeUnselected`.
 
 ### Steps
 
@@ -347,11 +347,11 @@ Every built-in string lives in one object, overridable per app through
     search: 'Buscar...',
     selectDate: 'Elegí una fecha',
     clear: 'Limpiar',
-    hour: 'Hora',
-    minute: 'Minuto',
+    timeHour: 'Hora',
+    timeMinute: 'Minuto',
     am: 'a. m.',
     pm: 'p. m.',
-    unselected: 'Sin seleccionar',
+    timeUnselected: 'Sin seleccionar',
     months: ['Enero', 'Febrero', /* … */],
     weekdaysShort: ['D', 'L', 'M', 'M', 'J', 'V', 'S'], // index 0 = Sunday
   }}
@@ -362,8 +362,8 @@ Every built-in string lives in one object, overridable per app through
 
 Keys: `close`, `cancel`, `confirm`, `loading`, `loadingMore`, `noResultsTitle`,
 `noResultsDescription`, `search`, `selectPlaceholder`, `months`,
-`weekdaysShort`, `selectDate`, `clear`, `hour`, `minute`, `am`, `pm`,
-`unselected`. Anything you leave out keeps its English default.
+`weekdaysShort`, `selectDate`, `clear`, `timeHour`, `timeMinute`, `am`, `pm`,
+`timeUnselected`. Anything you leave out keeps its English default.
 
 ### Toasts and alerts from outside React
 
