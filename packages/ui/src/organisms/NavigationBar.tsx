@@ -12,6 +12,7 @@ import {
   type ViewStyle,
 } from 'react-native';
 import { createStyles } from '../theme/createStyles';
+import { spacing } from '../theme/tokens';
 import { useAllowFontScaling, useColors, useInsets, useTheme } from '../theme/UIProvider';
 import { useReduceMotion } from '../theme/useReduceMotion';
 import { Icon } from '../icons/Icon';
@@ -34,7 +35,7 @@ export interface NavigationBarProps {
   activeKey: string;
   /** Called with the key of the pressed item. */
   onChange: (key: string) => void;
-  /** Screen edge where the bar lives. @default 'bottom' */
+  /** Screen edge where the bar lives. Ignored with `variant="floating"`, which is always at the bottom. @default 'bottom' */
   position?: 'bottom' | 'top';
   /**
    * Shows the label under each icon. In the floating variant only the active
@@ -56,6 +57,9 @@ export interface NavigationBarProps {
   variant?: NavigationBarVariant;
   /** Caps the width of the floating pill, e.g. on a tablet. */
   maxWidth?: number;
+  /** Styles the floating overlay, e.g. to offset the pill from the bottom. Only with `variant="floating"`. */
+  overlayStyle?: StyleProp<ViewStyle>;
+  /** Styles the bar itself. */
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -67,11 +71,20 @@ const BADGE_FONT_SIZE = 10;
 /** Indicator spring: settles fast without bouncing past the tab. */
 const INDICATOR_SPRING = { friction: 9, tension: 90 };
 /** Floating pill: a 44pt tab plus its label, with room to breathe. */
-const FLOATING_BAR_HEIGHT = 64;
+export const NAVIGATION_BAR_FLOATING_HEIGHT = 64;
 /** Outline that keeps the pill visible in dark, where shadows don't show. */
 const FLOATING_BORDER_WIDTH = 1;
 /** Above the content, below overlays such as sheets and modals. */
 const FLOATING_Z_INDEX = 20;
+
+/**
+ * Space the floating bar needs above the screen edge, without the safe-area
+ * inset: pill height plus the gap under it. Add `insets.bottom` for the total
+ * and use it as `paddingBottom` on the content that scrolls behind the bar.
+ */
+export function navigationBarFloatingOffset(insetBottom = 0): number {
+  return NAVIGATION_BAR_FLOATING_HEIGHT + spacing.md + insetBottom;
+}
 
 const useStyles = createStyles((theme) => ({
   bar: {
@@ -100,7 +113,7 @@ const useStyles = createStyles((theme) => ({
   },
   barFloating: {
     width: '100%',
-    height: FLOATING_BAR_HEIGHT,
+    height: NAVIGATION_BAR_FLOATING_HEIGHT,
     borderRadius: theme.tokens.radius.full,
     justifyContent: 'space-between',
     ...theme.tokens.shadow.lg,
@@ -129,6 +142,9 @@ const useStyles = createStyles((theme) => ({
   itemFloating: { justifyContent: 'center' },
   itemContent: { alignItems: 'center', justifyContent: 'center', gap: theme.tokens.spacing.xxs },
   label: { fontSize: theme.tokens.fontSize.xs, fontWeight: theme.tokens.fontWeight.medium },
+  // In the floating pill every tab keeps the label row, even when inactive:
+  // the icon would jump ~10pt every time the label appeared without it.
+  labelSlot: { height: theme.tokens.lineHeight.sm },
   badge: {
     position: 'absolute',
     top: -theme.tokens.spacing.xs,
@@ -158,8 +174,10 @@ const ICON_SIZE = 22;
  * Android: the indicator slides to the active tab and its content grows and
  * takes the accent color with a cross-fade.
  * With `variant="floating"` the bar is a centered pill above the bottom edge
- * and only the active tab shows its label. It doesn't navigate on its own —
- * it reports the tapped tab and the consumer decides.
+ * (`position` doesn't apply) and only the active tab shows its label. Every
+ * tab keeps the label row, invisible when inactive, so the icon doesn't jump
+ * when the selection moves. It doesn't navigate on its own — it reports the
+ * tapped tab and the consumer decides.
  *
  * Design:
  * - Jakob's law: the tab bar people know from every app, at the bottom by
@@ -185,9 +203,11 @@ export const NavigationBar = memo(
     hideOnKeyboard = true,
     variant = 'fixed',
     maxWidth,
+    overlayStyle,
     style,
     testID,
   }: NavigationBarProps) => {
+    const floating = variant === 'floating';
     const theme = useTheme();
     const colors = useColors();
     const styles = useStyles();
@@ -201,15 +221,16 @@ export const NavigationBar = memo(
     // On Android the window shrinks with the keyboard and the bar would end up
     // floating above it, between the field and the keys. On iOS the keyboard
     // covers it: no need (and hiding it would move the layout midway through
-    // the keyboard animation).
+    // the keyboard animation). Floating is always at the bottom, whatever
+    // `position` says, so it follows the same rule.
     useEffect(() => {
-      if (!hideOnKeyboard || position !== 'bottom' || Platform.OS !== 'android') return;
+      if (!hideOnKeyboard || (position !== 'bottom' && !floating) || Platform.OS !== 'android') return;
       const subs = [
         Keyboard.addListener('keyboardDidShow', () => setKeyboardOpen(true)),
         Keyboard.addListener('keyboardDidHide', () => setKeyboardOpen(false)),
       ];
       return () => subs.forEach((sub) => sub.remove());
-    }, [hideOnKeyboard, position]);
+    }, [floating, hideOnKeyboard, position]);
     const slide = useRef(new Animated.Value(0)).current;
     const placed = useRef(false);
 
@@ -234,23 +255,27 @@ export const NavigationBar = memo(
     }, [activeIndex, itemWidth, slide, reduceMotion]);
 
     const onLayout = (e: LayoutChangeEvent) => {
-      const next = e.nativeEvent.layout.width - theme.tokens.spacing.xs * 2;
+      // The 1pt outline in dark is inside the measured width: without it the
+      // last tab's indicator drifts a couple of pixels off center.
+      const border = floating && theme.scheme === 'dark' ? FLOATING_BORDER_WIDTH * 2 : 0;
+      const next = e.nativeEvent.layout.width - theme.tokens.spacing.xs * 2 - border;
       if (next !== barWidth) setBarWidth(next);
     };
 
-    const renderContent = (item: NavigationBarItem, color: string, withLabel: boolean) => (
+    const renderContent = (item: NavigationBarItem, color: string, withLabel: boolean, reserveSlot: boolean) => (
       <>
         {!!item.iconName && <Icon name={item.iconName} size={ICON_SIZE} color={color} />}
-        {withLabel && (
+        {withLabel ? (
           <Text allowFontScaling={allowFontScaling} numberOfLines={1} style={[styles.label, { color }]}>
             {item.label}
           </Text>
-        )}
+        ) : reserveSlot ? (
+          <View testID="navigation-bar-label-slot" style={styles.labelSlot} />
+        ) : null}
       </>
     );
 
     if (keyboardOpen) return null;
-    const floating = variant === 'floating';
 
     const bar = (
       <View
@@ -290,6 +315,7 @@ export const NavigationBar = memo(
         {items.map((item, index) => {
           const active = index === activeIndex;
           const withLabel = showLabels && (!floating || active);
+          const reserveSlot = floating && showLabels && !active;
           const range = [(index - 1) * itemWidth, index * itemWidth, (index + 1) * itemWidth];
           const scale =
             itemWidth > 0
@@ -313,7 +339,7 @@ export const NavigationBar = memo(
               accessibilityValue={typeof item.badge === 'number' || typeof item.badge === 'string' ? { text: String(item.badge) } : undefined}
             >
               <Animated.View style={[styles.itemContent, { transform: [{ scale }] }]}>
-                {renderContent(item, colors.textLight, withLabel)}
+                {renderContent(item, colors.textLight, withLabel, reserveSlot)}
                 {/* Decorative copy: if it weren't hidden, the reader would read the label twice. */}
                 <Animated.View
                   pointerEvents="none"
@@ -321,7 +347,7 @@ export const NavigationBar = memo(
                   importantForAccessibility="no-hide-descendants"
                   style={[StyleSheet.absoluteFill, styles.itemContent, { opacity: activeOpacity }]}
                 >
-                  {renderContent(item, colors.primaryText, withLabel)}
+                  {renderContent(item, colors.primaryText, withLabel, reserveSlot)}
                 </Animated.View>
 
                 {item.badge !== undefined && (
@@ -343,7 +369,11 @@ export const NavigationBar = memo(
     if (!floating) return bar;
 
     return (
-      <View pointerEvents="box-none" style={styles.overlay} testID={testID && `${testID}-overlay`}>
+      <View
+        pointerEvents="box-none"
+        style={[styles.overlay, overlayStyle]}
+        testID={testID && `${testID}-overlay`}
+      >
         <View
           testID={testID && `${testID}-row`}
           pointerEvents="box-none"

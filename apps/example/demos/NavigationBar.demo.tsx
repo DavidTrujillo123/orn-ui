@@ -53,7 +53,12 @@ function SafeAreaExample() {
 function FloatingExample() {
   const [active, setActive] = useState('home');
   return (
-    <View style={{ minHeight: 240 }}>
+    <Card style={{ height: 260 }}>
+      <Subtitle>{TABS.find((tab) => tab.key === active)?.label}</Subtitle>
+      <Body style={{ marginTop: 4 }}>{SCREENS[active]}</Body>
+      <Body style={{ marginTop: 12 }}>
+        Content scrolls behind the pill, which stays anchored to the bottom of the screen.
+      </Body>
       <NavigationBar
         variant="floating"
         items={TABS}
@@ -61,7 +66,7 @@ function FloatingExample() {
         onChange={setActive}
         safeArea={false}
       />
-    </View>
+    </Card>
   );
 }
 

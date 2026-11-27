@@ -2,7 +2,12 @@ import React from 'react';
 import { StyleSheet } from 'react-native';
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { UIProvider } from '../../theme/UIProvider';
-import { NavigationBar, type NavigationBarItem } from '../NavigationBar';
+import {
+  NavigationBar,
+  NAVIGATION_BAR_FLOATING_HEIGHT,
+  navigationBarFloatingOffset,
+  type NavigationBarItem,
+} from '../NavigationBar';
 
 const ITEMS: NavigationBarItem[] = [
   { key: 'home', label: 'Home', iconName: 'check' },
@@ -97,6 +102,12 @@ describe('NavigationBar', () => {
     expect(screen.queryByText('Home')).not.toBeOnTheScreen();
   });
 
+  it('exposes the space the floating pill needs behind the content', () => {
+    expect(NAVIGATION_BAR_FLOATING_HEIGHT).toBe(64);
+    expect(navigationBarFloatingOffset()).toBe(76);
+    expect(navigationBarFloatingOffset(34)).toBe(110);
+  });
+
   describe('variant="floating"', () => {
     it('renders a centered pill instead of a full-width bar', () => {
       render(
@@ -126,6 +137,42 @@ describe('NavigationBar', () => {
       });
       expect(StyleSheet.flatten(screen.getByTestId('navigation-bar-indicator').props.style).bottom).toBe(8);
       expect(StyleSheet.flatten(screen.getByTestId('bar-row').props.style).paddingBottom).toBe(46);
+    });
+
+    it('reserves the label row on inactive tabs so the icon does not jump', () => {
+      render(withProvider(<NavigationBar variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} />));
+      expect(screen.getAllByTestId('navigation-bar-label-slot')).toHaveLength(ITEMS.length - 1);
+      expect(screen.getByText('Home')).toBeOnTheScreen();
+    });
+
+    it('keeps the indicator centered inside the 1pt dark border', () => {
+      render(
+        <UIProvider mode="dark" insets={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+          <NavigationBar testID="bar" variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} />
+        </UIProvider>
+      );
+      fireEvent(screen.getByTestId('bar'), 'layout', {
+        nativeEvent: { layout: { width: 390, height: 64, x: 0, y: 0 } },
+      });
+      const indicator = StyleSheet.flatten(screen.getByTestId('navigation-bar-indicator').props.style);
+      expect(indicator.width).toBeCloseTo((390 - 8 - 2) / ITEMS.length - 8);
+    });
+
+    it('ignores position and applies overlayStyle to the overlay', () => {
+      render(
+        withProvider(
+          <NavigationBar
+            testID="bar"
+            variant="floating"
+            position="top"
+            items={ITEMS}
+            activeKey="home"
+            onChange={() => {}}
+            overlayStyle={{ bottom: 20 }}
+          />
+        )
+      );
+      expect(StyleSheet.flatten(screen.getByTestId('bar-overlay').props.style).bottom).toBe(20);
     });
 
     it('centers the tab content vertically inside the fixed-height pill', () => {
