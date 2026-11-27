@@ -17,6 +17,8 @@ import { useReduceMotion } from '../theme/useReduceMotion';
 import { Icon } from '../icons/Icon';
 import type { IconName } from '../icons/types';
 
+export type NavigationBarVariant = 'fixed' | 'floating';
+
 export interface NavigationBarItem {
   key: string;
   label: string;
@@ -34,7 +36,10 @@ export interface NavigationBarProps {
   onChange: (key: string) => void;
   /** Screen edge where the bar lives. @default 'bottom' */
   position?: 'bottom' | 'top';
-  /** Shows the label under each icon. @default true */
+  /**
+   * Shows the label under each icon. In the floating variant only the active
+   * tab's label is shown. @default true
+   */
   showLabels?: boolean;
   /** Adds the safe area inset for the edge where the bar lives. @default true */
   safeArea?: boolean;
@@ -44,6 +49,13 @@ export interface NavigationBarProps {
    * on iOS the keyboard already covers the bar. @default true
    */
   hideOnKeyboard?: boolean;
+  /**
+   * Bar treatment. 'fixed' is a full-width bar; 'floating' is a centered pill
+   * above the bottom edge. @default 'fixed'
+   */
+  variant?: NavigationBarVariant;
+  /** Caps the width of the floating pill, e.g. on a tablet. */
+  maxWidth?: number;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -54,6 +66,12 @@ const BADGE_DOT_SIZE = 10;
 const BADGE_FONT_SIZE = 10;
 /** Indicator spring: settles fast without bouncing past the tab. */
 const INDICATOR_SPRING = { friction: 9, tension: 90 };
+/** Floating pill: a 44pt tab plus its label, with room to breathe. */
+const FLOATING_BAR_HEIGHT = 64;
+/** Outline that keeps the pill visible in dark, where shadows don't show. */
+const FLOATING_BORDER_WIDTH = 1;
+/** Above the content, below overlays such as sheets and modals. */
+const FLOATING_Z_INDEX = 20;
 
 const useStyles = createStyles((theme) => ({
   bar: {
@@ -65,6 +83,28 @@ const useStyles = createStyles((theme) => ({
   },
   barBottom: { borderTopWidth: StyleSheet.hairlineWidth },
   barTop: { borderBottomWidth: StyleSheet.hairlineWidth },
+  // Floating: the bar stops spanning the screen and becomes one shape among
+  // the content, so it needs its own surface, radius and elevation.
+  overlay: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    zIndex: FLOATING_Z_INDEX,
+  },
+  rowFloating: {
+    alignItems: 'center',
+    paddingHorizontal: theme.tokens.spacing.lg,
+    paddingBottom: theme.tokens.spacing.md,
+  },
+  barFloating: {
+    width: '100%',
+    height: FLOATING_BAR_HEIGHT,
+    borderRadius: theme.tokens.radius.full,
+    justifyContent: 'space-between',
+    ...theme.tokens.shadow.lg,
+  },
   indicator: {
     position: 'absolute',
     top: theme.tokens.spacing.xs,
@@ -76,7 +116,17 @@ const useStyles = createStyles((theme) => ({
     borderRadius: theme.tokens.radius.lg,
     backgroundColor: theme.colors.primarySoft,
   },
+  indicatorFloating: {
+    top: theme.tokens.spacing.sm,
+    bottom: theme.tokens.spacing.sm,
+    left: theme.tokens.spacing.xs * 2,
+    borderRadius: theme.tokens.radius.full,
+  },
   item: { flex: 1, paddingVertical: theme.tokens.spacing.xs },
+  // The floating bar has a fixed height, so the tab columns must center their
+  // content in it; otherwise everything sits at the top and leaves a hole
+  // under the row (worse with only the active label visible).
+  itemFloating: { justifyContent: 'center' },
   itemContent: { alignItems: 'center', justifyContent: 'center', gap: theme.tokens.spacing.xxs },
   label: { fontSize: theme.tokens.fontSize.xs, fontWeight: theme.tokens.fontWeight.medium },
   badge: {
@@ -107,7 +157,9 @@ const ICON_SIZE = 22;
  * Tab navigation bar with the same look and the same transitions on iOS and
  * Android: the indicator slides to the active tab and its content grows and
  * takes the accent color with a cross-fade.
- * It doesn't navigate on its own — it reports the tapped tab and the consumer decides.
+ * With `variant="floating"` the bar is a centered pill above the bottom edge
+ * and only the active tab shows its label. It doesn't navigate on its own —
+ * it reports the tapped tab and the consumer decides.
  *
  * Design:
  * - Jakob's law: the tab bar people know from every app, at the bottom by
@@ -118,6 +170,9 @@ const ICON_SIZE = 22;
  *   (in place with Reduce Motion).
  * - Fitts's law: the whole column is the target, not just the icon.
  * - Hick's law: meant for 3–5 destinations.
+ * - Proximity + figure/ground (floating): the pill gathers the destinations
+ *   and its shadow separates them from whatever scrolls underneath; showing
+ *   only the active label keeps one focal point (Von Restorff).
  */
 export const NavigationBar = memo(
   ({
@@ -128,6 +183,8 @@ export const NavigationBar = memo(
     showLabels = true,
     safeArea = true,
     hideOnKeyboard = true,
+    variant = 'fixed',
+    maxWidth,
     style,
     testID,
   }: NavigationBarProps) => {
@@ -181,10 +238,10 @@ export const NavigationBar = memo(
       if (next !== barWidth) setBarWidth(next);
     };
 
-    const renderContent = (item: NavigationBarItem, color: string) => (
+    const renderContent = (item: NavigationBarItem, color: string, withLabel: boolean) => (
       <>
         {!!item.iconName && <Icon name={item.iconName} size={ICON_SIZE} color={color} />}
-        {showLabels && (
+        {withLabel && (
           <Text allowFontScaling={allowFontScaling} numberOfLines={1} style={[styles.label, { color }]}>
             {item.label}
           </Text>
@@ -193,17 +250,23 @@ export const NavigationBar = memo(
     );
 
     if (keyboardOpen) return null;
+    const floating = variant === 'floating';
 
-    return (
+    const bar = (
       <View
         testID={testID}
         onLayout={onLayout}
         accessibilityRole="tablist"
         style={[
           styles.bar,
-          position === 'bottom' ? styles.barBottom : styles.barTop,
-          safeArea && position === 'bottom' && { paddingBottom: theme.tokens.spacing.sm + insets.bottom },
-          safeArea && position === 'top' && { paddingTop: theme.tokens.spacing.sm + insets.top },
+          floating ? styles.barFloating : position === 'bottom' ? styles.barBottom : styles.barTop,
+          safeArea && !floating && position === 'bottom' && { paddingBottom: theme.tokens.spacing.sm + insets.bottom },
+          safeArea && !floating && position === 'top' && { paddingTop: theme.tokens.spacing.sm + insets.top },
+          floating &&
+            theme.scheme === 'dark' && {
+              borderWidth: FLOATING_BORDER_WIDTH,
+              borderColor: theme.colors.border,
+            },
           style,
         ]}
       >
@@ -213,10 +276,11 @@ export const NavigationBar = memo(
             pointerEvents="none"
             style={[
               styles.indicator,
-              safeArea && position === 'bottom' && { bottom: theme.tokens.spacing.xs + insets.bottom },
-              safeArea && position === 'top' && { top: theme.tokens.spacing.xs + insets.top },
+              floating && styles.indicatorFloating,
+              safeArea && !floating && position === 'bottom' && { bottom: theme.tokens.spacing.xs + insets.bottom },
+              safeArea && !floating && position === 'top' && { top: theme.tokens.spacing.xs + insets.top },
               {
-                width: itemWidth - theme.tokens.spacing.sm * 2,
+                width: itemWidth - (floating ? theme.tokens.spacing.xs * 2 : theme.tokens.spacing.sm * 2),
                 transform: [{ translateX: slide }],
               },
             ]}
@@ -225,6 +289,7 @@ export const NavigationBar = memo(
 
         {items.map((item, index) => {
           const active = index === activeIndex;
+          const withLabel = showLabels && (!floating || active);
           const range = [(index - 1) * itemWidth, index * itemWidth, (index + 1) * itemWidth];
           const scale =
             itemWidth > 0
@@ -238,7 +303,7 @@ export const NavigationBar = memo(
           return (
             <TouchableOpacity
               key={item.key}
-              style={styles.item}
+              style={[styles.item, floating && styles.itemFloating]}
               activeOpacity={0.7}
               onPress={() => onChange(item.key)}
               accessibilityRole="tab"
@@ -248,7 +313,7 @@ export const NavigationBar = memo(
               accessibilityValue={typeof item.badge === 'number' || typeof item.badge === 'string' ? { text: String(item.badge) } : undefined}
             >
               <Animated.View style={[styles.itemContent, { transform: [{ scale }] }]}>
-                {renderContent(item, colors.textLight)}
+                {renderContent(item, colors.textLight, withLabel)}
                 {/* Decorative copy: if it weren't hidden, the reader would read the label twice. */}
                 <Animated.View
                   pointerEvents="none"
@@ -256,7 +321,7 @@ export const NavigationBar = memo(
                   importantForAccessibility="no-hide-descendants"
                   style={[StyleSheet.absoluteFill, styles.itemContent, { opacity: activeOpacity }]}
                 >
-                  {renderContent(item, colors.primaryText)}
+                  {renderContent(item, colors.primaryText, withLabel)}
                 </Animated.View>
 
                 {item.badge !== undefined && (
@@ -272,6 +337,24 @@ export const NavigationBar = memo(
             </TouchableOpacity>
           );
         })}
+      </View>
+    );
+
+    if (!floating) return bar;
+
+    return (
+      <View pointerEvents="box-none" style={styles.overlay} testID={testID && `${testID}-overlay`}>
+        <View
+          testID={testID && `${testID}-row`}
+          pointerEvents="box-none"
+          style={[
+            styles.rowFloating,
+            safeArea && { paddingBottom: theme.tokens.spacing.md + insets.bottom },
+            maxWidth !== undefined && { width: '100%', maxWidth },
+          ]}
+        >
+          {bar}
+        </View>
       </View>
     );
   }

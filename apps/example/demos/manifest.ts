@@ -165,7 +165,7 @@ export const ORGANISMS: DemoEntry[] = [
   {
     slug: 'navigation-bar',
     name: 'NavigationBar',
-    description: 'Tab bar with an animated indicator, identical on iOS and Android',
+    description: 'Tab bar with an animated indicator, fixed or as a floating pill',
     Demo: NavigationBarDemo,
   },
   {

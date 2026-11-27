@@ -33,7 +33,7 @@ export type { WizardProps, WizardStep } from './Wizard';
 export { ThemeToggle } from './ThemeToggle';
 export type { ThemeToggleProps } from './ThemeToggle';
 export { NavigationBar } from './NavigationBar';
-export type { NavigationBarProps, NavigationBarItem } from './NavigationBar';
+export type { NavigationBarProps, NavigationBarItem, NavigationBarVariant } from './NavigationBar';
 export { ReorderableList } from './ReorderableList';
 export type { ReorderableListProps } from './ReorderableList';
 export { Slides } from './Slides';

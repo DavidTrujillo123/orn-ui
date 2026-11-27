@@ -96,4 +96,58 @@ describe('NavigationBar', () => {
     render(withProvider(<NavigationBar items={ITEMS} activeKey="home" onChange={() => {}} showLabels={false} />));
     expect(screen.queryByText('Home')).not.toBeOnTheScreen();
   });
+
+  describe('variant="floating"', () => {
+    it('renders a centered pill instead of a full-width bar', () => {
+      render(
+        withProvider(<NavigationBar testID="bar" variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} />)
+      );
+      expect(StyleSheet.flatten(screen.getByTestId('bar-overlay').props.style).position).toBe('absolute');
+      const barStyle = StyleSheet.flatten(screen.getByTestId('bar').props.style);
+      expect(barStyle.borderRadius).toBe(9999);
+      expect(barStyle.height).toBe(64);
+    });
+
+    it('shows the active label only, keeping every tab accessible by name', () => {
+      render(withProvider(<NavigationBar variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} />));
+      expect(screen.getByText('Home')).toBeOnTheScreen();
+      expect(screen.queryByText('Search')).not.toBeOnTheScreen();
+      expect(screen.getByRole('tab', { name: 'Search' })).toBeOnTheScreen();
+    });
+
+    it('keeps the indicator inside the pill and applies the inset to the row once', () => {
+      render(
+        <UIProvider mode="light" insets={{ top: 0, right: 0, bottom: 34, left: 0 }}>
+          <NavigationBar testID="bar" variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} />
+        </UIProvider>
+      );
+      fireEvent(screen.getByTestId('bar'), 'layout', {
+        nativeEvent: { layout: { width: 390, height: 64, x: 0, y: 0 } },
+      });
+      expect(StyleSheet.flatten(screen.getByTestId('navigation-bar-indicator').props.style).bottom).toBe(8);
+      expect(StyleSheet.flatten(screen.getByTestId('bar-row').props.style).paddingBottom).toBe(46);
+    });
+
+    it('centers the tab content vertically inside the fixed-height pill', () => {
+      render(withProvider(<NavigationBar variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} />));
+      for (const tab of screen.getAllByRole('tab')) {
+        expect(StyleSheet.flatten(tab.props.style).justifyContent).toBe('center');
+      }
+    });
+
+    it('adds no action button to the pill', () => {
+      render(withProvider(<NavigationBar variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} />));
+      expect(screen.queryByRole('button')).not.toBeOnTheScreen();
+      expect(screen.getAllByRole('tab')).toHaveLength(ITEMS.length);
+    });
+
+    it('caps the width when maxWidth is passed', () => {
+      render(
+        withProvider(
+          <NavigationBar testID="bar" variant="floating" items={ITEMS} activeKey="home" onChange={() => {}} maxWidth={420} />
+        )
+      );
+      expect(StyleSheet.flatten(screen.getByTestId('bar-row').props.style).maxWidth).toBe(420);
+    });
+  });
 });
