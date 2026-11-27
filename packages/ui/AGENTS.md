@@ -225,7 +225,7 @@ hex in component styles, use `useColors()`.
 | `TimePicker` | `orn-ui/time-picker` | `value?: {hour: 0-23, minute: 0-59}` / `onChange?`, `hourFormat?: '12h'\|'24h'` (24h), `minuteStep?` (1), `minTime?`/`maxTime?` (inclusive), `label?`, `visibleCount?` (3), `itemHeight?` (44), `disabled?` |
 | `Wizard` | `orn-ui/wizard` | `steps: {label,description?,content,canGoNext?}[]`, `current?`, `onStepChange?`, `onFinish?`, `orientation?`, `allowStepNavigation?`, `backLabel?`, `nextLabel?`, `finishLabel?`, `scrollableContent?`, `animated?` |
 | `ThemeToggle` | `orn-ui/theme-toggle` | `labels?: Partial<Record<'system'\|'light'\|'dark', string>>` |
-| `NavigationBar` | `orn-ui/navigation-bar` | `items: {key,label,iconName?,badge?}[]`, `activeKey`, `onChange`, `position?: 'bottom'\|'top'`, `showLabels?`, `safeArea?`, `hideOnKeyboard?` (default `true`, Android) |
+| `NavigationBar` | `orn-ui/navigation-bar` | `items: {key,label,iconName?,badge?}[]`, `activeKey`, `onChange`, `position?: 'bottom'\|'top'` (ignored in floating), `showLabels?`, `safeArea?`, `hideOnKeyboard?` (default `true`, Android), `variant?: 'fixed'\|'floating'` (default `fixed`), `maxWidth?`, `overlayStyle?` (floating only); `navigationBarFloatingOffset(insets.bottom)` gives the `paddingBottom` the content behind the pill needs |
 
 Built-in icons (`BuiltInIconName`, zero-dependency glyphs; the list is also
 exported as `BUILT_IN_ICON_NAMES`): `check`, `close`, `plus`, `minus`,

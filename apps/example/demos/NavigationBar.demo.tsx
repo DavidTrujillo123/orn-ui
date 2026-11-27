@@ -50,6 +50,26 @@ function SafeAreaExample() {
   return <NavigationBar items={TABS} activeKey={active} onChange={setActive} />;
 }
 
+function FloatingExample() {
+  const [active, setActive] = useState('home');
+  return (
+    <Card style={{ height: 260 }}>
+      <Subtitle>{TABS.find((tab) => tab.key === active)?.label}</Subtitle>
+      <Body style={{ marginTop: 4 }}>{SCREENS[active]}</Body>
+      <Body style={{ marginTop: 12 }}>
+        Content scrolls behind the pill, which stays anchored to the bottom of the screen.
+      </Body>
+      <NavigationBar
+        variant="floating"
+        items={TABS}
+        activeKey={active}
+        onChange={setActive}
+        safeArea={false}
+      />
+    </Card>
+  );
+}
+
 export function NavigationBarDemo() {
   // #region demo
   const variants: VariantDef[] = [
@@ -60,6 +80,7 @@ export function NavigationBarDemo() {
     // The indicator lives outside the safe area: with the inset inside the
     // bar's padding, it used to stretch all the way to the edge of the screen.
     { label: 'safeArea — the indicator stays above the home bar', content: <SafeAreaExample /> },
+    { label: 'variant="floating" — centered pill', content: <FloatingExample /> },
   ];
   return <VariantList variants={variants} />;
   // #endregion demo

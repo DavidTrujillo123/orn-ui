@@ -343,6 +343,16 @@
       "react-native": "./src/organisms/NavigationBar.tsx",
       "default": "./lib/module/organisms/NavigationBar.js"
     },
+    "./navigation-bar-floating-height": {
+      "types": "./lib/typescript/organisms/NavigationBar.d.ts",
+      "react-native": "./src/organisms/NavigationBar.tsx",
+      "default": "./lib/module/organisms/NavigationBar.js"
+    },
+    "./navigation-bar-floating-offset": {
+      "types": "./lib/typescript/organisms/NavigationBar.d.ts",
+      "react-native": "./src/organisms/NavigationBar.tsx",
+      "default": "./lib/module/organisms/NavigationBar.js"
+    },
     "./reorderable-list": {
       "types": "./lib/typescript/organisms/ReorderableList.d.ts",
       "react-native": "./src/organisms/ReorderableList.tsx",
